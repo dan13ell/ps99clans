@@ -1,0 +1,985 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PS99 Clans - Top Clans</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <link rel="preload" as="image" href="https://i.postimg.cc/sfG6nXsc/main-menu.png">
+    <link rel="preload" as="image" href="https://i.postimg.cc/QNnwGbDT/active-clan-war.png">
+    <link rel="preload" as="image" href="https://i.postimg.cc/jjnVFtRs/clan-board.png">
+    <link rel="preload" as="image" href="https://i.postimg.cc/ZnsJsPBt/X.png">
+    <link rel="preload" as="image" href="https://i.postimg.cc/Dz424SzQ/X-clicked.png">
+    <link rel="preload" as="image" href="https://i.postimg.cc/jdcdc1BN/topclans-leaderboard-select.png">
+    <link rel="preload" as="image" href="https://i.postimg.cc/L8VCntY9/topclans-leaderboard-search.png">
+    <link class="prefetch" href="https://twemoji.maxcdn.com/v/14.0.2/svg/1f1fa-1f1f8.svg">
+    <link rel="preload" as="image" href="https://i.postimg.cc/SKRxPGcL/modra-hvezda.png">
+    <link rel="preload" as="image" href="https://i.postimg.cc/1tLXwNnV/hvezda.png">
+    <link rel="preload" as="image" href="https://i.postimg.cc/wjTqtkfk/modry-gem.png">
+    <link rel="preload" as="image" href="https://i.postimg.cc/1XhRfh2z/gem.png">
+    <link rel="preload" as="image" href="https://i.postimg.cc/DfSm1LrP/scroller.png">
+    <link rel="preload" as="image" href="https://i.postimg.cc/3RwQtGxJ/page-select.png">
+    <link rel="preload" as="image" href="https://i.postimg.cc/FskNt0gt/sipka-leva.png">
+    <link rel="preload" as="image" href="https://i.postimg.cc/VNp2WVpx/sipka-prava.png">
+    <link rel="preload" as="image" href="https://i.postimg.cc/qv9DgndB/gems.png">
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Fredoka', sans-serif !important;
+            font-weight: 600;
+            user-select: none;
+        }
+
+        body {
+            background-color: #89b3f9;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .game-window {
+            position: relative;
+            display: inline-block;
+            overflow: visible;
+        }
+
+        .menu-bg {
+            display: block;
+            width: auto;
+            height: auto;
+            filter: drop-shadow(0px 10px 20px rgba(0, 0, 0, 0.35));
+        }
+
+        .clans-logo {
+            position: absolute;
+            left: -36px;
+            top: -69px;
+            width: 315px;
+            height: 117px;
+            background: url("https://i.postimg.cc/PfW18xLb/clans-logo.png") no-repeat center center;
+            background-size: 100% 100%;
+            z-index: 998;
+        }
+
+        .close-btn {
+            position: absolute;
+            left: 1044px; 
+            top: -30px; 
+            width: 72px;  
+            height: 73px; 
+            background: url("https://i.postimg.cc/ZnsJsPBt/X.png") no-repeat center center;
+            background-size: 100% 100%;
+            cursor: pointer;
+            z-index: 999;
+            filter: drop-shadow(0px 4px 6px rgba(0, 0, 0, 0.35));
+            transition: all 0.044s cubic-bezier(0.1, 0.9, 0.2, 1);
+        }
+
+        .close-btn:hover:not(:active) { left: 1042px; top: -34px; width: 76px; height: 77px; }
+        .close-btn:active { background-image: url("https://i.postimg.cc/Dz424SzQ/X-clicked.png"); left: 1047px; top: -29px; width: 66px; height: 67px; }
+
+        .menu-btn {
+            position: absolute;
+            left: 14px;
+            width: 306px;
+            height: 84px;
+            background-size: 100% 100%;
+            background-repeat: no-repeat;
+            background-position: center;
+            cursor: pointer;
+            z-index: 900;
+            background-image: url("https://i.postimg.cc/MGrXBkwN/grey.png");
+            transition: all 0.044s cubic-bezier(0.1, 0.9, 0.2, 1);
+        }
+
+        .menu-btn:hover:not(:active) { left: 11px; width: 315px; height: 88px; z-index: 920; }
+        .menu-btn:active { background-image: url("https://i.postimg.cc/br1v4snw/grey-clicked.png"); left: 20px; width: 294px; height: 78px; z-index: 900; }
+
+        .menu-btn.is-active { background-image: url("https://i.postimg.cc/JhX56QnL/selected.png"); }
+        .menu-btn.is-active:active { background-image: url("https://i.postimg.cc/bNXDLjnT/selected-clicked.png"); left: 20px; width: 294px; height: 78px; z-index: 900; }
+
+        .btn-clans { top: 34px; }
+        .btn-topclans { top: 124px; }
+        .btn-people { top: 214px; }
+        .btn-search { top: 304px; }
+
+        .menu-text {
+            position: absolute;
+            pointer-events: none;
+            z-index: 950;
+            transform-origin: center center;
+            transition: transform 0.044s cubic-bezier(0.1, 0.9, 0.2, 1), top 0.044s cubic-bezier(0.1, 0.9, 0.2, 1), left 0.044s cubic-bezier(0.1, 0.9, 0.2, 1);
+        }
+
+        .text-clans { left: 100px; top: 52px; }
+        .text-topclans { left: 53px; top: 140px; }
+        .text-people { left: 76px; top: 230px; }
+        .text-search { left: 88px; top: 322px; }
+
+        .btn-clans:hover:not(:active) ~ .text-clans { transform: scale(1.06) translate(-3px, 2px); }
+        .btn-topclans:hover:not(:active) ~ .text-topclans { transform: scale(1.06) translate(-3px, 2px); }
+        .btn-people:hover:not(:active) ~ .text-people { transform: scale(1.06) translate(-3px, 2px); }
+        .btn-search:hover:not(:active) ~ .text-search { transform: scale(1.06) translate(-3px, 2px); }
+
+        /* Aktivace svislého posouvání tlačítek a textů pod sebou */
+        .btn-clans:hover:not(:active) ~ .btn-topclans { top: 128px; }
+        .btn-clans:hover:not(:active) ~ .text-topclans { top: 144px; }
+        .btn-clans:hover:not(:active) ~ .btn-people { top: 218px; }
+        .btn-clans:hover:not(:active) ~ .text-people { top: 234px; }
+        .btn-clans:hover:not(:active) ~ .btn-search { top: 308px; }
+        .btn-clans:hover:not(:active) ~ .text-search { top: 326px; }
+
+        .btn-topclans:hover:not(:active) ~ .btn-people { top: 218px; }
+        .btn-topclans:hover:not(:active) ~ .text-people { top: 234px; }
+        .btn-topclans:hover:not(:active) ~ .btn-search { top: 308px; }
+        .btn-topclans:hover:not(:active) ~ .text-search { top: 326px; }
+
+        .btn-people:hover:not(:active) ~ .btn-search { top: 308px; }
+        .btn-people:hover:not(:active) ~ .text-search { top: 326px; }
+
+        .tab-content {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            padding: 0;
+            z-index: 850;
+        }
+
+        .leaderboard-select-asset {
+            position: absolute;
+            left: 500px; 
+            top: -18px; 
+            width: 131px;
+            height: 48px;
+            background: url("https://i.postimg.cc/jdcdc1BN/topclans-leaderboard-select.png") no-repeat center center;
+            background-size: 100% 100%;
+            z-index: 990;
+        }
+
+        .leaderboard-search-asset {
+            position: absolute;
+            left: 661px; 
+            top: -18px; 
+            width: 330px;
+            height: 48px;
+            background: url("https://i.postimg.cc/L8VCntY9/topclans-leaderboard-search.png") no-repeat center center;
+            background-size: 100% 100%;
+            z-index: 990;
+        }
+
+        .leaderboard-search-input {
+            width: 100%;
+            height: 100%;
+            background: transparent;
+            border: none;
+            outline: none;
+            padding: 0 15px 0 20px;
+            color: #000000;
+            font-size: 30px;
+            font-weight: 800;
+            text-align: right;
+        }
+        .leaderboard-search-input::placeholder { color: #B1B1B1; font-weight: 600; }
+
+        .leaderboard-icon {
+            position: absolute;
+            top: -13px; 
+            width: 38px;
+            height: 38px;
+            background-size: 100% 100%;
+            background-repeat: no-repeat;
+            background-position: center;
+            cursor: pointer;
+            z-index: 995;
+            transform-origin: center center;
+            transition: transform 0.044s cubic-bezier(0.1, 0.9, 0.2, 1);
+        }
+
+        .icon-star { left: 523px; background-image: url("https://i.postimg.cc/SKRxPGcL/modra-hvezda.png"); }
+        .icon-star.is-inactive { background-image: url("https://i.postimg.cc/1tLXwNnV/hvezda.png"); }
+        .icon-gem { left: 564px; background-image: url("https://i.postimg.cc/1XhRfh2z/gem.png"); }
+        .icon-gem.is-active { background-image: url("https://i.postimg.cc/wjTqtkfk/modry-gem.png"); }
+
+        .leaderboard-icon:hover:not(:active) { transform: scale(1.03); }
+        .leaderboard-icon:active { transform: scale(0.97); }
+
+        .leaderboard-container {
+            position: absolute;
+            left: 334px; 
+            top: 7px; 
+            width: 770px; 
+            height: 556px; 
+            overflow-y: auto;
+            overflow-x: hidden; 
+            padding-left: 14px; 
+            padding-right: 22px; 
+            z-index: 960;
+        }
+
+        .leaderboard-container::-webkit-scrollbar { width: 15px; height: 29px; }
+        .leaderboard-container::-webkit-scrollbar-track { background: transparent; }
+        .leaderboard-container::-webkit-scrollbar-thumb { 
+            background: url("https://i.postimg.cc/DfSm1LrP/scroller.png") no-repeat center center;
+            background-size: 100% 100%;
+            image-rendering: pixelated; 
+        }
+
+        .active-clan-war-banner {
+            position: relative;
+            width: 736px;
+            height: 189px;
+            background: url("https://i.postimg.cc/QNnwGbDT/active-clan-war.png") no-repeat center center;
+            background-size: 100% 100%;
+            image-rendering: pixelated;
+            margin-top: 31px; 
+            margin-bottom: 30px; 
+            flex-shrink: 0;
+            overflow: visible;
+        }
+
+        .banner-title {
+            position: absolute;
+            left: 365px;
+            top: 7px;
+            transform: translateX(-50%);
+            font-size: 35px;
+            color: #FFFFFF;
+            -webkit-text-stroke: 6px #000000;
+            stroke-linejoin: round;
+            -webkit-stroke-linejoin: round;
+            paint-order: stroke fill;
+            font-weight: 800 !important;
+            text-shadow: none !important;
+            white-space: nowrap;
+            z-index: 10;
+        }
+
+        .banner-timer {
+            position: absolute;
+            left: 365px;
+            top: 32px;
+            transform: translateX(-50%);
+            font-size: 96px;
+            color: #FF2B2B;
+            -webkit-text-stroke: 6px #000000;
+            stroke-linejoin: round;
+            -webkit-stroke-linejoin: round;
+            paint-order: stroke fill;
+            font-weight: 700 !important;
+            text-shadow: none !important;
+            white-space: nowrap;
+            z-index: 10;
+        }
+
+        .banner-subtitle {
+            position: absolute;
+            left: 365px;
+            top: 140px;
+            transform: translateX(-50%);
+            font-size: 32px;
+            color: #FFFFFF;
+            -webkit-text-stroke: 6px #000000;
+            stroke-linejoin: round;
+            -webkit-stroke-linejoin: round;
+            paint-order: stroke fill;
+            font-weight: 800 !important;
+            text-shadow: none !important;
+            white-space: nowrap;
+            z-index: 10;
+        }
+
+        .clan-row {
+            display: block;
+            width: 736px;
+            height: 112px;
+            background: url("https://i.postimg.cc/jjnVFtRs/clan-board.png") no-repeat center center;
+            background-size: 100% 100%;
+            margin-bottom: 6px;
+            position: relative;
+            image-rendering: pixelated;
+            flex-shrink: 0;
+            cursor: pointer;
+            transition: transform 0.044s cubic-bezier(0.1, 0.9, 0.2, 1);
+        }
+
+        .clan-row:hover { transform: scale(1.015); z-index: 10; }
+        .clan-row:active { transform: scale(0.96); }
+
+        .clan-rank {
+            position: absolute;
+            left: -6px;
+            top: -11px;
+            font-size: 40px;
+            font-weight: 800 !important;
+            -webkit-text-stroke: 6px #000000;
+            stroke-linejoin: round;
+            -webkit-stroke-linejoin: round;
+            paint-order: stroke fill;
+            text-shadow: none !important;
+            pointer-events: none;
+            z-index: 15;
+        }
+
+        .clan-icon {
+            position: absolute;
+            left: 13px;
+            top: 12px;
+            width: 90px;
+            height: 90px;
+            border-radius: 8px;
+            background-color: #ffffff;
+            object-fit: contain;
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        .clan-flag {
+            position: absolute;
+            left: 120px;
+            top: 11px;
+            width: 42px;
+            height: 42px;
+            pointer-events: none;
+        }
+
+        .clan-name {
+            position: absolute;
+            left: 172px;
+            top: 12px;
+            font-size: 35px;
+            color: #FEFEFE;
+            -webkit-text-stroke: 8px #000000;
+            stroke-linejoin: round;
+            -webkit-stroke-linejoin: round;
+            paint-order: stroke fill;
+            font-weight: 800 !important;
+            text-shadow: none !important;
+            pointer-events: none;
+        }
+
+        .clan-desc {
+            position: absolute;
+            left: 126px;
+            top: 56px;
+            width: 400px;
+            max-width: 400px;
+            font-weight: 700 !important;
+            color: #2B2B2B;
+            font-style: italic;
+            pointer-events: none;
+            white-space: normal;
+            line-height: 0.95;
+            display: block;
+        }
+
+        .clan-points {
+            position: absolute;
+            left: 489px;
+            top: 12px;
+            font-size: 35px;
+            color: #FEFEFE;
+            -webkit-text-stroke: 8px #000000;
+            stroke-linejoin: round;
+            -webkit-stroke-linejoin: round;
+            paint-order: stroke fill;
+            font-weight: 800 !important;
+            text-shadow: none !important;
+            pointer-events: none;
+        }
+
+        .clan-diamonds-wrapper {
+            position: absolute;
+            right: 11px; 
+            top: 0;
+            display: flex;
+            align-items: flex-start;
+            pointer-events: none;
+        }
+
+        .clan-gem-icon {
+            width: 44px;
+            height: 44px;
+            margin-top: 9px; 
+            margin-right: 3px; 
+            background: url("https://i.postimg.cc/qv9DgndB/gems.png") no-repeat center center;
+            background-size: 100% 100%;
+            flex-shrink: 0;
+        }
+
+        .clan-diamonds {
+            font-size: 35px;
+            color: #FEFEFE;
+            -webkit-text-stroke: 8px #000000;
+            stroke-linejoin: round;
+            -webkit-stroke-linejoin: round;
+            paint-order: stroke fill;
+            font-weight: 800 !important;
+            text-shadow: none !important;
+            pointer-events: none;
+            white-space: nowrap; 
+            margin-top: 12px; 
+        }
+
+        .clan-members {
+            position: absolute;
+            left: 657px;
+            top: 76px;
+            font-size: 25px;
+            font-weight: 800 !important;
+            color: #000000;
+            -webkit-text-stroke: 6px #000000;
+            stroke-linejoin: round;
+            -webkit-stroke-linejoin: round;
+            paint-order: stroke fill;
+            text-shadow: none !important;
+            pointer-events: none;
+            white-space: nowrap;
+        }
+        .clan-members::after {
+            content: attr(data-text);
+            position: absolute;
+            left: 0;
+            top: 0;
+            -webkit-text-stroke: 0px transparent;
+            background: linear-gradient(to bottom, #92F0EB, #6DB0E0);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .leaderboard-footer {
+            position: relative;
+            width: 736px;
+            height: 62px; 
+            margin-top: 4px; 
+            margin-bottom: 4px; 
+            flex-shrink: 0;
+        }
+
+        .page-select-bg {
+            position: absolute;
+            left: 254px; 
+            top: 2px;
+            width: 227px;
+            height: 56px;
+            background: url("https://i.postimg.cc/3RwQtGxJ/page-select.png") no-repeat center center;
+            background-size: 100% 100%;
+            z-index: 970;
+            image-rendering: pixelated;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .page-number-text {
+            font-size: 38px !important;
+            font-weight: 800 !important;
+            font-family: 'Fredoka', sans-serif !important;
+            color: #ffffff;
+            -webkit-text-stroke: 6px #2A2B31;
+            stroke-linejoin: round;
+            -webkit-stroke-linejoin: round;
+            paint-order: stroke fill;
+            text-shadow: none !important;
+            padding-bottom: 3px; 
+            display: inline-block;
+            transform-origin: center center;
+            transition: transform 0.06s cubic-bezier(0.1, 0.9, 0.2, 1);
+        }
+
+        .page-arrow {
+            position: absolute;
+            width: 27px;
+            height: 39px;
+            background-size: 100% 100%;
+            background-repeat: no-repeat;
+            background-position: center;
+            cursor: pointer;
+            z-index: 980;
+            transform-origin: center center;
+            transition: transform 0.06s cubic-bezier(0.1, 0.9, 0.2, 1), left 0.06s cubic-bezier(0.1, 0.9, 0.2, 1);
+        }
+
+        .arrow-left { left: 22px; top: 8px; background-image: url("https://i.postimg.cc/FskNt0gt/sipka-leva.png"); }
+        .arrow-right { right: 22px; top: 8px; background-image: url("https://i.postimg.cc/VNp2WVpx/sipka-prava.png"); }
+
+        .leaderboard-footer.hover-left .arrow-left { transform: scale(1.03); }
+        .leaderboard-footer.hover-left .page-number-text { transform: translateX(1px); }
+        .leaderboard-footer.hover-left .arrow-right { transform: translateX(1.5px); }
+        .leaderboard-footer.active-left .arrow-left { transform: scale(0.97); }
+        .leaderboard-footer.active-left .page-number-text { transform: translateX(-1px); }
+        .leaderboard-footer.active-left .arrow-right { transform: translateX(-1.5px); }
+        .leaderboard-footer.hover-right .arrow-right { transform: scale(1.03); }
+        .leaderboard-footer.hover-right .page-number-text { transform: translateX(-1px); }
+        .leaderboard-footer.hover-right .arrow-left { transform: translateX(-1.5px); }
+        .leaderboard-footer.active-right .arrow-right { transform: scale(0.97); }
+        .leaderboard-footer.active-right .page-number-text { transform: translateX(1px); }
+        .leaderboard-footer.active-right .arrow-left { transform: translateX(1.5px); }
+
+        .leaderboard-loading {
+            width: 736px;
+            padding: 50px 0;
+            text-align: center;
+            font-size: 32px;
+            font-weight: 800;
+            color: #B1B1B1; 
+            text-shadow: none; 
+        }
+    </style>
+</head>
+<body>
+
+    <div class="game-window">
+        <img class="menu-bg" src="https://i.postimg.cc/sfG6nXsc/main-menu.png" draggable="false">
+        
+        <div class="clans-logo"></div>
+        
+        <div class="menu-btn btn-clans" onclick="location.href='index.html'" ></div>
+        <div class="menu-btn btn-topclans is-active" onclick="location.href='topclans.html'" ></div>
+        <div class="menu-btn btn-people" onclick="location.href='leagues.html'" ></div>
+        <div class="menu-btn btn-search" onclick="location.href='people.html'" ></div>
+        
+        <img class="menu-text text-clans" src="https://i.postimg.cc/7YwkVBKh/text-Clans.png" draggable="false">
+        <img class="menu-text text-topclans" src="https://i.postimg.cc/bv7X2LGJ/text-Top-Clans.png" draggable="false">
+        <img class="menu-text text-people" src="https://i.postimg.cc/vBjLqZp7/leagues-text.png" draggable="false">
+        <img class="menu-text text-search" src="https://i.postimg.cc/9FW6TDfB/text-People.png" draggable="false">
+        
+        <div class="tab-content" id="tab-topclans">
+            <div class="leaderboard-select-asset"></div>
+            <div class="leaderboard-search-asset">
+                <input type="text" class="leaderboard-search-input" placeholder="Search" id="clanSearch" maxlength="4">
+            </div>
+
+            <div class="leaderboard-icon icon-star" id="sortPoints" title="Sort by Points"></div>
+            <div class="leaderboard-icon icon-gem" id="sortGems" title="Sort by Gems"></div>
+
+            <div class="leaderboard-container" id="leaderboardList">
+                <div class="active-clan-war-banner" id="clanWarBanner">
+                    <div class="banner-title" id="bannerTitle">Loading...</div>
+                    <div class="banner-timer" id="bannerTimer">00h:00m:00s</div>
+                    <div class="banner-subtitle" id="bannerSubtitle">Active Clan Battle</div>
+                </div>
+                <div id="clanCardsList"></div>
+                
+                <div class="leaderboard-footer" id="leaderboardFooter">
+                    <div class="page-select-bg" id="pageSelectBg">
+                        <div class="page-arrow arrow-left" id="prevPageBtn" ></div>
+                        <span class="page-number-text" id="pageNumberDisplay">1</span>
+                        <div class="page-arrow arrow-right" id="nextPageBtn" ></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="close-btn" onclick="location.href='index.html'" ></div>
+    </div>
+
+    <script>
+        const WORKER_URL = "https://rough-pine-d90f.ps99clans.workers.dev";
+        let pointsClanData = [];
+        let gemsClanData = [];
+        let currentMode = localStorage.getItem("clanLeaderboardMode") || "points"; 
+        let searchQuery = "";
+        let currentPage = 1;
+        const itemsPerPage = 100;
+        
+        const descriptionCache = JSON.parse(localStorage.getItem("clanDescCache")) || {};
+        let timerInterval = null;
+
+        const descObserver = new IntersectionObserver((entries, observer) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const row = entry.target;
+                    const clanName = row.dataset.clanName;
+                    const descId = row.dataset.descId;
+                    if (clanName && descId) {
+                        fetchClanDescription(clanName, descId);
+                    }
+                    observer.unobserve(row);
+                }
+            });
+        }, {
+            root: document.getElementById('leaderboardList'),
+            rootMargin: '100px 0px',
+            threshold: 0.01
+        });
+
+        function formatNumber(num) {
+            if (num === undefined || num === null) return "0";
+            const formatWithSuffix = (value, suffix) => {
+                if (value < 10) return (Math.floor(value * 100) / 100).toFixed(2) + suffix;
+                if (value < 100) return (Math.floor(value * 10) / 10).toFixed(1) + suffix;
+                return Math.floor(value) + suffix;
+            };
+            if (num >= 1e12) return formatWithSuffix(num / 1e12, "t"); 
+            if (num >= 1e9) return formatWithSuffix(num / 1e9, "b");
+            if (num >= 1e6) return formatWithSuffix(num / 1e6, "m");
+            if (num >= 1e3) return formatWithSuffix(num / 1e3, "k");
+            return num.toString();
+        }
+
+        function getTwemojiUrl(countryCode) {
+            if (!countryCode || countryCode.length !== 2) return "https://twemoji.maxcdn.com/v/14.0.2/svg/1f1fa-1f1f8.svg";
+            const codePoints = countryCode.toUpperCase().split('').map(char =>  0x1F1E6 + char.charCodeAt(0) - 65);
+            return `https://twemoji.maxcdn.com/v/14.0.2/svg/${codePoints[0].toString(16)}-${codePoints[1].toString(16)}.svg`;
+        }
+
+        function getClanIconUrl(iconAsset) {
+            if (!iconAsset) return "https://placehold.co/90x90/ffffff/000000?text=Clan";
+            const match = iconAsset.match(/\d+/);
+            if (match) {
+                return `https://ps99.biggamesapi.io/image/${match[0]}`;
+            }
+            return "https://placehold.co/90x90/ffffff/000000?text=Clan";
+        }
+
+        function generateFallbackData() {
+            const fallback = [];
+            const countries = ["US", "CZ", "SK", "PL", "DE", "GB", "FR", "CA"];
+            for (let i = 1; i <= 1000; i++) {
+                fallback.push({
+                    Name: `FALL${i}`,
+                    Points: Math.floor(10000000000 / i),
+                    DepositedDiamonds: Math.floor(500000000000 / i),
+                    Members: Math.max(1, Math.min(74, Math.floor(74 - (i % 70)))),
+                    MemberCapacity: 75,
+                    CountryCode: countries[i % countries.length],
+                    Icon: "rbxassetid://1372728282"
+                });
+            }
+            return fallback;
+        }
+
+        function adjustDescSize(el) {
+            if (!el) return;
+            
+            const cleanText = el.textContent.trim();
+            if (cleanText === "..." || cleanText === "") {
+                el.style.fontSize = "42px";
+                el.style.top = "56px";
+                return;
+            }
+
+            let currentSize = 42;
+            el.style.fontSize = currentSize + "px";
+            el.style.top = "56px";
+            el.style.whiteSpace = "normal";
+
+            while ((el.scrollWidth > 400 || el.scrollHeight > 56) && currentSize > 14) {
+                currentSize--;
+                el.style.fontSize = currentSize + "px";
+                
+                if (el.scrollHeight > 56 && currentSize > 28) {
+                    el.style.whiteSpace = "nowrap";
+                }
+            }
+        }
+
+        async function fetchClanDescription(clanName, elementId) {
+            const now = Date.now();
+            const cached = descriptionCache[clanName];
+            const cacheDuration = 12 * 60 * 60 * 1000; 
+
+            if (cached && typeof cached === 'object' && cached.desc !== undefined && cached.timestamp && (now - cached.timestamp < cacheDuration)) {
+                const el = document.getElementById(elementId);
+                if (el) { el.textContent = cached.desc; adjustDescSize(el); }
+                return;
+            }
+            
+            try {
+                const res = await fetch(`${WORKER_URL}/clan/${clanName}`);
+                const data = await res.json();
+                if (data && data.status === "ok" && data.data && data.data.Desc) {
+                    const cleanDesc = data.data.Desc.replace(/[\r\n\t]+/g, ' ').trim();
+                    
+                    descriptionCache[clanName] = {
+                        desc: cleanDesc,
+                        timestamp: now
+                    };
+                    localStorage.setItem("clanDescCache", JSON.stringify(descriptionCache));
+                    
+                    const el = document.getElementById(elementId);
+                    if (el) { el.textContent = cleanDesc; adjustDescSize(el); }
+                }
+            } catch (e) { 
+                console.warn(`Nepodařilo se načíst klan ${clanName}`);
+                if (cached) {
+                    const el = document.getElementById(elementId);
+                    const fallbackDesc = typeof cached === 'object' ? cached.desc : cached;
+                    if (el) { el.textContent = fallbackDesc; adjustDescSize(el); }
+                }
+            }
+        }
+
+        async function fetchActiveClanBattle() {
+            try {
+                const res = await fetch(`${WORKER_URL}/activeClanBattle`);
+                const data = await res.json();
+                if (data && data.status === "ok" && data.data) {
+                    const battle = data.data;
+                    
+                    let title = "Clan Battle";
+                    if (battle.configData && battle.configData.Title) {
+                        title = battle.configData.Title;
+                    } else if (battle.Title) {
+                        title = battle.Title;
+                    } else if (battle.Name) {
+                        title = battle.Name;
+                    } else if (battle.configName) {
+                        title = battle.configName.replace(/([A-Z])/g, ' $1').trim();
+                    }
+
+                    let finishTime = 0;
+                    if (battle.configData && battle.configData.FinishTime) {
+                        finishTime = battle.configData.FinishTime;
+                    } else if (battle.FinishTime) {
+                        finishTime = battle.FinishTime;
+                    }
+
+                    const bannerTitle = document.getElementById("bannerTitle");
+                    if (bannerTitle) {
+                        bannerTitle.textContent = title;
+                    }
+
+                    startTimer(finishTime);
+                }
+            } catch (err) {
+                console.error("Chyba při načítání dat o bitvě", err);
+            }
+        }
+
+        function startTimer(finishTimeSeconds) {
+            if (timerInterval) clearInterval(timerInterval);
+            
+            const timerEl = document.getElementById("bannerTimer");
+            const subtitleEl = document.getElementById("bannerSubtitle");
+            if (!timerEl) return;
+
+            if (!finishTimeSeconds) {
+                timerEl.textContent = "00h:00m:00s";
+                if (subtitleEl) subtitleEl.textContent = "No Active Battle";
+                return;
+            }
+
+            const finishTimeMs = finishTimeSeconds * 1000;
+
+            function update() {
+                const now = Date.now();
+                const diff = finishTimeMs - now;
+
+                if (diff <= 0) {
+                    timerEl.textContent = "ENDED!";
+                    if (subtitleEl) subtitleEl.textContent = "Battle Ended";
+                    clearInterval(timerInterval);
+                    return;
+                }
+
+                const seconds = Math.floor((diff / 1000) % 60);
+                const minutes = Math.floor((diff / (1000 * 60)) % 60);
+                const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+                const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+
+                let timeStr = "";
+                if (days > 0) {
+                    timeStr += `${days}d:`;
+                }
+                timeStr += `${hours.toString().padStart(2, '0')}h:`;
+                timeStr += `${minutes.toString().padStart(2, '0')}m:`;
+                timeStr += `${seconds.toString().padStart(2, '0')}s`;
+
+                timerEl.textContent = timeStr;
+            }
+
+            update();
+            timerInterval = setInterval(update, 1000);
+        }
+
+        async function fetchLeaderboardData(isSilent = false) {
+            const list = document.getElementById("clanCardsList");
+            if (!isSilent && list) {
+                list.innerHTML = `<div class="leaderboard-loading">Loading...</div>`;
+            }
+            try {
+                const resPoints = await fetch(`${WORKER_URL}/clans?page=1&pageSize=1000&sort=Points&sortOrder=desc`);
+                const dataPoints = await resPoints.json();
+                pointsClanData = (dataPoints && dataPoints.status === "ok") ? dataPoints.data : generateFallbackData();
+
+                const resGems = await fetch(`${WORKER_URL}/clans?page=1&pageSize=1000&sort=DepositedDiamonds&sortOrder=desc`);
+                const dataGems = await resGems.json();
+                gemsClanData = (dataGems && dataGems.status === "ok") ? dataGems.data : generateFallbackData();
+            } catch (err) {
+                if (!isSilent) {
+                    pointsClanData = generateFallbackData();
+                    gemsClanData = generateFallbackData();
+                }
+            }
+            renderLeaderboard();
+            if (typeof fetchActiveClanBattle === "function") { fetchActiveClanBattle(); }
+        }
+
+        function renderLeaderboard() {
+            const list = document.getElementById("clanCardsList");
+            const banner = document.getElementById("clanWarBanner");
+            const footerEl = document.getElementById("leaderboardFooter");
+            const pageText = document.getElementById("pageNumberDisplay");
+            
+            if (!list || !banner || !footerEl) return;
+            
+            const savedScrollTop = document.getElementById("leaderboardList").scrollTop;
+            
+            descObserver.disconnect();
+            list.innerHTML = "";
+
+            let sourceData = (currentMode === "points") ? pointsClanData : gemsClanData;
+            sourceData = sourceData.map((clan, idx) => ({ ...clan, _originalRank: idx + 1 }));
+
+            if (searchQuery.trim() !== "") {
+                sourceData = sourceData.filter(clan => clan.Name && clan.Name.toLowerCase().includes(searchQuery.toLowerCase()));
+            }
+
+            const isPoints = (currentMode === "points");
+            banner.style.display = isPoints ? "block" : "none";
+            footerEl.style.display = isPoints ? "block" : "none";
+            
+            const pageData = isPoints ? sourceData.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage) : sourceData.slice(0, 100);
+            if (isPoints && pageText) pageText.textContent = currentPage;
+
+            pageData.forEach((clan) => {
+                const absoluteRank = clan._originalRank;
+                const row = document.createElement("div");
+                row.className = "clan-row";
+                
+                row.dataset.clanName = clan.Name;
+                const descElementId = `desc-${currentMode}-${absoluteRank}`;
+                row.dataset.descId = descElementId;
+
+                row.onclick = () => {
+                    location.href = `clan-detail.html?name=${encodeURIComponent(clan.Name)}`;
+                };
+
+                const formattedPoints = formatNumber(clan.Points);
+                const formattedGems = formatNumber(clan.DepositedDiamonds || clan.Diamonds || 0);
+                
+                const rawMembers = clan.Members !== undefined ? clan.Members : 0;
+                const mCount = rawMembers + 1;
+                const mCap = clan.MemberCapacity !== undefined ? clan.MemberCapacity : 75;
+                
+                const rankColor = (absoluteRank === 1) ? "#8AFCED" : "#FFFFFF";
+                const flagUrl = getTwemojiUrl(clan.CountryCode);
+                const clanIconUrl = getClanIconUrl(clan.Icon);
+
+                row.innerHTML = `
+                    <div class="clan-rank" style="color: ${rankColor};">#${absoluteRank}</div>
+                    <img class="clan-icon" src="${clanIconUrl}" onerror="this.onerror=null; this.src='https://placehold.co/90x90/ffffff/000000?text=Clan';" draggable="false">
+                    <img class="clan-flag" src="${flagUrl}" alt="Flag" draggable="false">
+                    <div class="clan-name">[${clan.Name}]</div>
+                    <div class="clan-desc" id="${descElementId}">...</div>
+                    <div class="clan-points">${formattedPoints}</div>
+                    <div class="clan-members" data-text="${mCount}/${mCap}">${mCount}/${mCap}</div>
+                    <div class="clan-diamonds-wrapper">
+                        <div class="clan-gem-icon"></div>
+                        <div class="clan-diamonds">${formattedGems}</div>
+                    </div>
+                `;
+                
+                list.appendChild(row);
+
+                descObserver.observe(row);
+            });
+
+            document.getElementById("leaderboardList").scrollTop = savedScrollTop;
+        }
+
+        function updateModeVisuals() {
+            const btnPoints = document.getElementById("sortPoints");
+            const btnGems = document.getElementById("sortGems");
+            if (currentMode === "points") {
+                btnPoints.classList.remove("is-inactive");
+                btnGems.classList.remove("is-active");
+            } else {
+                btnPoints.classList.add("is-inactive");
+                btnGems.classList.add("is-active");
+            }
+        }
+
+        const btnPoints = document.getElementById("sortPoints");
+        const btnGems = document.getElementById("sortGems");
+        const inputSearch = document.getElementById("clanSearch");
+
+        if (btnPoints && btnGems && inputSearch) {
+            btnPoints.addEventListener("click", () => {
+                currentMode = "points";
+                localStorage.setItem("clanLeaderboardMode", "points");
+                updateModeVisuals();
+                currentPage = 1; 
+                renderLeaderboard();
+            });
+
+            btnGems.addEventListener("click", () => {
+                currentMode = "gems";
+                localStorage.setItem("clanLeaderboardMode", "gems");
+                updateModeVisuals();
+                renderLeaderboard();
+            });
+
+            inputSearch.addEventListener("input", (e) => {
+                searchQuery = e.target.value;
+                currentPage = 1; 
+                renderLeaderboard();
+            });
+        }
+
+        const prevBtn = document.getElementById("prevPageBtn");
+        const nextBtn = document.getElementById("nextPageBtn");
+
+        if (prevBtn && nextBtn) {
+            prevBtn.addEventListener("click", (e) => {
+                e.stopPropagation();
+                if (currentPage > 1) { currentPage--; renderLeaderboard(); }
+            });
+            nextBtn.addEventListener("click", (e) => {
+                e.stopPropagation();
+                if (currentPage < 10) { currentPage++; renderLeaderboard(); }
+            });
+        }
+
+        setInterval(() => {
+            fetchLeaderboardData(true);
+        }, 60000);
+
+        window.addEventListener('DOMContentLoaded', () => {
+            updateModeVisuals();
+            fetchLeaderboardData(false);
+            fetchActiveClanBattle();
+        });
+
+        const footer = document.getElementById('leaderboardFooter');
+        const arrowL = document.getElementById('prevPageBtn');
+        const arrowR = document.getElementById('nextPageBtn');
+
+        if (arrowL && footer) {
+            arrowL.addEventListener('mouseenter', () => footer.classList.add('hover-left'));
+            arrowL.addEventListener('mouseleave', () => { footer.classList.remove('hover-left', 'active-left'); });
+            arrowL.addEventListener('mousedown', () => footer.classList.add('active-left'));
+            arrowL.addEventListener('mouseup', () => footer.classList.remove('active-left'));
+        }
+        if (arrowR && footer) {
+            arrowR.addEventListener('mouseenter', () => footer.classList.add('hover-right'));
+            arrowR.addEventListener('mouseleave', () => { footer.classList.remove('hover-right', 'active-right'); });
+            arrowR.addEventListener('mousedown', () => footer.classList.add('active-right'));
+            arrowR.addEventListener('mouseup', () => footer.classList.remove('active-right'));
+        }
+
+        document.getElementById('tab-topclans').addEventListener('wheel', (e) => {
+            const container = document.getElementById('leaderboardList');
+            if (container) container.scrollTop += e.deltaY;
+        });
+    </script>
+</body>
+</html>
