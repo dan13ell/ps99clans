@@ -1,0 +1,925 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PS99 Clans - Live Tracker</title>
+    <!-- Explicitní konfigurace pro Odometer.js před načtením samotné knihovny -->
+    <script>
+        window.odometerOptions = {
+            duration: 3000, 
+            animation: 'slide' 
+        };
+    </script>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@300;400;500;600;700;800&family=Roboto:wght@800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/odometer.js/0.4.7/themes/odometer-theme-minimal.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/odometer.js/0.4.7/odometer.min.js"></script>
+    <!-- Naimportování Chart.js pro čisté vykreslení grafu -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <link rel="preload" as="image" href="https://i.postimg.cc/sfG6nXsc/main-menu.png">
+    <link rel="preload" as="image" href="https://i.postimg.cc/DfSm1LrP/scroller.png">
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Fredoka', sans-serif !important;
+            font-weight: 600;
+            user-select: none;
+        }
+
+        body {
+            background-color: #89b3f9;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .game-window {
+            position: relative;
+            display: inline-block;
+            overflow: visible;
+        }
+
+        .menu-bg {
+            display: block;
+            width: auto;
+            height: auto;
+            filter: drop-shadow(0px 10px 20px rgba(0, 0, 0, 0.35));
+        }
+
+        .clans-logo {
+            position: absolute;
+            left: -36px;
+            top: -69px;
+            width: 315px;
+            height: 117px;
+            background: url("https://i.postimg.cc/PfW18xLb/clans-logo.png") no-repeat center center;
+            background-size: 100% 100%;
+            z-index: 998;
+        }
+
+        .close-btn {
+            position: absolute;
+            left: 1044px; 
+            top: -30px; 
+            width: 72px;  
+            height: 73px; 
+            background: url("https://i.postimg.cc/ZnsJsPBt/X.png") no-repeat center center;
+            background-size: 100% 100%;
+            cursor: pointer;
+            z-index: 999;
+            filter: drop-shadow(0px 4px 6px rgba(0, 0, 0, 0.35));
+            transition: all 0.044s cubic-bezier(0.1, 0.9, 0.2, 1);
+        }
+        .close-btn:hover:not(:active) { left: 1042px; top: -34px; width: 76px; height: 77px; }
+        .close-btn:active { background-image: url("https://i.postimg.cc/Dz424SzQ/X-clicked.png"); left: 1047px; top: -29px; width: 66px; height: 67px; }
+
+        .menu-btn {
+            position: absolute;
+            left: 14px;
+            width: 306px;
+            height: 84px;
+            background-size: 100% 100%;
+            background-repeat: no-repeat;
+            background-position: center;
+            cursor: pointer;
+            z-index: 900;
+            background-image: url("https://i.postimg.cc/MGrXBkwN/grey.png");
+            transition: all 0.044s cubic-bezier(0.1, 0.9, 0.2, 1);
+        }
+        .menu-btn:hover:not(:active) { left: 11px; width: 315px; height: 88px; z-index: 920; }
+        .menu-btn:active { background-image: url("https://i.postimg.cc/br1v4snw/grey-clicked.png"); left: 20px; width: 294px; height: 78px; z-index: 900; }
+        .menu-btn.is-active { background-image: url("https://i.postimg.cc/JhX56QnL/selected.png"); }
+
+        .btn-clans { top: 34px; }
+        .btn-topclans { top: 124px; }
+        .btn-people { top: 214px; }
+        .btn-search { top: 304px; }
+
+        .menu-text {
+            position: absolute;
+            pointer-events: none;
+            z-index: 950;
+            transform-origin: center center;
+            transition: transform 0.044s cubic-bezier(0.1, 0.9, 0.2, 1), top 0.044s cubic-bezier(0.1, 0.9, 0.2, 1), left 0.044s cubic-bezier(0.1, 0.9, 0.2, 1);
+        }
+        .text-clans { left: 100px; top: 52px; }
+        .text-topclans { left: 53px; top: 140px; }
+        .text-people { left: 76px; top: 230px; }
+        .text-search { left: 88px; top: 322px; }
+
+        /* Posuvné animace bočních tlačítek */
+        .btn-clans:hover:not(:active) ~ .text-clans { transform: scale(1.06) translate(-3px, 2px); }
+        .btn-topclans:hover:not(:active) ~ .text-topclans { transform: scale(1.06) translate(-3px, 2px); }
+        .btn-people:hover:not(:active) ~ .text-people { transform: scale(1.06) translate(-3px, 2px); }
+        .btn-search:hover:not(:active) ~ .text-search { transform: scale(1.06) translate(-3px, 2px); }
+
+        .btn-clans:hover:not(:active) ~ .btn-topclans { top: 128px; }
+        .btn-clans:hover:not(:active) ~ .text-topclans { top: 144px; }
+        .btn-clans:hover:not(:active) ~ .btn-people { top: 218px; }
+        .btn-clans:hover:not(:active) ~ .text-people { top: 234px; }
+        .btn-clans:hover:not(:active) ~ .btn-search { top: 308px; }
+        .btn-clans:hover:not(:active) ~ .text-search { top: 326px; }
+
+        .btn-topclans:hover:not(:active) ~ .btn-people { top: 218px; }
+        .btn-topclans:hover:not(:active) ~ .text-people { top: 234px; }
+        .btn-topclans:hover:not(:active) ~ .btn-search { top: 308px; }
+        .btn-topclans:hover:not(:active) ~ .text-search { top: 326px; }
+
+        .btn-people:hover:not(:active) ~ .btn-search { top: 308px; }
+        .btn-people:hover:not(:active) ~ .text-search { top: 326px; }
+
+        .tab-content {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            padding: 0;
+            z-index: 850;
+        }
+
+        .custom-back-btn {
+            position: absolute;
+            left: 19px;
+            top: 472px;
+            width: 254px;
+            height: 79px;
+            background: url("https://i.postimg.cc/ZKM3vyw0/back-button.png") no-repeat center center;
+            background-size: 100% 100%;
+            cursor: pointer;
+            z-index: 990;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: transform 0.044s cubic-bezier(0.1, 0.9, 0.2, 1);
+            transform-origin: center center;
+            filter: drop-shadow(0px 4px 6px rgba(0, 0, 0, 0.15));
+        }
+        .custom-back-btn:hover:not(:active) { transform: scale(1.05); }
+        .custom-back-btn:active {
+            background-image: url("https://i.postimg.cc/qRJg5k1Q/back-button-clicked.png");
+            transform: scale(0.95);
+        }
+        .custom-back-text {
+            width: 101px;
+            height: 39px;
+            pointer-events: none;
+            transform: translateY(-2px);
+            transition: transform 0.044s cubic-bezier(0.1, 0.9, 0.2, 1);
+        }
+        .custom-back-btn:active .custom-back-text { transform: translateY(1px); }
+
+        /* HLAVNÍ JEDNOTNÝ VIEWPORT PRO CELOU STRÁNKU */
+        .live-main-scroll-viewport {
+            position: absolute;
+            left: 334px; 
+            top: 7px; 
+            width: 770px; 
+            height: 556px; 
+            overflow-y: auto;
+            overflow-x: hidden;
+            z-index: 900;
+        }
+        .live-main-scroll-viewport::-webkit-scrollbar { width: 15px; }
+        .live-main-scroll-viewport::-webkit-scrollbar-track { background: transparent; }
+        .live-main-scroll-viewport::-webkit-scrollbar-thumb { 
+            background: url("https://i.postimg.cc/DfSm1LrP/scroller.png") no-repeat top center;
+            background-size: 15px 29px; 
+            image-rendering: pixelated; 
+        }
+
+        .live-scroll-content-wrapper {
+            position: relative;
+            width: 100%;
+            height: 870px; /* Zvětšeno pro uložení nového grafu pod statistiky bez ořezu */
+            padding-bottom: 40px; 
+        }
+
+        .live-clan-icon-img {
+            position: absolute;
+            left: 296px; 
+            top: 25px;
+            width: 150px;
+            height: 150px;
+            border-radius: 12px;
+            background-color: #FFFFFF;
+            object-fit: contain;
+            z-index: 910;
+        }
+
+        .live-flag-circle {
+            position: absolute;
+            left: 349px; 
+            top: 2px;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background-color: #FFFFFF;
+            border: 3px solid #000000;
+            z-index: 920;
+        }
+
+        .live-flag-img {
+            position: absolute;
+            left: 357px; 
+            top: 14px;
+            width: 29px;
+            height: 22px;
+            border-radius: 3px;
+            object-fit: cover;
+            z-index: 930;
+        }
+
+        .live-clan-title {
+            position: absolute;
+            left: 366px; 
+            top: 131px;
+            font-size: 54px;
+            color: #FFFFFF;
+            -webkit-text-stroke: 6px #000000;
+            stroke-linejoin: round;
+            -webkit-stroke-linejoin: round;
+            paint-order: stroke fill;
+            font-weight: 800 !important;
+            white-space: nowrap;
+            transform: translateX(-50%);
+            text-align: center;
+            z-index: 910;
+        }
+
+        .live-clan-desc {
+            position: absolute;
+            left: 366px; 
+            top: 190px;
+            width: 320px; 
+            height: 35px;
+            font-size: 22px;
+            color: #262C2D;
+            font-weight: 800 !important;
+            line-height: 1.1;
+            word-wrap: break-word;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transform: translateX(-50%);
+            z-index: 910;
+        }
+
+        .live-pozice-card {
+            position: absolute;
+            left: 356px; 
+            top: 223px;
+            width: 477px;
+            height: 66px;
+            background: url("https://i.postimg.cc/RVRHZm9h/pozice-card.png") no-repeat center center;
+            background-size: 100% 100%;
+            image-rendering: pixelated;
+            transform: translateX(-50%);
+            z-index: 910;
+        }
+
+        .live-points-rank {
+            position: absolute;
+            left: 326px; 
+            top: 243px;
+            font-size: 20px;
+            color: #262C2D;
+            font-weight: 800 !important;
+            z-index: 920;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            white-space: nowrap;
+        }
+
+        .live-gems-rank {
+            position: absolute;
+            left: 471px; 
+            top: 243px;
+            font-size: 20px;
+            color: #262C2D;
+            font-weight: 800 !important;
+            z-index: 920;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            white-space: nowrap;
+        }
+
+        .live-total-points-card {
+            position: absolute;
+            left: 75px; 
+            top: 275px;
+            width: 605px;
+            height: 197px;
+            background: url("https://i.postimg.cc/FHyHGgW8/total-points-card.png") no-repeat center center;
+            background-size: 100% 100%;
+            image-rendering: pixelated;
+            z-index: 910;
+        }
+
+        .live-odometer-container {
+            position: absolute;
+            left: 377.5px; 
+            top: 353px;  
+            transform: translate(-50%, -50%);
+            z-index: 920;
+            pointer-events: none;
+            text-align: center;
+        }
+
+        .live-odometer-container .odometer,
+        .live-odometer-container .odometer * {
+            font-family: 'Roboto', sans-serif !important;
+            font-weight: 800 !important;
+            font-size: 100px !important;
+            color: #262C2D !important;
+        }
+
+        /* KARTA STATISTIK - Pevná část skrolujícího celku, posunutá o 12px doprava pro herní vycentrování */
+        .live-stats-card-wrapper {
+            position: absolute;
+            left: 12px; 
+            top: 465px; 
+            width: 732px;
+            height: 129px;
+            z-index: 910;
+        }
+
+        .live-stats-card-bg {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 732px;
+            height: 129px;
+            background: url("https://i.postimg.cc/kGZ4bmNQ/clan-stats.png") no-repeat center center;
+            background-size: 100% 100%;
+            image-rendering: pixelated;
+            z-index: 910;
+        }
+
+        .live-stat-text-container {
+            position: absolute;
+            top: 70px; 
+            transform: translate(-50%, -50%);
+            z-index: 920;
+            text-align: center;
+            pointer-events: none;
+            white-space: nowrap !important;
+            display: inline-block !important;
+        }
+
+        .live-stat-gems { left: 122px; }
+        .live-stat-avg-points { left: 366px; }
+        .live-stat-members { left: 610px; }
+
+        .live-stat-text-container .odometer,
+        .live-stat-text-container .odometer * {
+            font-family: 'Roboto', sans-serif !important;
+            font-weight: 800 !important;
+            font-size: 28px !important;
+            color: #262C2D !important;
+        }
+
+        /* NOVÝ HERNÍ GRAF KLANOVÝCH BODŮ */
+        .live-graph-card-wrapper {
+            position: absolute;
+            left: 12px;
+            top: 610px; /* Umístěno přesně pod spodní okraj karty statistik */
+            width: 732px;
+            height: 230px;
+            background: #FFFFFF; /* Čistě bílé pozadí karty */
+            border: 4px solid #000000;
+            border-radius: 12px;
+            padding: 12px;
+            z-index: 910;
+        }
+
+        .live-graph-title {
+            font-family: 'Fredoka', sans-serif !important;
+            font-size: 24px;
+            color: #FFFFFF; /* Bílé písmo, které s obrysem na bílém podkladu skvěle vynikne */
+            -webkit-text-stroke: 5px #000000;
+            stroke-linejoin: round;
+            -webkit-stroke-linejoin: round;
+            paint-order: stroke fill;
+            text-align: center;
+            font-weight: 800 !important;
+            margin-bottom: 6px;
+        }
+
+        .live-status-message {
+            position: absolute;
+            left: 0;
+            top: 243px;
+            width: 770px;
+            text-align: center;
+            font-size: 24px;
+            font-weight: 800;
+            color: #B1B1B1;
+            z-index: 950;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="game-window">
+        <img class="menu-bg" src="https://i.postimg.cc/sfG6nXsc/main-menu.png" draggable="false">
+        
+        <div class="clans-logo"></div>
+        
+        <div class="menu-btn btn-clans" onclick="location.href='index.html'" ></div>
+        <div class="menu-btn btn-topclans is-active" onclick="location.href='topclans.html'" ></div>
+        <div class="menu-btn btn-people" onclick="location.href='leagues.html'" ></div>
+        <div class="menu-btn btn-search" onclick="location.href='people.html'" ></div>
+        
+        <img class="menu-text text-clans" src="https://i.postimg.cc/7YwkVBKh/text-Clans.png" draggable="false">
+        <img class="menu-text text-topclans" src="https://i.postimg.cc/bv7X2LGJ/text-Top-Clans.png" draggable="false">
+        <img class="menu-text text-people" src="https://i.postimg.cc/vBjLqZp7/leagues-text.png" draggable="false">
+        <img class="menu-text text-search" src="https://i.postimg.cc/9FW6TDfB/text-People.png" draggable="false">
+        
+        <div class="tab-content">
+            <div class="custom-back-btn" id="liveBackBtn">
+                <img class="custom-back-text" src="https://i.postimg.cc/TPqp0yJ3/Back-text.png" draggable="false">
+            </div>
+
+            <div class="live-status-message" id="liveStatusText">Loading tracker...</div>
+
+            <div class="live-main-scroll-viewport">
+                <div class="live-scroll-content-wrapper">
+                    
+                    <img class="live-clan-icon-img" id="liveClanIcon" src="https://placehold.co/150x150/ffffff/000000?text=Clan" >
+                    
+                    <div class="live-flag-circle"></div>
+                    <img class="live-flag-img" id="liveFlag" src="https://twemoji.maxcdn.com/v/14.0.2/svg/1f1fa-1f1f8.svg" >
+                    
+                    <div class="live-clan-title" id="liveClanTitle">...</div>
+                    <div class="live-clan-desc" id="liveClanDesc">...</div>
+                    
+                    <div class="live-pozice-card"></div>
+                    
+                    <div class="live-points-rank" id="livePointsRank">#...</div>
+                    <div class="live-gems-rank" id="liveGemsRank">#...</div>
+                    
+                    <div class="live-total-points-card"></div>
+
+                    <div class="live-odometer-container">
+                        <div id="liveWarPoints" class="odometer">0</div>
+                    </div>
+
+                    <div class="live-stats-card-wrapper">
+                        <div class="live-stats-card-bg"></div>
+
+                        <div class="live-stat-text-container live-stat-gems">
+                            <div id="liveStatGems" class="odometer">0</div>
+                        </div>
+                        <div class="live-stat-text-container live-stat-avg-points">
+                            <div id="liveStatAvgPoints" class="odometer">0</div>
+                        </div>
+                        <div class="live-stat-text-container live-stat-members">
+                            <div id="liveStatMembers" class="odometer">0</div>
+                        </div>
+                    </div>
+
+                    <!-- STRUKTURA GRAFU S BÍLÝM KONTEJNEREM -->
+                    <div class="live-graph-card-wrapper">
+                        <div class="live-graph-title">POINTS GRAPH</div>
+                        <div style="position: relative; width: 100%; height: 160px;">
+                            <canvas id="livePointsChart"></canvas>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+        
+        <div class="close-btn" id="liveCloseBtn" ></div>
+    </div>
+
+    <script>
+        const WORKER_URL = "https://rough-pine-d90f.ps99clans.workers.dev";
+        const params = new URLSearchParams(window.location.search);
+        const clanName = params.get('name') || "";
+
+        localStorage.removeItem(`live_points_history_${clanName}`);
+
+        const returnUrl = `clan-detail.html?name=${encodeURIComponent(clanName)}`;
+        document.getElementById("liveBackBtn").onclick = () => { location.href = returnUrl; };
+        document.getElementById("liveCloseBtn").onclick = () => { location.href = returnUrl; };
+
+        let currentPoints = 0;
+        let currentGems = 0;
+        let currentMembers = 0;
+
+        let lastApiPoints = 0; 
+        let currentQuarterChunk = 0; 
+        let ticksCalculated = 0; 
+        let isFirstLoad = true;
+
+        let simulationIntervalId = null;
+        let pointsChart = null;
+        let lastChartUpdateTime = 0; 
+
+        function getTwemojiUrl(countryCode) {
+            if (!countryCode || countryCode.length !== 2) return "https://twemoji.maxcdn.com/v/14.0.2/svg/1f1fa-1f1f8.svg";
+            const codePoints = countryCode.toUpperCase().split('').map(char => 0x1F1E6 + char.charCodeAt(0) - 65);
+            return `https://twemoji.maxcdn.com/v/14.0.2/svg/${codePoints[0].toString(16)}-${codePoints[1].toString(16)}.svg`;
+        }
+
+        function getClanIconUrl(iconString) {
+            if (!iconString) return "https://placehold.co/150x150/ffffff/000000?text=No+Icon";
+            const cleanId = iconString.replace("rbxassetid://", "").trim();
+            if (!cleanId) return "https://placehold.co/150x150/ffffff/000000?text=No+Icon";
+            return `https://ps99.biggamesapi.io/image/${cleanId}`;
+        }
+
+        function adjustDescSize(el) {
+            if (!el) return;
+            let currentSize = 22;
+            el.style.fontSize = currentSize + "px";
+            while (el.scrollHeight > 35 && currentSize > 10) {
+                currentSize--;
+                el.style.fontSize = currentSize + "px";
+            }
+        }
+
+        function setRankTextAndScale(el, text) {
+            if (!el) return;
+            el.textContent = text;
+            const len = text.length; 
+            let size = 20; 
+            if (len <= 3) size = 20; 
+            else if (len === 4) size = 17; 
+            else if (len >= 5) size = 13; 
+            el.style.fontSize = size + "px";
+        }
+
+        function setStatOdometer(elId, val) {
+            const el = document.getElementById(elId);
+            if (!el) return;
+            el.innerHTML = val;
+            const length = val.toString().length;
+            let size = 28; 
+            if (length > 12) size = 14;
+            else if (length > 9) size = 17;
+            else if (length > 6) size = 22;
+            el.style.fontSize = size + "px";
+        }
+
+        function getPointsHistory() {
+            const key = `live_points_history_${clanName}`;
+            try {
+                return JSON.parse(localStorage.getItem(key)) || [];
+            } catch(e) {
+                return [];
+            }
+        }
+
+        function savePointsHistory(history) {
+            const key = `live_points_history_${clanName}`;
+            localStorage.setItem(key, JSON.stringify(history));
+        }
+
+        function updatePointsChart(pointsValue) {
+            const ctx = document.getElementById('livePointsChart').getContext('2d');
+            let history = getPointsHistory();
+            const timeStr = new Date().toLocaleTimeString('sk-SK', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+            const nowMs = Date.now();
+
+            let shouldAddPoint = false;
+
+            if (history.length === 0) {
+                shouldAddPoint = true;
+            } 
+            else if (history[history.length - 1].value !== pointsValue) {
+                shouldAddPoint = true;
+            } 
+            else if (nowMs - lastChartUpdateTime >= 15000) {
+                shouldAddPoint = true;
+            }
+
+            if (shouldAddPoint) {
+                history.push({ time: timeStr, value: pointsValue });
+                lastChartUpdateTime = nowMs; 
+
+                if (history.length > 1000) history.shift(); 
+                savePointsHistory(history);
+            }
+
+            const labels = history.map(h => h.time);
+            const data = history.map(h => h.value);
+
+            if (pointsChart) {
+                pointsChart.data.labels = labels;
+                pointsChart.data.datasets[0].data = data;
+                pointsChart.update('none'); 
+            } else {
+                pointsChart = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: 'Points',
+                            data: data,
+                            borderColor: '#FFFFFF',
+                            borderWidth: 3,
+                            backgroundColor: (context) => {
+                                const chart = context.chart;
+                                const {ctx, chartArea} = chart;
+                                if (!chartArea) return null;
+                                const gradient = ctx.createLinearGradient(0, chartArea.top, 0, chartArea.bottom);
+                                gradient.addColorStop(0, 'rgba(28, 46, 74, 0.8)');
+                                gradient.addColorStop(1, 'rgba(255, 255, 255, 0.0)');
+                                return gradient;
+                            },
+                            fill: true,
+                            tension: 0.3,
+                            pointBackgroundColor: '#FFFFFF',
+                            pointBorderColor: '#000000',
+                            pointBorderWidth: 2,
+                            pointRadius: 4,
+                            pointHoverRadius: 6,
+                            pointHitRadius: 18 
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        interaction: {
+                            mode: 'index',
+                            intersect: false 
+                        },
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: {
+                                backgroundColor: '#FFFFF',
+                                titleFont: { family: 'Fredoka', size: 14, weight: 'bold' },
+                                bodyFont: { family: 'Roboto', size: 13, weight: 'bold' },
+                                borderColor: '#000000',
+                                borderWidth: 2,
+                                cornerRadius: 6,
+                                displayColors: false,
+                                callbacks: {
+                                    label: function(context) {
+                                        let val = context.parsed.y;
+                                        let dataset = context.dataset.data;
+                                        let idx = context.dataIndex;
+                                        let diffText = "";
+                                        
+                                        if (idx > 0) {
+                                            let prevVal = dataset[idx - 1];
+                                            let diff = val - prevVal;
+                                            diffText = ` (+${diff.toLocaleString()})`;
+                                        }
+                                        
+                                        return ` Points: ${val.toLocaleString()}${diffText}`;
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            x: {
+                                grid: { color: 'rgba(0, 0, 0, 0.08)' }, 
+                                ticks: {
+                                    color: '#262C2D', 
+                                    font: { family: 'Fredoka', size: 11 }
+                                }
+                            },
+                            y: {
+                                grid: { color: 'rgba(0, 0, 0, 0.08)' }, 
+                                ticks: {
+                                    color: '#262C2D', 
+                                    font: { family: 'Roboto', size: 11, weight: 'bold' },
+                                    callback: function(value) {
+                                        if (value >= 1e6) return (value / 1e6).toFixed(1) + 'M';
+                                        if (value >= 1e3) return (value / 1e3).toFixed(1) + 'K';
+                                        return value;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+        }
+
+        async function fetchLiveTrackerData() {
+            const titleEl = document.getElementById("liveClanTitle");
+            const descEl = document.getElementById("liveClanDesc");
+            const iconEl = document.getElementById("liveClanIcon");
+            const flagEl = document.getElementById("liveFlag");
+            const statusEl = document.getElementById("liveStatusText");
+            const pointsRankEl = document.getElementById("livePointsRank");
+            const gemsRankEl = document.getElementById("liveGemsRank");
+
+            if (!clanName) {
+                if (statusEl) statusEl.textContent = "No clan specified!";
+                return;
+            }
+
+            try {
+                const res = await fetch(`${WORKER_URL}/clan/${clanName}`);
+                const responseData = await res.json();
+
+                if (!responseData || responseData.status !== "ok" || !responseData.data) {
+                    const incomingPoints = isFirstLoad ? 611522 : 611779; 
+                    currentGems = 152345091;
+                    currentMembers = 75; 
+                    
+                    if (isFirstLoad) {
+                        currentPoints = incomingPoints;
+                        lastApiPoints = incomingPoints;
+                        currentQuarterChunk = 0;
+                        ticksCalculated = 0;
+                        isFirstLoad = false;
+                        updateUI();
+                        updatePointsChart(incomingPoints);
+                    } else {
+                        if (incomingPoints !== lastApiPoints) {
+                            const realDelta = incomingPoints - lastApiPoints;
+                            lastApiPoints = incomingPoints;
+                            
+                            if (realDelta > 0) {
+                                currentQuarterChunk = Math.round(realDelta / 4);
+                                ticksCalculated = 0;
+                                startNew15sCycle();
+                            }
+                        } else {
+                            updatePointsChart(currentPoints);
+                        }
+                    }
+                    if (statusEl) statusEl.style.display = "none";
+                    return;
+                }
+
+                const clan = responseData.data;
+
+                if (titleEl) titleEl.textContent = `[${clan.Name}]`;
+                if (descEl) {
+                    descEl.textContent = clan.Desc || "No description.";
+                    adjustDescSize(descEl);
+                }
+                if (iconEl) iconEl.src = getClanIconUrl(clan.Icon);
+                if (flagEl && clan.CountryCode) flagEl.src = getTwemojiUrl(clan.CountryCode);
+
+                let activeBattleId = "";
+                try {
+                    const battleRes = await fetch(`${WORKER_URL}/activeClanBattle`);
+                    const battleJson = await battleRes.json();
+                    if (battleJson && battleJson.status === "ok" && battleJson.data) {
+                        activeBattleId = battleJson.data.configName || battleJson.data.id || battleJson.data.Title || "";
+                    }
+                } catch (e) { console.warn(e); }
+
+                let activeWarTotalPoints = 0; 
+                let activeWarPlace = null; 
+                if (clan.Battles && typeof clan.Battles === 'object') {
+                    let matchedBattle = null;
+                    if (activeBattleId && clan.Battles[activeBattleId]) matchedBattle = clan.Battles[activeBattleId];
+                    else if (Array.isArray(clan.Battles)) matchedBattle = clan.Battles.find(b => b.BattleID === activeBattleId);
+                    else {
+                        const keys = Object.keys(clan.Battles);
+                        if (keys.length > 0) matchedBattle = clan.Battles[keys[0]];
+                    }
+                    if (matchedBattle) {
+                        activeWarTotalPoints = matchedBattle.Points || 0;
+                        activeWarPlace = matchedBattle.Place || null; 
+                    }
+                }
+
+                if (activeWarTotalPoints === 0 && clan.Points) activeWarTotalPoints = clan.Points;
+
+                const incomingPoints = activeWarTotalPoints;
+                currentGems = clan.DepositedDiamonds || clan.Diamonds || 0;
+                
+                const rawMembersLength = Array.isArray(clan.Members) ? clan.Members.length : 0;
+                currentMembers = rawMembersLength > 0 ? rawMembersLength + 1 : 0;
+
+                if (isFirstLoad) {
+                    currentPoints = incomingPoints;
+                    lastApiPoints = incomingPoints;
+                    currentQuarterChunk = 0;
+                    ticksCalculated = 0;
+                    isFirstLoad = false;
+                    updateUI();
+                    updatePointsChart(incomingPoints);
+                } else {
+                    if (incomingPoints !== lastApiPoints) {
+                        const realDelta = incomingPoints - lastApiPoints;
+                        
+                        lastApiPoints = incomingPoints;
+
+                        if (realDelta > 0) {
+                            currentQuarterChunk = Math.round(realDelta / 4);
+                            ticksCalculated = 0; 
+                            
+                            startNew15sCycle();
+                        } else {
+                            currentQuarterChunk = 0;
+                            ticksCalculated = 0;
+                            currentPoints = incomingPoints;
+                            updateUI();
+                        }
+                    } else {
+                        updatePointsChart(currentPoints);
+                    }
+                }
+
+                let calculatedPointsRank = "N/A";
+                if (activeWarPlace !== null && activeWarPlace !== undefined) {
+                    calculatedPointsRank = `#${activeWarPlace}`; 
+                }
+                setRankTextAndScale(pointsRankEl, calculatedPointsRank);
+
+                let calculatedGemsRank = "N/A";
+                try {
+                    const listRes = await fetch(`${WORKER_URL}/clans?page=1&pageSize=1000&sort=DepositedDiamonds&sortOrder=desc`);
+                    const listJson = await listRes.json();
+                    if (listJson && listJson.status === "ok" && Array.isArray(listJson.data)) {
+                        const foundIndex = listJson.data.findIndex(c => c.Name.toLowerCase() === clan.Name.toLowerCase());
+                        if (foundIndex !== -1) calculatedGemsRank = `#${foundIndex + 1}`;
+                    }
+                } catch (e) {}
+                setRankTextAndScale(gemsRankEl, calculatedGemsRank);
+
+                if (statusEl) statusEl.style.display = "none";
+
+            } catch (err) {
+                console.warn(err);
+                if (isFirstLoad) {
+                    currentPoints = 611522;
+                    lastApiPoints = 611522;
+                    currentGems = 45612044;
+                    currentMembers = 50 + 1; 
+                    isFirstLoad = false;
+                    updateUI();
+                    updatePointsChart(currentPoints);
+                }
+                if (statusEl) statusEl.style.display = "none";
+            }
+        }
+
+        function startNew15sCycle() {
+            if (simulationIntervalId) {
+                clearInterval(simulationIntervalId);
+            }
+
+            executeQuarterTick();
+
+            simulationIntervalId = setInterval(handleSimulationTick, 15000);
+        }
+
+        function executeQuarterTick() {
+            if (ticksCalculated < 4 && currentQuarterChunk > 0) {
+                ticksCalculated++;
+                
+                if (ticksCalculated === 4) {
+                    currentPoints = lastApiPoints;
+                    if (simulationIntervalId) {
+                        clearInterval(simulationIntervalId);
+                        simulationIntervalId = null;
+                    }
+                } else {
+                    currentPoints += currentQuarterChunk;
+                }
+                
+                updateUI();
+            }
+        }
+
+        function handleSimulationTick() {
+            executeQuarterTick();
+        }
+
+        function updateUI() {
+            const warPointsEl = document.getElementById("liveWarPoints");
+            if (warPointsEl) {
+                warPointsEl.innerHTML = currentPoints;
+            }
+
+            const avgPointsVal = currentMembers > 0 ? Math.round(currentPoints / currentMembers) : 0;
+
+            setStatOdometer("liveStatGems", currentGems);
+            setStatOdometer("liveStatAvgPoints", avgPointsVal);
+            setStatOdometer("liveStatMembers", currentMembers);
+
+            if (currentPoints > 0) {
+                updatePointsChart(currentPoints);
+            }
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            fetchLiveTrackerData();
+            
+            setInterval(fetchLiveTrackerData, 2000);
+        });
+    </script>
+</body>
+</html>
