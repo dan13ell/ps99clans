@@ -693,7 +693,6 @@
             gap: 8px !important;
         }
 
-        /* --- STYLY PRO MOBILNÍ VYSKAKOVACÍ NOTIFIKACI --- */
         .orientation-popup-overlay {
             position: fixed;
             top: 0;
@@ -958,7 +957,7 @@
             checkOrientationPopup();
         }
 
-        /* --- LOGIKA ORIENTAČNÍHO POPUPU --- */
+        /* --- LOGIKA ORIENTAČNÍHO POPUPU (BEZ ALERTU) --- */
         function checkOrientationPopup() {
             const popup = document.getElementById("orientationPopup");
             if (!popup) return;
@@ -983,15 +982,9 @@
             hideOrientationPopup();
         });
 
-        document.getElementById("popupRotateActionBtn")?.addEventListener("click", async () => {
-            try {
-                if (screen.orientation && screen.orientation.lock) {
-                    await screen.orientation.lock("landscape");
-                } else {
-                    alert("Please turn your phone sideways!");
-                }
-            } catch (err) {
-                alert("Please turn your phone sideways!");
+        document.getElementById("popupRotateActionBtn")?.addEventListener("click", () => {
+            if (screen.orientation && screen.orientation.lock) {
+                screen.orientation.lock("landscape").catch(() => {});
             }
             isPopupDismissed = true;
             hideOrientationPopup();
