@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PS99 Clans - Top Clans</title>
     <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     
@@ -33,13 +33,24 @@
             user-select: none;
         }
 
-        body {
+        /* UZAMKNUTÍ SCROLLOVÁNÍ STRÁNKY A OKAMŽITÉ VYCENTROVÁNÍ */
+        html, body {
+            width: 100vw;
+            height: 100dvh;
+            margin: 0;
+            padding: 0;
+            overflow: hidden !important;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            overscroll-behavior: none !important;
+            touch-action: none;
             background-color: #89b3f9;
             display: flex;
             justify-content: center;
             align-items: center;
-            min-height: 100vh;
-            overflow-x: hidden;
         }
 
         .app-scaler {
@@ -219,18 +230,20 @@
         .leaderboard-icon:hover:not(:active) { transform: scale(1.03); }
         .leaderboard-icon:active { transform: scale(0.97); }
 
-        /* PRO POSUNUTÍ SCROLLBARU DOPRAVA ZVĚTŠUJ 'width' a zároveň 'padding-right' */
+        /* SEZNAM KLANŮ - POVOLENÍ SCROLLOVÁNÍ UVNITŘ */
         .leaderboard-container {
             position: absolute;
             left: 344px; 
             top: 7px; 
-            width: 770px; /* pro posun doprava zvětši např. na 775px */
+            width: 770px;
             height: 556px; 
             overflow-y: auto;
             overflow-x: hidden; 
             padding-left: 14px; 
-            padding-right: 22px; /* o kolik zvětšíš width, o tolik zvětši i padding-right */
+            padding-right: 22px; 
             z-index: 960;
+            touch-action: pan-y !important;
+            overscroll-behavior: contain !important;
         }
 
         .leaderboard-container::-webkit-scrollbar { width: 15px; height: 29px; }
@@ -598,6 +611,7 @@
             margin-bottom: 10px;
         }
 
+        /* FILTR ZEMÍ - POVOLENÍ SCROLLOVÁNÍ UVNITŘ */
         .country-list-scroll {
             flex: 1;
             overflow-y: auto;
@@ -608,6 +622,8 @@
             padding-left: 2px;
             padding-top: 2px;
             padding-bottom: 2px;
+            touch-action: pan-y !important;
+            overscroll-behavior: contain !important;
         }
 
         .country-list-scroll::-webkit-scrollbar { width: 8px; }
@@ -804,7 +820,7 @@
 
             document.body.classList.add("is-mobile");
             const requiredW = 1120;
-            const requiredH = 960; // Zvětšená požadovaná výška, aby menu na mobilu běželo déle dolů
+            const requiredH = 960; 
 
             const scaleX = winW / requiredW;
             const scaleY = winH / requiredH;
