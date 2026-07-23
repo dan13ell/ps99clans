@@ -3,12 +3,13 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>PS99 Clans - Clan Detail</title>
+    <title>PS99 Clans - Clan Profile</title>
     <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     
     <link rel="preload" as="image" href="https://i.postimg.cc/sfG6nXsc/main-menu.png">
-    <link rel="preload" as="image" href="https://i.postimg.cc/ZnsJsPBt/X.png">
-    <link rel="preload" as="image" href="https://i.postimg.cc/Dz424SzQ/X-clicked.png">
+    <link class="prefetch" href="https://twemoji.maxcdn.com/v/14.0.2/svg/1f1fa-1f1f8.svg">
+    <link rel="preload" as="image" href="https://i.postimg.cc/DfSm1LrP/scroller.png">
+    <link rel="preload" as="image" href="https://i.postimg.cc/pXLVbGQ7/member-menu.png">
 
     <style>
         * {
@@ -47,8 +48,8 @@
 
         .menu-bg {
             display: block;
-            width: 100%;
-            height: 100%;
+            width: auto;
+            height: auto;
             filter: drop-shadow(0px 10px 20px rgba(0, 0, 0, 0.35));
         }
 
@@ -76,7 +77,6 @@
             filter: drop-shadow(0px 4px 6px rgba(0, 0, 0, 0.35));
             transition: all 0.044s cubic-bezier(0.1, 0.9, 0.2, 1);
         }
-
         .close-btn:hover:not(:active) { left: 1042px; top: -34px; width: 76px; height: 77px; }
         .close-btn:active { background-image: url("https://i.postimg.cc/Dz424SzQ/X-clicked.png"); left: 1047px; top: -29px; width: 66px; height: 67px; }
 
@@ -93,12 +93,9 @@
             background-image: url("https://i.postimg.cc/MGrXBkwN/grey.png");
             transition: all 0.044s cubic-bezier(0.1, 0.9, 0.2, 1);
         }
-
         .menu-btn:hover:not(:active) { left: 11px; width: 315px; height: 88px; z-index: 920; }
         .menu-btn:active { background-image: url("https://i.postimg.cc/br1v4snw/grey-clicked.png"); left: 20px; width: 294px; height: 78px; z-index: 900; }
-
         .menu-btn.is-active { background-image: url("https://i.postimg.cc/JhX56QnL/selected.png"); }
-        .menu-btn.is-active:active { background-image: url("https://i.postimg.cc/bNXDLjnT/selected-clicked.png"); left: 20px; width: 294px; height: 78px; z-index: 900; }
 
         .btn-clans { top: 34px; }
         .btn-topclans { top: 124px; }
@@ -112,7 +109,6 @@
             transform-origin: center center;
             transition: transform 0.044s cubic-bezier(0.1, 0.9, 0.2, 1), top 0.044s cubic-bezier(0.1, 0.9, 0.2, 1), left 0.044s cubic-bezier(0.1, 0.9, 0.2, 1);
         }
-
         .text-clans { left: 100px; top: 52px; }
         .text-topclans { left: 53px; top: 140px; }
         .text-people { left: 76px; top: 230px; }
@@ -140,14 +136,502 @@
 
         .tab-content {
             position: absolute;
-            left: 350px;
-            top: 20px;
-            width: 710px;
-            height: 520px;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            padding: 0;
             z-index: 850;
         }
 
-        /* MOBILNÍ ORIENTATION POPUP STYLY */
+        .custom-back-btn {
+            position: absolute;
+            left: 19px;
+            top: 472px;
+            width: 254px;
+            height: 79px;
+            background: url("https://i.postimg.cc/ZKM3vyw0/back-button.png") no-repeat center center;
+            background-size: 100% 100%;
+            cursor: pointer;
+            z-index: 990;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: transform 0.044s cubic-bezier(0.1, 0.9, 0.2, 1);
+            transform-origin: center center;
+            filter: drop-shadow(0px 4px 6px rgba(0, 0, 0, 0.15));
+        }
+        .custom-back-btn:hover:not(:active) {
+            transform: scale(1.05);
+        }
+        .custom-back-btn:active {
+            background-image: url("https://i.postimg.cc/qRJg5k1Q/back-button-clicked.png");
+            transform: scale(0.95);
+        }
+        .custom-back-text {
+            width: 101px;
+            height: 39px;
+            pointer-events: none;
+            transform: translateY(-2px);
+            transition: transform 0.044s cubic-bezier(0.1, 0.9, 0.2, 1);
+        }
+        .custom-back-btn:active .custom-back-text {
+            transform: translateY(1px);
+        }
+
+        .clan-profile-container {
+            position: absolute;
+            left: 334px; 
+            top: 7px; 
+            width: 770px; 
+            height: 556px; 
+            padding-left: 14px; 
+            padding-right: 22px; 
+            z-index: 900;
+            display: block;
+        }
+
+        .clan-detail-title {
+            position: absolute;
+            left: 568px; 
+            top: 25px;   
+            font-size: 48px;
+            color: #000000;
+            -webkit-text-stroke: 6px #000000;
+            stroke-linejoin: round;
+            -webkit-stroke-linejoin: round;
+            paint-order: stroke fill;
+            font-weight: 800 !important;
+            z-index: 910;
+            white-space: nowrap;
+        }
+        .clan-detail-title::after {
+            content: attr(data-text);
+            position: absolute;
+            left: 0;
+            top: 0;
+            -webkit-text-stroke: 0px transparent;
+            background: linear-gradient(to bottom, #7CF6FA, #60E0FE);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .clan-profile-icon-img {
+            position: absolute;
+            left: 338px; 
+            top: 20px;   
+            width: 175px;
+            height: 175px;
+            border-radius: 14px;
+            background-color: #FFFFFF;
+            object-fit: contain;
+            z-index: 910;
+            display: none;
+        }
+
+        .clan-profile-flag-img {
+            position: absolute;
+            left: 340px; 
+            top: 170px;  
+            width: 29px;
+            height: 22px;
+            border-radius: 3px;
+            z-index: 910;
+            display: none;
+            object-fit: cover;
+        }
+
+        .clan-profile-desc {
+            position: absolute;
+            left: 525px; 
+            top: 88px;   
+            width: 230px; 
+            height: 60px; 
+            font-size: 44px; 
+            color: #262C2D;
+            font-weight: 800 !important;
+            line-height: 1.05;
+            word-wrap: break-word;
+            word-break: break-all;
+            overflow-wrap: anywhere;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 910;
+            display: none;
+        }
+
+        .member-count-icon {
+            position: absolute;
+            left: 868px;
+            top: 32px;
+            width: 29.45px;
+            height: 29.45px;
+            background: url("https://i.postimg.cc/9M8YQgSD/people.png") no-repeat center center;
+            background-size: 100% 100%;
+            pointer-events: none;
+            z-index: 950;
+        }
+
+        .detail-members {
+            position: absolute;
+            left: 900px;
+            top: 27px;
+            font-size: 32px;
+            font-weight: 800 !important;
+            color: #000000;
+            -webkit-text-stroke: 6px #000000;
+            stroke-linejoin: round;
+            -webkit-stroke-linejoin: round;
+            paint-order: stroke fill;
+            text-shadow: none !important;
+            pointer-events: none;
+            white-space: nowrap;
+            z-index: 950;
+        }
+        .detail-members::after {
+            content: attr(data-text);
+            position: absolute;
+            left: 0;
+            top: 0;
+            -webkit-text-stroke: 0px transparent;
+            background: linear-gradient(to bottom, #94EFF3, #6AB3E9);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .clan-detail-points-icon {
+            position: absolute;
+            left: 370px; 
+            top: 202px;  
+            width: 51px;
+            height: 41px;
+            object-fit: contain;
+            z-index: 910;
+            display: none;
+        }
+        .clan-detail-points-text {
+            position: absolute;
+            left: 424px; 
+            top: 198px;
+            font-size: 40px;
+            color: #FEFEFE;
+            -webkit-text-stroke: 6px #000000;
+            stroke-linejoin: round;
+            -webkit-stroke-linejoin: round;
+            paint-order: stroke fill;
+            font-weight: 800 !important;
+            white-space: nowrap;
+            z-index: 910;
+            display: none;
+        }
+
+        .clan-detail-gems-icon {
+            position: absolute;
+            left: 547px; 
+            top: 197px;  
+            width: 52px;
+            height: 52px;
+            object-fit: contain;
+            z-index: 910;
+            display: none;
+        }
+        .clan-detail-gems-text {
+            position: absolute;
+            left: 603px; 
+            top: 198px;
+            font-size: 40px;
+            color: #FEFEFE;
+            -webkit-text-stroke: 6px #000000;
+            stroke-linejoin: round;
+            -webkit-stroke-linejoin: round;
+            paint-order: stroke fill;
+            font-weight: 800 !important;
+            white-space: nowrap;
+            z-index: 910;
+            display: none;
+        }
+
+        .clan-detail-place-text {
+            position: absolute;
+            left: 424px; 
+            top: 242px;  
+            font-size: 16px;
+            color: #696A6E;
+            font-weight: 700;
+            white-space: nowrap;
+            z-index: 910;
+            display: none;
+        }
+
+        .clan-status-container {
+            position: absolute;
+            left: 375px; 
+            top: 271px;  
+            width: 330px;
+            display: none; 
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            z-index: 910;
+        }
+
+        .clan-status-message {
+            font-size: 36px;
+            color: #262C2D;
+            font-weight: 800;
+            line-height: 1.1;
+            word-wrap: break-word;
+            word-break: break-all;
+            overflow-wrap: anywhere;
+            margin-bottom: 4px;
+            text-align: center;
+        }
+
+        .clan-status-info {
+            font-size: 24px;
+            color: #9E9E9E;
+            font-weight: 700;
+            white-space: nowrap;
+            text-align: center;
+        }
+
+        .live-stats-btn {
+            position: absolute;
+            left: 378px; 
+            top: 453px;  
+            width: 338px;
+            height: 88px;
+            background: url("https://i.postimg.cc/wTLGC8TM/live-stats-button.png") no-repeat center center;
+            background-size: 100% 100%;
+            cursor: pointer;
+            z-index: 990;
+            transition: all 0.044s cubic-bezier(0.1, 0.9, 0.2, 1);
+        }
+        .live-stats-btn:hover:not(:active) {
+            left: 374px;
+            top: 450px;
+            width: 346px;
+            height: 94px;
+        }
+        .live-stats-btn:active {
+            background-image: url("https://i.postimg.cc/g2KB0Vhb/live-stats-button-clicked.png");
+            left: 381px;
+            top: 456px;
+            width: 332px;
+            height: 82px;
+        }
+
+        .live-stats-text {
+            position: absolute;
+            left: 432px; 
+            top: 465px;  
+            width: 230px; 
+            height: 60px;
+            object-fit: contain;
+            pointer-events: none;
+            z-index: 995;
+            transform-origin: center center;
+            transition: transform 0.044s cubic-bezier(0.1, 0.9, 0.2, 1), top 0.044s cubic-bezier(0.1, 0.9, 0.2, 1), left 0.044s cubic-bezier(0.1, 0.9, 0.2, 1);
+        }
+        .live-stats-btn:hover:not(:active) ~ .live-stats-text {
+            transform: scale(1.06) translate(-2px, 1px);
+        }
+        .live-stats-btn:active ~ .live-stats-text {
+            transform: scale(0.94) translate(3px, 3px);
+        }
+
+        .members-scroll-area {
+            position: absolute;
+            left: 765px; 
+            top: 65px;   
+            width: 339px; 
+            height: 498px; 
+            overflow-y: auto;
+            overflow-x: hidden;
+            padding-right: 2px;
+            z-index: 920;
+        }
+        .members-scroll-area, .members-scroll-area * {
+            border: none !important;
+            outline: none !important;
+        }
+        .members-scroll-area::-webkit-scrollbar { 
+            width: 15px; 
+            background: transparent;
+        }
+        .members-scroll-area::-webkit-scrollbar-track { 
+            background: transparent; 
+        }
+        .members-scroll-area::-webkit-scrollbar-thumb { 
+            background: url("https://i.postimg.cc/DfSm1LrP/scroller.png") no-repeat center;
+            background-size: 15px auto;
+            image-rendering: pixelated;
+            border-radius: 0;
+        }
+
+        .member-card {
+            width: 313px;
+            height: 110px;
+            background: url("https://i.postimg.cc/pXLVbGQ7/member-menu.png") no-repeat center center;
+            background-size: 100% 100%;
+            margin-bottom: 6px;
+            position: relative; 
+            image-rendering: pixelated;
+            display: block;
+        }
+
+        .member-username-text {
+            position: absolute;
+            left: 10px;
+            top: 7px;
+            font-size: 22px;
+            color: #FEFEFE;
+            -webkit-text-stroke: 6px #000000;
+            stroke-linejoin: round;
+            -webkit-stroke-linejoin: round;
+            paint-order: stroke fill;
+            font-weight: 800 !important;
+            white-space: nowrap;
+            pointer-events: none;
+            z-index: 935;
+        }
+
+        .member-rank-text {
+            position: absolute;
+            left: 11px;
+            top: 32px;
+            font-size: 21px;
+            font-weight: 800 !important;
+            -webkit-text-stroke: 5px #000000;
+            stroke-linejoin: round;
+            -webkit-stroke-linejoin: round;
+            paint-order: stroke fill;
+            white-space: nowrap;
+            pointer-events: none;
+            z-index: 930;
+        }
+
+        .rank-leader {
+            color: #00FF7F;
+        }
+
+        .rank-officer {
+            color: #76F1FB;
+        }
+
+        .member-avatar-container {
+            position: absolute;
+            left: 4px;
+            top: 33px;
+            width: 66px;
+            height: 73px;
+            overflow: hidden;
+            pointer-events: none;
+            z-index: 925;
+        }
+
+        .member-avatar-img {
+            position: absolute;
+            width: 90px;
+            height: 90px;
+            left: -24px;
+            top: 0;
+            object-fit: contain;
+        }
+
+        .member-stats-container {
+            position: absolute;
+            right: 8px; 
+            top: 61px;  
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            pointer-events: none;
+            z-index: 935;
+        }
+
+        .member-stat-gem-text,
+        .member-stat-star-text {
+            font-size: 31px;
+            color: #FEFEFE;
+            -webkit-text-stroke: 6px #000000;
+            stroke-linejoin: round;
+            -webkit-stroke-linejoin: round;
+            paint-order: stroke fill;
+            font-weight: 800 !important;
+            white-space: nowrap;
+        }
+
+        .member-stat-star-text {
+            margin-right: 9px; 
+        }
+
+        .member-stat-gem-icon {
+            width: 40px;
+            height: 40px;
+            margin-right: 3px; 
+            object-fit: contain;
+        }
+
+        .member-stat-star-icon {
+            width: 37px;
+            height: 30px;
+            margin-right: 3px; 
+            object-fit: contain;
+        }
+
+        .clan-error {
+            position: absolute;
+            left: -10px;
+            top: 220px;
+            width: 770px;
+            text-align: center;
+            font-size: 64px;
+            font-weight: 800;
+            color: #FF5555;
+            -webkit-text-stroke: 6px #000000;
+            stroke-linejoin: round;
+            paint-order: stroke fill;
+            z-index: 950;
+        }
+
+        .clan-loading {
+            position: absolute;
+            left: -10px;
+            top: 220px;
+            width: 770px;
+            text-align: center;
+            font-size: 32px;
+            font-weight: 800;
+            color: #B1B1B1;
+            z-index: 950;
+        }
+
+        html, body {
+            width: 100vw;
+            height: 100dvh;
+            margin: 0;
+            padding: 0;
+            overflow: hidden !important;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            overscroll-behavior: none !important;
+            touch-action: none;
+        }
+
+        .members-scroll-area {
+            touch-action: pan-y !important;
+            overscroll-behavior: contain !important;
+        }
+
+        /* --- STYLY PRO MOBILNÍ NOTIFIKACI --- */
         .orientation-popup-overlay {
             position: fixed;
             top: 0;
@@ -290,8 +774,41 @@
             <img class="menu-text text-people" src="https://i.postimg.cc/vBjLqZp7/leagues-text.png" draggable="false">
             <img class="menu-text text-search" src="https://i.postimg.cc/9FW6TDfB/text-People.png" draggable="false">
             
-            <div class="tab-content" id="tab-detail">
-                <!-- Obsah detailu klanu -->
+            <div class="tab-content" id="tab-clan-profile">
+                <div class="custom-back-btn" onclick="location.href='topclans.html'">
+                    <img class="custom-back-text" src="https://i.postimg.cc/TPqp0yJ3/Back-text.png" draggable="false">
+                </div>
+
+                <div class="clan-detail-title" id="clanTitle" data-text="...">...</div>
+                <img class="clan-profile-icon-img" id="clanIcon" src="" onerror="this.src='https://placehold.co/175x175/ffffff/000000?text=Clan'">
+                <img class="clan-profile-flag-img" id="clanFlag" src="" onerror="this.style.display='none'">
+                <div class="clan-profile-desc" id="clanDesc">...</div>
+                
+                <img class="clan-detail-points-icon" id="clanPointsIcon" src="https://i.postimg.cc/4dJnZ5sH/stars.png" >
+                <div class="clan-detail-points-text" id="clanPointsText">0</div>
+                
+                <img class="clan-detail-gems-icon" id="clanGemsIcon" src="https://i.postimg.cc/qv9DgndB/gems.png" >
+                <div class="clan-detail-gems-text" id="clanGemsText">0</div>
+                
+                <div class="clan-detail-place-text" id="clanPlaceText">Place: Loading...</div>
+                
+                <div class="clan-status-container" id="clanStatusContainer">
+                    <div class="clan-status-message" id="clanStatusMessage">...</div>
+                    <div class="clan-status-info" id="clanStatusInfo">...</div>
+                </div>
+                
+                <div class="live-stats-btn" id="liveStatsBtn" ></div>
+                <img class="live-stats-text" src="https://i.postimg.cc/qRNmQW5T/live-stats-text.png" draggable="false">
+                
+                <div class="member-count-icon"></div>
+                <div class="detail-members" id="clanMemberCount" data-text="0/75">0/75</div>
+
+                <div class="members-scroll-area" id="membersListContainer">
+                </div>
+
+                <div class="clan-profile-container" id="clanProfileContent">
+                    <div class="clan-loading" id="loadingState">Loading clan details...</div>
+                </div>
             </div>
             
             <div class="close-btn" onclick="location.href='topclans.html'" ></div>
@@ -317,6 +834,8 @@
     </div>
 
     <script>
+        const WORKER_URL = "https://rough-pine-d90f.ps99clans.workers.dev";
+
         function autoFitScreen() {
             const scaler = document.getElementById("appScaler");
             if (!scaler) return;
@@ -344,7 +863,7 @@
             checkOrientationPopup();
         }
 
-        /* --- LOGIKA ORIENTAČNÍHO POPUPU (ZOBRAZÍ SE POUZE JEDNOU) --- */
+        /* --- LOGIKA ORIENTAČNÍHO POPUPU --- */
         function checkOrientationPopup() {
             const popup = document.getElementById("orientationPopup");
             if (!popup) return;
@@ -384,7 +903,484 @@
 
         window.addEventListener("resize", autoFitScreen);
         window.addEventListener("orientationchange", autoFitScreen);
-        window.addEventListener('DOMContentLoaded', autoFitScreen);
+
+        function formatNumber(num) {
+            if (num === undefined || num === null || isNaN(num)) return "0";
+            if (num === 0) return "0";
+            
+            const suffixes = ["", "k", "m", "b", "t"];
+            let suffixIndex = 0;
+            let val = Math.abs(num);
+            
+            while (val >= 1000 && suffixIndex < suffixes.length - 1) {
+                val /= 1000;
+                suffixIndex++;
+            }
+            
+            let formattedVal;
+            if (val >= 100) {
+                formattedVal = val.toFixed(0);
+            } else if (val >= 10) {
+                formattedVal = val.toFixed(1);
+            } else {
+                formattedVal = val.toFixed(2);
+            }
+            
+            if (formattedVal.includes('.')) {
+                formattedVal = formattedVal.replace(/\.?0+$/, '');
+            }
+            
+            return (num < 0 ? "-" : "") + formattedVal + suffixes[suffixIndex];
+        }
+
+        function timeAgo(timestamp) {
+            if (!timestamp) return "";
+            const seconds = Math.floor(Date.now() / 1000 - timestamp);
+            if (seconds < 60) {
+                return `${seconds} ${seconds === 1 ? 'second' : 'seconds'} ago`;
+            }
+            const minutes = Math.floor(seconds / 60);
+            if (minutes < 60) {
+                return `${minutes} ${minutes === 1 ? 'minute' : 'minutes'} ago`;
+            }
+            const hours = Math.floor(minutes / 60);
+            if (hours < 24) {
+                return `${hours} ${hours === 1 ? 'hour' : 'hours'} ago`;
+            }
+            const days = Math.floor(hours / 24);
+            return `${days} ${days === 1 ? 'day' : 'days'} ago`;
+        }
+
+        function getTwemojiUrl(countryCode) {
+            if (!countryCode || countryCode.length !== 2) return "https://twemoji.maxcdn.com/v/14.0.2/svg/1f1fa-1f1f8.svg";
+            const codePoints = countryCode.toUpperCase().split('').map(char => 0x1F1E6 + char.charCodeAt(0) - 65);
+            return `https://twemoji.maxcdn.com/v/14.0.2/svg/${codePoints[0].toString(16)}-${codePoints[1].toString(16)}.svg`;
+        }
+
+        function getClanIconUrl(iconString) {
+            if (!iconString) return "https://placehold.co/175x175/ffffff/000000?text=No+Icon";
+            const cleanId = iconString.replace("rbxassetid://", "").trim();
+            if (!cleanId) return "https://placehold.co/175x175/ffffff/000000?text=No+Icon";
+            return `https://ps99.biggamesapi.io/image/${cleanId}`;
+        }
+
+        function adjustDescSize(el) {
+            if (!el) return;
+            let currentSize = 44;
+            el.style.fontSize = currentSize + "px";
+            while (el.scrollHeight > 60 && currentSize > 12) {
+                currentSize--;
+                el.style.fontSize = currentSize + "px";
+            }
+        }
+
+        function sanitizeStatusHTML(rawHtml) {
+            if (!rawHtml) return "";
+            const temp = document.createElement("div");
+            temp.innerHTML = rawHtml;
+            
+            function processNode(node) {
+                if (node.nodeType === Node.TEXT_NODE) {
+                    return node.nodeValue;
+                }
+                if (node.nodeType === Node.ELEMENT_NODE) {
+                    const tagName = node.tagName.toLowerCase();
+                    let colorStyle = "";
+                    if (tagName === "font") {
+                        const color = node.getAttribute("color");
+                        if (color) {
+                            colorStyle = `color: ${color};`;
+                        }
+                    } else if (node.style && node.style.color) {
+                        colorStyle = `color: ${node.style.color};`;
+                    }
+                    
+                    let childrenHtml = "";
+                    node.childNodes.forEach(child => {
+                        childrenHtml += processNode(child);
+                    });
+                    
+                    if (colorStyle) {
+                        return `<span style="${colorStyle} font-size: inherit; font-family: inherit;">${childrenHtml}</span>`;
+                    }
+                    return childrenHtml;
+                }
+                return "";
+            }
+            
+            let finalHtml = "";
+            temp.childNodes.forEach(node => {
+                finalHtml += processNode(node);
+            });
+            
+            return finalHtml.trim() || temp.textContent.trim();
+        }
+
+        function hideMemberCountUI() {
+            const countIcon = document.querySelector(".member-count-icon");
+            const countText = document.getElementById("clanMemberCount");
+            const clanIconEl = document.getElementById("clanIcon");
+            const flagEl = document.getElementById("clanFlag");
+            const descEl = document.getElementById("clanDesc");
+            const pointsIconEl = document.getElementById("clanPointsIcon");
+            const pointsTextEl = document.getElementById("clanPointsText");
+            const gemsIconEl = document.getElementById("clanGemsIcon");
+            const gemsTextEl = document.getElementById("clanGemsText");
+            const placeTextEl = document.getElementById("clanPlaceText");
+            const statusContainerEl = document.getElementById("clanStatusContainer");
+            const liveBtn = document.getElementById("liveStatsBtn");
+            const liveTxt = document.querySelector(".live-stats-text");
+
+            if (countIcon) countIcon.style.display = "none";
+            if (countText) countText.style.display = "none";
+            if (clanIconEl) clanIconEl.style.display = "none";
+            if (flagEl) flagEl.style.display = "none";
+            if (descEl) descEl.style.display = "none";
+            if (pointsIconEl) pointsIconEl.style.display = "none";
+            if (pointsTextEl) pointsTextEl.style.display = "none";
+            if (gemsIconEl) gemsIconEl.style.display = "none";
+            if (gemsTextEl) gemsTextEl.style.display = "none";
+            if (placeTextEl) placeTextEl.style.display = "none";
+            if (statusContainerEl) statusContainerEl.style.display = "none";
+            if (liveBtn) liveBtn.style.display = "none";
+            if (liveTxt) liveTxt.style.display = "none";
+        }
+
+        async function fetchRobloxUserData(userIds) {
+            if (!userIds || userIds.length === 0) return { usernames: {}, avatars: {} };
+            
+            const usernames = {};
+            const avatars = {};
+
+            try {
+                const userRes = await fetch(`${WORKER_URL}/roblox/users`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ userIds: userIds, excludeBannedUsers: false })
+                });
+                const userData = await userRes.json();
+                if (userData && userData.data) {
+                    userData.data.forEach(user => {
+                        usernames[user.id] = {
+                            name: user.name,
+                            displayName: user.displayName
+                        };
+                    });
+                }
+            } catch (e) {
+                console.warn("Failed to fetch Roblox usernames", e);
+            }
+
+            try {
+                const avatarRes = await fetch(`${WORKER_URL}/roblox/avatars?userIds=${userIds.join(',')}&size=180x180&format=Png&isCircular=true`);
+                const avatarData = await avatarRes.json();
+                if (avatarData && avatarData.data) {
+                    avatarData.data.forEach(item => {
+                        avatars[item.targetId] = item.imageUrl;
+                    });
+                }
+            } catch (e) {
+                console.warn("Failed to fetch Roblox avatars", e);
+            }
+
+            return { usernames, avatars };
+        }
+
+        async function loadClanProfile(isSilent = false) {
+            const params = new URLSearchParams(window.location.search);
+            const clanName = params.get('name');
+            const container = document.getElementById("clanProfileContent");
+            const titleEl = document.getElementById("clanTitle");
+            const clanIconEl = document.getElementById("clanIcon");
+            const flagEl = document.getElementById("clanFlag");
+            const descEl = document.getElementById("clanDesc");
+            const memberCountEl = document.getElementById("clanMemberCount");
+            const listContainer = document.getElementById("membersListContainer");
+            const liveBtn = document.getElementById("liveStatsBtn");
+
+            if (!clanName) {
+                if (container) {
+                    container.innerHTML = `<div class="clan-error">No clan specified!</div>`;
+                }
+                hideMemberCountUI();
+                return;
+            }
+
+            if (!isSilent) {
+                const loadingEl = document.getElementById("loadingState");
+                if (loadingEl) loadingEl.style.display = "block";
+            }
+
+            if (liveBtn) {
+                liveBtn.setAttribute("onclick", `location.href='live.html?name=${encodeURIComponent(clanName)}'`);
+            }
+
+            const savedScrollTop = listContainer ? listContainer.scrollTop : 0;
+
+            try {
+                const res = await fetch(`${WORKER_URL}/clan/${clanName}`);
+                const responseData = await res.json();
+
+                if (!responseData || responseData.status !== "ok" || !responseData.data) {
+                    if (container) {
+                        container.innerHTML = `<div class="clan-error">Clan [${clanName}] not found!</div>`;
+                    }
+                    hideMemberCountUI();
+                    return;
+                }
+
+                const clan = responseData.data;
+                const membersList = clan.Members || [];
+
+                if (titleEl) {
+                    const cleanName = `[${clan.Name}]`;
+                    titleEl.textContent = cleanName;
+                    titleEl.setAttribute("data-text", cleanName);
+                }
+
+                if (clanIconEl) {
+                    clanIconEl.src = getClanIconUrl(clan.Icon);
+                    clanIconEl.style.display = "block";
+                }
+
+                if (flagEl && clan.CountryCode) {
+                    flagEl.src = getTwemojiUrl(clan.CountryCode);
+                    flagEl.style.display = "block";
+                }
+
+                if (descEl) {
+                    descEl.textContent = clan.Desc || "No description.";
+                    descEl.style.display = "flex";
+                    adjustDescSize(descEl);
+                }
+
+                const diamondMap = {};
+                if (clan.DiamondContributions && clan.DiamondContributions.AllTime && Array.isArray(clan.DiamondContributions.AllTime.Data)) {
+                    clan.DiamondContributions.AllTime.Data.forEach(item => {
+                        diamondMap[item.UserID] = item.Diamonds || 0;
+                    });
+                } else if (clan.DiamondContributions && Array.isArray(clan.DiamondContributions.Data)) {
+                    clan.DiamondContributions.Data.forEach(item => {
+                        diamondMap[item.UserID] = item.Diamonds || 0;
+                    });
+                }
+
+                let activeBattleId = "";
+                try {
+                    const battleRes = await fetch(`${WORKER_URL}/activeClanBattle`);
+                    const battleJson = await battleRes.json();
+                    if (battleJson && battleJson.status === "ok" && battleJson.data) {
+                        activeBattleId = battleJson.data.Title || battleJson.data.configName || "";
+                    }
+                } catch (battleError) {
+                    console.warn("Could not fetch active clan battle ID", battleError);
+                }
+
+                const pointsMap = {};
+                let activeWarTotalPoints = 0; 
+                let activeWarPlace = null; 
+                if (activeBattleId && clan.Battles) {
+                    let matchedBattle = null;
+                    if (Array.isArray(clan.Battles)) {
+                        matchedBattle = clan.Battles.find(b => b.BattleID === activeBattleId);
+                    } else if (typeof clan.Battles === 'object') {
+                        matchedBattle = clan.Battles[activeBattleId];
+                        if (!matchedBattle) {
+                            matchedBattle = Object.values(clan.Battles).find(b => b.BattleID === activeBattleId);
+                        }
+                    }
+
+                    if (matchedBattle) {
+                        activeWarTotalPoints = matchedBattle.Points || 0;
+                        activeWarPlace = matchedBattle.Place || null; 
+
+                        if (matchedBattle.PointContributions) {
+                            matchedBattle.PointContributions.forEach(item => {
+                                pointsMap[item.UserID] = item.Points || 0;
+                            });
+                        }
+                    }
+                }
+
+                const totalPoints = activeWarTotalPoints || clan.Points || 0;
+                const pointsTextEl = document.getElementById("clanPointsText");
+                const pointsIconEl = document.getElementById("clanPointsIcon");
+                if (pointsTextEl && pointsIconEl) {
+                    pointsTextEl.textContent = formatNumber(totalPoints);
+                    pointsTextEl.style.display = "block";
+                    pointsIconEl.style.display = "block";
+                }
+
+                const totalDiamonds = clan.DepositedDiamonds || 0;
+                const gemsTextEl = document.getElementById("clanGemsText");
+                const gemsIconEl = document.getElementById("clanGemsIcon");
+                if (gemsTextEl && gemsIconEl) {
+                    gemsTextEl.textContent = formatNumber(totalDiamonds);
+                    gemsTextEl.style.display = "block";
+                    gemsIconEl.style.display = "block";
+                }
+
+                let rankPlace = "N/A";
+                if (activeWarPlace !== null && activeWarPlace !== undefined) {
+                    rankPlace = `#${activeWarPlace}`;
+                } else {
+                    try {
+                        const listRes = await fetch(`${WORKER_URL}/clans?page=1&pageSize=1000&sort=Points&sortOrder=desc`);
+                        const listJson = await listRes.json();
+                        if (listJson && listJson.status === "ok" && Array.isArray(listJson.data)) {
+                            const foundIndex = listJson.data.findIndex(c => c.Name.toLowerCase() === clan.Name.toLowerCase());
+                            if (foundIndex !== -1) {
+                                rankPlace = `#${foundIndex + 1}`;
+                            }
+                        }
+                    } catch (e) {
+                        console.warn("Could not calculate global rank", e);
+                    }
+                }
+                
+                const placeTextEl = document.getElementById("clanPlaceText");
+                if (placeTextEl) {
+                    placeTextEl.textContent = `Place: ${rankPlace}`;
+                    placeTextEl.style.display = "block";
+                }
+
+                const statusMsg = clan.Status || "";
+                const statusUser = clan.StatusUsername || "";
+                const statusTime = clan.StatusTimestamp || 0;
+
+                const statusContainerEl = document.getElementById("clanStatusContainer");
+                const statusMsgEl = document.getElementById("clanStatusMessage");
+                const statusInfoEl = document.getElementById("clanStatusInfo");
+
+                if (statusMsg && statusContainerEl && statusMsgEl && statusInfoEl) {
+                    const sanitizedMessage = sanitizeStatusHTML(statusMsg);
+                    statusMsgEl.innerHTML = `"${sanitizedMessage}" - ${statusUser}`;
+                    
+                    let timeText = "";
+                    if (statusTime) {
+                        timeText = timeAgo(statusTime);
+                    }
+                    statusInfoEl.textContent = timeText ? `(${timeText})` : "";
+                    
+                    statusContainerEl.style.display = "flex";
+                } else {
+                    if (statusContainerEl) statusContainerEl.style.display = "none";
+                }
+
+                const ownerId = clan.Owner;
+                
+                let ownerMember = membersList.find(m => m.UserID === ownerId);
+                if (!ownerMember) {
+                    ownerMember = {
+                        UserID: ownerId,
+                        PermissionLevel: 100
+                    };
+                } else {
+                    ownerMember.PermissionLevel = 100;
+                }
+
+                let rawMembersList = membersList.filter(m => m.UserID !== ownerId);
+
+                const mappedMembers = rawMembersList.map(member => {
+                    const uid = member.UserID;
+                    return {
+                        ...member,
+                        resolvedPoints: pointsMap[uid] || 0,
+                        resolvedDiamonds: diamondMap[uid] || 0
+                    };
+                });
+
+                const officers = mappedMembers.filter(m => m.PermissionLevel === 90);
+                const regularMembers = mappedMembers.filter(m => m.PermissionLevel < 90);
+
+                officers.sort((a, b) => b.resolvedPoints - a.resolvedPoints);
+                regularMembers.sort((a, b) => b.resolvedPoints - a.resolvedPoints);
+
+                const leaderPoints = pointsMap[ownerId] || 0;
+                const leaderDiamonds = diamondMap[ownerId] || 0;
+                const leaderMember = {
+                    ...ownerMember,
+                    resolvedPoints: leaderPoints,
+                    resolvedDiamonds: leaderDiamonds
+                };
+
+                const finalMembersList = [leaderMember, ...officers, ...regularMembers];
+
+                const mCount = finalMembersList.length;
+                const mCap = clan.MemberCapacity || 75;
+                
+                if (memberCountEl) {
+                    const textValue = `${mCount}/${mCap}`;
+                    memberCountEl.setAttribute("data-text", textValue);
+                    memberCountEl.textContent = textValue;
+                    memberCountEl.style.display = "block";
+                }
+                const countIcon = document.querySelector(".member-count-icon");
+                if (countIcon) countIcon.style.display = "block";
+
+                const userIds = finalMembersList.map(m => m.UserID);
+                const { usernames, avatars } = await fetchRobloxUserData(userIds);
+
+                let membersHtml = "";
+                finalMembersList.forEach(member => {
+                    const uid = member.UserID;
+                    const robloxData = usernames[uid] || { name: `Player_${uid}` };
+                    const usernameWithAt = `@${robloxData.name}`;
+                    const avatarUrl = avatars[uid] || "https://placehold.co/150x150/ffffff/000000?text=Roblox";
+
+                    let rankHtml = "";
+                    if (member.PermissionLevel >= 100) {
+                        rankHtml = `<div class="member-rank-text rank-leader">Leader</div>`;
+                    } else if (member.PermissionLevel === 90) {
+                        rankHtml = `<div class="member-rank-text rank-officer">Officer</div>`;
+                    }
+
+                    const userPoints = member.resolvedPoints || 0;
+                    const userDiamonds = member.resolvedDiamonds || 0;
+
+                    membersHtml += `
+                        <div class="member-card">
+                            <div class="member-username-text">${usernameWithAt}</div>
+                            ${rankHtml}
+                            <div class="member-avatar-container">
+                                <img class="member-avatar-img" src="${avatarUrl}" onerror="this.src='https://placehold.co/150x150/ffffff/000000?text=Roblox'">
+                            </div>
+                            
+                            <div class="member-stats-container">
+                                <img class="member-stat-star-icon" src="https://i.postimg.cc/4dJnZ5sH/stars.png" >
+                                <span class="member-stat-star-text">${formatNumber(userPoints)}</span>
+                                <img class="member-stat-gem-icon" src="https://i.postimg.cc/qv9DgndB/gems.png" >
+                                <span class="member-stat-gem-text">${formatNumber(userDiamonds)}</span>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                if (listContainer) {
+                    listContainer.innerHTML = membersHtml;
+                    listContainer.scrollTop = savedScrollTop;
+                }
+
+                const loadingEl = document.getElementById("loadingState");
+                if (loadingEl) loadingEl.style.display = "none";
+
+            } catch (err) {
+                console.error(err);
+                if (container && !isSilent) {
+                    container.innerHTML = `<div class="clan-error">Error loading clan details!</div>`;
+                }
+                hideMemberCountUI();
+            }
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            autoFitScreen();
+            loadClanProfile(false);
+            
+            setInterval(() => {
+                loadClanProfile(true);
+            }, 60000);
+        });
     </script>
 </body>
 </html>
