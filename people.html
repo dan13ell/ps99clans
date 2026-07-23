@@ -1,0 +1,805 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>PS99 Clans - Top Players</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <link rel="preload" as="image" href="https://i.postimg.cc/sfG6nXsc/main-menu.png">
+    <link rel="preload" as="image" href="https://i.postimg.cc/ZnsJsPBt/X.png">
+    <link rel="preload" as="image" href="https://i.postimg.cc/Dz424SzQ/X-clicked.png">
+    <link rel="preload" as="image" href="https://i.postimg.cc/DfSm1LrP/scroller.png">
+    <link rel="preload" as="image" href="https://i.postimg.cc/3RwQtGxJ/page-select.png">
+    <link rel="preload" as="image" href="https://i.postimg.cc/FskNt0gt/sipka-leva.png">
+    <link rel="preload" as="image" href="https://i.postimg.cc/VNp2WVpx/sipka-prava.png">
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Fredoka', sans-serif !important;
+            font-weight: 600;
+            user-select: none;
+        }
+
+        body {
+            background-color: #89b3f9;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .app-scaler {
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transform-origin: center center;
+        }
+
+        .game-window {
+            position: relative;
+            display: inline-block;
+            width: 1110px;
+            height: 570px;
+            overflow: visible;
+        }
+
+        .menu-bg {
+            display: block;
+            width: auto;
+            height: auto;
+            filter: drop-shadow(0px 10px 20px rgba(0, 0, 0, 0.35));
+        }
+
+        .clans-logo {
+            position: absolute;
+            left: -36px;
+            top: -69px;
+            width: 315px;
+            height: 117px;
+            background: url("https://i.postimg.cc/PfW18xLb/clans-logo.png") no-repeat center center;
+            background-size: 100% 100%;
+            z-index: 998;
+        }
+
+        .close-btn {
+            position: absolute;
+            left: 1044px; 
+            top: -30px; 
+            width: 72px;  
+            height: 73px; 
+            background: url("https://i.postimg.cc/ZnsJsPBt/X.png") no-repeat center center;
+            background-size: 100% 100%;
+            cursor: pointer;
+            z-index: 999;
+            filter: drop-shadow(0px 4px 6px rgba(0, 0, 0, 0.35));
+            transition: all 0.044s cubic-bezier(0.1, 0.9, 0.2, 1);
+        }
+
+        .close-btn:hover:not(:active) { left: 1042px; top: -34px; width: 76px; height: 77px; }
+        .close-btn:active { background-image: url("https://i.postimg.cc/Dz424SzQ/X-clicked.png"); left: 1047px; top: -29px; width: 66px; height: 67px; }
+
+        .menu-btn {
+            position: absolute;
+            left: 14px;
+            width: 306px;
+            height: 84px;
+            background-size: 100% 100%;
+            background-repeat: no-repeat;
+            background-position: center;
+            cursor: pointer;
+            z-index: 900;
+            background-image: url("https://i.postimg.cc/MGrXBkwN/grey.png");
+            transition: all 0.044s cubic-bezier(0.1, 0.9, 0.2, 1);
+        }
+
+        .menu-btn:hover:not(:active) { left: 11px; width: 315px; height: 88px; z-index: 920; }
+        .menu-btn:active { background-image: url("https://i.postimg.cc/br1v4snw/grey-clicked.png"); left: 20px; width: 294px; height: 78px; z-index: 900; }
+
+        .menu-btn.is-active { background-image: url("https://i.postimg.cc/JhX56QnL/selected.png"); }
+        .menu-btn.is-active:active { background-image: url("https://i.postimg.cc/bNXDLjnT/selected-clicked.png"); left: 20px; width: 294px; height: 78px; z-index: 900; }
+
+        .btn-clans { top: 34px; }
+        .btn-topclans { top: 124px; }
+        .btn-people { top: 214px; }
+        .btn-search { top: 304px; }
+
+        .menu-text {
+            position: absolute;
+            pointer-events: none;
+            z-index: 950;
+            transform-origin: center center;
+            transition: transform 0.044s cubic-bezier(0.1, 0.9, 0.2, 1), top 0.044s cubic-bezier(0.1, 0.9, 0.2, 1), left 0.044s cubic-bezier(0.1, 0.9, 0.2, 1);
+        }
+
+        .text-clans { left: 100px; top: 52px; }
+        .text-topclans { left: 53px; top: 140px; }
+        .text-people { left: 76px; top: 230px; }
+        .text-search { left: 88px; top: 322px; }
+
+        .btn-clans:hover:not(:active) ~ .text-clans { transform: scale(1.06) translate(-3px, 2px); }
+        .btn-topclans:hover:not(:active) ~ .text-topclans { transform: scale(1.06) translate(-3px, 2px); }
+        .btn-people:hover:not(:active) ~ .text-people { transform: scale(1.06) translate(-3px, 2px); }
+        .btn-search:hover:not(:active) ~ .text-search { transform: scale(1.06) translate(-3px, 2px); }
+
+        .btn-clans:hover:not(:active) ~ .btn-topclans { top: 128px; }
+        .btn-clans:hover:not(:active) ~ .text-topclans { top: 144px; }
+        .btn-clans:hover:not(:active) ~ .btn-people { top: 218px; }
+        .btn-clans:hover:not(:active) ~ .text-people { top: 234px; }
+        .btn-clans:hover:not(:active) ~ .btn-search { top: 308px; }
+        .btn-clans:hover:not(:active) ~ .text-search { top: 326px; }
+
+        .btn-topclans:hover:not(:active) ~ .btn-people { top: 218px; }
+        .btn-topclans:hover:not(:active) ~ .text-people { top: 234px; }
+        .btn-topclans:hover:not(:active) ~ .btn-search { top: 308px; }
+        .btn-topclans:hover:not(:active) ~ .text-search { top: 326px; }
+
+        .btn-people:hover:not(:active) ~ .btn-search { top: 308px; }
+        .btn-people:hover:not(:active) ~ .text-search { top: 326px; }
+
+        .tab-content {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            padding: 0;
+            z-index: 850;
+        }
+
+        .leaderboard-search-asset {
+            position: absolute;
+            left: 661px; 
+            top: -18px; 
+            width: 330px;
+            height: 48px;
+            background: url("https://i.postimg.cc/L8VCntY9/topclans-leaderboard-search.png") no-repeat center center;
+            background-size: 100% 100%;
+            z-index: 990;
+        }
+
+        .leaderboard-search-input {
+            width: 100%;
+            height: 100%;
+            background: transparent;
+            border: none;
+            outline: none;
+            padding: 0 15px 0 20px;
+            color: #000000;
+            font-size: 28px;
+            font-weight: 800;
+            text-align: right;
+        }
+        .leaderboard-search-input::placeholder { color: #B1B1B1; font-weight: 600; }
+
+        .leaderboard-container {
+            position: absolute;
+            left: 334px; 
+            top: 35px; 
+            width: 770px; 
+            height: 528px; 
+            overflow-y: auto;
+            overflow-x: hidden; 
+            padding-left: 10px; 
+            padding-right: 15px; 
+            z-index: 960;
+        }
+
+        .leaderboard-container::-webkit-scrollbar { 
+            width: 15px; 
+        }
+        .leaderboard-container::-webkit-scrollbar-track { 
+            background: transparent; 
+        }
+        .leaderboard-container::-webkit-scrollbar-thumb { 
+            background: url("https://i.postimg.cc/DfSm1LrP/scroller.png") no-repeat center center;
+            background-size: 15px 29px; 
+            image-rendering: pixelated; 
+            min-height: 45px;
+        }
+
+        .players-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 234px);
+            gap: 15px;
+            justify-content: start;
+            margin-top: 10px;
+            margin-bottom: 15px;
+            min-height: 245px;
+        }
+
+        .player-card {
+            width: 234px;
+            height: 245px;
+            background-color: #FFFFFF;
+            border: 4px solid #1c1d22;
+            border-radius: 20px;
+            box-shadow: inset 0px -6px 0px #e0e0e0, 0px 8px 16px rgba(0, 0, 0, 0.15);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 15px 10px;
+            transition: all 0.15s cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+        .player-card:hover {
+            transform: translateY(-5px) scale(1.03);
+            border-color: #0073ff;
+            box-shadow: inset 0px -6px 0px #d4e5ff, 0px 12px 24px rgba(0, 115, 255, 0.2);
+        }
+
+        .player-rank {
+            position: absolute;
+            left: 12px;
+            top: 10px;
+            font-size: 24px;
+            font-weight: 900 !important;
+            color: #ffffff;
+            -webkit-text-stroke: 4px #1c1d22;
+            paint-order: stroke fill;
+            z-index: 15;
+        }
+
+        .player-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background-color: #f0f4ff;
+            border: 4px solid #1c1d22;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+            object-fit: cover;
+            margin-bottom: 10px;
+            transition: border-color 0.15s ease;
+        }
+        .player-card:hover .player-avatar {
+            border-color: #0073ff;
+        }
+
+        .player-userid {
+            font-size: 20px;
+            color: #FFFFFF;
+            -webkit-text-stroke: 4px #1c1d22;
+            paint-order: stroke fill;
+            font-weight: 800 !important;
+            text-align: center;
+            width: 100%;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            margin-bottom: 6px;
+        }
+
+        .player-clan-badge {
+            background-color: #1c1d22;
+            border: 2px solid #1c1d22;
+            border-radius: 12px;
+            padding: 3px 12px;
+            font-size: 14px;
+            color: #ffe066;
+            font-weight: 700 !important;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 12px;
+            box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.15);
+        }
+
+        .player-divider {
+            width: 80%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, rgba(0, 0, 0, 0.1), transparent);
+            margin-bottom: 10px;
+        }
+
+        .player-points-box {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+        .points-icon {
+            width: 20px;
+            height: 20px;
+            background: url("https://i.postimg.cc/4dJnZ5sH/stars.png") no-repeat center center;
+            background-size: 100% 100%;
+        }
+        .player-points {
+            font-size: 22px;
+            color: #FFFFFF;
+            -webkit-text-stroke: 4px #1c1d22;
+            paint-order: stroke fill;
+            font-weight: 800 !important;
+        }
+
+        .loading-overlay {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: transparent;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 999;
+            border-radius: 20px;
+            pointer-events: none;
+        }
+        .loading-text {
+            font-size: 36px;
+            font-weight: 900;
+            color: #ffffff; 
+            -webkit-text-stroke: 6px #000000;
+            paint-order: stroke fill;
+        }
+
+        .leaderboard-footer {
+            position: relative;
+            width: 736px;
+            height: 62px; 
+            margin-top: 15px; 
+            margin-bottom: 15px; 
+            flex-shrink: 0;
+        }
+
+        .page-select-bg {
+            position: absolute;
+            left: 254px; 
+            top: 2px;
+            width: 227px;
+            height: 56px;
+            background: url("https://i.postimg.cc/3RwQtGxJ/page-select.png") no-repeat center center;
+            background-size: 100% 100%;
+            z-index: 970;
+            image-rendering: pixelated;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .page-number-text {
+            font-size: 38px !important;
+            font-weight: 800 !important;
+            color: #ffffff;
+            -webkit-text-stroke: 6px #2A2B31;
+            stroke-linejoin: round;
+            paint-order: stroke fill;
+            padding-bottom: 3px; 
+        }
+
+        .page-arrow {
+            position: absolute;
+            width: 27px;
+            height: 39px;
+            background-size: 100% 100%;
+            cursor: pointer;
+            z-index: 980;
+            transition: transform 0.06s ease;
+        }
+        .arrow-left { left: 22px; top: 8px; background-image: url("https://i.postimg.cc/FskNt0gt/sipka-leva.png"); }
+        .arrow-right { right: 22px; top: 8px; background-image: url("https://i.postimg.cc/VNp2WVpx/sipka-prava.png"); }
+
+        .leaderboard-footer.hover-left .arrow-left { transform: scale(1.05); }
+        .leaderboard-footer.hover-right .arrow-right { transform: scale(1.05); }
+
+        html, body {
+            width: 100vw;
+            height: 100dvh;
+            margin: 0;
+            padding: 0;
+            overflow: hidden !important;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            overscroll-behavior: none !important;
+            touch-action: none;
+        }
+
+        .leaderboard-container {
+            touch-action: pan-y !important;
+            overscroll-behavior: contain !important;
+        }
+
+        /* --- STYLY PRO MOBILNÍ NOTIFIKACI --- */
+        .orientation-popup-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.65);
+            backdrop-filter: blur(4px);
+            z-index: 99999;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .orientation-popup-overlay.show {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .orientation-popup-card {
+            position: relative;
+            width: 88%;
+            max-width: 380px;
+            background: #FFFFFF;
+            border: 5px solid #000000;
+            border-radius: 20px;
+            padding: 25px 20px 20px 20px;
+            text-align: center;
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transform: scale(0.85);
+            transition: transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .orientation-popup-overlay.show .orientation-popup-card {
+            transform: scale(1);
+        }
+
+        .popup-close-x {
+            position: absolute;
+            right: -14px;
+            top: -14px;
+            width: 44px;
+            height: 44px;
+            background: url("https://i.postimg.cc/ZnsJsPBt/X.png") no-repeat center center;
+            background-size: 100% 100%;
+            cursor: pointer;
+            filter: drop-shadow(0px 3px 5px rgba(0,0,0,0.3));
+            transition: transform 0.1s ease;
+        }
+
+        .popup-close-x:active {
+            background-image: url("https://i.postimg.cc/Dz424SzQ/X-clicked.png");
+            transform: scale(0.9);
+        }
+
+        .popup-icon-container {
+            width: 64px;
+            height: 64px;
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .popup-icon-svg {
+            width: 100%;
+            height: 100%;
+            fill: #3b82f6;
+            animation: rotatePhone 2.5s infinite ease-in-out;
+        }
+
+        @keyframes rotatePhone {
+            0%, 15% { transform: rotate(0deg); }
+            50%, 65% { transform: rotate(-90deg); }
+            85%, 100% { transform: rotate(0deg); }
+        }
+
+        .popup-title {
+            font-size: 24px;
+            color: #FFFFFF;
+            -webkit-text-stroke: 4.5px #000000;
+            paint-order: stroke fill;
+            stroke-linejoin: round;
+            font-weight: 800 !important;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+        }
+
+        .popup-text {
+            font-size: 16px;
+            color: #2A2B31;
+            font-weight: 700;
+            margin-bottom: 18px;
+            line-height: 1.35;
+        }
+
+        .popup-rotate-btn {
+            width: 100%;
+            padding: 12px 0;
+            background: linear-gradient(180deg, #4292FF 0%, #176BFF 100%);
+            border: 3.5px solid #000000;
+            border-radius: 12px;
+            color: #FFFFFF;
+            font-size: 18px;
+            font-weight: 800 !important;
+            -webkit-text-stroke: 3px #000000;
+            paint-order: stroke fill;
+            cursor: pointer;
+            box-shadow: 0 4px 0 #000000;
+            transition: transform 0.05s ease, box-shadow 0.05s ease;
+        }
+
+        .popup-rotate-btn:active {
+            transform: translateY(3px);
+            box-shadow: 0 1px 0 #000000;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="app-scaler" id="appScaler">
+        <div class="game-window">
+            <img class="menu-bg" src="https://i.postimg.cc/sfG6nXsc/main-menu.png" draggable="false">
+            
+            <div class="clans-logo"></div>
+            
+            <div class="menu-btn btn-clans" onclick="location.href='index.html'"></div>
+            <div class="menu-btn btn-topclans" onclick="location.href='topclans.html'"></div>
+            <div class="menu-btn btn-people" onclick="location.href='leagues.html'"></div>
+            <div class="menu-btn btn-search is-active" onclick="location.href='people.html'"></div>
+            
+            <img class="menu-text text-clans" src="https://i.postimg.cc/7YwkVBKh/text-Clans.png" draggable="false">
+            <img class="menu-text text-topclans" src="https://i.postimg.cc/bv7X2LGJ/text-Top-Clans.png" draggable="false">
+            <img class="menu-text text-people" src="https://i.postimg.cc/vBjLqZp7/leagues-text.png" draggable="false">
+            <img class="menu-text text-search" src="https://i.postimg.cc/9FW6TDfB/text-People.png" draggable="false">
+            
+            <div class="tab-content">
+                <div class="leaderboard-search-asset">
+                    <input type="text" class="leaderboard-search-input" placeholder="Search" id="playerSearch">
+                </div>
+
+                <div class="leaderboard-container" id="leaderboardList">
+                    <div class="loading-overlay" id="loadingOverlay">
+                        <div class="loading-text">Loading...</div>
+                    </div>
+
+                    <div class="players-grid" id="playersGrid"></div>
+                    
+                    <div class="leaderboard-footer" id="leaderboardFooter">
+                        <div class="page-select-bg">
+                            <div class="page-arrow arrow-left" id="prevPageBtn"></div>
+                            <span class="page-number-text" id="pageNumberDisplay">1</span>
+                            <div class="page-arrow arrow-right" id="nextPageBtn"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="close-btn" onclick="location.href='index.html'" ></div>
+        </div>
+    </div>
+
+    <!-- MOBILNÍ ORIENTATION POPUP -->
+    <div class="orientation-popup-overlay" id="orientationPopup">
+        <div class="orientation-popup-card">
+            <div class="popup-close-x" id="popupCloseBtn"></div>
+            
+            <div class="popup-icon-container">
+                <svg class="popup-icon-svg" viewBox="0 0 24 24">
+                    <path d="M17 1.01L7 1c-1.1 0-2 .9-2 2v18c0 1.1.9 2 2 2h10c1.1 0 2-.9 2-2V3c0-1.1-.9-1.99-2-1.99zM17 19H7V5h10v14z"/>
+                </svg>
+            </div>
+            
+            <div class="popup-title">Rotate Phone</div>
+            <div class="popup-text">Rotate your device horizontally for the best experience!</div>
+            
+            <button class="popup-rotate-btn" id="popupRotateActionBtn">ROTATE SCREEN</button>
+        </div>
+    </div>
+
+    <script>
+        const WORKER_URL = "https://rough-pine-d90f.ps99clans.workers.dev";
+
+        let playersData = [];
+        let currentPage = 1;
+        const itemsPerPage = 90;
+        let searchQuery = "";
+        let searchTimeout = null;
+
+        function autoFitScreen() {
+            const scaler = document.getElementById("appScaler");
+            if (!scaler) return;
+
+            const winW = window.innerWidth;
+            const winH = window.innerHeight;
+
+            if (winW >= 1150) {
+                document.body.classList.remove("is-mobile");
+                scaler.style.transform = "none";
+                hideOrientationPopup();
+                return;
+            }
+
+            document.body.classList.add("is-mobile");
+            const requiredW = 1120;
+            const requiredH = 960; 
+
+            const scaleX = winW / requiredW;
+            const scaleY = winH / requiredH;
+
+            const scale = Math.min(scaleX, scaleY) * 0.92;
+            scaler.style.transform = `scale(${scale})`;
+
+            checkOrientationPopup();
+        }
+
+        /* --- LOGIKA ORIENTAČNÍHO POPUPU --- */
+        function checkOrientationPopup() {
+            const popup = document.getElementById("orientationPopup");
+            if (!popup) return;
+
+            const hasBeenDismissed = sessionStorage.getItem("orientationPopupDismissed") === "true";
+
+            const isMobile = window.innerWidth < 1150;
+            const isPortrait = window.innerHeight > window.innerWidth;
+
+            if (isMobile && isPortrait && !hasBeenDismissed) {
+                popup.classList.add("show");
+            } else {
+                popup.classList.remove("show");
+            }
+        }
+
+        function dismissOrientationPopup() {
+            sessionStorage.setItem("orientationPopupDismissed", "true");
+            hideOrientationPopup();
+        }
+
+        function hideOrientationPopup() {
+            const popup = document.getElementById("orientationPopup");
+            if (popup) popup.classList.remove("show");
+        }
+
+        document.getElementById("popupCloseBtn")?.addEventListener("click", () => {
+            dismissOrientationPopup();
+        });
+
+        document.getElementById("popupRotateActionBtn")?.addEventListener("click", () => {
+            if (screen.orientation && screen.orientation.lock) {
+                screen.orientation.lock("landscape").catch(() => {});
+            }
+            dismissOrientationPopup();
+        });
+
+        window.addEventListener("resize", autoFitScreen);
+        window.addEventListener("orientationchange", autoFitScreen);
+
+        function formatNumber(num) {
+            if (num === undefined || num === null) return "0";
+            if (num >= 1e6) return (num / 1e6).toFixed(1) + "m";
+            if (num >= 1e3) return (num / 1e3).toFixed(1) + "k";
+            return num.toString();
+        }
+
+        async function loadAllAvatarsBatch(playersOnPage) {
+            const userIds = playersOnPage.map(p => p.UserID).filter(id => id).join(",");
+            if (!userIds) return;
+
+            try {
+                const response = await fetch(`${WORKER_URL}/roblox/avatars?userIds=${userIds}&size=150x150&format=Png&isCircular=true`);
+                const json = await response.json();
+
+                if (json && Array.isArray(json.data)) {
+                    const avatarMap = {};
+                    json.data.forEach(item => {
+                        if (item && item.targetId && item.imageUrl) {
+                            avatarMap[item.targetId] = item.imageUrl;
+                        }
+                    });
+
+                    playersOnPage.forEach((player, index) => {
+                        const imgElement = document.getElementById(`avatar-img-${player.UserID}-${index}`);
+                        if (imgElement) {
+                            imgElement.src = avatarMap[player.UserID] || "https://placehold.co/150x150/f0f4ff/1c1d22?text=Roblox";
+                        }
+                    });
+                }
+            } catch (err) {
+                console.warn("Chyba při hromadném načítání avatarů:", err.message);
+            }
+        }
+
+        async function fetchTopPlayers() {
+            const overlay = document.getElementById("loadingOverlay");
+            if (overlay) overlay.style.display = "flex";
+
+            try {
+                const res = await fetch(`${WORKER_URL}/api/top-war-players?page=${currentPage}&pageSize=${itemsPerPage}&search=${encodeURIComponent(searchQuery)}`);
+                const json = await res.json();
+
+                if (json && json.status === "ok" && Array.isArray(json.data)) {
+                    playersData = json.data;
+                    renderGrid();
+                } else {
+                    const grid = document.getElementById("playersGrid");
+                    grid.innerHTML = `<div style="width: 100%; text-align: center; padding: 100px 0; font-size: 28px; font-weight: 800; color: white; -webkit-text-stroke: 4px black; paint-order: stroke fill;">No active war players found.</div>`;
+                }
+            } catch (err) {
+                console.error(err);
+                const grid = document.getElementById("playersGrid");
+                grid.innerHTML = `<div style="width: 100%; text-align: center; padding: 100px 0; font-size: 28px; font-weight: 800; color: #ff4a4a; -webkit-text-stroke: 4px black; paint-order: stroke fill;">API Error.</div>`;
+            } finally {
+                if (overlay) overlay.style.display = "none";
+            }
+        }
+
+        function renderGrid() {
+            const grid = document.getElementById("playersGrid");
+            grid.innerHTML = "";
+
+            if (playersData.length === 0) {
+                grid.innerHTML = `<div style="width: 100%; text-align: center; padding: 100px 0; font-size: 28px; font-weight: 800; color: white; -webkit-text-stroke: 4px black; paint-order: stroke fill;">No players match search.</div>`;
+                return;
+            }
+
+            playersData.forEach((player, index) => {
+                const absoluteRank = ((currentPage - 1) * itemsPerPage) + index + 1;
+                const card = document.createElement("div");
+                card.className = "player-card";
+
+                const rankColor = (absoluteRank === 1) ? "#ffe066" : "#FFFFFF";
+                const formattedPoints = formatNumber(player.Points);
+                const imgId = `avatar-img-${player.UserID}-${index}`;
+
+                card.innerHTML = `
+                    <div class="player-rank" style="color: ${rankColor};">#${absoluteRank}</div>
+                    <img class="player-avatar" id="${imgId}" src="https://placehold.co/150x150/f0f4ff/1c1d22?text=..." alt="Avatar" draggable="false">
+                    <div class="player-userid">${player.UserID}</div>
+                    <div class="player-clan-badge">${player.Clan}</div>
+                    <div class="player-divider"></div>
+                    <div class="player-points-box">
+                        <div class="points-icon"></div>
+                        <div class="player-points">${formattedPoints}</div>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+
+            loadAllAvatarsBatch(playersData);
+
+            document.getElementById("pageNumberDisplay").textContent = currentPage;
+        }
+
+        document.getElementById("playerSearch").addEventListener("input", (e) => {
+            searchQuery = e.target.value.trim();
+            currentPage = 1;
+
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => {
+                fetchTopPlayers();
+            }, 300);
+        });
+
+        document.getElementById("prevPageBtn").addEventListener("click", (e) => {
+            e.preventDefault();
+            if (currentPage > 1) {
+                currentPage--;
+                fetchTopPlayers();
+            }
+        });
+
+        document.getElementById("nextPageBtn").addEventListener("click", (e) => {
+            e.preventDefault();
+            currentPage++;
+            fetchTopPlayers();
+        });
+
+        const footer = document.getElementById('leaderboardFooter');
+        document.getElementById('prevPageBtn').addEventListener('mouseenter', () => footer.classList.add('hover-left'));
+        document.getElementById('prevPageBtn').addEventListener('mouseleave', () => footer.classList.remove('hover-left'));
+        document.getElementById('nextPageBtn').addEventListener('mouseenter', () => footer.classList.add('hover-right'));
+        document.getElementById('nextPageBtn').addEventListener('mouseleave', () => footer.classList.remove('hover-right'));
+
+        window.addEventListener('DOMContentLoaded', () => {
+            autoFitScreen();
+            fetchTopPlayers();
+        });
+    </script>
+</body>
+</html>
