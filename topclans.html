@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>PS99 Clans - Top Clans</title>
     <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     
@@ -13,7 +13,6 @@
     <link rel="preload" as="image" href="https://i.postimg.cc/Dz424SzQ/X-clicked.png">
     <link rel="preload" as="image" href="https://i.postimg.cc/jdcdc1BN/topclans-leaderboard-select.png">
     <link rel="preload" as="image" href="https://i.postimg.cc/L8VCntY9/topclans-leaderboard-search.png">
-    <link class="prefetch" href="https://twemoji.maxcdn.com/v/14.0.2/svg/1f1fa-1f1f8.svg">
     <link rel="preload" as="image" href="https://i.postimg.cc/SKRxPGcL/modra-hvezda.png">
     <link rel="preload" as="image" href="https://i.postimg.cc/1tLXwNnV/hvezda.png">
     <link rel="preload" as="image" href="https://i.postimg.cc/wjTqtkfk/modry-gem.png">
@@ -40,18 +39,29 @@
             justify-content: center;
             align-items: center;
             min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .app-scaler {
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transform-origin: center center;
         }
 
         .game-window {
             position: relative;
             display: inline-block;
+            width: 1110px;
+            height: 570px;
             overflow: visible;
         }
 
         .menu-bg {
             display: block;
-            width: auto;
-            height: auto;
+            width: 100%;
+            height: 100%;
             filter: drop-shadow(0px 10px 20px rgba(0, 0, 0, 0.35));
         }
 
@@ -126,7 +136,6 @@
         .btn-people:hover:not(:active) ~ .text-people { transform: scale(1.06) translate(-3px, 2px); }
         .btn-search:hover:not(:active) ~ .text-search { transform: scale(1.06) translate(-3px, 2px); }
 
-        /* Aktivace svislého posouvání tlačítek a textů pod sebou */
         .btn-clans:hover:not(:active) ~ .btn-topclans { top: 128px; }
         .btn-clans:hover:not(:active) ~ .text-topclans { top: 144px; }
         .btn-clans:hover:not(:active) ~ .btn-people { top: 218px; }
@@ -210,16 +219,17 @@
         .leaderboard-icon:hover:not(:active) { transform: scale(1.03); }
         .leaderboard-icon:active { transform: scale(0.97); }
 
+        /* PRO POSUNUTÍ SCROLLBARU DOPRAVA ZVĚTŠUJ 'width' a zároveň 'padding-right' */
         .leaderboard-container {
             position: absolute;
-            left: 334px; 
+            left: 344px; 
             top: 7px; 
-            width: 770px; 
+            width: 770px; /* pro posun doprava zvětši např. na 775px */
             height: 556px; 
             overflow-y: auto;
             overflow-x: hidden; 
             padding-left: 14px; 
-            padding-right: 22px; 
+            padding-right: 22px; /* o kolik zvětšíš width, o tolik zvětši i padding-right */
             z-index: 960;
         }
 
@@ -531,53 +541,214 @@
             color: #B1B1B1; 
             text-shadow: none; 
         }
+
+        .country-toggle-arrow {
+            position: absolute;
+            left: 1115px; 
+            top: 250px;
+            width: 27px;
+            height: 39px;
+            background: url("https://i.postimg.cc/VNp2WVpx/sipka-prava.png") no-repeat center center;
+            background-size: 100% 100%;
+            cursor: pointer;
+            z-index: 1000;
+            transform-origin: center center;
+            transition: transform 0.25s cubic-bezier(0.1, 0.9, 0.2, 1);
+            filter: drop-shadow(0px 4px 6px rgba(0, 0, 0, 0.3));
+        }
+
+        .country-toggle-arrow:hover { transform: scale(1.1); }
+        .country-toggle-arrow:active { transform: scale(0.95); }
+        .country-toggle-arrow.is-open { transform: rotate(180deg); }
+
+        .country-filter-panel {
+            position: absolute;
+            left: 1115px;
+            top: 80px;
+            width: 210px;
+            height: 440px;
+            background: #FFFFFF;
+            border: 4px solid #000000;
+            border-radius: 16px;
+            padding: 12px 8px;
+            z-index: 995;
+            box-shadow: 0px 10px 25px rgba(0,0,0,0.3);
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.25s cubic-bezier(0.1, 0.9, 0.2, 1);
+            display: flex;
+            flex-direction: column;
+            overflow: visible !important;
+        }
+
+        .country-filter-panel.is-open {
+            left: 1160px;
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .country-filter-title {
+            font-size: 20px;
+            color: #FFFFFF;
+            -webkit-text-stroke: 4px #000000;
+            stroke-linejoin: round;
+            paint-order: stroke fill;
+            text-align: center;
+            font-weight: 800 !important;
+            margin-bottom: 10px;
+        }
+
+        .country-list-scroll {
+            flex: 1;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            padding-right: 6px;
+            padding-left: 2px;
+            padding-top: 2px;
+            padding-bottom: 2px;
+        }
+
+        .country-list-scroll::-webkit-scrollbar { width: 8px; }
+        .country-list-scroll::-webkit-scrollbar-track { background: transparent; }
+        .country-list-scroll::-webkit-scrollbar-thumb { 
+            background: #000000; 
+            border-radius: 4px;
+        }
+
+        .country-item-btn {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 10px;
+            background: #F0F4F8;
+            border: 3px solid #000000;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: transform 0.05s ease, background-color 0.05s ease;
+            box-sizing: border-box;
+        }
+
+        .country-item-btn:hover {
+            background: #E1EBF5;
+            transform: scale(1.02);
+        }
+
+        .country-item-btn:active {
+            transform: scale(0.96);
+        }
+
+        .country-item-btn.is-active {
+            background: #89b3f9;
+            border-color: #000000;
+        }
+
+        .country-item-btn.is-active .country-item-name {
+            color: #FFFFFF;
+            -webkit-text-stroke: 3px #000000;
+            paint-order: stroke fill;
+        }
+
+        .country-item-flag {
+            width: 28px;
+            height: 20px;
+            object-fit: cover;
+            border-radius: 3px;
+        }
+
+        .country-item-name {
+            font-size: 15px;
+            font-weight: 800;
+            color: #262C2D;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        body.is-mobile .country-toggle-arrow {
+            left: 540px !important; 
+            top: 575px !important;
+            transform: rotate(90deg) !important;
+        }
+
+        body.is-mobile .country-toggle-arrow.is-open {
+            transform: rotate(-90deg) !important;
+        }
+
+        body.is-mobile .country-filter-panel {
+            left: 200px !important;
+            top: 620px !important;
+            width: 710px !important;
+            height: 260px !important;
+        }
+
+        body.is-mobile .country-filter-panel.is-open {
+            left: 200px !important;
+            top: 620px !important;
+        }
+
+        body.is-mobile .country-list-scroll {
+            display: grid !important;
+            grid-template-columns: repeat(3, 1fr) !important;
+            gap: 8px !important;
+        }
     </style>
 </head>
 <body>
 
-    <div class="game-window">
-        <img class="menu-bg" src="https://i.postimg.cc/sfG6nXsc/main-menu.png" draggable="false">
-        
-        <div class="clans-logo"></div>
-        
-        <div class="menu-btn btn-clans" onclick="location.href='index.html'" ></div>
-        <div class="menu-btn btn-topclans is-active" onclick="location.href='topclans.html'" ></div>
-        <div class="menu-btn btn-people" onclick="location.href='leagues.html'" ></div>
-        <div class="menu-btn btn-search" onclick="location.href='people.html'" ></div>
-        
-        <img class="menu-text text-clans" src="https://i.postimg.cc/7YwkVBKh/text-Clans.png" draggable="false">
-        <img class="menu-text text-topclans" src="https://i.postimg.cc/bv7X2LGJ/text-Top-Clans.png" draggable="false">
-        <img class="menu-text text-people" src="https://i.postimg.cc/vBjLqZp7/leagues-text.png" draggable="false">
-        <img class="menu-text text-search" src="https://i.postimg.cc/9FW6TDfB/text-People.png" draggable="false">
-        
-        <div class="tab-content" id="tab-topclans">
-            <div class="leaderboard-select-asset"></div>
-            <div class="leaderboard-search-asset">
-                <input type="text" class="leaderboard-search-input" placeholder="Search" id="clanSearch" maxlength="4">
-            </div>
-
-            <div class="leaderboard-icon icon-star" id="sortPoints" title="Sort by Points"></div>
-            <div class="leaderboard-icon icon-gem" id="sortGems" title="Sort by Gems"></div>
-
-            <div class="leaderboard-container" id="leaderboardList">
-                <div class="active-clan-war-banner" id="clanWarBanner">
-                    <div class="banner-title" id="bannerTitle">Loading...</div>
-                    <div class="banner-timer" id="bannerTimer">00h:00m:00s</div>
-                    <div class="banner-subtitle" id="bannerSubtitle">Active Clan Battle</div>
+    <div class="app-scaler" id="appScaler">
+        <div class="game-window">
+            <img class="menu-bg" src="https://i.postimg.cc/sfG6nXsc/main-menu.png" draggable="false">
+            
+            <div class="clans-logo"></div>
+            
+            <div class="menu-btn btn-clans" onclick="location.href='index.html'" ></div>
+            <div class="menu-btn btn-topclans is-active" onclick="location.href='topclans.html'" ></div>
+            <div class="menu-btn btn-people" onclick="location.href='leagues.html'" ></div>
+            <div class="menu-btn btn-search" onclick="location.href='people.html'" ></div>
+            
+            <img class="menu-text text-clans" src="https://i.postimg.cc/7YwkVBKh/text-Clans.png" draggable="false">
+            <img class="menu-text text-topclans" src="https://i.postimg.cc/bv7X2LGJ/text-Top-Clans.png" draggable="false">
+            <img class="menu-text text-people" src="https://i.postimg.cc/vBjLqZp7/leagues-text.png" draggable="false">
+            <img class="menu-text text-search" src="https://i.postimg.cc/9FW6TDfB/text-People.png" draggable="false">
+            
+            <div class="tab-content" id="tab-topclans">
+                <div class="leaderboard-select-asset"></div>
+                <div class="leaderboard-search-asset">
+                    <input type="text" class="leaderboard-search-input" placeholder="Search" id="clanSearch" maxlength="4">
                 </div>
-                <div id="clanCardsList"></div>
-                
-                <div class="leaderboard-footer" id="leaderboardFooter">
-                    <div class="page-select-bg" id="pageSelectBg">
-                        <div class="page-arrow arrow-left" id="prevPageBtn" ></div>
-                        <span class="page-number-text" id="pageNumberDisplay">1</span>
-                        <div class="page-arrow arrow-right" id="nextPageBtn" ></div>
+
+                <div class="leaderboard-icon icon-star" id="sortPoints"></div>
+                <div class="leaderboard-icon icon-gem" id="sortGems"></div>
+
+                <div class="leaderboard-container" id="leaderboardList">
+                    <div class="active-clan-war-banner" id="clanWarBanner">
+                        <div class="banner-title" id="bannerTitle">Loading...</div>
+                        <div class="banner-timer" id="bannerTimer">00h:00m:00s</div>
+                        <div class="banner-subtitle" id="bannerSubtitle">Active Clan Battle</div>
+                    </div>
+                    <div id="clanCardsList"></div>
+                    
+                    <div class="leaderboard-footer" id="leaderboardFooter">
+                        <div class="page-select-bg" id="pageSelectBg">
+                            <div class="page-arrow arrow-left" id="prevPageBtn" ></div>
+                            <span class="page-number-text" id="pageNumberDisplay">1</span>
+                            <div class="page-arrow arrow-right" id="nextPageBtn" ></div>
+                        </div>
                     </div>
                 </div>
             </div>
+
+            <div class="country-toggle-arrow" id="countryToggleArrow"></div>
+
+            <div class="country-filter-panel" id="countryFilterPanel">
+                <div class="country-filter-title">COUNTRY</div>
+                <div class="country-list-scroll" id="countryListScroll"></div>
+            </div>
+            
+            <div class="close-btn" onclick="location.href='index.html'" ></div>
         </div>
-        
-        <div class="close-btn" onclick="location.href='index.html'" ></div>
     </div>
 
     <script>
@@ -586,11 +757,63 @@
         let gemsClanData = [];
         let currentMode = localStorage.getItem("clanLeaderboardMode") || "points"; 
         let searchQuery = "";
+        let selectedCountries = []; 
         let currentPage = 1;
         const itemsPerPage = 100;
+
+        const COUNTRY_LIST = [
+            { code: "US", name: "United States" },
+            { code: "CZ", name: "Czechia" },
+            { code: "SK", name: "Slovakia" },
+            { code: "PL", name: "Poland" },
+            { code: "DE", name: "Germany" },
+            { code: "GB", name: "United Kingdom" },
+            { code: "FR", name: "France" },
+            { code: "CA", name: "Canada" },
+            { code: "AU", name: "Australia" },
+            { code: "BR", name: "Brazil" },
+            { code: "JP", name: "Japan" },
+            { code: "KR", name: "South Korea" },
+            { code: "NL", name: "Netherlands" },
+            { code: "SE", name: "Sweden" },
+            { code: "ES", name: "Spain" },
+            { code: "IT", name: "Italy" },
+            { code: "UA", name: "Ukraine" },
+            { code: "MX", name: "Mexico" },
+            { code: "AT", name: "Austria" },
+            { code: "CH", name: "Switzerland" },
+            { code: "NO", name: "Norway" },
+            { code: "FI", name: "Finland" }
+        ];
         
         const descriptionCache = JSON.parse(localStorage.getItem("clanDescCache")) || {};
         let timerInterval = null;
+
+        function autoFitScreen() {
+            const scaler = document.getElementById("appScaler");
+            if (!scaler) return;
+
+            const winW = window.innerWidth;
+            const winH = window.innerHeight;
+
+            if (winW >= 1150) {
+                document.body.classList.remove("is-mobile");
+                scaler.style.transform = "none";
+                return;
+            }
+
+            document.body.classList.add("is-mobile");
+            const requiredW = 1120;
+            const requiredH = 960; // Zvětšená požadovaná výška, aby menu na mobilu běželo déle dolů
+
+            const scaleX = winW / requiredW;
+            const scaleY = winH / requiredH;
+
+            const scale = Math.min(scaleX, scaleY) * 0.92;
+            scaler.style.transform = `scale(${scale})`;
+        }
+
+        window.addEventListener("resize", autoFitScreen);
 
         const descObserver = new IntersectionObserver((entries, observer) => {
             entries.forEach(entry => {
@@ -626,7 +849,7 @@
 
         function getTwemojiUrl(countryCode) {
             if (!countryCode || countryCode.length !== 2) return "https://twemoji.maxcdn.com/v/14.0.2/svg/1f1fa-1f1f8.svg";
-            const codePoints = countryCode.toUpperCase().split('').map(char =>  0x1F1E6 + char.charCodeAt(0) - 65);
+            const codePoints = countryCode.toUpperCase().split('').map(char => 0x1F1E6 + char.charCodeAt(0) - 65);
             return `https://twemoji.maxcdn.com/v/14.0.2/svg/${codePoints[0].toString(16)}-${codePoints[1].toString(16)}.svg`;
         }
 
@@ -641,7 +864,7 @@
 
         function generateFallbackData() {
             const fallback = [];
-            const countries = ["US", "CZ", "SK", "PL", "DE", "GB", "FR", "CA"];
+            const countries = ["US", "CZ", "SK", "PL", "DE", "GB", "FR", "CA", "AU", "BR", "JP", "KR", "NL", "SE", "ES", "IT", "UA", "MX", "AT", "CH", "NO", "FI"];
             for (let i = 1; i <= 1000; i++) {
                 fallback.push({
                     Name: `FALL${i}`,
@@ -684,7 +907,7 @@
         async function fetchClanDescription(clanName, elementId) {
             const now = Date.now();
             const cached = descriptionCache[clanName];
-            const cacheDuration = 12 * 60 * 60 * 1000; 
+            const cacheDuration = 12 * 60 * 60 * 1000;
 
             if (cached && typeof cached === 'object' && cached.desc !== undefined && cached.timestamp && (now - cached.timestamp < cacheDuration)) {
                 const el = document.getElementById(elementId);
@@ -708,7 +931,6 @@
                     if (el) { el.textContent = cleanDesc; adjustDescSize(el); }
                 }
             } catch (e) { 
-                console.warn(`Nepodařilo se načíst klan ${clanName}`);
                 if (cached) {
                     const el = document.getElementById(elementId);
                     const fallbackDesc = typeof cached === 'object' ? cached.desc : cached;
@@ -843,9 +1065,18 @@
                 sourceData = sourceData.filter(clan => clan.Name && clan.Name.toLowerCase().includes(searchQuery.toLowerCase()));
             }
 
+            if (selectedCountries.length > 0) {
+                sourceData = sourceData.filter(clan => clan.CountryCode && selectedCountries.includes(clan.CountryCode.toUpperCase()));
+            }
+
             const isPoints = (currentMode === "points");
             banner.style.display = isPoints ? "block" : "none";
-            footerEl.style.display = isPoints ? "block" : "none";
+
+            if (isPoints && sourceData.length > itemsPerPage) {
+                footerEl.style.display = "block";
+            } else {
+                footerEl.style.display = "none";
+            }
             
             const pageData = isPoints ? sourceData.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage) : sourceData.slice(0, 100);
             if (isPoints && pageText) pageText.textContent = currentPage;
@@ -877,7 +1108,7 @@
                 row.innerHTML = `
                     <div class="clan-rank" style="color: ${rankColor};">#${absoluteRank}</div>
                     <img class="clan-icon" src="${clanIconUrl}" onerror="this.onerror=null; this.src='https://placehold.co/90x90/ffffff/000000?text=Clan';" draggable="false">
-                    <img class="clan-flag" src="${flagUrl}" alt="Flag" draggable="false">
+                    <img class="clan-flag" src="${flagUrl}" draggable="false">
                     <div class="clan-name">[${clan.Name}]</div>
                     <div class="clan-desc" id="${descElementId}">...</div>
                     <div class="clan-points">${formattedPoints}</div>
@@ -894,6 +1125,49 @@
             });
 
             document.getElementById("leaderboardList").scrollTop = savedScrollTop;
+        }
+
+        function initCountryFilterUI() {
+            const container = document.getElementById("countryListScroll");
+            if (!container) return;
+            container.innerHTML = "";
+
+            COUNTRY_LIST.forEach(item => {
+                const btn = document.createElement("div");
+                const isActive = selectedCountries.includes(item.code);
+                btn.className = `country-item-btn ${isActive ? 'is-active' : ''}`;
+                
+                const flagUrl = getTwemojiUrl(item.code);
+                const flagImg = `<img class="country-item-flag" src="${flagUrl}" draggable="false">`;
+
+                btn.innerHTML = `
+                    ${flagImg}
+                    <span class="country-item-name">${item.name}</span>
+                `;
+
+                btn.onclick = () => {
+                    if (selectedCountries.includes(item.code)) {
+                        selectedCountries = selectedCountries.filter(c => c !== item.code);
+                    } else {
+                        selectedCountries.push(item.code);
+                    }
+                    currentPage = 1;
+                    initCountryFilterUI(); 
+                    renderLeaderboard();
+                };
+
+                container.appendChild(btn);
+            });
+        }
+
+        const arrowToggle = document.getElementById("countryToggleArrow");
+        const panelFilter = document.getElementById("countryFilterPanel");
+
+        if (arrowToggle && panelFilter) {
+            arrowToggle.onclick = () => {
+                arrowToggle.classList.toggle("is-open");
+                panelFilter.classList.toggle("is-open");
+            };
         }
 
         function updateModeVisuals() {
@@ -954,7 +1228,9 @@
         }, 60000);
 
         window.addEventListener('DOMContentLoaded', () => {
+            autoFitScreen();
             updateModeVisuals();
+            initCountryFilterUI();
             fetchLeaderboardData(false);
             fetchActiveClanBattle();
         });
