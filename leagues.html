@@ -1,0 +1,861 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>PS99 Clans - Leagues</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <link rel="preload" as="image" href="https://i.postimg.cc/sfG6nXsc/main-menu.png">
+    <link rel="preload" as="image" href="https://i.postimg.cc/ZnjcPzr3/clan-board-leagues.png">
+    <link rel="preload" as="image" href="https://i.postimg.cc/ZnsJsPBt/X.png">
+    <link rel="preload" as="image" href="https://i.postimg.cc/Dz424SzQ/X-clicked.png">
+    <link rel="preload" as="image" href="https://i.postimg.cc/L8VCntY9/topclans-leaderboard-search.png">
+    <link rel="preload" as="image" href="https://i.postimg.cc/4dJnZ5sH/stars.png">
+    <link rel="preload" as="image" href="https://i.postimg.cc/DfSm1LrP/scroller.png">
+    <link rel="preload" as="image" href="https://i.postimg.cc/3RwQtGxJ/page-select.png">
+    <link rel="preload" as="image" href="https://i.postimg.cc/FskNt0gt/sipka-leva.png">
+    <link rel="preload" as="image" href="https://i.postimg.cc/VNp2WVpx/sipka-prava.png">
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Fredoka', sans-serif !important;
+            font-weight: 600;
+            user-select: none;
+        }
+
+        body {
+            background-color: #89b3f9;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .app-scaler {
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transform-origin: center center;
+        }
+
+        .game-window {
+            position: relative;
+            display: inline-block;
+            width: 1110px;
+            height: 570px;
+            overflow: visible;
+        }
+
+        .menu-bg {
+            display: block;
+            width: auto;
+            height: auto;
+            filter: drop-shadow(0px 10px 20px rgba(0, 0, 0, 0.35));
+        }
+
+        .clans-logo {
+            position: absolute;
+            left: -36px;
+            top: -69px;
+            width: 315px;
+            height: 117px;
+            background: url("https://i.postimg.cc/PfW18xLb/clans-logo.png") no-repeat center center;
+            background-size: 100% 100%;
+            z-index: 998;
+        }
+
+        .close-btn {
+            position: absolute;
+            left: 1044px; 
+            top: -30px; 
+            width: 72px;  
+            height: 73px; 
+            background: url("https://i.postimg.cc/ZnsJsPBt/X.png") no-repeat center center;
+            background-size: 100% 100%;
+            cursor: pointer;
+            z-index: 999;
+            filter: drop-shadow(0px 4px 6px rgba(0, 0, 0, 0.35));
+            transition: all 0.044s cubic-bezier(0.1, 0.9, 0.2, 1);
+        }
+
+        .close-btn:hover:not(:active) { left: 1042px; top: -34px; width: 76px; height: 77px; }
+        .close-btn:active { background-image: url("https://i.postimg.cc/Dz424SzQ/X-clicked.png"); left: 1047px; top: -29px; width: 66px; height: 67px; }
+
+        .menu-btn {
+            position: absolute;
+            left: 14px;
+            width: 306px;
+            height: 84px;
+            background-size: 100% 100%;
+            background-repeat: no-repeat;
+            background-position: center;
+            cursor: pointer;
+            z-index: 900;
+            background-image: url("https://i.postimg.cc/MGrXBkwN/grey.png");
+            transition: all 0.044s cubic-bezier(0.1, 0.9, 0.2, 1);
+        }
+
+        .menu-btn:hover:not(:active) { left: 11px; width: 315px; height: 88px; z-index: 920; }
+        .menu-btn:active { background-image: url("https://i.postimg.cc/br1v4snw/grey-clicked.png"); left: 20px; width: 294px; height: 78px; z-index: 900; }
+
+        .menu-btn.is-active { background-image: url("https://i.postimg.cc/JhX56QnL/selected.png"); }
+        .menu-btn.is-active:active { background-image: url("https://i.postimg.cc/bNXDLjnT/selected-clicked.png"); left: 20px; width: 294px; height: 78px; z-index: 900; }
+
+        .btn-clans { top: 34px; }
+        .btn-topclans { top: 124px; }
+        .btn-people { top: 214px; }
+        .btn-search { top: 304px; }
+
+        .menu-text {
+            position: absolute;
+            pointer-events: none;
+            z-index: 950;
+            transform-origin: center center;
+            transition: transform 0.044s cubic-bezier(0.1, 0.9, 0.2, 1), top 0.044s cubic-bezier(0.1, 0.9, 0.2, 1), left 0.044s cubic-bezier(0.1, 0.9, 0.2, 1);
+        }
+
+        .text-clans { left: 100px; top: 52px; }
+        .text-topclans { left: 53px; top: 140px; }
+        .text-people { left: 76px; top: 230px; }
+        .text-search { left: 88px; top: 322px; }
+
+        .btn-clans:hover:not(:active) ~ .text-clans { transform: scale(1.06) translate(-3px, 2px); }
+        .btn-topclans:hover:not(:active) ~ .text-topclans { transform: scale(1.06) translate(-3px, 2px); }
+        .btn-people:hover:not(:active) ~ .text-people { transform: scale(1.06) translate(-3px, 2px); }
+        .btn-search:hover:not(:active) ~ .text-search { transform: scale(1.06) translate(-3px, 2px); }
+
+        .btn-clans:hover:not(:active) ~ .btn-topclans { top: 128px; }
+        .btn-clans:hover:not(:active) ~ .text-topclans { top: 144px; }
+        .btn-clans:hover:not(:active) ~ .btn-people { top: 218px; }
+        .btn-clans:hover:not(:active) ~ .text-people { top: 234px; }
+        .btn-clans:hover:not(:active) ~ .btn-search { top: 308px; }
+        .btn-clans:hover:not(:active) ~ .text-search { top: 326px; }
+
+        .btn-topclans:hover:not(:active) ~ .btn-people { top: 218px; }
+        .btn-topclans:hover:not(:active) ~ .text-people { top: 234px; }
+        .btn-topclans:hover:not(:active) ~ .btn-search { top: 308px; }
+        .btn-topclans:hover:not(:active) ~ .text-search { top: 326px; }
+
+        .btn-people:hover:not(:active) ~ .btn-search { top: 308px; }
+        .btn-people:hover:not(:active) ~ .text-search { top: 326px; }
+
+        .tab-content {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            padding: 0;
+            z-index: 850;
+        }
+
+        .leaderboard-search-asset {
+            position: absolute;
+            left: 661px; 
+            top: -18px; 
+            width: 330px;
+            height: 48px;
+            background: url("https://i.postimg.cc/L8VCntY9/topclans-leaderboard-search.png") no-repeat center center;
+            background-size: 100% 100%;
+            z-index: 990;
+        }
+
+        .leaderboard-search-input {
+            width: 100%;
+            height: 100%;
+            background: transparent;
+            border: none;
+            outline: none;
+            padding: 0 15px 0 20px;
+            color: #000000;
+            font-size: 30px;
+            font-weight: 800;
+            text-align: right;
+        }
+        .leaderboard-search-input::placeholder { color: #B1B1B1; font-weight: 600; }
+
+        .leaderboard-container {
+            position: absolute;
+            left: 334px; 
+            top: 35px; 
+            width: 770px; 
+            height: 528px; 
+            overflow-y: auto;
+            overflow-x: hidden; 
+            padding-left: 14px; 
+            padding-right: 22px; 
+            z-index: 960;
+        }
+
+        .leaderboard-container::-webkit-scrollbar { 
+            width: 15px; 
+        }
+        .leaderboard-container::-webkit-scrollbar-track { 
+            background: transparent; 
+        }
+        .leaderboard-container::-webkit-scrollbar-thumb { 
+            background: url("https://i.postimg.cc/DfSm1LrP/scroller.png") no-repeat center center;
+            background-size: 15px 29px; 
+            image-rendering: pixelated; 
+            min-height: 45px;
+        }
+
+        .clan-row {
+            display: block;
+            width: 736px;
+            height: 112px;
+            background: url("https://i.postimg.cc/ZnjcPzr3/clan-board-leagues.png") no-repeat center center;
+            background-size: 100% 100%;
+            margin-bottom: 6px;
+            margin-top: 6px;
+            position: relative;
+            image-rendering: pixelated;
+            flex-shrink: 0;
+            cursor: default;
+        }
+
+        .clan-rank {
+            position: absolute;
+            left: -6px;
+            top: -11px;
+            font-size: 40px;
+            font-weight: 800 !important;
+            -webkit-text-stroke: 6px #000000;
+            stroke-linejoin: round;
+            -webkit-stroke-linejoin: round;
+            paint-order: stroke fill;
+            text-shadow: none !important;
+            pointer-events: none;
+            z-index: 15;
+        }
+
+        .clan-icon {
+            position: absolute;
+            left: 13px;
+            top: 12px;
+            width: 90px;
+            height: 90px;
+            border-radius: 8px;
+            background-color: #ffffff;
+            object-fit: contain;
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        .clan-name {
+            position: absolute;
+            left: 120px;
+            top: 34px;
+            font-size: 35px;
+            color: #FEFEFE;
+            -webkit-text-stroke: 8px #000000;
+            stroke-linejoin: round;
+            -webkit-stroke-linejoin: round;
+            paint-order: stroke fill;
+            font-weight: 800 !important;
+            text-shadow: none !important;
+            pointer-events: none;
+        }
+
+        .clan-points-wrapper {
+            position: absolute;
+            right: 11px; 
+            top: 0;
+            display: flex;
+            align-items: flex-start;
+            pointer-events: none;
+        }
+
+        .clan-star-icon {
+            width: 51px;
+            height: 41px;
+            margin-top: 10px; 
+            margin-right: 3px; 
+            background: url("https://i.postimg.cc/4dJnZ5sH/stars.png") no-repeat center center;
+            background-size: 100% 100%;
+            flex-shrink: 0;
+        }
+
+        .clan-points {
+            font-size: 35px;
+            color: #FEFEFE;
+            -webkit-text-stroke: 8px #000000;
+            stroke-linejoin: round;
+            -webkit-stroke-linejoin: round;
+            paint-order: stroke fill;
+            font-weight: 800 !important;
+            text-shadow: none !important;
+            pointer-events: none;
+            white-space: nowrap; 
+            margin-top: 12px; 
+        }
+
+        .clan-members {
+            position: absolute;
+            left: 682px; 
+            top: 76px;
+            font-size: 25px;
+            font-weight: 800 !important;
+            color: #000000;
+            -webkit-text-stroke: 6px #000000;
+            stroke-linejoin: round;
+            -webkit-stroke-linejoin: round;
+            paint-order: stroke fill;
+            text-shadow: none !important;
+            pointer-events: none;
+            white-space: nowrap;
+        }
+        .clan-members::after {
+            content: attr(data-text);
+            position: absolute;
+            left: 0;
+            top: 0;
+            -webkit-text-stroke: 0px transparent;
+            background: linear-gradient(to bottom, #92F0EB, #6DB0E0);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .leaderboard-footer {
+            position: relative;
+            width: 736px;
+            height: 62px; 
+            margin-top: 10px; 
+            margin-bottom: 10px; 
+            flex-shrink: 0;
+        }
+
+        .page-select-bg {
+            position: absolute;
+            left: 254px; 
+            top: 2px;
+            width: 227px;
+            height: 56px;
+            background: url("https://i.postimg.cc/3RwQtGxJ/page-select.png") no-repeat center center;
+            background-size: 100% 100%;
+            z-index: 970;
+            image-rendering: pixelated;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .page-number-text {
+            font-size: 38px !important;
+            font-weight: 800 !important;
+            font-family: 'Fredoka', sans-serif !important;
+            color: #ffffff;
+            -webkit-text-stroke: 6px #2A2B31;
+            stroke-linejoin: round;
+            -webkit-stroke-linejoin: round;
+            paint-order: stroke fill;
+            text-shadow: none !important;
+            padding-bottom: 3px; 
+            display: inline-block;
+            transform-origin: center center;
+            transition: transform 0.06s cubic-bezier(0.1, 0.9, 0.2, 1);
+        }
+
+        .page-arrow {
+            position: absolute;
+            width: 27px;
+            height: 39px;
+            background-size: 100% 100%;
+            background-repeat: no-repeat;
+            background-position: center;
+            cursor: pointer;
+            z-index: 980;
+            transform-origin: center center;
+            transition: transform 0.06s cubic-bezier(0.1, 0.9, 0.2, 1), left 0.06s cubic-bezier(0.1, 0.9, 0.2, 1);
+        }
+
+        .arrow-left { left: 22px; top: 8px; background-image: url("https://i.postimg.cc/FskNt0gt/sipka-leva.png"); }
+        .arrow-right { right: 22px; top: 8px; background-image: url("https://i.postimg.cc/VNp2WVpx/sipka-prava.png"); }
+
+        .leaderboard-footer.hover-left .arrow-left { transform: scale(1.03); }
+        .leaderboard-footer.hover-left .page-number-text { transform: translateX(1px); }
+        .leaderboard-footer.hover-left .arrow-right { transform: translateX(1.5px); }
+        .leaderboard-footer.active-left .arrow-left { transform: scale(0.97); }
+        .leaderboard-footer.active-left .page-number-text { transform: translateX(-1px); }
+        .leaderboard-footer.active-left .arrow-right { transform: translateX(-1.5px); }
+        .leaderboard-footer.hover-right .arrow-right { transform: scale(1.03); }
+        .leaderboard-footer.hover-right .page-number-text { transform: translateX(-1px); }
+        .leaderboard-footer.hover-right .arrow-left { transform: translateX(-1.5px); }
+        .leaderboard-footer.active-right .arrow-right { transform: scale(0.97); }
+        .leaderboard-footer.active-right .page-number-text { transform: translateX(1px); }
+        .leaderboard-footer.active-right .arrow-left { transform: translateX(1.5px); }
+
+        .leaderboard-loading {
+            width: 736px;
+            padding: 50px 0;
+            text-align: center;
+            font-size: 32px;
+            font-weight: 800;
+            color: #B1B1B1; 
+            text-shadow: none; 
+        }
+
+        html, body {
+            width: 100vw;
+            height: 100dvh;
+            margin: 0;
+            padding: 0;
+            overflow: hidden !important;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            overscroll-behavior: none !important;
+            touch-action: none;
+        }
+
+        .leaderboard-container {
+            touch-action: pan-y !important;
+            overscroll-behavior: contain !important;
+        }
+
+        /* --- STYLY PRO MOBILNÍ NOTIFIKACI --- */
+        .orientation-popup-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.65);
+            backdrop-filter: blur(4px);
+            z-index: 99999;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .orientation-popup-overlay.show {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .orientation-popup-card {
+            position: relative;
+            width: 88%;
+            max-width: 380px;
+            background: #FFFFFF;
+            border: 5px solid #000000;
+            border-radius: 20px;
+            padding: 25px 20px 20px 20px;
+            text-align: center;
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transform: scale(0.85);
+            transition: transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .orientation-popup-overlay.show .orientation-popup-card {
+            transform: scale(1);
+        }
+
+        .popup-close-x {
+            position: absolute;
+            right: -14px;
+            top: -14px;
+            width: 44px;
+            height: 44px;
+            background: url("https://i.postimg.cc/ZnsJsPBt/X.png") no-repeat center center;
+            background-size: 100% 100%;
+            cursor: pointer;
+            filter: drop-shadow(0px 3px 5px rgba(0,0,0,0.3));
+            transition: transform 0.1s ease;
+        }
+
+        .popup-close-x:active {
+            background-image: url("https://i.postimg.cc/Dz424SzQ/X-clicked.png");
+            transform: scale(0.9);
+        }
+
+        .popup-icon-container {
+            width: 64px;
+            height: 64px;
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .popup-icon-svg {
+            width: 100%;
+            height: 100%;
+            fill: #3b82f6;
+            animation: rotatePhone 2.5s infinite ease-in-out;
+        }
+
+        @keyframes rotatePhone {
+            0%, 15% { transform: rotate(0deg); }
+            50%, 65% { transform: rotate(-90deg); }
+            85%, 100% { transform: rotate(0deg); }
+        }
+
+        .popup-title {
+            font-size: 24px;
+            color: #FFFFFF;
+            -webkit-text-stroke: 4.5px #000000;
+            paint-order: stroke fill;
+            stroke-linejoin: round;
+            font-weight: 800 !important;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+        }
+
+        .popup-text {
+            font-size: 16px;
+            color: #2A2B31;
+            font-weight: 700;
+            margin-bottom: 18px;
+            line-height: 1.35;
+        }
+
+        .popup-rotate-btn {
+            width: 100%;
+            padding: 12px 0;
+            background: linear-gradient(180deg, #4292FF 0%, #176BFF 100%);
+            border: 3.5px solid #000000;
+            border-radius: 12px;
+            color: #FFFFFF;
+            font-size: 18px;
+            font-weight: 800 !important;
+            -webkit-text-stroke: 3px #000000;
+            paint-order: stroke fill;
+            cursor: pointer;
+            box-shadow: 0 4px 0 #000000;
+            transition: transform 0.05s ease, box-shadow 0.05s ease;
+        }
+
+        .popup-rotate-btn:active {
+            transform: translateY(3px);
+            box-shadow: 0 1px 0 #000000;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="app-scaler" id="appScaler">
+        <div class="game-window">
+            <img class="menu-bg" src="https://i.postimg.cc/sfG6nXsc/main-menu.png" draggable="false">
+            
+            <div class="clans-logo"></div>
+            
+            <div class="menu-btn btn-clans" onclick="location.href='index.html'" ></div>
+            <div class="menu-btn btn-topclans" onclick="location.href='topclans.html'" ></div>
+            <div class="menu-btn btn-people is-active" onclick="location.href='leagues.html'" ></div>
+            <div class="menu-btn btn-search" onclick="location.href='people.html'" ></div>
+            
+            <img class="menu-text text-clans" src="https://i.postimg.cc/7YwkVBKh/text-Clans.png" draggable="false">
+            <img class="menu-text text-topclans" src="https://i.postimg.cc/bv7X2LGJ/text-Top-Clans.png" draggable="false">
+            <img class="menu-text text-people" src="https://i.postimg.cc/vBjLqZp7/leagues-text.png" draggable="false">
+            <img class="menu-text text-search" src="https://i.postimg.cc/9FW6TDfB/text-People.png" draggable="false">
+            
+            <div class="tab-content" id="tab-topclans">
+                <div class="leaderboard-search-asset">
+                    <input type="text" class="leaderboard-search-input" placeholder="Search" id="clanSearch" maxlength="4">
+                </div>
+
+                <div class="leaderboard-container" id="leaderboardList">
+                    <div id="clanCardsList"></div>
+                    
+                    <div class="leaderboard-footer" id="leaderboardFooter">
+                        <div class="page-select-bg" id="pageSelectBg">
+                            <div class="page-arrow arrow-left" id="prevPageBtn" ></div>
+                            <span class="page-number-text" id="pageNumberDisplay">1</span>
+                            <div class="page-arrow arrow-right" id="nextPageBtn" ></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="close-btn" onclick="location.href='index.html'" ></div>
+        </div>
+    </div>
+
+    <!-- MOBILNÍ ORIENTATION POPUP -->
+    <div class="orientation-popup-overlay" id="orientationPopup">
+        <div class="orientation-popup-card">
+            <div class="popup-close-x" id="popupCloseBtn"></div>
+            
+            <div class="popup-icon-container">
+                <svg class="popup-icon-svg" viewBox="0 0 24 24">
+                    <path d="M17 1.01L7 1c-1.1 0-2 .9-2 2v18c0 1.1.9 2 2 2h10c1.1 0 2-.9 2-2V3c0-1.1-.9-1.99-2-1.99zM17 19H7V5h10v14z"/>
+                </svg>
+            </div>
+            
+            <div class="popup-title">Rotate Phone</div>
+            <div class="popup-text">Rotate your device horizontally for the best experience!</div>
+            
+            <button class="popup-rotate-btn" id="popupRotateActionBtn">ROTATE SCREEN</button>
+        </div>
+    </div>
+
+    <script>
+        const WORKER_URL = "https://rough-pine-d90f.ps99clans.workers.dev";
+        let leaguesData = [];
+        let searchQuery = "";
+        let currentPage = 1;
+        const itemsPerPage = 100;
+        let preservedScrollTop = null;
+
+        function autoFitScreen() {
+            const scaler = document.getElementById("appScaler");
+            if (!scaler) return;
+
+            const winW = window.innerWidth;
+            const winH = window.innerHeight;
+
+            if (winW >= 1150) {
+                document.body.classList.remove("is-mobile");
+                scaler.style.transform = "none";
+                hideOrientationPopup();
+                return;
+            }
+
+            document.body.classList.add("is-mobile");
+            const requiredW = 1120;
+            const requiredH = 960; 
+
+            const scaleX = winW / requiredW;
+            const scaleY = winH / requiredH;
+
+            const scale = Math.min(scaleX, scaleY) * 0.92;
+            scaler.style.transform = `scale(${scale})`;
+
+            checkOrientationPopup();
+        }
+
+        /* --- LOGIKA ORIENTAČNÍHO POPUPU --- */
+        function checkOrientationPopup() {
+            const popup = document.getElementById("orientationPopup");
+            if (!popup) return;
+
+            const hasBeenDismissed = sessionStorage.getItem("orientationPopupDismissed") === "true";
+
+            const isMobile = window.innerWidth < 1150;
+            const isPortrait = window.innerHeight > window.innerWidth;
+
+            if (isMobile && isPortrait && !hasBeenDismissed) {
+                popup.classList.add("show");
+            } else {
+                popup.classList.remove("show");
+            }
+        }
+
+        function dismissOrientationPopup() {
+            sessionStorage.setItem("orientationPopupDismissed", "true");
+            hideOrientationPopup();
+        }
+
+        function hideOrientationPopup() {
+            const popup = document.getElementById("orientationPopup");
+            if (popup) popup.classList.remove("show");
+        }
+
+        document.getElementById("popupCloseBtn")?.addEventListener("click", () => {
+            dismissOrientationPopup();
+        });
+
+        document.getElementById("popupRotateActionBtn")?.addEventListener("click", () => {
+            if (screen.orientation && screen.orientation.lock) {
+                screen.orientation.lock("landscape").catch(() => {});
+            }
+            dismissOrientationPopup();
+        });
+
+        window.addEventListener("resize", autoFitScreen);
+        window.addEventListener("orientationchange", autoFitScreen);
+
+        function formatNumber(num) {
+            if (num === undefined || num === null) return "0";
+            return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ");
+        }
+
+        function getClanIconUrl(iconAsset) {
+            if (!iconAsset) return "https://placehold.co/90x90/ffffff/000000?text=Clan";
+            const match = iconAsset.match(/\d+/);
+            if (match) {
+                return `https://ps99.biggamesapi.io/image/${match[0]}`;
+            }
+            return "https://placehold.co/90x90/ffffff/000000?text=Clan";
+        }
+
+        function generateFallbackData() {
+            const fallback = [];
+            for (let i = 1; i <= 100; i++) {
+                const rank = (currentPage - 1) * itemsPerPage + i;
+                fallback.push({
+                    Name: `LEAG${rank}`,
+                    Points: Math.floor(2500000000 / rank),
+                    Members: Math.max(1, Math.min(74, Math.floor(74 - (rank % 70)))),
+                    MemberCapacity: 75,
+                    Icon: "rbxassetid://1372728282",
+                    _originalRank: rank
+                });
+            }
+            return fallback;
+        }
+
+        async function fetchLeaguesData(isSilent = false) {
+            const list = document.getElementById("clanCardsList");
+            const scrollContainer = document.getElementById("leaderboardList");
+            
+            if (scrollContainer && !isSilent) {
+                preservedScrollTop = scrollContainer.scrollTop;
+            }
+
+            if (!isSilent && list && leaguesData.length === 0) {
+                list.innerHTML = `<div class="leaderboard-loading">Loading...</div>`;
+            }
+
+            try {
+                const res = await fetch(`${WORKER_URL}/v1/leagues?page=${currentPage}&pageSize=${itemsPerPage}&sort=Points`);
+                const data = await res.json();
+                
+                let parsedArray = [];
+                if (data && data.status === "ok") {
+                    const rawData = data.data;
+                    if (Array.isArray(rawData)) {
+                        parsedArray = rawData;
+                    } else if (rawData && typeof rawData === 'object') {
+                        const innerArray = Object.values(rawData).find(val => Array.isArray(val));
+                        if (innerArray) parsedArray = innerArray;
+                    }
+                }
+                
+                if (parsedArray.length > 0) {
+                    leaguesData = parsedArray.map((item, idx) => ({
+                        ...item,
+                        _originalRank: (currentPage - 1) * itemsPerPage + idx + 1
+                    }));
+                } else {
+                    leaguesData = generateFallbackData();
+                }
+            } catch (err) {
+                console.warn("Chyba při stahování dat, aktivace fallbacku:", err);
+                leaguesData = generateFallbackData();
+            }
+            renderLeaderboard();
+        }
+
+        function renderLeaderboard() {
+            const list = document.getElementById("clanCardsList");
+            const pageText = document.getElementById("pageNumberDisplay");
+            const scrollContainer = document.getElementById("leaderboardList");
+            
+            if (!list || !scrollContainer) return;
+            
+            list.innerHTML = "";
+
+            let displayData = leaguesData;
+
+            if (searchQuery.trim() !== "") {
+                displayData = leaguesData.filter(clan => clan.Name && clan.Name.toLowerCase().includes(searchQuery.toLowerCase()));
+            }
+
+            displayData.forEach((clan) => {
+                const absoluteRank = clan._originalRank;
+                const row = document.createElement("div");
+                row.className = "clan-row";
+
+                const formattedPoints = formatNumber(clan.Points);
+                const rawMembers = clan.Members !== undefined ? clan.Members : 0;
+                const mCount = rawMembers;
+                const mCap = clan.MemberCapacity !== undefined ? clan.MemberCapacity : 75;
+                
+                const rankColor = (absoluteRank === 1) ? "#8AFCED" : "#FFFFFF";
+                const clanIconUrl = getClanIconUrl(clan.Icon);
+
+                row.innerHTML = `
+                    <div class="clan-rank" style="color: ${rankColor};">#${absoluteRank}</div>
+                    <img class="clan-icon" src="${clanIconUrl}" onerror="this.onerror=null; this.src='https://placehold.co/90x90/ffffff/000000?text=Clan';" draggable="false">
+                    <div class="clan-name">[${clan.Name}]</div>
+                    <div class="clan-members" data-text="${mCount}/${mCap}">${mCount}/${mCap}</div>
+                    <div class="clan-points-wrapper">
+                        <div class="clan-star-icon"></div>
+                        <div class="clan-points">${formattedPoints}</div>
+                    </div>
+                `;
+                list.appendChild(row);
+            });
+
+            if (pageText) pageText.textContent = currentPage;
+            
+            if (preservedScrollTop !== null) {
+                scrollContainer.scrollTop = preservedScrollTop;
+                preservedScrollTop = null; 
+            }
+        }
+
+        const inputSearch = document.getElementById("clanSearch");
+        if (inputSearch) {
+            inputSearch.addEventListener("input", (e) => {
+                searchQuery = e.target.value;
+                renderLeaderboard();
+            });
+        }
+
+        const prevBtn = document.getElementById("prevPageBtn");
+        const nextBtn = document.getElementById("nextPageBtn");
+
+        if (prevBtn && nextBtn) {
+            prevBtn.addEventListener("click", (e) => {
+                e.stopPropagation();
+                if (currentPage > 1) { 
+                    currentPage--; 
+                    leaguesData = [];
+                    fetchLeaguesData(false);
+                }
+            });
+            nextBtn.addEventListener("click", (e) => {
+                e.stopPropagation();
+                if (currentPage < 30) {
+                    currentPage++; 
+                    leaguesData = [];
+                    fetchLeaguesData(false); 
+                }
+            });
+        }
+
+        setInterval(() => {
+            fetchLeaguesData(true);
+        }, 60000);
+
+        window.addEventListener('DOMContentLoaded', () => {
+            autoFitScreen();
+            fetchLeaguesData(false);
+        });
+
+        const footer = document.getElementById('leaderboardFooter');
+        const arrowL = document.getElementById('prevPageBtn');
+        const arrowR = document.getElementById('nextPageBtn');
+
+        if (arrowL && footer) {
+            arrowL.addEventListener('mouseenter', () => footer.classList.add('hover-left'));
+            arrowL.addEventListener('mouseleave', () => { footer.classList.remove('hover-left', 'active-left'); });
+            arrowL.addEventListener('mousedown', () => footer.classList.add('active-left'));
+            arrowL.addEventListener('mouseup', () => footer.classList.remove('active-left'));
+        }
+        if (arrowR && footer) {
+            arrowR.addEventListener('mouseenter', () => footer.classList.add('hover-right'));
+            arrowR.addEventListener('mouseleave', () => { footer.classList.remove('hover-right', 'active-right'); });
+            arrowR.addEventListener('mousedown', () => footer.classList.add('active-right'));
+            arrowR.addEventListener('mouseup', () => footer.classList.remove('active-right'));
+        }
+    </script>
+</body>
+</html>
