@@ -174,6 +174,19 @@
             transition: all 0.044s cubic-bezier(0.1, 0.9, 0.2, 1);
         }
 
+        html, body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden !important; /* Zakáže jakýkoliv scrollbar i posuv */
+            position: fixed;             /* Přišpendlí stránku, aby se nepohnula */
+            touch-action: none;          /* Zakáže gesta posunu prstem na pozadí */
+        }
+
+        .leaderboard-container, 
+        .country-list-scroll {
+            touch-action: pan-y !important; /* Povolí vertikální scroll prstem uvnitř seznamu */
+        }
+
         .btn-sub-topclans { left: 7px; background-image: url("https://i.postimg.cc/t44Cdhyn/topclans.png"); }
         .btn-sub-search { left: 369px; background-image: url("https://i.postimg.cc/xj6WJx4r/people-index.png"); }
 
