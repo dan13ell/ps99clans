@@ -16,8 +16,8 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/odometer.js/0.4.7/odometer.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-    <link rel="preload" as="image" href="https://i.postimg.cc/sfG6nXsc/main-menu.png">
-    <link rel="preload" as="image" href="https://i.postimg.cc/DfSm1LrP/scroller.png">
+    <link rel="preload" as="image" href="images/main-menu.png">
+    <link rel="preload" as="image" href="images/scroller.png">
 
     <style>
         * {
@@ -67,7 +67,7 @@
             top: -69px;
             width: 315px;
             height: 117px;
-            background: url("https://i.postimg.cc/PfW18xLb/clans-logo.png") no-repeat center center;
+            background: url("images/clans-logo.png") no-repeat center center;
             background-size: 100% 100%;
             z-index: 998;
         }
@@ -78,7 +78,7 @@
             top: -30px; 
             width: 72px;  
             height: 73px; 
-            background: url("https://i.postimg.cc/ZnsJsPBt/X.png") no-repeat center center;
+            background: url("images/X.png") no-repeat center center;
             background-size: 100% 100%;
             cursor: pointer;
             z-index: 999;
@@ -86,7 +86,7 @@
             transition: all 0.044s cubic-bezier(0.1, 0.9, 0.2, 1);
         }
         .close-btn:hover:not(:active) { left: 1042px; top: -34px; width: 76px; height: 77px; }
-        .close-btn:active { background-image: url("https://i.postimg.cc/Dz424SzQ/X-clicked.png"); left: 1047px; top: -29px; width: 66px; height: 67px; }
+        .close-btn:active { background-image: url("images/X-clicked.png"); left: 1047px; top: -29px; width: 66px; height: 67px; }
 
         .menu-btn {
             position: absolute;
@@ -98,12 +98,12 @@
             background-position: center;
             cursor: pointer;
             z-index: 900;
-            background-image: url("https://i.postimg.cc/MGrXBkwN/grey.png");
+            background-image: url("images/grey.png");
             transition: all 0.044s cubic-bezier(0.1, 0.9, 0.2, 1);
         }
         .menu-btn:hover:not(:active) { left: 11px; width: 315px; height: 88px; z-index: 920; }
-        .menu-btn:active { background-image: url("https://i.postimg.cc/br1v4snw/grey-clicked.png"); left: 20px; width: 294px; height: 78px; z-index: 900; }
-        .menu-btn.is-active { background-image: url("https://i.postimg.cc/JhX56QnL/selected.png"); }
+        .menu-btn:active { background-image: url("images/grey-clicked.png"); left: 20px; width: 294px; height: 78px; z-index: 900; }
+        .menu-btn.is-active { background-image: url("images/selected.png"); }
 
         .btn-clans { top: 34px; }
         .btn-topclans { top: 124px; }
@@ -158,7 +158,7 @@
             top: 472px;
             width: 254px;
             height: 79px;
-            background: url("https://i.postimg.cc/ZKM3vyw0/back-button.png") no-repeat center center;
+            background: url("images/back-button.png") no-repeat center center;
             background-size: 100% 100%;
             cursor: pointer;
             z-index: 990;
@@ -171,7 +171,7 @@
         }
         .custom-back-btn:hover:not(:active) { transform: scale(1.05); }
         .custom-back-btn:active {
-            background-image: url("https://i.postimg.cc/qRJg5k1Q/back-button-clicked.png");
+            background-image: url("images/back-button-clicked.png");
             transform: scale(0.95);
         }
         .custom-back-text {
@@ -196,7 +196,7 @@
         .live-main-scroll-viewport::-webkit-scrollbar { width: 15px; }
         .live-main-scroll-viewport::-webkit-scrollbar-track { background: transparent; }
         .live-main-scroll-viewport::-webkit-scrollbar-thumb { 
-            background: url("https://i.postimg.cc/DfSm1LrP/scroller.png") no-repeat top center;
+            background: url("images/scroller.png") no-repeat top center;
             background-size: 15px 29px; 
             image-rendering: pixelated; 
         }
@@ -285,7 +285,7 @@
             top: 223px;
             width: 477px;
             height: 66px;
-            background: url("https://i.postimg.cc/RVRHZm9h/pozice-card.png") no-repeat center center;
+            background: url("images/pozice-card.png") no-repeat center center;
             background-size: 100% 100%;
             image-rendering: pixelated;
             transform: translateX(-50%);
@@ -324,7 +324,7 @@
             top: 275px;
             width: 605px;
             height: 197px;
-            background: url("https://i.postimg.cc/FHyHGgW8/total-points-card.png") no-repeat center center;
+            background: url("images/total-points-card.png") no-repeat center center;
             background-size: 100% 100%;
             image-rendering: pixelated;
             z-index: 910;
@@ -366,7 +366,7 @@
             top: 0;
             width: 732px;
             height: 129px;
-            background: url("https://i.postimg.cc/kGZ4bmNQ/clan-stats.png") no-repeat center center;
+            background: url("images/clan-stats.png") no-repeat center center;
             background-size: 100% 100%;
             image-rendering: pixelated;
             z-index: 910;
@@ -456,7 +456,6 @@
             overscroll-behavior: contain !important;
         }
 
-        /* --- STYLY PRO MOBILNÍ NOTIFIKACI --- */
         .orientation-popup-overlay {
             position: fixed;
             top: 0;
@@ -506,7 +505,7 @@
             top: -14px;
             width: 44px;
             height: 44px;
-            background: url("https://i.postimg.cc/ZnsJsPBt/X.png") no-repeat center center;
+            background: url("images/X.png") no-repeat center center;
             background-size: 100% 100%;
             cursor: pointer;
             filter: drop-shadow(0px 3px 5px rgba(0,0,0,0.3));
@@ -514,7 +513,7 @@
         }
 
         .popup-close-x:active {
-            background-image: url("https://i.postimg.cc/Dz424SzQ/X-clicked.png");
+            background-image: url("images/X-clicked.png");
             transform: scale(0.9);
         }
 
@@ -585,7 +584,7 @@
 
     <div class="app-scaler" id="appScaler">
         <div class="game-window">
-            <img class="menu-bg" src="https://i.postimg.cc/sfG6nXsc/main-menu.png" draggable="false">
+            <img class="menu-bg" src="images/main-menu.png" draggable="false">
             
             <div class="clans-logo"></div>
             
@@ -594,14 +593,14 @@
             <div class="menu-btn btn-people" onclick="location.href='leagues.html'" ></div>
             <div class="menu-btn btn-search" onclick="location.href='people.html'" ></div>
             
-            <img class="menu-text text-clans" src="https://i.postimg.cc/7YwkVBKh/text-Clans.png" draggable="false">
-            <img class="menu-text text-topclans" src="https://i.postimg.cc/bv7X2LGJ/text-Top-Clans.png" draggable="false">
-            <img class="menu-text text-people" src="https://i.postimg.cc/vBjLqZp7/leagues-text.png" draggable="false">
-            <img class="menu-text text-search" src="https://i.postimg.cc/9FW6TDfB/text-People.png" draggable="false">
+            <img class="menu-text text-clans" src="images/text-Clans.png" draggable="false">
+            <img class="menu-text text-topclans" src="images/text-Top-Clans.png" draggable="false">
+            <img class="menu-text text-people" src="images/leagues-text.png" draggable="false">
+            <img class="menu-text text-search" src="images/text-People.png" draggable="false">
             
             <div class="tab-content">
                 <div class="custom-back-btn" id="liveBackBtn">
-                    <img class="custom-back-text" src="https://i.postimg.cc/TPqp0yJ3/Back-text.png" draggable="false">
+                    <img class="custom-back-text" src="images/Back-text.png" draggable="false">
                 </div>
 
                 <div class="live-status-message" id="liveStatusText">Loading tracker...</div>
