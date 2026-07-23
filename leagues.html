@@ -565,7 +565,7 @@
             
             <div class="tab-content" id="tab-topclans">
                 <div class="leaderboard-search-asset">
-                    <input type="text" class="leaderboard-search-input" placeholder="Search" id="clanSearch" maxlength="4">
+                    <input type="text" class="leaderboard-search-input" placeholder="Search" id="clanSearch" maxlength="12">
                 </div>
 
                 <div class="leaderboard-container" id="leaderboardList">
@@ -604,11 +604,12 @@
 
     <script>
         const WORKER_URL = "https://rough-pine-d90f.ps99clans.workers.dev";
-        let leaguesData = [];
+        let allLeaguesData = []; 
         let searchQuery = "";
         let currentPage = 1;
         const itemsPerPage = 100;
         let preservedScrollTop = null;
+        let isDataLoaded = false;
 
         function autoFitScreen() {
             const scaler = document.getElementById("appScaler");
@@ -693,20 +694,20 @@
 
         function generateFallbackData() {
             const fallback = [];
-            for (let i = 1; i <= 100; i++) {
-                const rank = (currentPage - 1) * itemsPerPage + i;
+            for (let i = 1; i <= 3000; i++) {
                 fallback.push({
-                    Name: `LEAG${rank}`,
-                    Points: Math.floor(2500000000 / rank),
-                    Members: Math.max(1, Math.min(74, Math.floor(74 - (rank % 70)))),
+                    Name: `LEAG${i}`,
+                    Points: Math.floor(2500000000 / i),
+                    Members: Math.max(1, Math.min(74, Math.floor(74 - (i % 70)))),
                     MemberCapacity: 75,
                     Icon: "rbxassetid://1372728282",
-                    _originalRank: rank
+                    _originalRank: i
                 });
             }
             return fallback;
         }
 
+        // NAČTENÍ VŠECH STRÁNEK DO PAMĚTI PRO GLOBÁLNÍ SEARCH
         async function fetchLeaguesData(isSilent = false) {
             const list = document.getElementById("clanCardsList");
             const scrollContainer = document.getElementById("leaderboardList");
@@ -715,57 +716,95 @@
                 preservedScrollTop = scrollContainer.scrollTop;
             }
 
-            if (!isSilent && list && leaguesData.length === 0) {
+            if (!isSilent && list && !isDataLoaded) {
                 list.innerHTML = `<div class="leaderboard-loading">Loading...</div>`;
             }
 
             try {
-                const res = await fetch(`${WORKER_URL}/v1/leagues?page=${currentPage}&pageSize=${itemsPerPage}&sort=Points`);
-                const data = await res.json();
-                
-                let parsedArray = [];
-                if (data && data.status === "ok") {
-                    const rawData = data.data;
-                    if (Array.isArray(rawData)) {
-                        parsedArray = rawData;
-                    } else if (rawData && typeof rawData === 'object') {
-                        const innerArray = Object.values(rawData).find(val => Array.isArray(val));
-                        if (innerArray) parsedArray = innerArray;
-                    }
+                // Načteme paralelně prvních 30 stránek (3000 klanů), aby vyhledávání znalo VŠECHNY klany i jejich přesné pořadí
+                const fetchPromises = [];
+                for (let p = 1; p <= 30; p++) {
+                    fetchPromises.push(
+                        fetch(`${WORKER_URL}/v1/leagues?page=${p}&pageSize=100&sort=Points`)
+                            .then(r => r.json())
+                            .catch(() => null)
+                    );
                 }
-                
-                if (parsedArray.length > 0) {
-                    leaguesData = parsedArray.map((item, idx) => ({
-                        ...item,
-                        _originalRank: (currentPage - 1) * itemsPerPage + idx + 1
-                    }));
-                } else {
-                    leaguesData = generateFallbackData();
+
+                const results = await Promise.all(fetchPromises);
+                let combined = [];
+
+                results.forEach((resData, pIndex) => {
+                    if (resData && resData.status === "ok") {
+                        let rawArr = [];
+                        const dataObj = resData.data;
+                        if (Array.isArray(dataObj)) rawArr = dataObj;
+                        else if (dataObj && typeof dataObj === 'object') {
+                            const innerArr = Object.values(dataObj).find(v => Array.isArray(v));
+                            if (innerArr) rawArr = innerArr;
+                        }
+
+                        rawArr.forEach((item, itemIndex) => {
+                            const realRank = pIndex * 100 + itemIndex + 1;
+                            combined.push({
+                                ...item,
+                                _originalRank: realRank
+                            });
+                        });
+                    }
+                });
+
+                if (combined.length > 0) {
+                    allLeaguesData = combined;
+                } else if (allLeaguesData.length === 0) {
+                    allLeaguesData = generateFallbackData();
                 }
             } catch (err) {
-                console.warn("Chyba při stahování dat, aktivace fallbacku:", err);
-                leaguesData = generateFallbackData();
+                console.warn("Chyba při načítání globálních dat, aktivace fallbacku:", err);
+                if (allLeaguesData.length === 0) {
+                    allLeaguesData = generateFallbackData();
+                }
             }
+
+            isDataLoaded = true;
             renderLeaderboard();
         }
 
         function renderLeaderboard() {
             const list = document.getElementById("clanCardsList");
             const pageText = document.getElementById("pageNumberDisplay");
+            const footerEl = document.getElementById("leaderboardFooter");
             const scrollContainer = document.getElementById("leaderboardList");
             
             if (!list || !scrollContainer) return;
             
             list.innerHTML = "";
 
-            let displayData = leaguesData;
+            let displayData = allLeaguesData;
 
+            // Vyhledávání probíhá okamžitě lokálně nad všemi načtenými klany
             if (searchQuery.trim() !== "") {
-                displayData = leaguesData.filter(clan => clan.Name && clan.Name.toLowerCase().includes(searchQuery.toLowerCase()));
+                displayData = allLeaguesData.filter(clan => 
+                    clan.Name && clan.Name.toLowerCase().includes(searchQuery.toLowerCase().trim())
+                );
             }
 
-            displayData.forEach((clan) => {
-                const absoluteRank = clan._originalRank;
+            if (displayData.length === 0) {
+                list.innerHTML = `<div class="leaderboard-loading">No clans found.</div>`;
+                if (footerEl) footerEl.style.display = "none";
+                return;
+            }
+
+            const isSearching = searchQuery.trim() !== "";
+            if (footerEl) footerEl.style.display = isSearching ? "none" : "block";
+
+            // Bez vyhledávání zobrazujeme danou stránku (100 položek). Při vyhledávání zobrazíme všechny výsledky.
+            const pageData = isSearching 
+                ? displayData 
+                : displayData.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+
+            pageData.forEach((clan) => {
+                const absoluteRank = clan._originalRank; // VŽDY PŘESNÝ RANK (např. #1584)
                 const row = document.createElement("div");
                 row.className = "clan-row";
 
@@ -802,6 +841,7 @@
         if (inputSearch) {
             inputSearch.addEventListener("input", (e) => {
                 searchQuery = e.target.value;
+                currentPage = 1;
                 renderLeaderboard();
             });
         }
@@ -814,16 +854,14 @@
                 e.stopPropagation();
                 if (currentPage > 1) { 
                     currentPage--; 
-                    leaguesData = [];
-                    fetchLeaguesData(false);
+                    renderLeaderboard();
                 }
             });
             nextBtn.addEventListener("click", (e) => {
                 e.stopPropagation();
-                if (currentPage < 30) {
+                if (currentPage < 30) { 
                     currentPage++; 
-                    leaguesData = [];
-                    fetchLeaguesData(false); 
+                    renderLeaderboard();
                 }
             });
         }
