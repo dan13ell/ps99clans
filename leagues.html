@@ -6,16 +6,16 @@
     <title>PS99 Clans - Leagues</title>
     <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     
-    <link rel="preload" as="image" href="https://i.postimg.cc/sfG6nXsc/main-menu.png">
-    <link rel="preload" as="image" href="https://i.postimg.cc/ZnjcPzr3/clan-board-leagues.png">
-    <link rel="preload" as="image" href="https://i.postimg.cc/ZnsJsPBt/X.png">
-    <link rel="preload" as="image" href="https://i.postimg.cc/Dz424SzQ/X-clicked.png">
-    <link rel="preload" as="image" href="https://i.postimg.cc/L8VCntY9/topclans-leaderboard-search.png">
-    <link rel="preload" as="image" href="https://i.postimg.cc/4dJnZ5sH/stars.png">
-    <link rel="preload" as="image" href="https://i.postimg.cc/DfSm1LrP/scroller.png">
-    <link rel="preload" as="image" href="https://i.postimg.cc/3RwQtGxJ/page-select.png">
-    <link rel="preload" as="image" href="https://i.postimg.cc/FskNt0gt/sipka-leva.png">
-    <link rel="preload" as="image" href="https://i.postimg.cc/VNp2WVpx/sipka-prava.png">
+    <link rel="preload" as="image" href="images/main-menu.png">
+    <link rel="preload" as="image" href="images/clan-board-leagues.png">
+    <link rel="preload" as="image" href="images/ZnsJsPBt/X.png">
+    <link rel="preload" as="image" href="images/X-clicked.png">
+    <link rel="preload" as="image" href="images/topclans-leaderboard-search.png">
+    <link rel="preload" as="image" href="images/stars.png">
+    <link rel="preload" as="image" href="images/scroller.png">
+    <link rel="preload" as="image" href="images/page-select.png">
+    <link rel="preload" as="image" href="images/sipka-leva.png">
+    <link rel="preload" as="image" href="images/sipka-prava.png">
 
     <style>
         * {
@@ -65,7 +65,7 @@
             top: -69px;
             width: 315px;
             height: 117px;
-            background: url("https://i.postimg.cc/PfW18xLb/clans-logo.png") no-repeat center center;
+            background: url("images/clans-logo.png") no-repeat center center;
             background-size: 100% 100%;
             z-index: 998;
         }
@@ -76,7 +76,7 @@
             top: -30px; 
             width: 72px;  
             height: 73px; 
-            background: url("https://i.postimg.cc/ZnsJsPBt/X.png") no-repeat center center;
+            background: url("images/X.png") no-repeat center center;
             background-size: 100% 100%;
             cursor: pointer;
             z-index: 999;
@@ -85,7 +85,7 @@
         }
 
         .close-btn:hover:not(:active) { left: 1042px; top: -34px; width: 76px; height: 77px; }
-        .close-btn:active { background-image: url("https://i.postimg.cc/Dz424SzQ/X-clicked.png"); left: 1047px; top: -29px; width: 66px; height: 67px; }
+        .close-btn:active { background-image: url("images/X-clicked.png"); left: 1047px; top: -29px; width: 66px; height: 67px; }
 
         .menu-btn {
             position: absolute;
@@ -97,15 +97,15 @@
             background-position: center;
             cursor: pointer;
             z-index: 900;
-            background-image: url("https://i.postimg.cc/MGrXBkwN/grey.png");
+            background-image: url("images/grey.png");
             transition: all 0.044s cubic-bezier(0.1, 0.9, 0.2, 1);
         }
 
         .menu-btn:hover:not(:active) { left: 11px; width: 315px; height: 88px; z-index: 920; }
-        .menu-btn:active { background-image: url("https://i.postimg.cc/br1v4snw/grey-clicked.png"); left: 20px; width: 294px; height: 78px; z-index: 900; }
+        .menu-btn:active { background-image: url("images/grey-clicked.png"); left: 20px; width: 294px; height: 78px; z-index: 900; }
 
-        .menu-btn.is-active { background-image: url("https://i.postimg.cc/JhX56QnL/selected.png"); }
-        .menu-btn.is-active:active { background-image: url("https://i.postimg.cc/bNXDLjnT/selected-clicked.png"); left: 20px; width: 294px; height: 78px; z-index: 900; }
+        .menu-btn.is-active { background-image: url("images/selected.png"); }
+        .menu-btn.is-active:active { background-image: url("images/selected-clicked.png"); left: 20px; width: 294px; height: 78px; z-index: 900; }
 
         .btn-clans { top: 34px; }
         .btn-topclans { top: 124px; }
@@ -161,7 +161,7 @@
             top: -18px; 
             width: 330px;
             height: 48px;
-            background: url("https://i.postimg.cc/L8VCntY9/topclans-leaderboard-search.png") no-repeat center center;
+            background: url("images/topclans-leaderboard-search.png") no-repeat center center;
             background-size: 100% 100%;
             z-index: 990;
         }
@@ -200,7 +200,7 @@
             background: transparent; 
         }
         .leaderboard-container::-webkit-scrollbar-thumb { 
-            background: url("https://i.postimg.cc/DfSm1LrP/scroller.png") no-repeat center center;
+            background: url("images/scroller.png") no-repeat center center;
             background-size: 15px 29px; 
             image-rendering: pixelated; 
             min-height: 45px;
@@ -210,7 +210,7 @@
             display: block;
             width: 736px;
             height: 112px;
-            background: url("https://i.postimg.cc/ZnjcPzr3/clan-board-leagues.png") no-repeat center center;
+            background: url("images/clan-board-leagues.png") no-repeat center center;
             background-size: 100% 100%;
             margin-bottom: 6px;
             margin-top: 6px;
@@ -277,7 +277,7 @@
             height: 41px;
             margin-top: 10px; 
             margin-right: 3px; 
-            background: url("https://i.postimg.cc/4dJnZ5sH/stars.png") no-repeat center center;
+            background: url("images/stars.png") no-repeat center center;
             background-size: 100% 100%;
             flex-shrink: 0;
         }
@@ -337,7 +337,7 @@
             top: 2px;
             width: 227px;
             height: 56px;
-            background: url("https://i.postimg.cc/3RwQtGxJ/page-select.png") no-repeat center center;
+            background: url("images/page-select.png") no-repeat center center;
             background-size: 100% 100%;
             z-index: 970;
             image-rendering: pixelated;
@@ -375,8 +375,8 @@
             transition: transform 0.06s cubic-bezier(0.1, 0.9, 0.2, 1), left 0.06s cubic-bezier(0.1, 0.9, 0.2, 1);
         }
 
-        .arrow-left { left: 22px; top: 8px; background-image: url("https://i.postimg.cc/FskNt0gt/sipka-leva.png"); }
-        .arrow-right { right: 22px; top: 8px; background-image: url("https://i.postimg.cc/VNp2WVpx/sipka-prava.png"); }
+        .arrow-left { left: 22px; top: 8px; background-image: url("images/sipka-leva.png"); }
+        .arrow-right { right: 22px; top: 8px; background-image: url("images/sipka-prava.png"); }
 
         .leaderboard-footer.hover-left .arrow-left { transform: scale(1.03); }
         .leaderboard-footer.hover-left .page-number-text { transform: translateX(1px); }
@@ -421,7 +421,6 @@
             overscroll-behavior: contain !important;
         }
 
-        /* --- STYLY PRO MOBILNÍ NOTIFIKACI --- */
         .orientation-popup-overlay {
             position: fixed;
             top: 0;
@@ -471,7 +470,7 @@
             top: -14px;
             width: 44px;
             height: 44px;
-            background: url("https://i.postimg.cc/ZnsJsPBt/X.png") no-repeat center center;
+            background: url("images/X.png") no-repeat center center;
             background-size: 100% 100%;
             cursor: pointer;
             filter: drop-shadow(0px 3px 5px rgba(0,0,0,0.3));
@@ -479,7 +478,7 @@
         }
 
         .popup-close-x:active {
-            background-image: url("https://i.postimg.cc/Dz424SzQ/X-clicked.png");
+            background-image: url("images/X-clicked.png");
             transform: scale(0.9);
         }
 
@@ -550,7 +549,7 @@
 
     <div class="app-scaler" id="appScaler">
         <div class="game-window">
-            <img class="menu-bg" src="https://i.postimg.cc/sfG6nXsc/main-menu.png" draggable="false">
+            <img class="menu-bg" src="images/main-menu.png" draggable="false">
             
             <div class="clans-logo"></div>
             
@@ -559,10 +558,10 @@
             <div class="menu-btn btn-people is-active" onclick="location.href='leagues.html'" ></div>
             <div class="menu-btn btn-search" onclick="location.href='people.html'" ></div>
             
-            <img class="menu-text text-clans" src="https://i.postimg.cc/7YwkVBKh/text-Clans.png" draggable="false">
-            <img class="menu-text text-topclans" src="https://i.postimg.cc/bv7X2LGJ/text-Top-Clans.png" draggable="false">
-            <img class="menu-text text-people" src="https://i.postimg.cc/vBjLqZp7/leagues-text.png" draggable="false">
-            <img class="menu-text text-search" src="https://i.postimg.cc/9FW6TDfB/text-People.png" draggable="false">
+            <img class="menu-text text-clans" src="images/text-Clans.png" draggable="false">
+            <img class="menu-text text-topclans" src="images/text-Top-Clans.png" draggable="false">
+            <img class="menu-text text-people" src="images/leagues-text.png" draggable="false">
+            <img class="menu-text text-search" src="images/text-People.png" draggable="false">
             
             <div class="tab-content" id="tab-topclans">
                 <div class="leaderboard-search-asset">
@@ -586,7 +585,6 @@
         </div>
     </div>
 
-    <!-- MOBILNÍ ORIENTATION POPUP -->
     <div class="orientation-popup-overlay" id="orientationPopup">
         <div class="orientation-popup-card">
             <div class="popup-close-x" id="popupCloseBtn"></div>
@@ -639,7 +637,6 @@
             checkOrientationPopup();
         }
 
-        /* --- LOGIKA ORIENTAČNÍHO POPUPU --- */
         function checkOrientationPopup() {
             const popup = document.getElementById("orientationPopup");
             if (!popup) return;
