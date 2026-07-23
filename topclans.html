@@ -928,7 +928,6 @@
         
         const descriptionCache = JSON.parse(localStorage.getItem("clanDescCache")) || {};
         let timerInterval = null;
-        let isPopupDismissed = false;
 
         function autoFitScreen() {
             const scaler = document.getElementById("appScaler");
@@ -957,19 +956,27 @@
             checkOrientationPopup();
         }
 
-        /* --- LOGIKA ORIENTAČNÍHO POPUPU (BEZ ALERTU) --- */
+        /* --- LOGIKA ORIENTAČNÍHO POPUPU (ZOBRAZÍ SE POUZE JEDNOU) --- */
         function checkOrientationPopup() {
             const popup = document.getElementById("orientationPopup");
             if (!popup) return;
 
+            // Zjistíme, zda už uživatel popup dříve nezavřel
+            const hasBeenDismissed = sessionStorage.getItem("orientationPopupDismissed") === "true";
+
             const isMobile = window.innerWidth < 1150;
             const isPortrait = window.innerHeight > window.innerWidth;
 
-            if (isMobile && isPortrait && !isPopupDismissed) {
+            if (isMobile && isPortrait && !hasBeenDismissed) {
                 popup.classList.add("show");
             } else {
                 popup.classList.remove("show");
             }
+        }
+
+        function dismissOrientationPopup() {
+            sessionStorage.setItem("orientationPopupDismissed", "true");
+            hideOrientationPopup();
         }
 
         function hideOrientationPopup() {
@@ -978,16 +985,14 @@
         }
 
         document.getElementById("popupCloseBtn")?.addEventListener("click", () => {
-            isPopupDismissed = true;
-            hideOrientationPopup();
+            dismissOrientationPopup();
         });
 
         document.getElementById("popupRotateActionBtn")?.addEventListener("click", () => {
             if (screen.orientation && screen.orientation.lock) {
                 screen.orientation.lock("landscape").catch(() => {});
             }
-            isPopupDismissed = true;
-            hideOrientationPopup();
+            dismissOrientationPopup();
         });
 
         window.addEventListener("resize", autoFitScreen);
