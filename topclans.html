@@ -693,27 +693,6 @@
             grid-template-columns: repeat(3, 1fr) !important;
             gap: 8px !important;
         }
-
-        html, body {
-            width: 100vw;
-            height: 100dvh;
-            margin: 0;
-            padding: 0;
-            overflow: hidden !important;
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            overscroll-behavior: none !important;
-            touch-action: none;
-        }
-
-        .leaderboard-container, 
-        .country-list-scroll {
-            touch-action: pan-y !important;
-            overscroll-behavior: contain !important;
-        }
     </style>
 </head>
 <body>
@@ -825,14 +804,13 @@
 
             document.body.classList.add("is-mobile");
             const requiredW = 1120;
-            const requiredH = 650; // nebo výška pro danou stránku
+            const requiredH = 960; // Zvětšená požadovaná výška, aby menu na mobilu běželo déle dolů
 
             const scaleX = winW / requiredW;
             const scaleY = winH / requiredH;
 
             const scale = Math.min(scaleX, scaleY) * 0.92;
-    
-            scaler.style.transform = `scale(${scale}) translateY(-25px)`;
+            scaler.style.transform = `scale(${scale})`;
         }
 
         window.addEventListener("resize", autoFitScreen);
