@@ -714,7 +714,6 @@
             touch-action: pan-y !important;
             overscroll-behavior: contain !important;
         }
-
     </style>
 </head>
 <body>
@@ -826,13 +825,14 @@
 
             document.body.classList.add("is-mobile");
             const requiredW = 1120;
-            const requiredH = 960; // Zvětšená požadovaná výška, aby menu na mobilu běželo déle dolů
+            const requiredH = 650; // nebo výška pro danou stránku
 
             const scaleX = winW / requiredW;
             const scaleY = winH / requiredH;
 
             const scale = Math.min(scaleX, scaleY) * 0.92;
-            scaler.style.transform = `scale(${scale})`;
+    
+            scaler.style.transform = `scale(${scale}) translateY(-25px)`;
         }
 
         window.addEventListener("resize", autoFitScreen);
