@@ -8,6 +8,7 @@
     
     <link rel="preload" as="image" href="images/main-menu.png">
     <link rel="preload" as="image" href="images/ezgif-com-gif-maker.gif">
+    <link rel="preload" as="image" href="images/web-info.png">
 
     <style>
         * {
@@ -139,37 +140,36 @@
         .about-btn {
             position: absolute;
             left: 14px;
-            top: 502px;
+            top: 485px;
             width: 155px;
             height: 50px;
             background-color: #FF2B2B;
-            border: 3px solid #360000;
+            border: 3px solid #000000;
             border-radius: 12px;
             color: #FFFFFF;
-            font-size: 20px;
+            font-size: 16px;
             font-weight: 800 !important;
-            -webkit-text-stroke: 3.5px #360000;
-            stroke-linejoin: round;
-            paint-order: stroke fill;
-            box-shadow: 0px 4px 0px #000000;
-            cursor: pointer;
-            z-index: 950;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 6px;
+            cursor: pointer;
+            z-index: 900;
+            box-shadow: inset 0px -4px 0px #A00000, 0px 4px 8px rgba(0, 0, 0, 0.3);
+            -webkit-text-stroke: 1.5px #590000;
+            paint-order: stroke fill;
             transition: all 0.044s cubic-bezier(0.1, 0.9, 0.2, 1);
         }
 
         .about-btn:hover:not(:active) {
-            transform: translateY(-2px) scale(1.02);
-            box-shadow: 0px 4px 0px #000000;
             background-color: #FF4D4D;
+            transform: translateY(-2px);
+            box-shadow: inset 0px -4px 0px #A00000, 0px 6px 12px rgba(0, 0, 0, 0.35);
         }
 
         .about-btn:active {
-            transform: translateY(3px) scale(0.97);
-            box-shadow: 0px 1px 0px #000000;
+            transform: translateY(2px);
+            box-shadow: inset 0px -1px 0px #A00000, 0px 2px 4px rgba(0, 0, 0, 0.2);
+            background-color: #D91E1E;
         }
 
         .tab-content {
@@ -192,7 +192,8 @@
             font-weight: 800;
         }
 
-        .clans-gif { position: absolute; left: 237px; top: 83px; width: 235px; height: 235px; pointer-events: none; }
+        .clans-gif { position: absolute; left: -2px; top: 83px; width: 235px; height: 235px; pointer-events: none; }
+        .clans-info { position: absolute; left: 231px; top: 97px; image-rendering: pixelated; }
 
         .sub-btn {
             position: absolute;
@@ -218,12 +219,6 @@
             left: 0;
             right: 0;
             bottom: 0;
-        }
-
-        .leaderboard-container, 
-        .country-list-scroll {
-            touch-action: pan-y !important; 
-            overscroll-behavior: none !important;
         }
 
         .btn-sub-topclans { left: 7px; background-image: url("images/topclans.png"); }
@@ -284,7 +279,7 @@
             -webkit-text-stroke: 2.5px #000000;
             paint-order: stroke fill;
             cursor: pointer;
-            opacity: 0.9;
+            opacity: 0.8;
             transition: opacity 0.2s ease;
         }
 
@@ -311,14 +306,13 @@
             <img class="menu-text text-people" src="images/leagues-text.png" draggable="false">
             <img class="menu-text text-search" src="images/text-People.png" draggable="false">
 
-            <div class="about-btn" onclick="location.href='about.html'">
-                About 
-            </div>
-
+            <div class="about-btn" onclick="location.href='about.html'">ABOUT INFO</div>
+            
             <div class="tab-content">
                 <div class="clans-title">PS99 Clan List!</div>
                 <img class="clans-gif" src="images/ezgif-com-gif-maker.gif" draggable="false">
-
+                <img class="clans-info" src="images/web-info.png" draggable="false">
+                
                 <div class="sub-btn btn-sub-topclans" onclick="location.href='topclans.html'"></div>
                 <div class="sub-btn btn-sub-search" onclick="location.href='people.html'"></div>
             </div>
@@ -326,12 +320,6 @@
             <div class="close-btn" onclick="console.log('Close')"></div>
         </div>
     </div>
-
-    <a href="https://forms.gle/2DWB7Hzcv2XZ1PVCA" target="_blank" class="ps99-feedback-btn">
-        FEEDBACK
-    </a>
-
-    <a href="privacy.html" class="privacy-link">Privacy Policy</a>
 
     <script>
         function autoFitScreen() {
@@ -342,12 +330,10 @@
             const winH = window.innerHeight;
 
             if (winW >= 1150) {
-                document.body.classList.remove("is-mobile");
                 scaler.style.transform = "none";
                 return;
             }
 
-            document.body.classList.add("is-mobile");
             const requiredW = 1120;
             const requiredH = 650; 
 
@@ -361,5 +347,11 @@
         window.addEventListener("resize", autoFitScreen);
         window.addEventListener('DOMContentLoaded', autoFitScreen);
     </script>
+
+    <a href="https://forms.gle/2DWB7Hzcv2XZ1PVCA" target="_blank" class="ps99-feedback-btn">
+        FEEDBACK
+    </a>
+
+    <a href="privacy.html" class="privacy-link">Privacy Policy</a>
 </body>
 </html>
