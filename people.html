@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>PS99 Clans - Top Players</title>
     <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     
@@ -30,6 +30,14 @@
             justify-content: center;
             align-items: center;
             min-height: 100vh;
+        }
+
+        .app-scaler {
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transform-origin: center center;
         }
 
         .game-window {
@@ -90,7 +98,7 @@
         .menu-btn:hover:not(:active) { left: 11px; width: 315px; height: 88px; z-index: 920; }
         .menu-btn:active { background-image: url("images/grey-clicked.png"); left: 20px; width: 294px; height: 78px; z-index: 900; }
 
-        .menu-btn.is-active { background-image: url("images/selected.png"); }
+        .menu-btn.is-active { background-image: url("https://i.postimg.cc/JhX56QnL/selected.png"); }
         .menu-btn.is-active:active { background-image: url("images/selected-clicked.png"); left: 20px; width: 294px; height: 78px; z-index: 900; }
 
         .btn-clans { top: 34px; }
@@ -437,11 +445,11 @@
 </head>
 <body>
 
-    <div class="game-window">
-        <img class="menu-bg" src="images/main-menu.png" draggable="false">
-        
-        <div class="clans-logo"></div>
-        
+    <div class="app-scaler" id="appScaler">
+        <div class="game-window">
+            <img class="menu-bg" src="images/main-menu.png" draggable="false">
+            
+            <div class="clans-logo"></div>
         <div class="menu-btn btn-clans" onclick="location.href='index.html'"></div>
         <div class="menu-btn btn-topclans" onclick="location.href='topclans.html'"></div>
         <div class="menu-btn btn-people" onclick="location.href='leagues.html'"></div>
@@ -451,30 +459,30 @@
         <img class="menu-text text-topclans" src="images/text-Top-Clans.png" draggable="false">
         <img class="menu-text text-people" src="images/leagues-text.png" draggable="false">
         <img class="menu-text text-search" src="images/text-People.png" draggable="false">
-        
-        <div class="tab-content">
-            <div class="leaderboard-search-asset">
-                <input type="text" class="leaderboard-search-input" placeholder="Search" id="playerSearch">
-            </div>
-
-            <div class="leaderboard-container" id="leaderboardList">
-                <div class="loading-overlay" id="loadingOverlay">
-                    <div class="loading-text">Loading...</div>
+            <div class="tab-content">
+                <div class="leaderboard-search-asset">
+                    <input type="text" class="leaderboard-search-input" placeholder="Search" id="playerSearch">
                 </div>
 
-                <div class="players-grid" id="playersGrid"></div>
-                
-                <div class="leaderboard-footer" id="leaderboardFooter">
-                    <div class="page-select-bg">
-                        <div class="page-arrow arrow-left" id="prevPageBtn"></div>
-                        <span class="page-number-text" id="pageNumberDisplay">1</span>
-                        <div class="page-arrow arrow-right" id="nextPageBtn"></div>
+                <div class="leaderboard-container" id="leaderboardList">
+                    <div class="loading-overlay" id="loadingOverlay">
+                        <div class="loading-text">Loading...</div>
+                    </div>
+
+                    <div class="players-grid" id="playersGrid"></div>
+                    
+                    <div class="leaderboard-footer" id="leaderboardFooter">
+                        <div class="page-select-bg">
+                            <div class="page-arrow arrow-left" id="prevPageBtn"></div>
+                            <span class="page-number-text" id="pageNumberDisplay">1</span>
+                            <div class="page-arrow arrow-right" id="nextPageBtn"></div>
+                        </div>
                     </div>
                 </div>
             </div>
+            
+            <div class="close-btn" onclick="console.log('Close')" ></div>
         </div>
-        
-        <div class="close-btn" onclick="console.log('Close')" ></div>
     </div>
 
     <script>
@@ -613,6 +621,32 @@
         document.getElementById('nextPageBtn').addEventListener('mouseenter', () => footer.classList.add('hover-right'));
         document.getElementById('nextPageBtn').addEventListener('mouseleave', () => footer.classList.remove('hover-right'));
 
+        function autoFitScreen() {
+            const scaler = document.getElementById("appScaler");
+            if (!scaler) return;
+
+            const winW = window.innerWidth;
+            const winH = window.innerHeight;
+
+            if (winW >= 1150) {
+                document.body.classList.remove("is-mobile");
+                scaler.style.transform = "none";
+                return;
+            }
+
+            document.body.classList.add("is-mobile");
+            const requiredW = 1120;
+            const requiredH = 650; 
+
+            const scaleX = winW / requiredW;
+            const scaleY = winH / requiredH;
+
+            const scale = Math.min(scaleX, scaleY) * 0.92;
+            scaler.style.transform = `scale(${scale})`;
+        }
+
+        window.addEventListener("resize", autoFitScreen);
+        window.addEventListener('DOMContentLoaded', autoFitScreen);
         window.addEventListener('DOMContentLoaded', fetchTopPlayers);
     </script>
 
