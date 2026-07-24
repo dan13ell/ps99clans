@@ -657,8 +657,7 @@
             
             <div class="tab-content">
                 <div class="custom-back-btn" id="liveBackBtn">
-                    <img class="custom-back-text" src="/
-                        images/Back-text.png" draggable="false">
+                    <img class="custom-back-text" src="/images/Back-text.png" draggable="false">
                 </div>
 
                 <div class="live-status-message" id="liveStatusText">Loading tracker...</div>
@@ -739,7 +738,7 @@
 
         localStorage.removeItem(`live_points_history_${clanName}`);
 
-        const returnUrl = `clan-detail.html?name=${encodeURIComponent(clanName)}`;
+        const returnUrl = `/clan-detail/?name=${encodeURIComponent(clanName)}`;
         document.getElementById("liveBackBtn").onclick = () => { location.href = returnUrl; };
         document.getElementById("liveCloseBtn").onclick = () => { location.href = returnUrl; };
 
