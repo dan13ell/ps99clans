@@ -140,36 +140,37 @@
         .about-btn {
             position: absolute;
             left: 14px;
-            top: 485px;
+            top: 502px;
             width: 155px;
             height: 50px;
             background-color: #FF2B2B;
-            border: 3px solid #000000;
+            border: 3px solid #360000;
             border-radius: 12px;
             color: #FFFFFF;
-            font-size: 16px;
+            font-size: 20px;
             font-weight: 800 !important;
+            -webkit-text-stroke: 3.5px #360000;
+            stroke-linejoin: round;
+            paint-order: stroke fill;
+            box-shadow: 0px 4px 0px #000000;
+            cursor: pointer;
+            z-index: 950;
             display: flex;
             align-items: center;
             justify-content: center;
-            cursor: pointer;
-            z-index: 900;
-            box-shadow: inset 0px -4px 0px #A00000, 0px 4px 8px rgba(0, 0, 0, 0.3);
-            -webkit-text-stroke: 1.5px #590000;
-            paint-order: stroke fill;
+            gap: 6px;
             transition: all 0.044s cubic-bezier(0.1, 0.9, 0.2, 1);
         }
 
         .about-btn:hover:not(:active) {
+            transform: translateY(-2px) scale(1.02);
+            box-shadow: 0px 4px 0px #000000;
             background-color: #FF4D4D;
-            transform: translateY(-2px);
-            box-shadow: inset 0px -4px 0px #A00000, 0px 6px 12px rgba(0, 0, 0, 0.35);
         }
 
         .about-btn:active {
-            transform: translateY(2px);
-            box-shadow: inset 0px -1px 0px #A00000, 0px 2px 4px rgba(0, 0, 0, 0.2);
-            background-color: #D91E1E;
+            transform: translateY(3px) scale(0.97);
+            box-shadow: 0px 1px 0px #000000;
         }
 
         .tab-content {
