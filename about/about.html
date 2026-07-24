@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>PS99 Clans - About & Info</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <link rel="preload" as="image" href="images/main-menu.png">
+    <link rel="preload" as="image" href="images/X.png">
+    <link rel="preload" as="image" href="images/X-clicked.png">
+    <link rel="preload" as="image" href="images/scroller.png">
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Fredoka', sans-serif !important;
+            font-weight: 600;
+            user-select: none;
+        }
+
+        body {
+            background-color: #89b3f9;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow-x: hidden;
+            overflow-y: hidden;
+        }
+
+        .app-scaler {
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transform-origin: center center;
+        }
+
+        .game-window {
+            position: relative;
+            display: inline-block;
+            overflow: visible;
+        }
+
+        .menu-bg {
+            display: block;
+            width: auto;
+            height: auto;
+            filter: drop-shadow(0px 10px 20px rgba(0, 0, 0, 0.35));
+        }
+
+        .clans-logo {
+            position: absolute;
+            left: -36px;
+            top: -69px;
+            width: 315px;
+            height: 117px;
+            background: url("images/clans-logo.png") no-repeat center center;
+            background-size: 100% 100%;
+            z-index: 998;
+        }
+
+        .close-btn {
+            position: absolute;
+            left: 1044px; 
+            top: -30px; 
+            width: 72px;  
+            height: 73px; 
+            background: url("images/X.png") no-repeat center center;
+            background-size: 100% 100%;
+            cursor: pointer;
+            z-index: 999;
+            filter: drop-shadow(0px 4px 6px rgba(0, 0, 0, 0.35));
+            transition: all 0.044s cubic-bezier(0.1, 0.9, 0.2, 1);
+        }
+
+        .close-btn:hover:not(:active) { left: 1042px; top: -34px; width: 76px; height: 77px; }
+        .close-btn:active { background-image: url("images/X-clicked.png"); left: 1047px; top: -29px; width: 66px; height: 67px; }
+
+        .menu-btn {
+            position: absolute;
+            left: 14px;
+            width: 306px;
+            height: 84px;
+            background-size: 100% 100%;
+            background-repeat: no-repeat;
+            background-position: center;
+            cursor: pointer;
+            z-index: 900;
+            background-image: url("images/grey.png");
+            transition: all 0.044s cubic-bezier(0.1, 0.9, 0.2, 1);
+        }
+
+        .menu-btn:hover:not(:active) { left: 11px; width: 315px; height: 88px; z-index: 920; }
+        .menu-btn:active { background-image: url("images/grey-clicked.png"); left: 20px; width: 294px; height: 78px; z-index: 900; }
+
+        .menu-btn.is-active { background-image: url("images/selected.png"); }
+        .menu-btn.is-active:active { background-image: url("images/selected-clicked.png"); left: 20px; width: 294px; height: 78px; z-index: 900; }
+
+        .btn-clans { top: 34px; }
+        .btn-topclans { top: 124px; }
+        .btn-people { top: 214px; }
+        .btn-search { top: 304px; }
+
+        .menu-text {
+            position: absolute;
+            pointer-events: none;
+            z-index: 950;
+            transform-origin: center center;
+            transition: transform 0.044s cubic-bezier(0.1, 0.9, 0.2, 1), top 0.044s cubic-bezier(0.1, 0.9, 0.2, 1), left 0.044s cubic-bezier(0.1, 0.9, 0.2, 1);
+        }
+
+        .text-clans { left: 100px; top: 52px; }
+        .text-topclans { left: 53px; top: 140px; }
+        .text-people { left: 76px; top: 230px; }
+        .text-search { left: 88px; top: 322px; }
+
+        .btn-clans:hover:not(:active) ~ .text-clans { transform: scale(1.06) translate(-3px, 2px); }
+        .btn-topclans:hover:not(:active) ~ .text-topclans { transform: scale(1.06) translate(-3px, 2px); }
+        .btn-people:hover:not(:active) ~ .text-people { transform: scale(1.06) translate(-3px, 2px); }
+        .btn-search:hover:not(:active) ~ .text-search { transform: scale(1.06) translate(-3px, 2px); }
+
+        .btn-clans:hover:not(:active) ~ .btn-topclans { top: 128px; }
+        .btn-clans:hover:not(:active) ~ .text-topclans { top: 144px; }
+        .btn-clans:hover:not(:active) ~ .btn-people { top: 218px; }
+        .btn-clans:hover:not(:active) ~ .text-people { top: 234px; }
+        .btn-clans:hover:not(:active) ~ .btn-search { top: 308px; }
+        .btn-clans:hover:not(:active) ~ .text-search { top: 326px; }
+
+        .btn-topclans:hover:not(:active) ~ .btn-people { top: 218px; }
+        .btn-topclans:hover:not(:active) ~ .text-people { top: 234px; }
+        .btn-topclans:hover:not(:active) ~ .btn-search { top: 308px; }
+        .btn-topclans:hover:not(:active) ~ .text-search { top: 326px; }
+
+        .btn-people:hover:not(:active) ~ .btn-search { top: 308px; }
+        .btn-people:hover:not(:active) ~ .text-search { top: 326px; }
+
+        .tab-content {
+            position: absolute;
+            left: 334px;
+            top: 20px;
+            width: 760px;
+            height: 540px;
+            z-index: 850;
+        }
+
+        .about-header-title {
+            text-align: center;
+            font-size: 60px;
+            color: #2A2B31;
+            font-weight: 800;
+            margin-bottom: 10px;
+        }
+
+        .about-scroll-container {
+            width: 770px;
+            height: 450px;
+            overflow-y: auto;
+            padding-right: 20px;
+            padding-left: 5px;
+        }
+
+        .about-scroll-container::-webkit-scrollbar { 
+            width: 15px; 
+        }
+        .about-scroll-container::-webkit-scrollbar-track { 
+            background: transparent; 
+        }
+        .about-scroll-container::-webkit-scrollbar-thumb { 
+            background: url("images/scroller.png") no-repeat center center;
+            background-size: 15px 29px; 
+            image-rendering: pixelated; 
+            min-height: 45px;
+        }
+
+        .about-card {
+            background-color: #FFFFFF;
+            border: 4px solid #1c1d22;
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: inset 0px -6px 0px #e0e0e0, 0px 8px 16px rgba(0, 0, 0, 0.15);
+        }
+
+        .about-card h2 {
+            font-size: 26px;
+            color: #1c1d22;
+            margin-bottom: 10px;
+            font-weight: 800;
+        }
+
+        .about-card p {
+            font-size: 16px;
+            line-height: 1.5;
+            color: #424651;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .about-card ul {
+            margin-left: 20px;
+            color: #424651;
+            font-size: 15px;
+            line-height: 1.6;
+        }
+
+        html, body {
+            width: 100vw;
+            height: 100dvh;
+            margin: 0;
+            padding: 0;
+            overflow: hidden !important;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+        }
+
+        .ps99-feedback-btn {
+            position: fixed;
+            top: 14px;
+            right: 14px;
+            z-index: 99999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 5px 13px;
+            background: #FFFFFF;
+            border: 2.5px solid #000000;
+            border-radius: 9px;
+            color: #000000;
+            font-size: 13.5px;
+            font-weight: 600 !important;
+            font-family: 'Fredoka', sans-serif !important;
+            text-decoration: none;
+            box-shadow: 0 3px 0 #000000, 0 5px 10px rgba(0, 0, 0, 0.2);
+            cursor: pointer;
+            transition: transform 0.044s cubic-bezier(0.1, 0.9, 0.2, 1), 
+                        box-shadow 0.044s cubic-bezier(0.1, 0.9, 0.2, 1), 
+                        background-color 0.044s cubic-bezier(0.1, 0.9, 0.2, 1);
+            user-select: none;
+        }
+
+        .ps99-feedback-btn:hover:not(:active) {
+            background-color: #F0F4FF;
+            transform: translateY(-1.5px) scale(1.02);
+            box-shadow: 0 4.5px 0 #000000, 0 7px 12px rgba(0, 0, 0, 0.25);
+        }
+
+        .ps99-feedback-btn:active {
+            transform: translateY(2px) scale(0.96);
+            box-shadow: 0 1px 0 #000000, 0 2px 4px rgba(0, 0, 0, 0.2);
+            background-color: #E2E8F0;
+        }
+
+        .privacy-link {
+            position: fixed;
+            bottom: 14px;
+            right: 14px;
+            z-index: 99999;
+            color: #FFFFFF;
+            font-size: 13px;
+            font-weight: 700 !important;
+            text-decoration: underline;
+            -webkit-text-stroke: 2.5px #000000;
+            paint-order: stroke fill;
+            cursor: pointer;
+            opacity: 0.85;
+            transition: opacity 0.2s ease;
+        }
+
+        .privacy-link:hover {
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="app-scaler" id="appScaler">
+        <div class="game-window">
+            <img class="menu-bg" src="images/main-menu.png" draggable="false">
+            
+            <div class="clans-logo"></div>
+            
+            <div class="menu-btn btn-clans" onclick="location.href='index.html'"></div>
+            <div class="menu-btn btn-topclans" onclick="location.href='topclans.html'"></div>
+            <div class="menu-btn btn-people" onclick="location.href='leagues.html'"></div>
+            <div class="menu-btn btn-search" onclick="location.href='people.html'"></div>
+            
+            <img class="menu-text text-clans" src="images/text-Clans.png" draggable="false">
+            <img class="menu-text text-topclans" src="images/text-Top-Clans.png" draggable="false">
+            <img class="menu-text text-people" src="images/leagues-text.png" draggable="false">
+            <img class="menu-text text-search" src="images/text-People.png" draggable="false">
+            
+            <div class="tab-content">
+                <div class="about-header-title">About PS99 Clans</div>
+                
+                <div class="about-scroll-container">
+                    <div class="about-card">
+                        <h2>Welcome to PS99 Clans Leaderboards!</h2>
+                        <p>PS99 Clans is the ultimate community dashboard built specifically for Pet Simulator 99 players on Roblox. We provide live statistics, clan battle rankings, and top player performance trackers so you never miss a beat during competitive clan wars.</p>
+                    </div>
+
+                    <div class="about-card">
+                        <h2>Key Features & Functionality</h2>
+                        <ul>
+                            <li><strong>Clan Rankings:</strong> Real-time tracking of top-performing clans participating in current Clan Battles.</li>
+                            <li><strong>Top Players:</strong> Individual player performance search with live Roblox avatars, war points, and clan affiliations.</li>
+                            <li><strong>League Stats:</strong> Detailed breakdown of clan tiers, points required, and leaderboard status.</li>
+                            <li><strong>Fast Search:</strong> Instantly find your favorite players or clans across our optimized API infrastructure.</li>
+                        </ul>
+                    </div>
+
+                    <div class="about-card">
+                        <h2>How Clan Battles Work in PS99</h2>
+                        <p>Pet Simulator 99 Clan Wars feature timed events where players collaborate with clan members to complete quests, mine diamonds, hatch rare pets, or conquer minigames. Points earned directly contribute to the overall clan placement on the leaderboards.</p>
+                    </div>
+
+                    <div class="about-card">
+                        <h2>Disclaimer & Legal Notice</h2>
+                        <p>PS99 Clans is an independent fan-made project and is <strong>not affiliated, associated, endorsed by, or officially connected with Roblox Corporation or BIG Games</strong>. All game assets, names, and trademarks belong to their respective owners.</p>
+                    </div>
+
+                    <div class="about-card">
+                        <h2>Contact & Feedback</h2>
+                        <p>Have suggestions or noticed an issue with live stats? Reach out to us at <strong>danielmairich@gmail.com</strong> or use our feedback button in the top right corner.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="close-btn" onclick="location.href='index.html'"></div>
+        </div>
+    </div>
+
+    <a href="https://forms.gle/2DWB7Hzcv2XZ1PVCA" target="_blank" class="ps99-feedback-btn">
+        FEEDBACK
+    </a>
+
+    <a href="privacy.html" class="privacy-link">Privacy Policy</a>
+
+    <script>
+        function autoFitScreen() {
+            const scaler = document.getElementById("appScaler");
+            if (!scaler) return;
+
+            const winW = window.innerWidth;
+            const winH = window.innerHeight;
+
+            if (winW >= 1150) {
+                scaler.style.transform = "none";
+                return;
+            }
+
+            const requiredW = 1120;
+            const requiredH = 650; 
+
+            const scaleX = winW / requiredW;
+            const scaleY = winH / requiredH;
+
+            const scale = Math.min(scaleX, scaleY) * 0.92;
+            scaler.style.transform = `scale(${scale})`;
+        }
+
+        window.addEventListener("resize", autoFitScreen);
+        window.addEventListener('DOMContentLoaded', autoFitScreen);
+    </script>
+</body>
+</html>
