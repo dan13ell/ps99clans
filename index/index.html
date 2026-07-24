@@ -6,9 +6,9 @@
     <title>PS99 Clans - Main Menu</title>
     <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     
-    <link rel="preload" as="image" href="images/main-menu.png">
-    <link rel="preload" as="image" href="images/ezgif-com-gif-maker.gif">
-    <link rel="preload" as="image" href="images/web-info.png">
+    <link rel="preload" as="image" href="/images/main-menu.png">
+    <link rel="preload" as="image" href="/images/ezgif-com-gif-maker.gif">
+    <link rel="preload" as="image" href="/images/web-info.png">
 
     <style>
         * {
@@ -57,7 +57,7 @@
             top: -69px;
             width: 315px;
             height: 117px;
-            background: url("images/clans-logo.png") no-repeat center center;
+            background: url("/images/clans-logo.png") no-repeat center center;
             background-size: 100% 100%;
             z-index: 998;
         }
@@ -68,7 +68,7 @@
             top: -30px; 
             width: 72px;  
             height: 73px; 
-            background: url("images/X.png") no-repeat center center;
+            background: url("/images/X.png") no-repeat center center;
             background-size: 100% 100%;
             cursor: pointer;
             z-index: 999;
@@ -77,7 +77,7 @@
         }
 
         .close-btn:hover:not(:active) { left: 1042px; top: -34px; width: 76px; height: 77px; }
-        .close-btn:active { background-image: url("images/X-clicked.png"); left: 1047px; top: -29px; width: 66px; height: 67px; }
+        .close-btn:active { background-image: url("/images/X-clicked.png"); left: 1047px; top: -29px; width: 66px; height: 67px; }
 
         .menu-btn {
             position: absolute;
@@ -89,15 +89,15 @@
             background-position: center;
             cursor: pointer;
             z-index: 900;
-            background-image: url("images/grey.png");
+            background-image: url("/images/grey.png");
             transition: all 0.044s cubic-bezier(0.1, 0.9, 0.2, 1);
         }
 
         .menu-btn:hover:not(:active) { left: 11px; width: 315px; height: 88px; z-index: 920; }
-        .menu-btn:active { background-image: url("images/grey-clicked.png"); left: 20px; width: 294px; height: 78px; z-index: 900; }
+        .menu-btn:active { background-image: url("/images/grey-clicked.png"); left: 20px; width: 294px; height: 78px; z-index: 900; }
 
-        .menu-btn.is-active { background-image: url("images/selected.png"); }
-        .menu-btn.is-active:active { background-image: url("images/selected-clicked.png"); left: 20px; width: 294px; height: 78px; z-index: 900; }
+        .menu-btn.is-active { background-image: url("/images/selected.png"); }
+        .menu-btn.is-active:active { background-image: url("/images/selected-clicked.png"); left: 20px; width: 294px; height: 78px; z-index: 900; }
 
         .btn-clans { top: 34px; }
         .btn-topclans { top: 124px; }
@@ -222,14 +222,14 @@
             bottom: 0;
         }
 
-        .btn-sub-topclans { left: 7px; background-image: url("images/topclans.png"); }
-        .btn-sub-search { left: 369px; background-image: url("images/people-index.png"); }
+        .btn-sub-topclans { left: 7px; background-image: url("/images/topclans.png"); }
+        .btn-sub-search { left: 369px; background-image: url("/images/people-index.png"); }
 
         .btn-sub-topclans:hover:not(:active) { left: 3px; top: 384px; width: 345px; height: 117px; z-index: 920; }
         .btn-sub-search:hover:not(:active) { left: 365px; top: 384px; width: 345px; height: 117px; z-index: 920; }
         
-        .btn-sub-topclans:active { background-image: url("images/topclans-selected.png"); left: 13px; top: 391px; width: 325px; height: 103px; z-index: 900; }
-        .btn-sub-search:active { background-image: url("images/people-index-selected.png"); left: 375px; top: 391px; width: 325px; height: 103px; z-index: 900; }
+        .btn-sub-topclans:active { background-image: url("/images/topclans-selected.png"); left: 13px; top: 391px; width: 325px; height: 103px; z-index: 900; }
+        .btn-sub-search:active { background-image: url("/images/people-index-selected.png"); left: 375px; top: 391px; width: 325px; height: 103px; z-index: 900; }
 
         .ps99-feedback-btn {
             position: fixed;
@@ -293,7 +293,7 @@
 
     <div class="app-scaler" id="appScaler">
         <div class="game-window">
-            <img class="menu-bg" src="images/main-menu.png" draggable="false">
+            <img class="menu-bg" src="/images/main-menu.png" draggable="false">
             
             <div class="clans-logo"></div>
             
@@ -302,17 +302,17 @@
             <div class="menu-btn btn-people" onclick="location.href='leagues.html'"></div>
             <div class="menu-btn btn-search" onclick="location.href='people.html'"></div>
             
-            <img class="menu-text text-clans" src="images/text-Clans.png" draggable="false">
-            <img class="menu-text text-topclans" src="images/text-Top-Clans.png" draggable="false">
-            <img class="menu-text text-people" src="images/leagues-text.png" draggable="false">
-            <img class="menu-text text-search" src="images/text-People.png" draggable="false">
+            <img class="menu-text text-clans" src="/images/text-Clans.png" draggable="false">
+            <img class="menu-text text-topclans" src="/images/text-Top-Clans.png" draggable="false">
+            <img class="menu-text text-people" src="/images/leagues-text.png" draggable="false">
+            <img class="menu-text text-search" src="/images/text-People.png" draggable="false">
 
             <div class="about-btn" onclick="location.href='about.html'">About</div>
             
             <div class="tab-content">
                 <div class="clans-title">PS99 Clan List!</div>
-                <img class="clans-gif" src="images/ezgif-com-gif-maker.gif" draggable="false">
-                <img class="clans-info" src="images/web-info.png" draggable="false">
+                <img class="clans-gif" src="/images/ezgif-com-gif-maker.gif" draggable="false">
+                <img class="clans-info" src="/images/web-info.png" draggable="false">
                 
                 <div class="sub-btn btn-sub-topclans" onclick="location.href='topclans.html'"></div>
                 <div class="sub-btn btn-sub-search" onclick="location.href='people.html'"></div>
