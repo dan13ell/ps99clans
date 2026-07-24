@@ -707,7 +707,6 @@
             return fallback;
         }
 
-        // NAČTENÍ VŠECH STRÁNEK DO PAMĚTI PRO GLOBÁLNÍ SEARCH
         async function fetchLeaguesData(isSilent = false) {
             const list = document.getElementById("clanCardsList");
             const scrollContainer = document.getElementById("leaderboardList");
@@ -721,7 +720,6 @@
             }
 
             try {
-                // Načteme paralelně prvních 30 stránek (3000 klanů), aby vyhledávání znalo VŠECHNY klany i jejich přesné pořadí
                 const fetchPromises = [];
                 for (let p = 1; p <= 30; p++) {
                     fetchPromises.push(
@@ -782,7 +780,6 @@
 
             let displayData = allLeaguesData;
 
-            // Vyhledávání probíhá okamžitě lokálně nad všemi načtenými klany
             if (searchQuery.trim() !== "") {
                 displayData = allLeaguesData.filter(clan => 
                     clan.Name && clan.Name.toLowerCase().includes(searchQuery.toLowerCase().trim())
@@ -798,13 +795,12 @@
             const isSearching = searchQuery.trim() !== "";
             if (footerEl) footerEl.style.display = isSearching ? "none" : "block";
 
-            // Bez vyhledávání zobrazujeme danou stránku (100 položek). Při vyhledávání zobrazíme všechny výsledky.
             const pageData = isSearching 
                 ? displayData 
                 : displayData.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
             pageData.forEach((clan) => {
-                const absoluteRank = clan._originalRank; // VŽDY PŘESNÝ RANK (např. #1584)
+                const absoluteRank = clan._originalRank;
                 const row = document.createElement("div");
                 row.className = "clan-row";
 
