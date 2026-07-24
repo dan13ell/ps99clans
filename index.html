@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>PS99 Clans - Main Menu</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <link rel="preload" as="image" href="/images/main-menu.png">
+    <link rel="preload" as="image" href="/images/ezgif-com-gif-maker.gif">
+    <link rel="preload" as="image" href="/images/web-info.png">
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Fredoka', sans-serif !important;
+            font-weight: 600;
+            user-select: none;
+        }
+
+        body {
+            background-color: #89b3f9;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow-x: hidden;
+            overflow-y: hidden;
+        }
+
+        .app-scaler {
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transform-origin: center center;
+        }
+
+        .game-window {
+            position: relative;
+            display: inline-block;
+            overflow: visible;
+        }
+
+        .menu-bg {
+            display: block;
+            width: auto;
+            height: auto;
+            filter: drop-shadow(0px 10px 20px rgba(0, 0, 0, 0.35));
+        }
+
+        .clans-logo {
+            position: absolute;
+            left: -36px;
+            top: -69px;
+            width: 315px;
+            height: 117px;
+            background: url("/images/clans-logo.png") no-repeat center center;
+            background-size: 100% 100%;
+            z-index: 998;
+        }
+
+        .close-btn {
+            position: absolute;
+            left: 1044px; 
+            top: -30px; 
+            width: 72px;  
+            height: 73px; 
+            background: url("/images/X.png") no-repeat center center;
+            background-size: 100% 100%;
+            cursor: pointer;
+            z-index: 999;
+            filter: drop-shadow(0px 4px 6px rgba(0, 0, 0, 0.35));
+            transition: all 0.044s cubic-bezier(0.1, 0.9, 0.2, 1);
+        }
+
+        .close-btn:hover:not(:active) { left: 1042px; top: -34px; width: 76px; height: 77px; }
+        .close-btn:active { background-image: url("/images/X-clicked.png"); left: 1047px; top: -29px; width: 66px; height: 67px; }
+
+        .menu-btn {
+            position: absolute;
+            left: 14px;
+            width: 306px;
+            height: 84px;
+            background-size: 100% 100%;
+            background-repeat: no-repeat;
+            background-position: center;
+            cursor: pointer;
+            z-index: 900;
+            background-image: url("/images/grey.png");
+            transition: all 0.044s cubic-bezier(0.1, 0.9, 0.2, 1);
+        }
+
+        .menu-btn:hover:not(:active) { left: 11px; width: 315px; height: 88px; z-index: 920; }
+        .menu-btn:active { background-image: url("/images/grey-clicked.png"); left: 20px; width: 294px; height: 78px; z-index: 900; }
+
+        .menu-btn.is-active { background-image: url("/images/selected.png"); }
+        .menu-btn.is-active:active { background-image: url("/images/selected-clicked.png"); left: 20px; width: 294px; height: 78px; z-index: 900; }
+
+        .btn-clans { top: 34px; }
+        .btn-topclans { top: 124px; }
+        .btn-people { top: 214px; }
+        .btn-search { top: 304px; }
+
+        .menu-text {
+            position: absolute;
+            pointer-events: none;
+            z-index: 950;
+            transform-origin: center center;
+            transition: transform 0.044s cubic-bezier(0.1, 0.9, 0.2, 1), top 0.044s cubic-bezier(0.1, 0.9, 0.2, 1), left 0.044s cubic-bezier(0.1, 0.9, 0.2, 1);
+        }
+
+        .text-clans { left: 100px; top: 52px; }
+        .text-topclans { left: 53px; top: 140px; }
+        .text-people { left: 76px; top: 230px; }
+        .text-search { left: 88px; top: 322px; }
+
+        .btn-clans:hover:not(:active) ~ .text-clans { transform: scale(1.06) translate(-3px, 2px); }
+        .btn-topclans:hover:not(:active) ~ .text-topclans { transform: scale(1.06) translate(-3px, 2px); }
+        .btn-people:hover:not(:active) ~ .text-people { transform: scale(1.06) translate(-3px, 2px); }
+        .btn-search:hover:not(:active) ~ .text-search { transform: scale(1.06) translate(-3px, 2px); }
+
+        .btn-clans:hover:not(:active) ~ .btn-topclans { top: 128px; }
+        .btn-clans:hover:not(:active) ~ .text-topclans { top: 144px; }
+        .btn-clans:hover:not(:active) ~ .btn-people { top: 218px; }
+        .btn-clans:hover:not(:active) ~ .text-people { top: 234px; }
+        .btn-clans:hover:not(:active) ~ .btn-search { top: 308px; }
+        .btn-clans:hover:not(:active) ~ .text-search { top: 326px; }
+
+        .btn-topclans:hover:not(:active) ~ .btn-people { top: 218px; }
+        .btn-topclans:hover:not(:active) ~ .text-people { top: 234px; }
+        .btn-topclans:hover:not(:active) ~ .btn-search { top: 308px; }
+        .btn-topclans:hover:not(:active) ~ .text-search { top: 326px; }
+
+        .btn-people:hover:not(:active) ~ .btn-search { top: 308px; }
+        .btn-people:hover:not(:active) ~ .text-search { top: 326px; }
+
+        .about-btn {
+            position: absolute;
+            left: 14px;
+            top: 502px;
+            width: 155px;
+            height: 50px;
+            background-color: #FF2B2B;
+            border: 3px solid #360000;
+            border-radius: 12px;
+            color: #FFFFFF;
+            font-size: 20px;
+            font-weight: 800 !important;
+            -webkit-text-stroke: 3.5px #360000;
+            stroke-linejoin: round;
+            paint-order: stroke fill;
+            box-shadow: 0px 4px 0px #000000;
+            cursor: pointer;
+            z-index: 950;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            transition: all 0.044s cubic-bezier(0.1, 0.9, 0.2, 1);
+        }
+
+        .about-btn:hover:not(:active) {
+            transform: translateY(-2px) scale(1.02);
+            box-shadow: 0px 4px 0px #000000;
+            background-color: #FF4D4D;
+        }
+
+        .about-btn:active {
+            transform: translateY(3px) scale(0.97);
+            box-shadow: 0px 1px 0px #000000;
+        }
+
+        .tab-content {
+            position: absolute;
+            left: 350px;
+            top: 40px;
+            width: 710px;
+            height: 490px;
+            z-index: 850;
+        }
+
+        .clans-title {
+            position: absolute;
+            left: 0;
+            width: 100%;
+            text-align: center;
+            top: -11px;
+            font-size: 80px;
+            color: #2A2B31;
+            font-weight: 800;
+        }
+
+        .clans-gif { position: absolute; left: -2px; top: 83px; width: 235px; height: 235px; pointer-events: none; }
+        .clans-info { position: absolute; left: 231px; top: 97px; image-rendering: pixelated; }
+
+        .sub-btn {
+            position: absolute;
+            width: 337px;  
+            height: 111px; 
+            background-size: 100% 100%;
+            background-repeat: no-repeat;
+            background-position: center;
+            cursor: pointer;
+            z-index: 900;
+            top: 387px; 
+            transition: all 0.044s cubic-bezier(0.1, 0.9, 0.2, 1);
+        }
+
+        html, body {
+            width: 100vw;
+            height: 100dvh;
+            margin: 0;
+            padding: 0;
+            overflow: hidden !important;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+        }
+
+        .btn-sub-topclans { left: 7px; background-image: url("/images/topclans.png"); }
+        .btn-sub-search { left: 369px; background-image: url("/images/people-index.png"); }
+
+        .btn-sub-topclans:hover:not(:active) { left: 3px; top: 384px; width: 345px; height: 117px; z-index: 920; }
+        .btn-sub-search:hover:not(:active) { left: 365px; top: 384px; width: 345px; height: 117px; z-index: 920; }
+        
+        .btn-sub-topclans:active { background-image: url("/images/topclans-selected.png"); left: 13px; top: 391px; width: 325px; height: 103px; z-index: 900; }
+        .btn-sub-search:active { background-image: url("/images/people-index-selected.png"); left: 375px; top: 391px; width: 325px; height: 103px; z-index: 900; }
+
+        .ps99-feedback-btn {
+            position: fixed;
+            top: 14px;
+            right: 14px;
+            z-index: 99999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 5px 13px;
+            background: #FFFFFF;
+            border: 2.5px solid #000000;
+            border-radius: 9px;
+            color: #000000;
+            font-size: 13.5px;
+            font-weight: 600 !important;
+            font-family: 'Fredoka', sans-serif !important;
+            text-decoration: none;
+            box-shadow: 0 3px 0 #000000, 0 5px 10px rgba(0, 0, 0, 0.2);
+            cursor: pointer;
+            transition: transform 0.044s cubic-bezier(0.1, 0.9, 0.2, 1), 
+                        box-shadow 0.044s cubic-bezier(0.1, 0.9, 0.2, 1), 
+                        background-color 0.044s cubic-bezier(0.1, 0.9, 0.2, 1);
+            user-select: none;
+        }
+
+        .ps99-feedback-btn:hover:not(:active) {
+            background-color: #F0F4FF;
+            transform: translateY(-1.5px) scale(1.02);
+            box-shadow: 0 4.5px 0 #000000, 0 7px 12px rgba(0, 0, 0, 0.25);
+        }
+
+        .ps99-feedback-btn:active {
+            transform: translateY(2px) scale(0.96);
+            box-shadow: 0 1px 0 #000000, 0 2px 4px rgba(0, 0, 0, 0.2);
+            background-color: #E2E8F0;
+        }
+
+        .privacy-link {
+            position: fixed;
+            bottom: 14px;
+            right: 14px;
+            z-index: 99999;
+            color: #FFFFFF;
+            font-size: 13px;
+            font-weight: 700 !important;
+            text-decoration: underline;
+            -webkit-text-stroke: 2.5px #000000;
+            paint-order: stroke fill;
+            cursor: pointer;
+            opacity: 0.8;
+            transition: opacity 0.2s ease;
+        }
+
+        .privacy-link:hover {
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="app-scaler" id="appScaler">
+        <div class="game-window">
+            <img class="menu-bg" src="/images/main-menu.png" draggable="false">
+            
+            <div class="clans-logo"></div>
+            
+            <div class="menu-btn btn-clans is-active" onclick="location.href='/'"></div>
+            <div class="menu-btn btn-topclans" onclick="location.href='/topclans/'"></div>
+            <div class="menu-btn btn-people" onclick="location.href='/leagues/'"></div>
+            <div class="menu-btn btn-search" onclick="location.href='/people/'"></div>
+            
+            <img class="menu-text text-clans" src="/images/text-Clans.png" draggable="false">
+            <img class="menu-text text-topclans" src="/images/text-Top-Clans.png" draggable="false">
+            <img class="menu-text text-people" src="/images/leagues-text.png" draggable="false">
+            <img class="menu-text text-search" src="/images/text-People.png" draggable="false">
+
+            <div class="about-btn" onclick="location.href='/about/'">About</div>
+            
+            <div class="tab-content">
+                <div class="clans-title">PS99 Clan List!</div>
+                <img class="clans-gif" src="/images/ezgif-com-gif-maker.gif" draggable="false">
+                <img class="clans-info" src="/images/web-info.png" draggable="false">
+                
+                <div class="sub-btn btn-sub-topclans" onclick="location.href='/topclans/'"></div>
+                <div class="sub-btn btn-sub-search" onclick="location.href='/people/'"></div>
+            </div>
+            
+            <div class="close-btn" onclick="console.log('Close')"></div>
+        </div>
+    </div>
+
+    <script>
+        function autoFitScreen() {
+            const scaler = document.getElementById("appScaler");
+            if (!scaler) return;
+
+            const winW = window.innerWidth;
+            const winH = window.innerHeight;
+
+            if (winW >= 1150) {
+                scaler.style.transform = "none";
+                return;
+            }
+
+            const requiredW = 1120;
+            const requiredH = 650; 
+
+            const scaleX = winW / requiredW;
+            const scaleY = winH / requiredH;
+
+            const scale = Math.min(scaleX, scaleY) * 0.92;
+            scaler.style.transform = `scale(${scale})`;
+        }
+
+        window.addEventListener("resize", autoFitScreen);
+        window.addEventListener('DOMContentLoaded', autoFitScreen);
+    </script>
+
+    <a href="https://forms.gle/2DWB7Hzcv2XZ1PVCA" target="_blank" class="ps99-feedback-btn">
+        FEEDBACK
+    </a>
+
+    <a href="privacy.html" class="privacy-link">Privacy Policy</a>
+</body>
+</html>
