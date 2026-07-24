@@ -1351,7 +1351,7 @@
                 row.dataset.descId = descElementId;
 
                 row.onclick = () => {
-                    location.href = `clan-detail.html?name=${encodeURIComponent(clan.Name)}`;
+                    location.href = `/clan-detail/?name=${encodeURIComponent(clan.Name)}`;
                 };
 
                 const formattedPoints = formatNumber(clan.Points);
