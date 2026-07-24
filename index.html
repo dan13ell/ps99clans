@@ -237,6 +237,26 @@
             box-shadow: 0 1px 0 #000000, 0 2px 4px rgba(0, 0, 0, 0.2);
             background-color: #E2E8F0;
         }
+
+        .privacy-link {
+            position: fixed;
+            bottom: 14px;
+            right: 14px;
+            z-index: 99999;
+            color: #FFFFFF;
+            font-size: 13px;
+            font-weight: 700 !important;
+            text-decoration: underline;
+            -webkit-text-stroke: 2.5px #000000;
+            paint-order: stroke fill;
+            cursor: pointer;
+            opacity: 0.8;
+            transition: opacity 0.2s ease;
+        }
+
+        .privacy-link:hover {
+            opacity: 1;
+        }
     </style>
 </head>
 <body>
@@ -302,5 +322,7 @@
     <a href="https://forms.gle/2DWB7Hzcv2XZ1PVCA" target="_blank" class="ps99-feedback-btn">
             FEEDBACK
         </a>
+
+    <a href="privacy.html" class="privacy-link">Privacy Policy</a>
 </body>
 </html>
