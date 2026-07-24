@@ -578,6 +578,43 @@
             transform: translateY(3px);
             box-shadow: 0 1px 0 #000000;
         }
+
+        .ps99-feedback-btn {
+            position: fixed;
+            top: 14px;
+            right: 14px;
+            z-index: 99999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 5px 13px;
+            background: #FFFFFF;
+            border: 2.5px solid #000000;
+            border-radius: 9px;
+            color: #000000;
+            font-size: 13.5px;
+            font-weight: 600 !important;
+            font-family: 'Fredoka', sans-serif !important;
+            text-decoration: none;
+            box-shadow: 0 3px 0 #000000, 0 5px 10px rgba(0, 0, 0, 0.2);
+            cursor: pointer;
+            transition: transform 0.044s cubic-bezier(0.1, 0.9, 0.2, 1), 
+                        box-shadow 0.044s cubic-bezier(0.1, 0.9, 0.2, 1), 
+                        background-color 0.044s cubic-bezier(0.1, 0.9, 0.2, 1);
+            user-select: none;
+        }
+
+        .ps99-feedback-btn:hover:not(:active) {
+            background-color: #F0F4FF;
+            transform: translateY(-1.5px) scale(1.02);
+            box-shadow: 0 4.5px 0 #000000, 0 7px 12px rgba(0, 0, 0, 0.25);
+        }
+
+        .ps99-feedback-btn:active {
+            transform: translateY(2px) scale(0.96);
+            box-shadow: 0 1px 0 #000000, 0 2px 4px rgba(0, 0, 0, 0.2);
+            background-color: #E2E8F0;
+        }
     </style>
 </head>
 <body>
@@ -1186,5 +1223,9 @@
             setInterval(fetchLiveTrackerData, 2000);
         });
     </script>
+
+    <a href="https://forms.gle/2DWB7Hzcv2XZ1PVCA" target="_blank" class="ps99-feedback-btn">
+        FEEDBACK
+    </a>
 </body>
 </html>
