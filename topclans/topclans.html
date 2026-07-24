@@ -6,22 +6,22 @@
     <title>PS99 Clans - Top Clans</title>
     <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     
-    <link rel="preload" as="image" href="images/main-menu.png">
-    <link rel="preload" as="image" href="images/active-clan-war.png">
-    <link rel="preload" as="image" href="images/clan-board.png">
-    <link rel="preload" as="image" href="images/X.png">
-    <link rel="preload" as="image" href="images/X-clicked.png">
-    <link rel="preload" as="image" href="images/topclans-leaderboard-select.png">
-    <link rel="preload" as="image" href="images/topclans-leaderboard-search.png">
-    <link rel="preload" as="image" href="images/modra-hvezda.png">
-    <link rel="preload" as="image" href="images/hvezda.png">
-    <link rel="preload" as="image" href="images/modry-gem.png">
-    <link rel="preload" as="image" href="images/gem.png">
-    <link rel="preload" as="image" href="images/scroller.png">
-    <link rel="preload" as="image" href="images/page-select.png">
-    <link rel="preload" as="image" href="images/sipka-leva.png">
-    <link rel="preload" as="image" href="images/sipka-prava.png">
-    <link rel="preload" as="image" href="images/gems.png">
+    <link rel="preload" as="image" href="/images/main-menu.png">
+    <link rel="preload" as="image" href="/images/active-clan-war.png">
+    <link rel="preload" as="image" href="/images/clan-board.png">
+    <link rel="preload" as="image" href="/images/X.png">
+    <link rel="preload" as="image" href="/images/X-clicked.png">
+    <link rel="preload" as="image" href="/images/topclans-leaderboard-select.png">
+    <link rel="preload" as="image" href="/images/topclans-leaderboard-search.png">
+    <link rel="preload" as="image" href="/images/modra-hvezda.png">
+    <link rel="preload" as="image" href="/images/hvezda.png">
+    <link rel="preload" as="image" href="/images/modry-gem.png">
+    <link rel="preload" as="image" href="/images/gem.png">
+    <link rel="preload" as="image" href="/images/scroller.png">
+    <link rel="preload" as="image" href="/images/page-select.png">
+    <link rel="preload" as="image" href="/images/sipka-leva.png">
+    <link rel="preload" as="image" href="/images/sipka-prava.png">
+    <link rel="preload" as="image" href="/images/gems.png">
 
     <style>
         * {
@@ -69,7 +69,7 @@
             top: -69px;
             width: 315px;
             height: 117px;
-            background: url("images/clans-logo.png") no-repeat center center;
+            background: url("/images/clans-logo.png") no-repeat center center;
             background-size: 100% 100%;
             z-index: 998;
         }
@@ -80,7 +80,7 @@
             top: -30px; 
             width: 72px;  
             height: 73px; 
-            background: url("images/X.png") no-repeat center center;
+            background: url("/images/X.png") no-repeat center center;
             background-size: 100% 100%;
             cursor: pointer;
             z-index: 999;
@@ -89,7 +89,7 @@
         }
 
         .close-btn:hover:not(:active) { left: 1042px; top: -34px; width: 76px; height: 77px; }
-        .close-btn:active { background-image: url("images/X-clicked.png"); left: 1047px; top: -29px; width: 66px; height: 67px; }
+        .close-btn:active { background-image: url("/images/X-clicked.png"); left: 1047px; top: -29px; width: 66px; height: 67px; }
 
         .menu-btn {
             position: absolute;
@@ -101,15 +101,15 @@
             background-position: center;
             cursor: pointer;
             z-index: 900;
-            background-image: url("images/grey.png");
+            background-image: url("/images/grey.png");
             transition: all 0.044s cubic-bezier(0.1, 0.9, 0.2, 1);
         }
 
         .menu-btn:hover:not(:active) { left: 11px; width: 315px; height: 88px; z-index: 920; }
-        .menu-btn:active { background-image: url("images/grey-clicked.png"); left: 20px; width: 294px; height: 78px; z-index: 900; }
+        .menu-btn:active { background-image: url("/images/grey-clicked.png"); left: 20px; width: 294px; height: 78px; z-index: 900; }
 
-        .menu-btn.is-active { background-image: url("images/selected.png"); }
-        .menu-btn.is-active:active { background-image: url("images/selected-clicked.png"); left: 20px; width: 294px; height: 78px; z-index: 900; }
+        .menu-btn.is-active { background-image: url("/images/selected.png"); }
+        .menu-btn.is-active:active { background-image: url("/images/selected-clicked.png"); left: 20px; width: 294px; height: 78px; z-index: 900; }
 
         .btn-clans { top: 34px; }
         .btn-topclans { top: 124px; }
@@ -165,7 +165,7 @@
             top: -18px; 
             width: 131px;
             height: 48px;
-            background: url("images/topclans-leaderboard-select.png") no-repeat center center;
+            background: url("/images/topclans-leaderboard-select.png") no-repeat center center;
             background-size: 100% 100%;
             z-index: 990;
         }
@@ -176,7 +176,7 @@
             top: -18px; 
             width: 330px;
             height: 48px;
-            background: url("images/topclans-leaderboard-search.png") no-repeat center center;
+            background: url("/images/topclans-leaderboard-search.png") no-repeat center center;
             background-size: 100% 100%;
             z-index: 990;
         }
@@ -209,10 +209,10 @@
             transition: transform 0.044s cubic-bezier(0.1, 0.9, 0.2, 1);
         }
 
-        .icon-star { left: 523px; background-image: url("images/modra-hvezda.png"); }
-        .icon-star.is-inactive { background-image: url("images/hvezda.png"); }
-        .icon-gem { left: 564px; background-image: url("images/gem.png"); }
-        .icon-gem.is-active { background-image: url("images/modry-gem.png"); }
+        .icon-star { left: 523px; background-image: url("/images/modra-hvezda.png"); }
+        .icon-star.is-inactive { background-image: url("/images/hvezda.png"); }
+        .icon-gem { left: 564px; background-image: url("/images/gem.png"); }
+        .icon-gem.is-active { background-image: url("/images/modry-gem.png"); }
 
         .leaderboard-icon:hover:not(:active) { transform: scale(1.03); }
         .leaderboard-icon:active { transform: scale(0.97); }
@@ -233,7 +233,7 @@
         .leaderboard-container::-webkit-scrollbar { width: 15px; height: 29px; }
         .leaderboard-container::-webkit-scrollbar-track { background: transparent; }
         .leaderboard-container::-webkit-scrollbar-thumb { 
-            background: url("images/scroller.png") no-repeat center center;
+            background: url("/images/scroller.png") no-repeat center center;
             background-size: 100% 100%;
             image-rendering: pixelated; 
         }
@@ -242,7 +242,7 @@
             position: relative;
             width: 736px;
             height: 189px;
-            background: url("images/active-clan-war.png") no-repeat center center;
+            background: url("/images/active-clan-war.png") no-repeat center center;
             background-size: 100% 100%;
             image-rendering: pixelated;
             margin-top: 31px; 
@@ -310,7 +310,7 @@
             display: block;
             width: 736px;
             height: 112px;
-            background: url("images/clan-board.png") no-repeat center center;
+            background: url("/images/clan-board.png") no-repeat center center;
             background-size: 100% 100%;
             margin-bottom: 6px;
             position: relative;
@@ -419,7 +419,7 @@
             height: 44px;
             margin-top: 9px; 
             margin-right: 3px; 
-            background: url("images/gems.png") no-repeat center center;
+            background: url("/images/gems.png") no-repeat center center;
             background-size: 100% 100%;
             flex-shrink: 0;
         }
@@ -479,7 +479,7 @@
             top: 2px;
             width: 227px;
             height: 56px;
-            background: url("images/page-select.png") no-repeat center center;
+            background: url("/images/page-select.png") no-repeat center center;
             background-size: 100% 100%;
             z-index: 970;
             image-rendering: pixelated;
@@ -517,8 +517,8 @@
             transition: transform 0.06s cubic-bezier(0.1, 0.9, 0.2, 1), left 0.06s cubic-bezier(0.1, 0.9, 0.2, 1);
         }
 
-        .arrow-left { left: 22px; top: 8px; background-image: url("images/sipka-leva.png"); }
-        .arrow-right { right: 22px; top: 8px; background-image: url("images/sipka-prava.png"); }
+        .arrow-left { left: 22px; top: 8px; background-image: url("/images/sipka-leva.png"); }
+        .arrow-right { right: 22px; top: 8px; background-image: url("/images/sipka-prava.png"); }
 
         .leaderboard-footer.hover-left .arrow-left { transform: scale(1.03); }
         .leaderboard-footer.hover-left .page-number-text { transform: translateX(1px); }
@@ -549,7 +549,7 @@
             top: 250px;
             width: 27px;
             height: 39px;
-            background: url("images/sipka-prava.png") no-repeat center center;
+            background: url("/images/sipka-prava.png") no-repeat center center;
             background-size: 100% 100%;
             cursor: pointer;
             z-index: 1000;
@@ -765,7 +765,7 @@
             top: -14px;
             width: 44px;
             height: 44px;
-            background: url("images/X.png") no-repeat center center;
+            background: url("/images/X.png") no-repeat center center;
             background-size: 100% 100%;
             cursor: pointer;
             filter: drop-shadow(0px 3px 5px rgba(0,0,0,0.3));
@@ -773,7 +773,7 @@
         }
 
         .popup-close-x:active {
-            background-image: url("images/X-clicked.png");
+            background-image: url("/images/X-clicked.png");
             transform: scale(0.9);
         }
 
@@ -901,7 +901,7 @@
 
     <div class="app-scaler" id="appScaler">
         <div class="game-window">
-            <img class="menu-bg" src="images/main-menu.png" draggable="false">
+            <img class="menu-bg" src="/images/main-menu.png" draggable="false">
             
             <div class="clans-logo"></div>
             
@@ -910,10 +910,10 @@
             <div class="menu-btn btn-people" onclick="location.href='leagues.html'" ></div>
             <div class="menu-btn btn-search" onclick="location.href='people.html'" ></div>
             
-            <img class="menu-text text-clans" src="images/text-Clans.png" draggable="false">
-            <img class="menu-text text-topclans" src="images/text-Top-Clans.png" draggable="false">
-            <img class="menu-text text-people" src="images/leagues-text.png" draggable="false">
-            <img class="menu-text text-search" src="images/text-People.png" draggable="false">
+            <img class="menu-text text-clans" src="/images/text-Clans.png" draggable="false">
+            <img class="menu-text text-topclans" src="/images/text-Top-Clans.png" draggable="false">
+            <img class="menu-text text-people" src="/images/leagues-text.png" draggable="false">
+            <img class="menu-text text-search" src="/images/text-People.png" draggable="false">
             
             <div class="tab-content" id="tab-topclans">
                 <div class="leaderboard-select-asset"></div>
