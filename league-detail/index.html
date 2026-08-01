@@ -858,18 +858,32 @@
             if (placeTextEl) placeTextEl.style.display = "none";
         }
 
+        // Pomocná funkce k extrakci čistého číselného UserID (řeší chybové [object Object])
+        function parseUserId(rawId) {
+            if (!rawId) return null;
+            if (typeof rawId === 'number') return rawId;
+            if (typeof rawId === 'string') {
+                const parsed = parseInt(rawId, 10);
+                return isNaN(parsed) ? null : parsed;
+            }
+            if (typeof rawId === 'object') {
+                if (rawId.UserID) return parseUserId(rawId.UserID);
+                if (rawId.id) return parseUserId(rawId.id);
+            }
+            return null;
+        }
+
         async function fetchRobloxUserData(userIds) {
             if (!userIds || userIds.length === 0) return { usernames: {}, avatars: {} };
             
             const usernames = {};
             const avatars = {};
 
-            // Filtrování platných číselných ID
-            const validIds = userIds.map(id => Number(id)).filter(id => !isNaN(id) && id > 0);
+            const validIds = userIds.map(parseUserId).filter(id => id !== null && id > 0);
 
             if (validIds.length === 0) return { usernames, avatars };
 
-            // 1. Primární pokus přes Cloudflare Worker
+            // 1. Pokus přes Cloudflare Worker
             try {
                 const userRes = await fetch(`${WORKER_URL}/roblox/users`, {
                     method: 'POST',
@@ -879,11 +893,11 @@
                 const userData = await userRes.json();
                 if (userData && userData.data) {
                     userData.data.forEach(user => {
-                        usernames[user.id] = { name: user.name, displayName: user.displayName };
+                        usernames[user.id] = user.name;
                     });
                 }
             } catch (e) {
-                console.warn("Worker usernames failed, falling back to direct API", e);
+                console.warn("Worker usernames failed", e);
             }
 
             try {
@@ -895,10 +909,10 @@
                     });
                 }
             } catch (e) {
-                console.warn("Worker avatars failed, falling back to direct API", e);
+                console.warn("Worker avatars failed", e);
             }
 
-            // 2. Fallback na přímé Roblox API pro jakákoliv chybějící ID
+            // 2. Fallback na Roblox API v případě výpadku Workeru
             const missingUsernameIds = validIds.filter(id => !usernames[id]);
             if (missingUsernameIds.length > 0) {
                 try {
@@ -910,7 +924,7 @@
                     const fallbackUserData = await fallbackUserRes.json();
                     if (fallbackUserData && fallbackUserData.data) {
                         fallbackUserData.data.forEach(user => {
-                            usernames[user.id] = { name: user.name, displayName: user.displayName };
+                            usernames[user.id] = user.name;
                         });
                     }
                 } catch (e) {
@@ -989,7 +1003,8 @@
                 const pointsMap = {};
                 if (clan.PointContributions && Array.isArray(clan.PointContributions)) {
                     clan.PointContributions.forEach(item => {
-                        pointsMap[item.UserID] = item.Points || 0;
+                        const parsedId = parseUserId(item.UserID);
+                        if (parsedId) pointsMap[parsedId] = item.Points || 0;
                     });
                 }
 
@@ -1002,7 +1017,7 @@
                     pointsIconEl.style.display = "block";
                 }
 
-                // Získání přesného umístění ligy z LEADERBOARD TOP 5000 (pageSize=5000)
+                // Načtení pořadí ligy
                 let rankPlace = "N/A";
                 try {
                     const listRes = await fetch(`${WORKER_URL}/v1/leagues?page=1&pageSize=5000&sort=Points`);
@@ -1020,7 +1035,7 @@
                         }
                     }
                 } catch (e) {
-                    console.warn("Could not calculate league rank from top 5000", e);
+                    console.warn("Could not calculate league rank", e);
                 }
                 
                 const placeTextEl = document.getElementById("clanPlaceText");
@@ -1029,9 +1044,9 @@
                     placeTextEl.style.display = "block";
                 }
 
-                const ownerId = clan.Owner;
+                const ownerId = parseUserId(clan.Owner);
                 
-                let ownerMember = membersList.find(m => Number(m.UserID) === Number(ownerId));
+                let ownerMember = membersList.find(m => parseUserId(m.UserID) === ownerId);
                 if (!ownerMember) {
                     ownerMember = {
                         UserID: ownerId,
@@ -1041,12 +1056,13 @@
                     ownerMember.PermissionLevel = 100;
                 }
 
-                let rawMembersList = membersList.filter(m => Number(m.UserID) !== Number(ownerId));
+                let rawMembersList = membersList.filter(m => parseUserId(m.UserID) !== ownerId);
 
                 const mappedMembers = rawMembersList.map(member => {
-                    const uid = member.UserID;
+                    const uid = parseUserId(member.UserID);
                     return {
                         ...member,
+                        UserID: uid,
                         resolvedPoints: pointsMap[uid] || 0
                     };
                 });
@@ -1060,6 +1076,7 @@
                 const leaderPoints = pointsMap[ownerId] || 0;
                 const leaderMember = {
                     ...ownerMember,
+                    UserID: ownerId,
                     resolvedPoints: leaderPoints
                 };
 
@@ -1077,15 +1094,15 @@
                 const countIcon = document.querySelector(".member-count-icon");
                 if (countIcon) countIcon.style.display = "block";
 
-                const userIds = finalMembersList.map(m => m.UserID);
+                const userIds = finalMembersList.map(m => parseUserId(m.UserID)).filter(Boolean);
                 const { usernames, avatars } = await fetchRobloxUserData(userIds);
 
                 let membersHtml = "";
                 finalMembersList.forEach(member => {
-                    const uid = member.UserID;
-                    const robloxData = usernames[uid] || usernames[Number(uid)] || { name: `Player_${uid}` };
-                    const usernameWithAt = `@${robloxData.name}`;
-                    const avatarUrl = avatars[uid] || avatars[Number(uid)] || "https://placehold.co/150x150/ffffff/000000?text=Roblox";
+                    const uid = parseUserId(member.UserID);
+                    const nameFound = usernames[uid];
+                    const usernameWithAt = nameFound ? `@${nameFound}` : `@Player_${uid}`;
+                    const avatarUrl = avatars[uid] || "https://placehold.co/150x150/ffffff/000000?text=Roblox";
 
                     let rankHtml = "";
                     if (member.PermissionLevel >= 100) {
