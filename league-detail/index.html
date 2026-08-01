@@ -858,7 +858,6 @@
             if (placeTextEl) placeTextEl.style.display = "none";
         }
 
-        // Pomocná funkce k extrakci čistého číselného UserID (řeší chybové [object Object])
         function parseUserId(rawId) {
             if (!rawId) return null;
             if (typeof rawId === 'number') return rawId;
@@ -883,7 +882,6 @@
 
             if (validIds.length === 0) return { usernames, avatars };
 
-            // 1. Pokus přes Cloudflare Worker
             try {
                 const userRes = await fetch(`${WORKER_URL}/roblox/users`, {
                     method: 'POST',
@@ -912,7 +910,6 @@
                 console.warn("Worker avatars failed", e);
             }
 
-            // 2. Fallback na Roblox API v případě výpadku Workeru
             const missingUsernameIds = validIds.filter(id => !usernames[id]);
             if (missingUsernameIds.length > 0) {
                 try {
@@ -948,6 +945,46 @@
             }
 
             return { usernames, avatars };
+        }
+
+        // SPECIÁLNÍ SPOLLEHLIVÉ ZÍSKÁNÍ RANKU Z TOP 5000 Z LEAGUES ENDPOINTU
+        async function fetchLeagueRank(leagueName) {
+            let foundRank = "N/A";
+            const targetName = leagueName.toLowerCase().trim();
+
+            try {
+                // Postupně procházíme stránky po 100 položkách (až 50 stránek = 5000 ligu)
+                let globalIndex = 0;
+                for (let page = 1; page <= 50; page++) {
+                    const pageRes = await fetch(`${WORKER_URL}/v1/leagues?page=${page}&pageSize=100&sort=Points`);
+                    const pageData = await pageRes.json();
+
+                    if (!pageData || pageData.status !== "ok" || !pageData.data) break;
+
+                    let items = [];
+                    if (Array.isArray(pageData.data)) items = pageData.data;
+                    else if (typeof pageData.data === 'object') {
+                        const arr = Object.values(pageData.data).find(v => Array.isArray(v));
+                        if (arr) items = arr;
+                    }
+
+                    if (items.length === 0) break;
+
+                    for (let i = 0; i < items.length; i++) {
+                        globalIndex++;
+                        if (items[i].Name && items[i].Name.toLowerCase().trim() === targetName) {
+                            return `#${globalIndex}`;
+                        }
+                    }
+
+                    // Pokud tato stránka měla méně než 100 položek, jsme na konci seznamu
+                    if (items.length < 100) break;
+                }
+            } catch (err) {
+                console.warn("Chyba při stahování pořadí z top 5000:", err);
+            }
+
+            return foundRank;
         }
 
         async function loadClanProfile(isSilent = false) {
@@ -1017,27 +1054,8 @@
                     pointsIconEl.style.display = "block";
                 }
 
-                // Načtení pořadí ligy
-                let rankPlace = "N/A";
-                try {
-                    const listRes = await fetch(`${WORKER_URL}/v1/leagues?page=1&pageSize=5000&sort=Points`);
-                    const listJson = await listRes.json();
-                    if (listJson && listJson.status === "ok") {
-                        let dataArr = [];
-                        if (Array.isArray(listJson.data)) dataArr = listJson.data;
-                        else if (listJson.data && typeof listJson.data === 'object') {
-                            const innerArr = Object.values(listJson.data).find(v => Array.isArray(v));
-                            if (innerArr) dataArr = innerArr;
-                        }
-                        const foundIndex = dataArr.findIndex(c => c.Name && c.Name.toLowerCase() === clan.Name.toLowerCase());
-                        if (foundIndex !== -1) {
-                            rankPlace = `#${foundIndex + 1}`;
-                        }
-                    }
-                } catch (e) {
-                    console.warn("Could not calculate league rank", e);
-                }
-                
+                // Získání přesného ranku z Top 5000
+                const rankPlace = await fetchLeagueRank(clan.Name);
                 const placeTextEl = document.getElementById("clanPlaceText");
                 if (placeTextEl) {
                     placeTextEl.textContent = `Place: ${rankPlace}`;
