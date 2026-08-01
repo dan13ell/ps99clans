@@ -835,9 +835,11 @@
 
         function getClanIconUrl(iconString) {
             if (!iconString) return "https://placehold.co/175x175/ffffff/000000?text=No+Icon";
-            const cleanId = iconString.replace("rbxassetid://", "").trim();
-            if (!cleanId) return "https://placehold.co/175x175/ffffff/000000?text=No+Icon";
-            return `https://ps99.biggamesapi.io/image/${cleanId}`;
+            const match = iconString.match(/\d+/);
+            if (match) {
+                return `https://ps99.biggamesapi.io/image/${match[0]}`;
+            }
+            return "https://placehold.co/175x175/ffffff/000000?text=No+Icon";
         }
 
         function hideMemberCountUI() {
@@ -862,27 +864,30 @@
             const usernames = {};
             const avatars = {};
 
+            // Filtrování platných číselných ID
+            const validIds = userIds.map(id => Number(id)).filter(id => !isNaN(id) && id > 0);
+
+            if (validIds.length === 0) return { usernames, avatars };
+
+            // 1. Primární pokus přes Cloudflare Worker
             try {
                 const userRes = await fetch(`${WORKER_URL}/roblox/users`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ userIds: userIds, excludeBannedUsers: false })
+                    body: JSON.stringify({ userIds: validIds, excludeBannedUsers: false })
                 });
                 const userData = await userRes.json();
                 if (userData && userData.data) {
                     userData.data.forEach(user => {
-                        usernames[user.id] = {
-                            name: user.name,
-                            displayName: user.displayName
-                        };
+                        usernames[user.id] = { name: user.name, displayName: user.displayName };
                     });
                 }
             } catch (e) {
-                console.warn("Failed to fetch Roblox usernames", e);
+                console.warn("Worker usernames failed, falling back to direct API", e);
             }
 
             try {
-                const avatarRes = await fetch(`${WORKER_URL}/roblox/avatars?userIds=${userIds.join(',')}&size=180x180&format=Png&isCircular=true`);
+                const avatarRes = await fetch(`${WORKER_URL}/roblox/avatars?userIds=${validIds.join(',')}&size=180x180&format=Png&isCircular=true`);
                 const avatarData = await avatarRes.json();
                 if (avatarData && avatarData.data) {
                     avatarData.data.forEach(item => {
@@ -890,7 +895,42 @@
                     });
                 }
             } catch (e) {
-                console.warn("Failed to fetch Roblox avatars", e);
+                console.warn("Worker avatars failed, falling back to direct API", e);
+            }
+
+            // 2. Fallback na přímé Roblox API pro jakákoliv chybějící ID
+            const missingUsernameIds = validIds.filter(id => !usernames[id]);
+            if (missingUsernameIds.length > 0) {
+                try {
+                    const fallbackUserRes = await fetch("https://users.roblox.com/v1/users", {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ userIds: missingUsernameIds, excludeBannedUsers: false })
+                    });
+                    const fallbackUserData = await fallbackUserRes.json();
+                    if (fallbackUserData && fallbackUserData.data) {
+                        fallbackUserData.data.forEach(user => {
+                            usernames[user.id] = { name: user.name, displayName: user.displayName };
+                        });
+                    }
+                } catch (e) {
+                    console.warn("Direct Roblox Users API failed", e);
+                }
+            }
+
+            const missingAvatarIds = validIds.filter(id => !avatars[id]);
+            if (missingAvatarIds.length > 0) {
+                try {
+                    const fallbackAvatarRes = await fetch(`https://thumbnails.roblox.com/v1/users/avatar-headshot?userIds=${missingAvatarIds.join(',')}&size=180x180&format=Png&isCircular=true`);
+                    const fallbackAvatarData = await fallbackAvatarRes.json();
+                    if (fallbackAvatarData && fallbackAvatarData.data) {
+                        fallbackAvatarData.data.forEach(item => {
+                            avatars[item.targetId] = item.imageUrl;
+                        });
+                    }
+                } catch (e) {
+                    console.warn("Direct Roblox Avatars API failed", e);
+                }
             }
 
             return { usernames, avatars };
@@ -921,7 +961,6 @@
             const savedScrollTop = listContainer ? listContainer.scrollTop : 0;
 
             try {
-                // NAČÍTÁNÍ PŘÍMO Z BIGGAMES API ENDPOINTU PRO LEAGUES
                 const res = await fetch(`${WORKER_URL}/v1/leagues/${encodeURIComponent(clanName)}`);
                 const responseData = await res.json();
 
@@ -963,9 +1002,10 @@
                     pointsIconEl.style.display = "block";
                 }
 
+                // Získání přesného umístění ligy z LEADERBOARD TOP 5000 (pageSize=5000)
                 let rankPlace = "N/A";
                 try {
-                    const listRes = await fetch(`${WORKER_URL}/v1/leagues?page=1&pageSize=1000&sort=Points`);
+                    const listRes = await fetch(`${WORKER_URL}/v1/leagues?page=1&pageSize=5000&sort=Points`);
                     const listJson = await listRes.json();
                     if (listJson && listJson.status === "ok") {
                         let dataArr = [];
@@ -980,7 +1020,7 @@
                         }
                     }
                 } catch (e) {
-                    console.warn("Could not calculate league rank", e);
+                    console.warn("Could not calculate league rank from top 5000", e);
                 }
                 
                 const placeTextEl = document.getElementById("clanPlaceText");
@@ -991,7 +1031,7 @@
 
                 const ownerId = clan.Owner;
                 
-                let ownerMember = membersList.find(m => m.UserID === ownerId);
+                let ownerMember = membersList.find(m => Number(m.UserID) === Number(ownerId));
                 if (!ownerMember) {
                     ownerMember = {
                         UserID: ownerId,
@@ -1001,7 +1041,7 @@
                     ownerMember.PermissionLevel = 100;
                 }
 
-                let rawMembersList = membersList.filter(m => m.UserID !== ownerId);
+                let rawMembersList = membersList.filter(m => Number(m.UserID) !== Number(ownerId));
 
                 const mappedMembers = rawMembersList.map(member => {
                     const uid = member.UserID;
@@ -1043,9 +1083,9 @@
                 let membersHtml = "";
                 finalMembersList.forEach(member => {
                     const uid = member.UserID;
-                    const robloxData = usernames[uid] || { name: `Player_${uid}` };
+                    const robloxData = usernames[uid] || usernames[Number(uid)] || { name: `Player_${uid}` };
                     const usernameWithAt = `@${robloxData.name}`;
-                    const avatarUrl = avatars[uid] || "https://placehold.co/150x150/ffffff/000000?text=Roblox";
+                    const avatarUrl = avatars[uid] || avatars[Number(uid)] || "https://placehold.co/150x150/ffffff/000000?text=Roblox";
 
                     let rankHtml = "";
                     if (member.PermissionLevel >= 100) {
