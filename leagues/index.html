@@ -17,8 +17,6 @@
     
     <link rel="preload" as="image" href="/images/main-menu.png">
     <link rel="preload" as="image" href="/images/clan-board-leagues.png">
-    <link rel="preload" as="image" href="/images/ZnsJsPBt/X.png">
-    <link rel="preload" as="image" href="/images/X-clicked.png">
     <link rel="preload" as="image" href="/images/topclans-leaderboard-search.png">
     <link rel="preload" as="image" href="/images/stars.png">
     <link rel="preload" as="image" href="/images/scroller.png">
@@ -215,6 +213,7 @@
             min-height: 45px;
         }
 
+        /* PŘESNÁ ANIMACE JAKO V TOPCLANS */
         .clan-row {
             display: block;
             width: 736px;
@@ -227,17 +226,17 @@
             image-rendering: pixelated;
             flex-shrink: 0;
             cursor: pointer;
-            transition: transform 0.08s ease, filter 0.08s ease;
+            transition: transform 0.044s cubic-bezier(0.1, 0.9, 0.2, 1), filter 0.044s cubic-bezier(0.1, 0.9, 0.2, 1);
         }
 
-        .clan-row:hover {
-            transform: scale(1.015);
-            filter: drop-shadow(0px 4px 8px rgba(0, 0, 0, 0.25));
+        .clan-row:hover:not(:active) {
+            transform: scale(1.02) translateY(-2px);
+            filter: drop-shadow(0px 6px 12px rgba(0, 0, 0, 0.3));
             z-index: 10;
         }
 
         .clan-row:active {
-            transform: scale(0.985);
+            transform: scale(0.97) translateY(2px);
             filter: drop-shadow(0px 2px 4px rgba(0, 0, 0, 0.2));
         }
 
@@ -770,21 +769,6 @@
             return "https://placehold.co/90x90/ffffff/000000?text=Clan";
         }
 
-        function generateFallbackData() {
-            const fallback = [];
-            for (let i = 1; i <= 3000; i++) {
-                fallback.push({
-                    Name: `LEAG${i}`,
-                    Points: Math.floor(2500000000 / i),
-                    Members: Math.max(1, Math.min(74, Math.floor(74 - (i % 70)))),
-                    MemberCapacity: 75,
-                    Icon: "rbxassetid://1372728282",
-                    _originalRank: i
-                });
-            }
-            return fallback;
-        }
-
         async function fetchLeaguesData(isSilent = false) {
             const list = document.getElementById("clanCardsList");
             const scrollContainer = document.getElementById("leaderboardList");
@@ -832,14 +816,9 @@
 
                 if (combined.length > 0) {
                     allLeaguesData = combined;
-                } else if (allLeaguesData.length === 0) {
-                    allLeaguesData = generateFallbackData();
                 }
             } catch (err) {
-                console.warn("Chyba při načítání globálních dat, aktivace fallbacku:", err);
-                if (allLeaguesData.length === 0) {
-                    allLeaguesData = generateFallbackData();
-                }
+                console.warn("Chyba při načítání lig:", err);
             }
 
             isDataLoaded = true;
@@ -865,7 +844,7 @@
             }
 
             if (displayData.length === 0) {
-                list.innerHTML = `<div class="leaderboard-loading">No clans found.</div>`;
+                list.innerHTML = `<div class="leaderboard-loading">No leagues found.</div>`;
                 if (footerEl) footerEl.style.display = "none";
                 return;
             }
@@ -882,6 +861,7 @@
                 const row = document.createElement("div");
                 row.className = "clan-row";
 
+                // PŘESMĚROVÁNÍ NA LEAGUE DETAIL
                 row.onclick = () => {
                     location.href = `/league-detail/?name=${encodeURIComponent(clan.Name)}`;
                 };
