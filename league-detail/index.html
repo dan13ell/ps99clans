@@ -907,7 +907,7 @@
 
             if (!clanName) {
                 if (container) {
-                    container.innerHTML = `<div class="clan-error">No clan specified!</div>`;
+                    container.innerHTML = `<div class="clan-error">No league specified!</div>`;
                 }
                 hideMemberCountUI();
                 return;
@@ -921,7 +921,8 @@
             const savedScrollTop = listContainer ? listContainer.scrollTop : 0;
 
             try {
-                const res = await fetch(`${WORKER_URL}/v1/leagues/clan/${clanName}`);
+                // NAČÍTÁNÍ PŘÍMO Z BIGGAMES API ENDPOINTU PRO LEAGUES
+                const res = await fetch(`${WORKER_URL}/v1/leagues/${encodeURIComponent(clanName)}`);
                 const responseData = await res.json();
 
                 if (!responseData || responseData.status !== "ok" || !responseData.data) {
