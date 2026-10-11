@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>PS99 Clans - Main Menu</title>
@@ -30,12 +31,30 @@
             overflow-y: hidden;
         }
 
+        /* Adsterra Top Banner Wrapper */
+        .adsterra-top-banner {
+            position: fixed;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 10000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 4px;
+            background: rgba(0, 0, 0, 0.2);
+            border-bottom-left-radius: 8px;
+            border-bottom-right-radius: 8px;
+            pointer-events: auto;
+        }
+
         .app-scaler {
             position: relative;
             display: flex;
             justify-content: center;
             align-items: center;
             transform-origin: center center;
+            margin-top: 30px; /* Odsazení, aby banner nepřekryl logo */
         }
 
         .game-window {
@@ -291,7 +310,18 @@
 </head>
 <body>
 
-
+    <div class="adsterra-top-banner">
+        <script>
+            atOptions = {
+                'key' : '26558238ac13ed798d5c51c086f7a517',
+                'format' : 'iframe',
+                'height' : 50,
+                'width' : 320,
+                'params' : {}
+            };
+        </script>
+        <script src="https://www.highrevenueformat.com/26558238ac13ed798d5c51c086f7a517/invoke.js"></script>
+    </div>
 
     <div class="app-scaler" id="appScaler">
         <div class="game-window">
