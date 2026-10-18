@@ -1394,7 +1394,7 @@
                 
                 list.appendChild(row);
 
-                descObserver.observe(row);
+                fetchClanDescription(clan.Name, descElementId);
             });
 
             document.getElementById("leaderboardList").scrollTop = savedScrollTop;
