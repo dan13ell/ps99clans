@@ -765,128 +765,96 @@
 
         async function fetchLeaguesData(isSilent = false) {
             const list = document.getElementById("clanCardsList");
-            const scrollContainer = document.getElementById("leaderboardList");
-            
-            if (scrollContainer && !isSilent) {
-                preservedScrollTop = scrollContainer.scrollTop;
-            }
 
             if (!isSilent && list && !isDataLoaded) {
                 list.innerHTML = `<div class="leaderboard-loading">Loading...</div>`;
             }
 
             try {
-                const fetchPromises = [];
-                for (let p = 1; p <= 30; p++) {
-                    fetchPromises.push(
-                        fetch(`${WORKER_URL}/v1/leagues?page=${p}&pageSize=100&sort=Points`)
-                            .then(r => r.json())
-                            .catch(() => null)
-                    );
-                }
-
-                const results = await Promise.all(fetchPromises);
-                let combined = [];
-
-                results.forEach((resData, pIndex) => {
-                    if (resData && resData.status === "ok") {
-                        let rawArr = [];
-                        const dataObj = resData.data;
-                        if (Array.isArray(dataObj)) rawArr = dataObj;
-                        else if (dataObj && typeof dataObj === 'object') {
-                            const innerArr = Object.values(dataObj).find(v => Array.isArray(v));
-                            if (innerArr) rawArr = innerArr;
-                        }
-
-                        rawArr.forEach((item, itemIndex) => {
-                            const realRank = pIndex * 100 + itemIndex + 1;
-                            combined.push({
-                                ...item,
-                                _originalRank: realRank
-                            });
-                        });
-                    }
-                });
-
-                if (combined.length > 0) {
-                    allLeaguesData = combined;
+                const res = await fetch(`${WORKER_URL}/leagues-all`);
+                const json = await res.json();
+                if (json && json.status === "ok" && Array.isArray(json.data) && json.data.length > 0) {
+                    allLeaguesData = json.data;
                 }
             } catch (err) {
                 console.warn("Chyba při načítání lig:", err);
             }
 
             isDataLoaded = true;
-            renderLeaderboard();
+            renderLeaderboard(isSilent);
         }
 
-        function renderLeaderboard() {
+        function escapeHtml(s) {
+            return String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+        }
+
+        function renderLeaderboard(keepScroll = false) {
             const list = document.getElementById("clanCardsList");
             const pageText = document.getElementById("pageNumberDisplay");
             const footerEl = document.getElementById("leaderboardFooter");
             const scrollContainer = document.getElementById("leaderboardList");
-            
+
             if (!list || !scrollContainer) return;
-            
-            list.innerHTML = "";
+
+            const savedScroll = scrollContainer.scrollTop;
+            const query = searchQuery.trim().toLowerCase();
+            const isSearching = query !== "";
 
             let displayData = allLeaguesData;
-
-            if (searchQuery.trim() !== "") {
-                displayData = allLeaguesData.filter(clan => 
-                    clan.Name && clan.Name.toLowerCase().includes(searchQuery.toLowerCase().trim())
-                );
+            if (isSearching) {
+                displayData = allLeaguesData.filter(clan => clan.Name && clan.Name.toLowerCase().includes(query));
             }
 
             if (displayData.length === 0) {
-                list.innerHTML = `<div class="leaderboard-loading">No leagues found.</div>`;
+                const msg = allLeaguesData.length === 0 ? "Could not load leagues." : "No leagues found.";
+                list.innerHTML = `<div class="leaderboard-loading">${msg}</div>`;
                 if (footerEl) footerEl.style.display = "none";
                 return;
             }
 
-            const isSearching = searchQuery.trim() !== "";
-            if (footerEl) footerEl.style.display = isSearching ? "none" : "block";
+            const totalPages = Math.max(1, Math.ceil(displayData.length / itemsPerPage));
+            if (currentPage > totalPages) currentPage = totalPages;
 
-            const pageData = isSearching 
-                ? displayData 
+            if (footerEl) footerEl.style.display = (!isSearching && totalPages > 1) ? "block" : "none";
+
+            // při hledání max. 100 výsledků (jinak by se vykreslily tisíce řádků)
+            const pageData = isSearching
+                ? displayData.slice(0, itemsPerPage)
                 : displayData.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
-            pageData.forEach((clan) => {
+            let html = "";
+            pageData.forEach(clan => {
                 const absoluteRank = clan._originalRank;
-                const row = document.createElement("div");
-                row.className = "clan-row";
-
-                row.onclick = () => {
-                    location.href = `/league-detail/?name=${encodeURIComponent(clan.Name)}`;
-                };
-
-                const formattedPoints = formatNumber(clan.Points);
-                const rawMembers = clan.Members !== undefined ? clan.Members : 0;
-                const mCount = rawMembers;
+                const mCount = clan.Members !== undefined ? clan.Members : 0;
                 const mCap = clan.MemberCapacity !== undefined ? clan.MemberCapacity : 75;
-                
                 const rankColor = (absoluteRank === 1) ? "#8AFCED" : "#FFFFFF";
-                const clanIconUrl = getClanIconUrl(clan.Icon);
+                const safeName = escapeHtml(clan.Name);
 
-                row.innerHTML = `
-                    <div class="clan-rank" style="color: ${rankColor};">#${absoluteRank}</div>
-                    <img class="clan-icon" src="${clanIconUrl}" onerror="this.onerror=null; this.src='https://placehold.co/90x90/ffffff/000000?text=Clan';" draggable="false">
-                    <div class="clan-name">[${clan.Name}]</div>
-                    <div class="clan-members" data-text="${mCount}/${mCap}">${mCount}/${mCap}</div>
-                    <div class="clan-points-wrapper">
-                        <div class="clan-star-icon"></div>
-                        <div class="clan-points">${formattedPoints}</div>
+                html += `
+                    <div class="clan-row" data-name="${encodeURIComponent(clan.Name)}">
+                        <div class="clan-rank" style="color: ${rankColor};">#${absoluteRank}</div>
+                        <img class="clan-icon" src="${getClanIconUrl(clan.Icon)}" onerror="this.onerror=null; this.src='https://placehold.co/90x90/ffffff/000000?text=Clan';" draggable="false">
+                        <div class="clan-name">[${safeName}]</div>
+                        <div class="clan-members" data-text="${mCount}/${mCap}">${mCount}/${mCap}</div>
+                        <div class="clan-points-wrapper">
+                            <div class="clan-star-icon"></div>
+                            <div class="clan-points">${formatNumber(clan.Points)}</div>
+                        </div>
                     </div>
                 `;
-                list.appendChild(row);
             });
+            list.innerHTML = html;
 
             if (pageText) pageText.textContent = currentPage;
-            
-            if (preservedScrollTop !== null) {
-                scrollContainer.scrollTop = preservedScrollTop;
-                preservedScrollTop = null; 
-            }
+
+            // refresh na pozadí drží pozici, změna strany nebo hledání jde nahoru
+            scrollContainer.scrollTop = keepScroll ? savedScroll : 0;
         }
+
+        document.getElementById("clanCardsList").addEventListener("click", (e) => {
+            const row = e.target.closest(".clan-row");
+            if (row) location.href = `/league-detail/?name=${row.dataset.name}`;
+        });
 
         const inputSearch = document.getElementById("clanSearch");
         if (inputSearch) {
@@ -903,23 +871,25 @@
         if (prevBtn && nextBtn) {
             prevBtn.addEventListener("click", (e) => {
                 e.stopPropagation();
-                if (currentPage > 1) { 
-                    currentPage--; 
+                if (currentPage > 1) {
+                    currentPage--;
                     renderLeaderboard();
                 }
             });
             nextBtn.addEventListener("click", (e) => {
                 e.stopPropagation();
-                if (currentPage < 30) { 
-                    currentPage++; 
+                const totalPages = Math.ceil(allLeaguesData.length / itemsPerPage);
+                if (currentPage < totalPages) {
+                    currentPage++;
                     renderLeaderboard();
                 }
             });
         }
 
+        // obnova každých 5 minut, a jen když je karta vidět
         setInterval(() => {
-            fetchLeaguesData(true);
-        }, 60000);
+            if (!document.hidden) fetchLeaguesData(true);
+        }, 300000);
 
         window.addEventListener('DOMContentLoaded', () => {
             autoFitScreen();
