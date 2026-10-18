@@ -903,11 +903,6 @@
 
     <script>
         const WORKER_URL = "https://rough-pine-d90f.ps99clans.workers.dev";
-        
-        // Globální cache pro Roblox jména a avatary, aby se stahovaly pouze jednou
-        let cachedRobloxUsernames = {};
-        let cachedRobloxAvatars = {};
-        let isFirstLoad = true;
 
         function autoFitScreen() {
             const scaler = document.getElementById("appScaler");
@@ -1391,21 +1386,14 @@
                 if (countIcon) countIcon.style.display = "block";
 
                 const userIds = finalMembersList.map(m => m.UserID);
-                
-                // Jména a avatary se stahují z Roblox API pouze při prvním načtení, jinak se berou z cache
-                if (isFirstLoad || Object.keys(cachedRobloxUsernames).length === 0) {
-                    const roboxData = await fetchRobloxUserData(userIds);
-                    cachedRobloxUsernames = roboxData.usernames;
-                    cachedRobloxAvatars = roboxData.avatars;
-                    isFirstLoad = false;
-                }
+                const { usernames, avatars } = await fetchRobloxUserData(userIds);
 
                 let membersHtml = "";
                 finalMembersList.forEach(member => {
                     const uid = member.UserID;
-                    const robloxData = cachedRobloxUsernames[uid] || { name: `Player_${uid}` };
+                    const robloxData = usernames[uid] || { name: `Player_${uid}` };
                     const usernameWithAt = `@${robloxData.name}`;
-                    const avatarUrl = cachedRobloxAvatars[uid] || "https://placehold.co/150x150/ffffff/000000?text=Roblox";
+                    const avatarUrl = avatars[uid] || "https://placehold.co/150x150/ffffff/000000?text=Roblox";
 
                     let rankHtml = "";
                     if (member.PermissionLevel >= 100) {
@@ -1456,16 +1444,15 @@
             autoFitScreen();
             loadClanProfile(false);
             
-            // Interval pro živé aktualizace (běží tiše každých 60 sekund pouze pro body, diamanty a skóre)
             setInterval(() => {
                 loadClanProfile(true);
             }, 60000);
         });
     </script>
 
-    <a href="https://forms.gle/2DWB7Hzcv2XZ1PVCA" target="_blank" class="ps99-feedback-btn">
-        FEEDBACK
-    </a>
+        <a href="https://forms.gle/2DWB7Hzcv2XZ1PVCA" target="_blank" class="ps99-feedback-btn">
+            FEEDBACK
+        </a>
 
     <a href="/privacy/" class="privacy-link">Privacy Policy</a>
 </body>
