@@ -38,11 +38,26 @@
         body {
             background-color: #89b3f9;
             display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
             overflow-x: hidden;
             overflow-y: hidden;
+        }
+
+        /* Styl pro horní banner ad network, aby držel nahoře a centrovaně */
+        .top-ad-banner {
+            position: absolute;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 728px;
+            height: 90px;
+            z-index: 9999;
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
 
         .app-scaler {
@@ -51,6 +66,7 @@
             justify-content: center;
             align-items: center;
             transform-origin: center center;
+            margin-top: 50px; /* Mírný odstup od banneru nahoře */
         }
 
         .game-window {
@@ -270,7 +286,14 @@
 </head>
 <body>
 
-
+    <!-- Horní banner od nové ad network -->
+    <div class="top-ad-banner">
+        <div id="ytrgt-72a593a405554a44a1bddaebedd81833"></div>
+        <script>
+            !function(w,d,s,o,f,js,fjs){w[o]=w[o]||function(){(w[o].q=w[o].q||[]).push(arguments)};w[o].q=w[o].q||[];js=d.createElement(s);fjs=d.getElementsByTagName(s)[0];js.async=1;js.src=f;fjs.parentNode.insertBefore(js,fjs)}(window,document,'script','ytrgt','https://static.servestatic.net/js/ytrgt.js');
+            ytrgt('hb:load', '#ytrgt-72a593a405554a44a1bddaebedd81833', {"endpoint": "https://collect.rtb.events/hb", "publisherId": "72a593a405554a44a1bddaebedd81833", "sizes": [[728, 90]], "tmax": 1000, "showAdMark": true});
+        </script>
+    </div>
 
     <div class="app-scaler" id="appScaler">
         <div class="game-window">
