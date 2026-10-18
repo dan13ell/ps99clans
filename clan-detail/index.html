@@ -12,8 +12,7 @@
 
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5302554896051137"
      crossorigin="anonymous"></script>
-
-    <link rel="icon" href="/images/favicon.png" type="image/png">
+    
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>PS99 Clans - Clan Profile</title>
@@ -904,10 +903,6 @@
     <script>
         const WORKER_URL = "https://rough-pine-d90f.ps99clans.workers.dev";
 
-        // Paměť pro jména a avatary, aby se načítaly pouze jednou při startu
-        let cachedUsernames = null;
-        let cachedAvatars = null;
-
         function autoFitScreen() {
             const scaler = document.getElementById("appScaler");
             if (!scaler) return;
@@ -1390,20 +1385,14 @@
                 if (countIcon) countIcon.style.display = "block";
 
                 const userIds = finalMembersList.map(m => m.UserID);
-                
-                // Jména a avatary se stahují z Robloxu POUZE při prvním načtení stránky
-                if (!cachedUsernames || !cachedAvatars) {
-                    const roboxData = await fetchRobloxUserData(userIds);
-                    cachedUsernames = roboxData.usernames;
-                    cachedAvatars = roboxData.avatars;
-                }
+                const { usernames, avatars } = await fetchRobloxUserData(userIds);
 
                 let membersHtml = "";
                 finalMembersList.forEach(member => {
                     const uid = member.UserID;
-                    const robloxData = cachedUsernames[uid] || { name: `Player_${uid}` };
+                    const robloxData = usernames[uid] || { name: `Player_${uid}` };
                     const usernameWithAt = `@${robloxData.name}`;
-                    const avatarUrl = cachedAvatars[uid] || "https://placehold.co/150x150/ffffff/000000?text=Roblox";
+                    const avatarUrl = avatars[uid] || "https://placehold.co/150x150/ffffff/000000?text=Roblox";
 
                     let rankHtml = "";
                     if (member.PermissionLevel >= 100) {
@@ -1454,16 +1443,15 @@
             autoFitScreen();
             loadClanProfile(false);
             
-            // Tichý interval pro aktualizaci bodů a diamantů každou minutu (jména a profilovky se už netahají)
             setInterval(() => {
                 loadClanProfile(true);
             }, 60000);
         });
     </script>
 
-    <a href="https://forms.gle/2DWB7Hzcv2XZ1PVCA" target="_blank" class="ps99-feedback-btn">
-        FEEDBACK
-    </a>
+        <a href="https://forms.gle/2DWB7Hzcv2XZ1PVCA" target="_blank" class="ps99-feedback-btn">
+            FEEDBACK
+        </a>
 
     <a href="/privacy/" class="privacy-link">Privacy Policy</a>
 </body>
