@@ -435,6 +435,25 @@
             height: 82px;
         }
 
+        .live-stats-text {
+            position: absolute;
+            left: 432px; 
+            top: 465px;  
+            width: 230px; 
+            height: 60px;
+            object-fit: contain;
+            pointer-events: none;
+            z-index: 995;
+            transform-origin: center center;
+            transition: transform 0.044s cubic-bezier(0.1, 0.9, 0.2, 1), top 0.044s cubic-bezier(0.1, 0.9, 0.2, 1), left 0.044s cubic-bezier(0.1, 0.9, 0.2, 1);
+        }
+        .live-stats-btn:hover:not(:active) ~ .live-stats-text {
+            transform: scale(1.06) translate(-2px, 1px);
+        }
+        .live-stats-btn:active ~ .live-stats-text {
+            transform: scale(0.94) translate(3px, 3px);
+        }
+
         .live-stats-outline {
             position: absolute;
             left: 367px;
