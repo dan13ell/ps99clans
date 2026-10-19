@@ -874,119 +874,98 @@
             return null;
         }
 
+        const nameCache = {};
+        const avatarCache = {};
+        let cachedRank = null;
+        let rankLoading = false;
+
+        // Stáhne jen chybějící jména a avatary (obojí současně), všechno řeší worker
         async function fetchRobloxUserData(userIds) {
-            if (!userIds || userIds.length === 0) return { usernames: {}, avatars: {} };
-            
-            const usernames = {};
-            const avatars = {};
-
             const validIds = userIds.map(parseUserId).filter(id => id !== null && id > 0);
+            const needNames = validIds.filter(id => !nameCache[id]);
+            const needAvatars = validIds.filter(id => !avatarCache[id]);
+            const tasks = [];
 
-            if (validIds.length === 0) return { usernames, avatars };
-
-            try {
-                const userRes = await fetch(`${WORKER_URL}/roblox/users`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ userIds: validIds, excludeBannedUsers: false })
-                });
-                const userData = await userRes.json();
-                if (userData && userData.data) {
-                    userData.data.forEach(user => {
-                        usernames[user.id] = user.name;
-                    });
-                }
-            } catch (e) {
-                console.warn("Worker usernames failed", e);
-            }
-
-            try {
-                const avatarRes = await fetch(`${WORKER_URL}/roblox/avatars?userIds=${validIds.join(',')}&size=180x180&format=Png&isCircular=true`);
-                const avatarData = await avatarRes.json();
-                if (avatarData && avatarData.data) {
-                    avatarData.data.forEach(item => {
-                        avatars[item.targetId] = item.imageUrl;
-                    });
-                }
-            } catch (e) {
-                console.warn("Worker avatars failed", e);
-            }
-
-            const missingUsernameIds = validIds.filter(id => !usernames[id]);
-            if (missingUsernameIds.length > 0) {
-                try {
-                    const fallbackUserRes = await fetch("https://users.roblox.com/v1/users", {
+            if (needNames.length) {
+                tasks.push(
+                    fetch(`${WORKER_URL}/roblox/users`, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ userIds: missingUsernameIds, excludeBannedUsers: false })
-                    });
-                    const fallbackUserData = await fallbackUserRes.json();
-                    if (fallbackUserData && fallbackUserData.data) {
-                        fallbackUserData.data.forEach(user => {
-                            usernames[user.id] = user.name;
-                        });
-                    }
-                } catch (e) {
-                    console.warn("Direct Roblox Users API failed", e);
-                }
+                        body: JSON.stringify({ userIds: needNames })
+                    })
+                    .then(r => r.json())
+                    .then(d => { (d.data || []).forEach(u => { nameCache[u.id] = u.name; }); })
+                    .catch(() => {})
+                );
             }
 
-            const missingAvatarIds = validIds.filter(id => !avatars[id]);
-            if (missingAvatarIds.length > 0) {
-                try {
-                    const fallbackAvatarRes = await fetch(`https://thumbnails.roblox.com/v1/users/avatar-headshot?userIds=${missingAvatarIds.join(',')}&size=180x180&format=Png&isCircular=true`);
-                    const fallbackAvatarData = await fallbackAvatarRes.json();
-                    if (fallbackAvatarData && fallbackAvatarData.data) {
-                        fallbackAvatarData.data.forEach(item => {
-                            avatars[item.targetId] = item.imageUrl;
-                        });
-                    }
-                } catch (e) {
-                    console.warn("Direct Roblox Avatars API failed", e);
-                }
+            if (needAvatars.length) {
+                tasks.push(
+                    fetch(`${WORKER_URL}/roblox/avatars?userIds=${needAvatars.join(',')}&size=180x180&format=Png&isCircular=true`)
+                    .then(r => r.json())
+                    .then(d => { (d.data || []).forEach(i => { if (i.imageUrl) avatarCache[i.targetId] = i.imageUrl; }); })
+                    .catch(() => {})
+                );
             }
 
-            return { usernames, avatars };
+            await Promise.all(tasks);
         }
 
-        // SPECIÁLNÍ SPOLLEHLIVÉ ZÍSKÁNÍ RANKU Z TOP 5000 Z LEAGUES ENDPOINTU
+        // Pořadí ligy - 1 request na cachovaný seznam ve workeru, jednou za návštěvu
         async function fetchLeagueRank(leagueName) {
-            let foundRank = "N/A";
-            const targetName = leagueName.toLowerCase().trim();
-
+            if (cachedRank || rankLoading) return;
+            rankLoading = true;
             try {
-                // Postupně procházíme stránky po 100 položkách (až 50 stránek = 5000 ligu)
-                let globalIndex = 0;
-                for (let page = 1; page <= 50; page++) {
-                    const pageRes = await fetch(`${WORKER_URL}/v1/leagues?page=${page}&pageSize=100&sort=Points`);
-                    const pageData = await pageRes.json();
-
-                    if (!pageData || pageData.status !== "ok" || !pageData.data) break;
-
-                    let items = [];
-                    if (Array.isArray(pageData.data)) items = pageData.data;
-                    else if (typeof pageData.data === 'object') {
-                        const arr = Object.values(pageData.data).find(v => Array.isArray(v));
-                        if (arr) items = arr;
-                    }
-
-                    if (items.length === 0) break;
-
-                    for (let i = 0; i < items.length; i++) {
-                        globalIndex++;
-                        if (items[i].Name && items[i].Name.toLowerCase().trim() === targetName) {
-                            return `#${globalIndex}`;
-                        }
-                    }
-
-                    // Pokud tato stránka měla méně než 100 položek, jsme na konci seznamu
-                    if (items.length < 100) break;
+                const r = await fetch(`${WORKER_URL}/leagues-all`);
+                const j = await r.json();
+                if (j && j.status === "ok" && Array.isArray(j.data)) {
+                    const target = leagueName.toLowerCase().trim();
+                    const found = j.data.find(l => l.Name && l.Name.toLowerCase().trim() === target);
+                    cachedRank = found ? `#${found._originalRank}` : "N/A";
                 }
-            } catch (err) {
-                console.warn("Chyba při stahování pořadí z top 5000:", err);
-            }
+            } catch (e) {}
+            rankLoading = false;
+            const el = document.getElementById("clanPlaceText");
+            if (el) el.textContent = `Place: ${cachedRank || "N/A"}`;
+        }
 
-            return foundRank;
+        function renderMembers(finalMembersList, namesFinal) {
+            const listContainer = document.getElementById("membersListContainer");
+            if (!listContainer) return;
+            const savedScrollTop = listContainer.scrollTop;
+
+            let membersHtml = "";
+            finalMembersList.forEach(member => {
+                const uid = parseUserId(member.UserID);
+                const usernameWithAt = nameCache[uid]
+                    ? `@${nameCache[uid]}`
+                    : (namesFinal ? `@Player_${uid}` : "@...");
+                const avatarUrl = avatarCache[uid] || "https://placehold.co/150x150/ffffff/000000?text=Roblox";
+
+                let rankHtml = "";
+                if (member.PermissionLevel >= 100) {
+                    rankHtml = `<div class="member-rank-text rank-leader">Leader</div>`;
+                } else if (member.PermissionLevel === 90) {
+                    rankHtml = `<div class="member-rank-text rank-officer">Officer</div>`;
+                }
+
+                membersHtml += `
+                    <div class="member-card">
+                        <div class="member-username-text">${usernameWithAt}</div>
+                        ${rankHtml}
+                        <div class="member-avatar-container">
+                            <img class="member-avatar-img" src="${avatarUrl}" onerror="this.src='https://placehold.co/150x150/ffffff/000000?text=Roblox'">
+                        </div>
+                        <div class="member-stats-container">
+                            <img class="member-stat-star-icon" src="/images/stars.png" >
+                            <span class="member-stat-star-text">${formatNumber(member.resolvedPoints || 0)}</span>
+                        </div>
+                    </div>
+                `;
+            });
+
+            listContainer.innerHTML = membersHtml;
+            listContainer.scrollTop = savedScrollTop;
         }
 
         async function loadClanProfile(isSilent = false) {
@@ -996,7 +975,6 @@
             const titleEl = document.getElementById("clanTitle");
             const clanIconEl = document.getElementById("clanIcon");
             const memberCountEl = document.getElementById("clanMemberCount");
-            const listContainer = document.getElementById("membersListContainer");
 
             if (!clanName) {
                 if (container) {
@@ -1010,8 +988,6 @@
                 const loadingEl = document.getElementById("loadingState");
                 if (loadingEl) loadingEl.style.display = "block";
             }
-
-            const savedScrollTop = listContainer ? listContainer.scrollTop : 0;
 
             try {
                 const res = await fetch(`${WORKER_URL}/v1/leagues/${encodeURIComponent(clanName)}`);
@@ -1047,45 +1023,36 @@
                     });
                 }
 
-                const totalPoints = clan.Points || 0;
                 const pointsTextEl = document.getElementById("clanPointsText");
                 const pointsIconEl = document.getElementById("clanPointsIcon");
                 if (pointsTextEl && pointsIconEl) {
-                    pointsTextEl.textContent = formatNumber(totalPoints);
+                    pointsTextEl.textContent = formatNumber(clan.Points || 0);
                     pointsTextEl.style.display = "block";
                     pointsIconEl.style.display = "block";
                 }
 
-                // Získání přesného ranku z Top 5000
-                const rankPlace = await fetchLeagueRank(clan.Name);
                 const placeTextEl = document.getElementById("clanPlaceText");
                 if (placeTextEl) {
-                    placeTextEl.textContent = `Place: ${rankPlace}`;
+                    placeTextEl.textContent = `Place: ${cachedRank || "..."}`;
                     placeTextEl.style.display = "block";
                 }
+                fetchLeagueRank(clan.Name);
 
                 const ownerId = parseUserId(clan.Owner);
-                
+
                 let ownerMember = membersList.find(m => parseUserId(m.UserID) === ownerId);
                 if (!ownerMember) {
-                    ownerMember = {
-                        UserID: ownerId,
-                        PermissionLevel: 100
-                    };
+                    ownerMember = { UserID: ownerId, PermissionLevel: 100 };
                 } else {
                     ownerMember.PermissionLevel = 100;
                 }
 
-                let rawMembersList = membersList.filter(m => parseUserId(m.UserID) !== ownerId);
-
-                const mappedMembers = rawMembersList.map(member => {
-                    const uid = parseUserId(member.UserID);
-                    return {
-                        ...member,
-                        UserID: uid,
-                        resolvedPoints: pointsMap[uid] || 0
-                    };
-                });
+                const mappedMembers = membersList
+                    .filter(m => parseUserId(m.UserID) !== ownerId)
+                    .map(member => {
+                        const uid = parseUserId(member.UserID);
+                        return { ...member, UserID: uid, resolvedPoints: pointsMap[uid] || 0 };
+                    });
 
                 const officers = mappedMembers.filter(m => m.PermissionLevel === 90);
                 const regularMembers = mappedMembers.filter(m => m.PermissionLevel < 90);
@@ -1093,18 +1060,17 @@
                 officers.sort((a, b) => b.resolvedPoints - a.resolvedPoints);
                 regularMembers.sort((a, b) => b.resolvedPoints - a.resolvedPoints);
 
-                const leaderPoints = pointsMap[ownerId] || 0;
                 const leaderMember = {
                     ...ownerMember,
                     UserID: ownerId,
-                    resolvedPoints: leaderPoints
+                    resolvedPoints: pointsMap[ownerId] || 0
                 };
 
                 const finalMembersList = [leaderMember, ...officers, ...regularMembers];
 
                 const mCount = finalMembersList.length;
                 const mCap = clan.MemberCapacity || 75;
-                
+
                 if (memberCountEl) {
                     const textValue = `${mCount}/${mCap}`;
                     memberCountEl.setAttribute("data-text", textValue);
@@ -1114,48 +1080,17 @@
                 const countIcon = document.querySelector(".member-count-icon");
                 if (countIcon) countIcon.style.display = "block";
 
-                const userIds = finalMembersList.map(m => parseUserId(m.UserID)).filter(Boolean);
-                const { usernames, avatars } = await fetchRobloxUserData(userIds);
-
-                let membersHtml = "";
-                finalMembersList.forEach(member => {
-                    const uid = parseUserId(member.UserID);
-                    const nameFound = usernames[uid];
-                    const usernameWithAt = nameFound ? `@${nameFound}` : `@Player_${uid}`;
-                    const avatarUrl = avatars[uid] || "https://placehold.co/150x150/ffffff/000000?text=Roblox";
-
-                    let rankHtml = "";
-                    if (member.PermissionLevel >= 100) {
-                        rankHtml = `<div class="member-rank-text rank-leader">Leader</div>`;
-                    } else if (member.PermissionLevel === 90) {
-                        rankHtml = `<div class="member-rank-text rank-officer">Officer</div>`;
-                    }
-
-                    const userPoints = member.resolvedPoints || 0;
-
-                    membersHtml += `
-                        <div class="member-card">
-                            <div class="member-username-text">${usernameWithAt}</div>
-                            ${rankHtml}
-                            <div class="member-avatar-container">
-                                <img class="member-avatar-img" src="${avatarUrl}" onerror="this.src='https://placehold.co/150x150/ffffff/000000?text=Roblox'">
-                            </div>
-                            
-                            <div class="member-stats-container">
-                                <img class="member-stat-star-icon" src="/images/stars.png" >
-                                <span class="member-stat-star-text">${formatNumber(userPoints)}</span>
-                            </div>
-                        </div>
-                    `;
-                });
-
-                if (listContainer) {
-                    listContainer.innerHTML = membersHtml;
-                    listContainer.scrollTop = savedScrollTop;
-                }
-
+                // 1) hned vykreslit členy s tím, co už známe
+                renderMembers(finalMembersList, false);
                 const loadingEl = document.getElementById("loadingState");
                 if (loadingEl) loadingEl.style.display = "none";
+
+                // 2) dotáhnout jen chybějící jména a avatary a překreslit
+                const userIds = finalMembersList.map(m => m.UserID).filter(Boolean);
+                if (userIds.some(id => !nameCache[id] || !avatarCache[id])) {
+                    await fetchRobloxUserData(userIds);
+                }
+                renderMembers(finalMembersList, true);
 
             } catch (err) {
                 console.error(err);
