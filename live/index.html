@@ -27,7 +27,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@300;400;500;600;700;800&family=Roboto:wght@800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/odometer.js/0.4.7/themes/odometer-theme-minimal.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/odometer.js/0.4.7/odometer.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.js"></script>
 
     <link rel="preload" as="image" href="/images/main-menu.png">
     <link rel="preload" as="image" href="/images/scroller.png">
@@ -434,6 +434,39 @@
             margin-bottom: 6px;
         }
 
+        .live-badge {
+            position: absolute;
+            right: 16px;
+            top: 14px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 14px;
+            font-weight: 700;
+            color: #262C2D;
+            z-index: 920;
+            pointer-events: none;
+        }
+
+        .live-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #2ECC40;
+            border: 2px solid #000000;
+            animation: livePulse 1.4s infinite ease-in-out;
+        }
+
+        .live-badge.is-stale .live-dot {
+            background: #FF4A4A;
+            animation: none;
+        }
+
+        @keyframes livePulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
         .live-status-message {
             position: absolute;
             left: 0;
@@ -676,7 +709,7 @@
                 <div class="live-main-scroll-viewport">
                     <div class="live-scroll-content-wrapper">
                         
-                        <img class="live-clan-icon-img" id="liveClanIcon" src="https://placehold.co/150x150/ffffff/000000?text=Clan" >
+                        <img class="live-clan-icon-img" id="liveClanIcon" src="https://placehold.co/150x150/ffffff/000000?text=Clan" onerror="this.onerror=null; this.src='https://placehold.co/150x150/ffffff/000000?text=Clan';">
                         
                         <div class="live-flag-circle"></div>
                         <img class="live-flag-img" id="liveFlag" src="https://twemoji.maxcdn.com/v/14.0.2/svg/1f1fa-1f1f8.svg" >
@@ -711,6 +744,10 @@
 
                         <div class="live-graph-card-wrapper">
                             <div class="live-graph-title">POINTS GRAPH</div>
+                            <div class="live-badge" id="liveBadge">
+                                <span class="live-dot"></span>
+                                <span id="liveBadgeText">LIVE</span>
+                            </div>
                             <div style="position: relative; width: 100%; height: 160px;">
                                 <canvas id="livePointsChart"></canvas>
                             </div>
@@ -747,7 +784,16 @@
         const params = new URLSearchParams(window.location.search);
         const clanName = params.get('name') || "";
 
-        localStorage.removeItem(`live_points_history_${clanName}`);
+        // ---------- NASTAVENÍ ----------
+        const POLL_MS = 10000;          // jak často se stahuje klan (worker ho drží v cache 10 s)
+        const BATTLE_MS = 300000;       // aktivní bitva se obnovuje jednou za 5 minut
+        const GEM_RANK_MS = 120000;     // pořadí v gemech jednou za 2 minuty
+        const SMOOTH_MS = 15000;        // plynulé dopočítávání bodů mezi aktualizacemi
+        const CHART_MAX_POINTS = 240;   // kolik bodů drží graf
+
+        // Velikost čísel: width = do jaké šířky (px) se číslo vejde, max/min = rozsah písma
+        const MAIN_FIT = { width: 520, max: 112, min: 26 };   // velké číslo s body
+        const STAT_FIT = { width: 190, max: 52, min: 14 };    // gemy / průměr / členové
 
         const returnUrl = `/clan-detail/?name=${encodeURIComponent(clanName)}`;
         document.getElementById("liveBackBtn").onclick = () => { location.href = returnUrl; };
@@ -757,18 +803,30 @@
         let currentGems = 0;
         let currentMembers = 0;
 
-        let lastApiPoints = 0; 
+        let lastApiPoints = 0;
         let lastApiGems = 0;
         let lastApiMembers = 0;
 
-        let currentQuarterChunk = 0; 
-        let ticksCalculated = 0; 
         let isFirstLoad = true;
+        let isFetching = false;
+        let lastOkAt = 0;
 
-        let simulationIntervalId = null;
+        let activeBattleId = "";
+        let battleFetchedAt = 0;
+        let gemRankAt = 0;
+        let gemRankLoading = false;
+        let staticKey = "";
+
+        let smoothId = null;
+        let smoothStep = 0;
+        let smoothChunk = 0;
+        let smoothTarget = 0;
+
         let pointsChart = null;
-        let lastChartUpdateTime = 0; 
+        let history = [];
+        let lastChartAt = 0;
 
+        // ---------- AUTO-FIT OBRAZOVKY ----------
         function autoFitScreen() {
             const scaler = document.getElementById("appScaler");
             if (!scaler) return;
@@ -801,7 +859,6 @@
             if (!popup) return;
 
             const hasBeenDismissed = sessionStorage.getItem("orientationPopupDismissed") === "true";
-
             const isMobile = window.innerWidth < 1150;
             const isPortrait = window.innerHeight > window.innerWidth;
 
@@ -822,9 +879,7 @@
             if (popup) popup.classList.remove("show");
         }
 
-        document.getElementById("popupCloseBtn")?.addEventListener("click", () => {
-            dismissOrientationPopup();
-        });
+        document.getElementById("popupCloseBtn")?.addEventListener("click", dismissOrientationPopup);
 
         document.getElementById("popupRotateActionBtn")?.addEventListener("click", () => {
             if (screen.orientation && screen.orientation.lock) {
@@ -836,6 +891,7 @@
         window.addEventListener("resize", autoFitScreen);
         window.addEventListener("orientationchange", autoFitScreen);
 
+        // ---------- POMOCNÉ FUNKCE ----------
         function getTwemojiUrl(countryCode) {
             if (!countryCode || countryCode.length !== 2) return "https://twemoji.maxcdn.com/v/14.0.2/svg/1f1fa-1f1f8.svg";
             const codePoints = countryCode.toUpperCase().split('').map(char => 0x1F1E6 + char.charCodeAt(0) - 65);
@@ -862,83 +918,76 @@
         function setRankTextAndScale(el, text) {
             if (!el) return;
             el.textContent = text;
-            const len = text.length; 
-            let size = 20; 
-            if (len <= 3) size = 20; 
-            else if (len === 4) size = 17; 
-            else if (len >= 5) size = 13; 
+            const len = text.length;
+            let size = 20;
+            if (len <= 3) size = 20;
+            else if (len === 4) size = 17;
+            else if (len >= 5) size = 13;
             el.style.fontSize = size + "px";
         }
 
-        function scaleMainWarPoints(val) {
-            const el = document.getElementById("liveWarPoints");
+        // ---------- VELIKOST ČÍSEL (přesné měření podle skutečného písma) ----------
+        const measurer = document.createElement("span");
+        measurer.style.cssText = "position:absolute;left:-9999px;top:-9999px;visibility:hidden;white-space:nowrap;font-size:100px !important;font-family:'Roboto',sans-serif !important;font-weight:800 !important;";
+        document.body.appendChild(measurer);
+
+        function fitFontSize(value, cfg) {
+            measurer.textContent = Number(value).toLocaleString("en-US");
+            const w = measurer.offsetWidth || 1;
+            const size = (100 * cfg.width * 0.97) / w;
+            return Math.max(cfg.min, Math.min(cfg.max, size));
+        }
+
+        function setOdometer(id, value, cfg) {
+            const el = document.getElementById(id);
             if (!el) return;
-            
-            const len = val.toString().length;
-            let size = 95;
-            
-            if (len >= 13) size = 46;      
-            else if (len >= 10) size = 56;  
-            else if (len >= 8) size = 68;   
-            else if (len >= 6) size = 80;   
-            
-            el.style.fontSize = size + "px";
-        }
-
-        function setStatOdometer(elId, val) {
-            const el = document.getElementById(elId);
-            if (!el) return;
-            
-            const len = val.toString().length;
-            let size = 52; 
-            
-            if (len >= 13) size = 22;      
-            else if (len >= 11) size = 26;  
-            else if (len >= 9) size = 32;   
-            else if (len >= 7) size = 38;   
-            else if (len >= 5) size = 45;   
-            
-            el.style.fontSize = size + "px";
-        }
-
-        function getPointsHistory() {
-            const key = `live_points_history_${clanName}`;
-            try {
-                return JSON.parse(localStorage.getItem(key)) || [];
-            } catch(e) {
-                return [];
+            el.style.fontSize = fitFontSize(value, cfg).toFixed(1) + "px";
+            if (el.dataset.v !== String(value)) {
+                el.dataset.v = String(value);
+                el.innerHTML = value;
             }
         }
 
-        function savePointsHistory(history) {
-            const key = `live_points_history_${clanName}`;
-            localStorage.setItem(key, JSON.stringify(history));
+        function renderNumbers() {
+            const avg = currentMembers > 0 ? Math.round(currentPoints / currentMembers) : 0;
+            setOdometer("liveWarPoints", currentPoints, MAIN_FIT);
+            setOdometer("liveStatGems", currentGems, STAT_FIT);
+            setOdometer("liveStatAvgPoints", avg, STAT_FIT);
+            setOdometer("liveStatMembers", currentMembers, STAT_FIT);
+        }
+
+        function updateUI() {
+            renderNumbers();
+            if (currentPoints > 0) updatePointsChart(currentPoints);
+        }
+
+        // ---------- GRAF (historie je jen v paměti stránky) ----------
+        function formatShort(value) {
+            const abs = Math.abs(value);
+            const fmt = (v, s) => parseFloat(v.toFixed(2)) + s;
+            if (abs >= 1e12) return fmt(value / 1e12, 'T');
+            if (abs >= 1e9) return fmt(value / 1e9, 'B');
+            if (abs >= 1e6) return fmt(value / 1e6, 'M');
+            if (abs >= 1e3) return fmt(value / 1e3, 'K');
+            return String(value);
         }
 
         function updatePointsChart(pointsValue) {
-            const ctx = document.getElementById('livePointsChart').getContext('2d');
-            let history = getPointsHistory();
-            const timeStr = new Date().toLocaleTimeString('sk-SK', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+            if (typeof Chart === "undefined") return;
+            const canvas = document.getElementById('livePointsChart');
+            if (!canvas) return;
+
             const nowMs = Date.now();
+            const last = history[history.length - 1];
+            const changed = !last || last.value !== pointsValue;
 
-            let shouldAddPoint = false;
-
-            if (history.length === 0) {
-                shouldAddPoint = true;
-            } 
-            else if (history[history.length - 1].value !== pointsValue) {
-                shouldAddPoint = true;
-            } 
-            else if (nowMs - lastChartUpdateTime >= 15000) {
-                shouldAddPoint = true;
-            }
-
-            if (shouldAddPoint) {
+            if (changed || nowMs - lastChartAt >= 15000) {
+                const timeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
                 history.push({ time: timeStr, value: pointsValue });
-                lastChartUpdateTime = nowMs; 
-
-                if (history.length > 1000) history.shift(); 
-                savePointsHistory(history);
+                if (history.length > CHART_MAX_POINTS) history.shift();
+                lastChartAt = nowMs;
+            } else {
+                return;
             }
 
             const labels = history.map(h => h.time);
@@ -947,311 +996,298 @@
             if (pointsChart) {
                 pointsChart.data.labels = labels;
                 pointsChart.data.datasets[0].data = data;
-                pointsChart.update('none'); 
-            } else {
-                pointsChart = new Chart(ctx, {
-                    type: 'line',
-                    data: {
-                        labels: labels,
-                        datasets: [{
-                            label: 'Points',
-                            data: data,
-                            borderColor: '#FFFFFF',
-                            borderWidth: 3,
-                            backgroundColor: (context) => {
-                                const chart = context.chart;
-                                const {ctx, chartArea} = chart;
-                                if (!chartArea) return null;
-                                const gradient = ctx.createLinearGradient(0, chartArea.top, 0, chartArea.bottom);
-                                gradient.addColorStop(0, 'rgba(28, 46, 74, 0.8)');
-                                gradient.addColorStop(1, 'rgba(255, 255, 255, 0.0)');
-                                return gradient;
-                            },
-                            fill: true,
-                            tension: 0.3,
-                            pointBackgroundColor: '#FFFFFF',
-                            pointBorderColor: '#000000',
-                            pointBorderWidth: 2,
-                            pointRadius: 4,
-                            pointHoverRadius: 6,
-                            pointHitRadius: 18 
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        interaction: {
-                            mode: 'index',
-                            intersect: false 
+                pointsChart.update('none');
+                return;
+            }
+
+            pointsChart = new Chart(canvas.getContext('2d'), {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Points',
+                        data: data,
+                        borderColor: '#FFFFFF',
+                        borderWidth: 3,
+                        backgroundColor: (context) => {
+                            const chart = context.chart;
+                            const { ctx, chartArea } = chart;
+                            if (!chartArea) return null;
+                            const gradient = ctx.createLinearGradient(0, chartArea.top, 0, chartArea.bottom);
+                            gradient.addColorStop(0, 'rgba(28, 46, 74, 0.8)');
+                            gradient.addColorStop(1, 'rgba(255, 255, 255, 0.0)');
+                            return gradient;
                         },
-                        plugins: {
-                            legend: { display: false },
-                            tooltip: {
-                                backgroundColor: '#FFFFF',
-                                titleFont: { family: 'Fredoka', size: 14, weight: 'bold' },
-                                bodyFont: { family: 'Roboto', size: 13, weight: 'bold' },
-                                borderColor: '#000000',
-                                borderWidth: 2,
-                                cornerRadius: 6,
-                                displayColors: false,
-                                callbacks: {
-                                    label: function(context) {
-                                        let val = context.parsed.y;
-                                        let dataset = context.dataset.data;
-                                        let idx = context.dataIndex;
-                                        let diffText = "";
-                                        
-                                        if (idx > 0) {
-                                            let prevVal = dataset[idx - 1];
-                                            let diff = val - prevVal;
-                                            diffText = ` (+${diff.toLocaleString()})`;
-                                        }
-                                        
-                                        return ` Points: ${val.toLocaleString()}${diffText}`;
+                        fill: true,
+                        tension: 0.3,
+                        pointBackgroundColor: '#FFFFFF',
+                        pointBorderColor: '#000000',
+                        pointBorderWidth: 2,
+                        pointRadius: (c) => (c.chart.data.labels.length > 40 ? 0 : 4),
+                        pointHoverRadius: 6,
+                        pointHitRadius: 18
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: { mode: 'index', intersect: false },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: '#FFFFFF',
+                            titleColor: '#262C2D',
+                            bodyColor: '#262C2D',
+                            titleFont: { family: 'Fredoka', size: 14, weight: 'bold' },
+                            bodyFont: { family: 'Roboto', size: 13, weight: 'bold' },
+                            borderColor: '#000000',
+                            borderWidth: 2,
+                            cornerRadius: 6,
+                            displayColors: false,
+                            callbacks: {
+                                label: function (context) {
+                                    const val = context.parsed.y;
+                                    const idx = context.dataIndex;
+                                    let diffText = "";
+                                    if (idx > 0) {
+                                        const diff = val - context.dataset.data[idx - 1];
+                                        diffText = ` (${diff >= 0 ? '+' : ''}${diff.toLocaleString()})`;
                                     }
-                                }
-                            }
-                        },
-                        scales: {
-                            x: {
-                                grid: { color: 'rgba(0, 0, 0, 0.08)' }, 
-                                ticks: {
-                                    color: '#262C2D', 
-                                    font: { family: 'Fredoka', size: 11 }
-                                }
-                            },
-                            y: {
-                                grid: { color: 'rgba(0, 0, 0, 0.08)' }, 
-                                ticks: {
-                                    color: '#262C2D', 
-                                    font: { family: 'Roboto', size: 11, weight: 'bold' },
-                                    callback: function(value) {
-                                        if (value >= 1e9) return (value / 1e9).toFixed(1) + 'B';
-                                        if (value >= 1e6) return (value / 1e6).toFixed(1) + 'M';
-                                        if (value >= 1e3) return (value / 1e3).toFixed(1) + 'K';
-                                        return value;
-                                    }
+                                    return ` Points: ${val.toLocaleString()}${diffText}`;
                                 }
                             }
                         }
+                    },
+                    scales: {
+                        x: {
+                            grid: { color: 'rgba(0, 0, 0, 0.08)' },
+                            ticks: {
+                                color: '#262C2D',
+                                font: { family: 'Fredoka', size: 11 },
+                                maxTicksLimit: 6,
+                                maxRotation: 0
+                            }
+                        },
+                        y: {
+                            grid: { color: 'rgba(0, 0, 0, 0.08)' },
+                            ticks: {
+                                color: '#262C2D',
+                                font: { family: 'Roboto', size: 11, weight: 'bold' },
+                                callback: (value) => formatShort(value)
+                            }
+                        }
                     }
-                });
-            }
+                }
+            });
         }
 
-        async function fetchLiveTrackerData() {
+        // ---------- PLYNULÉ DOPOČÍTÁVÁNÍ BODŮ (4 kroky po 15 s) ----------
+        function stopSmoothing() {
+            if (smoothId) { clearInterval(smoothId); smoothId = null; }
+        }
+
+        function stepSmoothing() {
+            smoothStep++;
+            if (smoothStep >= 4) {
+                currentPoints = smoothTarget;
+                stopSmoothing();
+            } else {
+                currentPoints = Math.round(currentPoints + smoothChunk);
+            }
+            updateUI();
+        }
+
+        function startSmoothing(target) {
+            stopSmoothing();
+            smoothTarget = target;
+            smoothStep = 0;
+            smoothChunk = (target - currentPoints) / 4;
+            stepSmoothing();
+            if (smoothStep < 4) smoothId = setInterval(stepSmoothing, SMOOTH_MS);
+        }
+
+        // ---------- POŘADÍ V GEMECH (na pozadí, jednou za pár minut) ----------
+        async function refreshGemRank(name) {
+            if (gemRankLoading) return;
+            gemRankLoading = true;
+            let rankText = null;
+            try {
+                const res = await fetch(`${WORKER_URL}/clans?page=1&pageSize=1000&sort=DepositedDiamonds&sortOrder=desc`);
+                const json = await res.json();
+                if (json && json.status === "ok" && Array.isArray(json.data)) {
+                    const idx = json.data.findIndex(c => c.Name.toLowerCase() === name.toLowerCase());
+                    rankText = idx !== -1 ? `#${idx + 1}` : "N/A";
+                }
+            } catch (e) {}
+            if (rankText) {
+                setRankTextAndScale(document.getElementById("liveGemsRank"), rankText);
+                gemRankAt = Date.now();
+            }
+            gemRankLoading = false;
+        }
+
+        // ---------- HLAVNÍ NAČÍTÁNÍ ----------
+        function showStatus(text) {
+            const el = document.getElementById("liveStatusText");
+            if (!el) return;
+            if (text) { el.textContent = text; el.style.display = "block"; }
+            else el.style.display = "none";
+        }
+
+        function renderStatic(clan) {
+            const key = [clan.Name, clan.Desc, clan.Icon, clan.CountryCode].join("|");
+            if (key === staticKey) return;
+            staticKey = key;
+
             const titleEl = document.getElementById("liveClanTitle");
             const descEl = document.getElementById("liveClanDesc");
             const iconEl = document.getElementById("liveClanIcon");
             const flagEl = document.getElementById("liveFlag");
-            const statusEl = document.getElementById("liveStatusText");
-            const pointsRankEl = document.getElementById("livePointsRank");
-            const gemsRankEl = document.getElementById("liveGemsRank");
 
-            if (!clanName) {
-                if (statusEl) statusEl.textContent = "No clan specified!";
-                return;
+            if (titleEl) titleEl.textContent = `[${clan.Name}]`;
+            if (descEl) {
+                descEl.textContent = clan.Desc || "No description.";
+                adjustDescSize(descEl);
             }
+            if (iconEl) iconEl.src = getClanIconUrl(clan.Icon);
+            if (flagEl && clan.CountryCode) flagEl.src = getTwemojiUrl(clan.CountryCode);
+        }
+
+        async function fetchLive() {
+            if (isFetching || !clanName) return;
+            isFetching = true;
 
             try {
-                const res = await fetch(`${WORKER_URL}/clan/${clanName}`);
-                const responseData = await res.json();
+                const needBattle = !activeBattleId || (Date.now() - battleFetchedAt > BATTLE_MS);
 
+                const [clanRes, battleRes] = await Promise.all([
+                    fetch(`${WORKER_URL}/clan/${encodeURIComponent(clanName)}`),
+                    needBattle ? fetch(`${WORKER_URL}/activeClanBattle`).catch(() => null) : Promise.resolve(null)
+                ]);
+
+                const responseData = await clanRes.json();
                 if (!responseData || responseData.status !== "ok" || !responseData.data) {
-                    if (statusEl) statusEl.style.display = "none";
+                    if (isFirstLoad) showStatus("Clan not found!");
                     return;
                 }
 
-                const clan = responseData.data;
-
-                if (titleEl) titleEl.textContent = `[${clan.Name}]`;
-                if (descEl) {
-                    descEl.textContent = clan.Desc || "No description.";
-                    adjustDescSize(descEl);
+                if (battleRes) {
+                    try {
+                        const battleJson = await battleRes.json();
+                        if (battleJson && battleJson.status === "ok" && battleJson.data) {
+                            activeBattleId = battleJson.data.configName || battleJson.data.id || battleJson.data.Title || activeBattleId;
+                            battleFetchedAt = Date.now();
+                        }
+                    } catch (e) {}
                 }
-                if (iconEl) iconEl.src = getClanIconUrl(clan.Icon);
-                if (flagEl && clan.CountryCode) flagEl.src = getTwemojiUrl(clan.CountryCode);
 
-                let activeBattleId = "";
-                try {
-                    const battleRes = await fetch(`${WORKER_URL}/activeClanBattle`);
-                    const battleJson = await battleRes.json();
-                    if (battleJson && battleJson.status === "ok" && battleJson.data) {
-                        activeBattleId = battleJson.data.configName || battleJson.data.id || battleJson.data.Title || "";
-                    }
-                } catch (e) { console.warn(e); }
+                const clan = responseData.data;
+                renderStatic(clan);
 
-                let activeWarTotalPoints = 0; 
-                let activeWarPlace = null; 
+                // body a pořadí z aktivní války
+                let warPoints = 0;
+                let warPlace = null;
                 if (clan.Battles && typeof clan.Battles === 'object') {
-                    let matchedBattle = null;
-                    if (activeBattleId && clan.Battles[activeBattleId]) matchedBattle = clan.Battles[activeBattleId];
-                    else if (Array.isArray(clan.Battles)) matchedBattle = clan.Battles.find(b => b.BattleID === activeBattleId);
+                    let matched = null;
+                    if (activeBattleId && clan.Battles[activeBattleId]) matched = clan.Battles[activeBattleId];
+                    else if (Array.isArray(clan.Battles)) matched = clan.Battles.find(b => b.BattleID === activeBattleId);
                     else {
                         const keys = Object.keys(clan.Battles);
-                        if (keys.length > 0) matchedBattle = clan.Battles[keys[0]];
+                        if (keys.length > 0) matched = clan.Battles[keys[0]];
                     }
-                    if (matchedBattle) {
-                        activeWarTotalPoints = matchedBattle.Points || 0;
-                        activeWarPlace = matchedBattle.Place || null; 
+                    if (matched) {
+                        warPoints = matched.Points || 0;
+                        warPlace = matched.Place || null;
                     }
                 }
+                if (warPoints === 0 && clan.Points) warPoints = clan.Points;
 
-                if (activeWarTotalPoints === 0 && clan.Points) activeWarTotalPoints = clan.Points;
-
-                const incomingPoints = activeWarTotalPoints;
+                const incomingPoints = warPoints;
                 const incomingGems = clan.DepositedDiamonds || clan.Diamonds || 0;
-                
-                const rawMembersLength = Array.isArray(clan.Members) ? clan.Members.length : 0;
-                const incomingMembers = rawMembersLength > 0 ? rawMembersLength + 1 : 0;
+                const rawMembers = Array.isArray(clan.Members) ? clan.Members.length : 0;
+                const incomingMembers = rawMembers > 0 ? rawMembers + 1 : 0;
+
+                setRankTextAndScale(
+                    document.getElementById("livePointsRank"),
+                    (warPlace !== null && warPlace !== undefined) ? `#${warPlace}` : "N/A"
+                );
 
                 if (isFirstLoad) {
-                    currentPoints = incomingPoints;
-                    currentGems = incomingGems;
-                    currentMembers = incomingMembers;
-
-                    lastApiPoints = incomingPoints;
-                    lastApiGems = incomingGems;
-                    lastApiMembers = incomingMembers;
-
-                    currentQuarterChunk = 0;
-                    ticksCalculated = 0;
+                    currentPoints = lastApiPoints = incomingPoints;
+                    currentGems = lastApiGems = incomingGems;
+                    currentMembers = lastApiMembers = incomingMembers;
                     isFirstLoad = false;
-                    
                     updateUI();
-                    updatePointsChart(incomingPoints);
                 } else {
-                    let stateChanged = false;
+                    let changed = false;
 
                     if (incomingPoints !== lastApiPoints) {
-                        const realDelta = incomingPoints - lastApiPoints;
                         lastApiPoints = incomingPoints;
-
-                        if (realDelta > 0) {
-                            currentQuarterChunk = Math.round(realDelta / 4);
-                            ticksCalculated = 0; 
-                            startNew15sCycle();
+                        if (incomingPoints > currentPoints) {
+                            startSmoothing(incomingPoints);
                         } else {
-                            currentQuarterChunk = 0;
-                            ticksCalculated = 0;
+                            stopSmoothing();
                             currentPoints = incomingPoints;
-                            stateChanged = true;
+                            changed = true;
                         }
                     }
-
                     if (incomingGems !== lastApiGems) {
-                        currentGems = incomingGems;
-                        lastApiGems = incomingGems;
-                        stateChanged = true;
+                        currentGems = lastApiGems = incomingGems;
+                        changed = true;
                     }
-
                     if (incomingMembers !== lastApiMembers) {
-                        currentMembers = incomingMembers;
-                        lastApiMembers = incomingMembers;
-                        stateChanged = true;
+                        currentMembers = lastApiMembers = incomingMembers;
+                        changed = true;
                     }
 
-                    if (stateChanged) {
-                        updateUI();
-                    } else {
-                        updatePointsChart(currentPoints);
-                    }
+                    if (changed) updateUI();
+                    else updatePointsChart(currentPoints);
                 }
 
-                let calculatedPointsRank = "N/A";
-                if (activeWarPlace !== null && activeWarPlace !== undefined) {
-                    calculatedPointsRank = `#${activeWarPlace}`; 
-                }
-                setRankTextAndScale(pointsRankEl, calculatedPointsRank);
+                if (Date.now() - gemRankAt > GEM_RANK_MS) refreshGemRank(clan.Name);
 
-                let calculatedGemsRank = "N/A";
-                try {
-                    const listRes = await fetch(`${WORKER_URL}/clans?page=1&pageSize=1000&sort=DepositedDiamonds&sortOrder=desc`);
-                    const listJson = await listRes.json();
-                    if (listJson && listJson.status === "ok" && Array.isArray(listJson.data)) {
-                        const foundIndex = listJson.data.findIndex(c => c.Name.toLowerCase() === clan.Name.toLowerCase());
-                        if (foundIndex !== -1) calculatedGemsRank = `#${foundIndex + 1}`;
-                    }
-                } catch (e) {}
-                setRankTextAndScale(gemsRankEl, calculatedGemsRank);
-
-                if (statusEl) statusEl.style.display = "none";
+                lastOkAt = Date.now();
+                showStatus("");
 
             } catch (err) {
                 console.warn(err);
-                if (statusEl) statusEl.style.display = "none";
+                if (isFirstLoad) showStatus("Could not load data. Retrying...");
+            } finally {
+                isFetching = false;
             }
         }
 
-        function startNew15sCycle() {
-            if (simulationIntervalId) {
-                clearInterval(simulationIntervalId);
-            }
-
-            executeQuarterTick();
-
-            simulationIntervalId = setInterval(handleSimulationTick, 15000);
+        // ---------- "LIVE" ZNAČKA ----------
+        function updateBadge() {
+            const badge = document.getElementById("liveBadge");
+            const text = document.getElementById("liveBadgeText");
+            if (!badge || !text || !lastOkAt) return;
+            const s = Math.floor((Date.now() - lastOkAt) / 1000);
+            let ago;
+            if (s < 60) ago = `${s}s ago`;
+            else ago = `${Math.floor(s / 60)}m ago`;
+            text.textContent = `LIVE · ${ago}`;
+            badge.classList.toggle("is-stale", s > 60);
         }
 
-        function executeQuarterTick() {
-            if (ticksCalculated < 4 && currentQuarterChunk > 0) {
-                ticksCalculated++;
-                
-                if (ticksCalculated === 4) {
-                    currentPoints = lastApiPoints;
-                    if (simulationIntervalId) {
-                        clearInterval(simulationIntervalId);
-                        simulationIntervalId = null;
-                    }
-                } else {
-                    currentPoints += currentQuarterChunk;
-                }
-                
-                updateUI();
-            }
+        // ---------- SMYČKA ----------
+        async function pollLoop() {
+            if (!document.hidden) await fetchLive();
+            setTimeout(pollLoop, POLL_MS);
         }
 
-        function handleSimulationTick() {
-            executeQuarterTick();
-        }
-
-        function updateUI() {
-            const warPointsEl = document.getElementById("liveWarPoints");
-            if (warPointsEl) {
-                warPointsEl.innerHTML = currentPoints;
-                scaleMainWarPoints(currentPoints);
-            }
-
-            const avgPointsVal = currentMembers > 0 ? Math.round(currentPoints / currentMembers) : 0;
-
-            const gemsEl = document.getElementById("liveStatGems");
-            const avgEl = document.getElementById("liveStatAvgPoints");
-            const membersEl = document.getElementById("liveStatMembers");
-
-            if (gemsEl) {
-                gemsEl.innerHTML = currentGems;
-                setStatOdometer("liveStatGems", currentGems);
-            }
-
-            if (avgEl) {
-                avgEl.innerHTML = avgPointsVal;
-                setStatOdometer("liveStatAvgPoints", avgPointsVal);
-            }
-
-            if (membersEl) {
-                membersEl.innerHTML = currentMembers;
-                setStatOdometer("liveStatMembers", currentMembers);
-            }
-
-            if (currentPoints > 0) {
-                updatePointsChart(currentPoints);
-            }
-        }
+        document.addEventListener("visibilitychange", () => {
+            if (!document.hidden && Date.now() - lastOkAt > POLL_MS) fetchLive();
+        });
 
         window.addEventListener('DOMContentLoaded', () => {
             autoFitScreen();
-            fetchLiveTrackerData();
-            setInterval(fetchLiveTrackerData, 2000);
+            pollLoop();
+            setInterval(() => { if (!document.hidden) updateBadge(); }, 1000);
+
+            if (document.fonts && document.fonts.load) {
+                document.fonts.load("800 100px Roboto").then(renderNumbers).catch(() => {});
+            }
         });
     </script>
 
