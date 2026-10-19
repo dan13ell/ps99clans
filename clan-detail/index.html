@@ -437,20 +437,33 @@
 
         .live-stats-outline {
             position: absolute;
-            left: 368px;
-            top: 443px;
-            width: 358px;
-            height: 108px;
-            border: 4px solid #FF2B2B;
+            left: 367px;
+            top: 442px;
+            width: 360px;
+            height: 110px;
+            border: 5px solid #FF2B2B;
             border-radius: 22px;
             pointer-events: none;
             z-index: 985;
+            transition: all 0.044s cubic-bezier(0.1, 0.9, 0.2, 1);
+        }
+        .live-stats-btn:hover:not(:active) ~ .live-stats-outline {
+            left: 363px;
+            top: 439px;
+            width: 368px;
+            height: 116px;
+        }
+        .live-stats-btn:active ~ .live-stats-outline {
+            left: 370px;
+            top: 445px;
+            width: 354px;
+            height: 104px;
         }
 
         .live-stats-label {
             position: absolute;
             left: 378px;
-            top: 408px;
+            top: 412px;
             width: 338px;
             text-align: center;
             font-size: 22px;
@@ -463,25 +476,13 @@
             white-space: nowrap;
             pointer-events: none;
             z-index: 995;
+            transition: top 0.044s cubic-bezier(0.1, 0.9, 0.2, 1);
         }
-
-        .live-stats-text {
-            position: absolute;
-            left: 432px; 
-            top: 465px;  
-            width: 230px; 
-            height: 60px;
-            object-fit: contain;
-            pointer-events: none;
-            z-index: 995;
-            transform-origin: center center;
-            transition: transform 0.044s cubic-bezier(0.1, 0.9, 0.2, 1), top 0.044s cubic-bezier(0.1, 0.9, 0.2, 1), left 0.044s cubic-bezier(0.1, 0.9, 0.2, 1);
+        .live-stats-btn:hover:not(:active) ~ .live-stats-label {
+            top: 409px;
         }
-        .live-stats-btn:hover:not(:active) ~ .live-stats-text {
-            transform: scale(1.06) translate(-2px, 1px);
-        }
-        .live-stats-btn:active ~ .live-stats-text {
-            transform: scale(0.94) translate(3px, 3px);
+        .live-stats-btn:active ~ .live-stats-label {
+            top: 415px;
         }
 
         .members-scroll-area {
