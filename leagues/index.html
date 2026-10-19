@@ -889,7 +889,7 @@
         // obnova každých 5 minut, a jen když je karta vidět
         setInterval(() => {
             if (!document.hidden) fetchLeaguesData(true);
-        }, 300000);
+        }, 60000);
 
         window.addEventListener('DOMContentLoaded', () => {
             autoFitScreen();
