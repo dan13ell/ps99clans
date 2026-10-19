@@ -910,6 +910,7 @@
                 
                 <div class="live-stats-btn" id="liveStatsBtn" ></div>
                 <img class="live-stats-text" src="/images/live-stats-text.png" draggable="false">
+                <div class="live-stats-label">LIVE POINTS TRACKER</div>
                 
                 <div class="member-count-icon"></div>
                 <div class="detail-members" id="clanMemberCount" data-text="0/75">0/75</div>
@@ -1153,6 +1154,8 @@
             if (statusContainerEl) statusContainerEl.style.display = "none";
             if (liveBtn) liveBtn.style.display = "none";
             if (liveTxt) liveTxt.style.display = "none";
+            const liveLbl = document.querySelector(".live-stats-label");
+            if (liveLbl) liveLbl.style.display = "none";
         }
 
         const nameCache = {};
