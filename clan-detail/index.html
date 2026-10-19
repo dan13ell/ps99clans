@@ -1133,6 +1133,27 @@
             return finalHtml.trim() || temp.textContent.trim();
         }
 
+        // Přizpůsobí velikost statusu tak, aby se vešel nad popisek WATCH LIVE
+        function fitStatusText(containerEl, msgEl, infoEl) {
+            const MAX_HEIGHT = 130;   // místo mezi horním okrajem statusu a popiskem
+            const MAX_WIDTH = 330;
+            let size = 36;
+
+            const apply = () => {
+                msgEl.style.fontSize = size + "px";
+                infoEl.style.fontSize = Math.max(11, Math.min(24, Math.round(size * 0.65))) + "px";
+            };
+
+            apply();
+            while (
+                (containerEl.offsetHeight > MAX_HEIGHT || infoEl.scrollWidth > MAX_WIDTH) &&
+                size > 11
+            ) {
+                size--;
+                apply();
+            }
+        }
+
         function hideMemberCountUI() {
             const countIcon = document.querySelector(".member-count-icon");
             const countText = document.getElementById("clanMemberCount");
@@ -1426,6 +1447,7 @@
                     statusMsgEl.innerHTML = `"${sanitizedMessage}" - ${statusUser}`;
                     statusInfoEl.textContent = statusTime ? `(${timeAgo(statusTime)})` : "";
                     statusContainerEl.style.display = "flex";
+                    fitStatusText(statusContainerEl, statusMsgEl, statusInfoEl);
                 } else {
                     if (statusContainerEl) statusContainerEl.style.display = "none";
                 }
