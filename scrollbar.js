@@ -1,6 +1,6 @@
 // Vlastní scrollbar (jezdec vždy 15x29 px, jezdí po celé dráze) + rychlejší kolečko
 (function () {
-  const SPEED = 2.5; // rychlost kolečka, 1 = původní
+  const SPEED = 2.5; // rychlost kolečka, 1 = původn
   const SELECTORS = ".live-main-scroll-viewport, #leaderboardList, .about-scroll-container, #membersListContainer";
   const W = 15, H = 29;
 
