@@ -972,6 +972,21 @@
             return String(value);
         }
 
+        function agoLabel(t) {
+            const s = Math.max(0, Math.round((Date.now() - t) / 1000));
+            if (s < 5) return "now";
+            if (s < 60) return `${Math.round(s / 5) * 5}s ago`;
+            const m = Math.floor(s / 60);
+            if (m < 60) return `${m}m ago`;
+            return `${Math.floor(m / 60)}h ago`;
+        }
+
+        function refreshChartLabels() {
+            if (!pointsChart || document.hidden) return;
+            pointsChart.data.labels = history.map(h => agoLabel(h.t));
+            pointsChart.update('none');
+        }
+
         function updatePointsChart(pointsValue) {
             if (typeof Chart === "undefined") return;
             const canvas = document.getElementById('livePointsChart');
@@ -982,15 +997,14 @@
             const changed = !last || last.value !== pointsValue;
 
             if (changed || nowMs - lastChartAt >= 15000) {
-                const timeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-                history.push({ time: timeStr, value: pointsValue });
+                history.push({ t: nowMs, value: pointsValue });
                 if (history.length > CHART_MAX_POINTS) history.shift();
                 lastChartAt = nowMs;
             } else {
                 return;
             }
 
-            const labels = history.map(h => h.time);
+            const labels = history.map(h => agoLabel(h.t));
             const data = history.map(h => h.value);
 
             if (pointsChart) {
@@ -1284,6 +1298,7 @@
             autoFitScreen();
             pollLoop();
             setInterval(() => { if (!document.hidden) updateBadge(); }, 1000);
+            setInterval(refreshChartLabels, 5000);
 
             if (document.fonts && document.fonts.load) {
                 document.fonts.load("800 100px Roboto").then(renderNumbers).catch(() => {});
