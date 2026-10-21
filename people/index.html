@@ -216,7 +216,7 @@
         .players-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 6px;
+            gap: 0; /* karty natěsno k sobě, sousední rámečky se překrývají */
             width: 736px;
             margin-top: 40px; /* první řada pod vyhledávacím polem, ať ho pořadí nepřekrývá */
             margin-bottom: 4px;
@@ -225,7 +225,8 @@
 
         .player-card {
             position: relative;
-            width: 100%;
+            width: calc(100% + 4px);
+            margin: 0 -4px -4px 0; /* překryv o tloušťku rámečku => jedna čára mezi kartami */
             height: 112px;
             background-color: #F7FFFF;
             border: 4px solid #000000;
