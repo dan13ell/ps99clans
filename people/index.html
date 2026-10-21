@@ -522,9 +522,22 @@
 
         let playersData = [];
         let currentPage = 1;
+        let totalPages = 1;
         const itemsPerPage = 90;
         let searchQuery = "";
         let searchTimeout = null;
+        let requestCounter = 0; // ochrana proti out-of-order odpovědím při psaní
+
+        function escapeHtml(str) {
+            return String(str ?? "").replace(/[&<>"']/g, c => ({
+                "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
+            }[c]));
+        }
+
+        function showMessage(text, color = "white") {
+            const grid = document.getElementById("playersGrid");
+            grid.innerHTML = `<div style="grid-column: 1 / -1; width: 100%; text-align: center; padding: 100px 0; font-size: 28px; font-weight: 800; color: ${color}; -webkit-text-stroke: 4px black; paint-order: stroke fill;">${escapeHtml(text)}</div>`;
+        }
 
         function formatNumber(num) {
             if (num === undefined || num === null) return "0";
@@ -565,25 +578,76 @@
             const overlay = document.getElementById("loadingOverlay");
             if (overlay) overlay.style.display = "flex";
 
+            const myRequest = ++requestCounter;
+
             try {
                 const res = await fetch(`${WORKER_URL}/api/top-war-players?page=${currentPage}&pageSize=${itemsPerPage}&search=${encodeURIComponent(searchQuery)}`);
                 const json = await res.json();
+                if (myRequest !== requestCounter) return; // mezitím přišel novější dotaz
 
-                if (json && json.status === "ok" && Array.isArray(json.data)) {
+                if (!json || json.status !== "ok") {
+                    playersData = [];
+                    totalPages = 1;
+                    showMessage("API Error.", "#ff4a4a");
+                    return;
+                }
+
+                // Žádná aktivní clan war -> žádné hráče a žádné nuly
+                if (json.active === false) {
+                    playersData = [];
+                    totalPages = 1;
+                    document.getElementById("pageNumberDisplay").textContent = 1;
+                    showMessage("No active clan war.");
+                    return;
+                }
+
+                totalPages = Math.max(1, json.totalPages || 1);
+
+                if (Array.isArray(json.data) && json.data.length > 0) {
                     playersData = json.data;
                     renderGrid();
-
-                } else {
-                    const grid = document.getElementById("playersGrid");
-                    grid.innerHTML = `<div style="width: 100%; text-align: center; padding: 100px 0; font-size: 28px; font-weight: 800; color: white; -webkit-text-stroke: 4px black; paint-order: stroke fill;">No active war players found.</div>`;
+                    return;
                 }
+
+                // Nic v databázi: hráč může být mimo top 25 000 nebo mu ještě nemáme nick.
+                // Zkusíme přesné vyhledání přes Roblox nick.
+                if (searchQuery && currentPage === 1) {
+                    const single = await searchByRobloxName(searchQuery);
+                    if (myRequest !== requestCounter) return;
+                    if (single) {
+                        playersData = [single];
+                        totalPages = 1;
+                        renderGrid();
+                        return;
+                    }
+                }
+
+                playersData = [];
+                totalPages = 1;
+                document.getElementById("pageNumberDisplay").textContent = 1;
+                showMessage(searchQuery ? "Player not found in top 25,000." : "No players yet.");
             } catch (err) {
                 console.error(err);
-                const grid = document.getElementById("playersGrid");
-                grid.innerHTML = `<div style="width: 100%; text-align: center; padding: 100px 0; font-size: 28px; font-weight: 800; color: #ff4a4a; -webkit-text-stroke: 4px black; paint-order: stroke fill;">API Error.</div>`;
+                if (myRequest === requestCounter) showMessage("API Error.", "#ff4a4a");
             } finally {
-                if (overlay) overlay.style.display = "none";
+                if (myRequest === requestCounter && overlay) overlay.style.display = "none";
             }
+        }
+
+        // Přesné hledání podle Roblox nicku (worker převede nick -> ID a vrátí pořadí v top 25 000)
+        async function searchByRobloxName(name) {
+            if (!/^[A-Za-z0-9_]{3,20}$/.test(name)) return null;
+            try {
+                const res = await fetch(`${WORKER_URL}/api/player/search?name=${encodeURIComponent(name)}`);
+                const json = await res.json();
+                if (json && json.status === "ok" && json.active && json.found && json.player) {
+                    const p = json.player;
+                    return { UserID: p.userId, Username: p.username, Clan: p.clan, Points: p.points, Rank: p.rank };
+                }
+            } catch (e) {
+                console.warn("Search fallback failed:", e.message);
+            }
+            return null;
         }
 
         function renderGrid() {
@@ -596,19 +660,21 @@
             }
 
             playersData.forEach((player, index) => {
-                const absoluteRank = ((currentPage - 1) * itemsPerPage) + index + 1;
+                // Skutečné pořadí z celé databáze (správně i při hledání), ne pozice na stránce
+                const absoluteRank = player.Rank || (((currentPage - 1) * itemsPerPage) + index + 1);
                 const card = document.createElement("div");
                 card.className = "player-card";
 
                 const rankColor = (absoluteRank === 1) ? "#ffe066" : "#FFFFFF";
                 const formattedPoints = formatNumber(player.Points);
                 const imgId = `avatar-img-${player.UserID}-${index}`;
+                const displayName = player.Username || `User ${player.UserID}`;
 
                 card.innerHTML = `
                     <div class="player-rank" style="color: ${rankColor};">#${absoluteRank}</div>
                     <img class="player-avatar" id="${imgId}" src="https://placehold.co/150x150/f0f4ff/1c1d22?text=..." alt="Avatar" draggable="false">
-                    <div class="player-userid">${player.UserID}</div>
-                    <div class="player-clan-badge">${player.Clan}</div>
+                    <div class="player-userid" title="${escapeHtml(displayName)}">${escapeHtml(displayName)}</div>
+                    <div class="player-clan-badge">${escapeHtml(player.Clan)}</div>
                     <div class="player-divider"></div>
                     <div class="player-points-box">
                         <div class="points-icon"></div>
@@ -643,8 +709,10 @@
 
         document.getElementById("nextPageBtn").addEventListener("click", (e) => {
             e.preventDefault();
-            currentPage++;
-            fetchTopPlayers();
+            if (currentPage < totalPages) {
+                currentPage++;
+                fetchTopPlayers();
+            }
         });
 
         const footer = document.getElementById('leaderboardFooter');
