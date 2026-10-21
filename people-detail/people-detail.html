@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-M5T889PLGJ"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-M5T889PLGJ');
+    </script>
+
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5302554896051137"
+     crossorigin="anonymous"></script>
+
+    <link rel="icon" href="/images/favicon.png" type="image/png">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>PS99 Clans - Player</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <link rel="preload" as="image" href="/images/main-menu.png">
+    <link rel="preload" as="image" href="/images/X.png">
+    <link rel="preload" as="image" href="/images/X-clicked.png">
+    <link rel="preload" as="image" href="/images/scroller.png">
+    <link rel="preload" as="image" href="/images/Back-text.png">
+    <link rel="preload" as="image" href="/images/back-button.png">
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Fredoka', sans-serif !important;
+            font-weight: 600;
+            user-select: none;
+        }
+
+        body {
+            background-color: #89b3f9;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .app-scaler {
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transform-origin: center center;
+        }
+
+        .game-window {
+            position: relative;
+            display: inline-block;
+            overflow: visible;
+        }
+
+        .menu-bg {
+            display: block;
+            width: auto;
+            height: auto;
+            filter: drop-shadow(0px 10px 20px rgba(0, 0, 0, 0.35));
+        }
+
+        .clans-logo {
+            position: absolute;
+            left: -36px;
+            top: -69px;
+            width: 315px;
+            height: 117px;
+            background: url("/images/clans-logo.png") no-repeat center center;
+            background-size: 100% 100%;
+            z-index: 998;
+        }
+
+        .close-btn {
+            position: absolute;
+            left: 1044px; 
+            top: -30px; 
+            width: 72px;  
+            height: 73px; 
+            background: url("/images/X.png") no-repeat center center;
+            background-size: 100% 100%;
+            cursor: pointer;
+            z-index: 999;
+            filter: drop-shadow(0px 4px 6px rgba(0, 0, 0, 0.35));
+            transition: all 0.044s cubic-bezier(0.1, 0.9, 0.2, 1);
+        }
+
+        .close-btn:hover:not(:active) { left: 1042px; top: -34px; width: 76px; height: 77px; }
+        .close-btn:active { background-image: url("/images/X-clicked.png"); left: 1047px; top: -29px; width: 66px; height: 67px; }
+
+        .menu-btn {
+            position: absolute;
+            left: 14px;
+            width: 306px;
+            height: 84px;
+            background-size: 100% 100%;
+            background-repeat: no-repeat;
+            background-position: center;
+            cursor: pointer;
+            z-index: 900;
+            background-image: url("/images/grey.png");
+            transition: all 0.044s cubic-bezier(0.1, 0.9, 0.2, 1);
+        }
+
+        .menu-btn:hover:not(:active) { left: 11px; width: 315px; height: 88px; z-index: 920; }
+        .menu-btn:active { background-image: url("/images/grey-clicked.png"); left: 20px; width: 294px; height: 78px; z-index: 900; }
+
+        .menu-btn.is-active { background-image: url("https://i.postimg.cc/JhX56QnL/selected.png"); }
+        .menu-btn.is-active:active { background-image: url("/images/selected-clicked.png"); left: 20px; width: 294px; height: 78px; z-index: 900; }
+
+        .btn-clans { top: 34px; }
+        .btn-topclans { top: 124px; }
+        .btn-people { top: 214px; }
+        .btn-search { top: 304px; }
+
+        .menu-text {
+            position: absolute;
+            pointer-events: none;
+            z-index: 950;
+            transform-origin: center center;
+            transition: transform 0.044s cubic-bezier(0.1, 0.9, 0.2, 1), top 0.044s cubic-bezier(0.1, 0.9, 0.2, 1), left 0.044s cubic-bezier(0.1, 0.9, 0.2, 1);
+        }
+
+        .text-clans { left: 100px; top: 52px; }
+        .text-topclans { left: 53px; top: 140px; }
+        .text-people { left: 76px; top: 230px; }
+        .text-search { left: 88px; top: 322px; }
+
+        .btn-clans:hover:not(:active) ~ .text-clans { transform: scale(1.06) translate(-3px, 2px); }
+        .btn-topclans:hover:not(:active) ~ .text-topclans { transform: scale(1.06) translate(-3px, 2px); }
+        .btn-people:hover:not(:active) ~ .text-people { transform: scale(1.06) translate(-3px, 2px); }
+        .btn-search:hover:not(:active) ~ .text-search { transform: scale(1.06) translate(-3px, 2px); }
+
+        .btn-clans:hover:not(:active) ~ .btn-topclans { top: 128px; }
+        .btn-clans:hover:not(:active) ~ .text-topclans { top: 144px; }
+        .btn-clans:hover:not(:active) ~ .btn-people { top: 218px; }
+        .btn-clans:hover:not(:active) ~ .text-people { top: 234px; }
+        .btn-clans:hover:not(:active) ~ .btn-search { top: 308px; }
+        .btn-clans:hover:not(:active) ~ .text-search { top: 326px; }
+
+        .btn-topclans:hover:not(:active) ~ .btn-people { top: 218px; }
+        .btn-topclans:hover:not(:active) ~ .text-people { top: 234px; }
+        .btn-topclans:hover:not(:active) ~ .btn-search { top: 308px; }
+        .btn-topclans:hover:not(:active) ~ .text-search { top: 326px; }
+
+        .btn-people:hover:not(:active) ~ .btn-search { top: 308px; }
+        .btn-people:hover:not(:active) ~ .text-search { top: 326px; }
+
+        .tab-content {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            padding: 0;
+            z-index: 850;
+        }
+
+
+        /* ===== people-detail ===== */
+        .custom-back-btn {
+            position: absolute;
+            left: 19px;
+            top: 472px;
+            width: 254px;
+            height: 79px;
+            background: url("/images/back-button.png") no-repeat center center;
+            background-size: 100% 100%;
+            cursor: pointer;
+            z-index: 990;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: transform 0.044s cubic-bezier(0.1, 0.9, 0.2, 1);
+            transform-origin: center center;
+            filter: drop-shadow(0px 4px 6px rgba(0, 0, 0, 0.15));
+            -webkit-tap-highlight-color: transparent;
+        }
+        .custom-back-btn:hover:not(:active) { transform: scale(1.05); }
+        .custom-back-btn:active { background-image: url("/images/back-button-clicked.png"); transform: scale(0.95); }
+        .custom-back-btn:active .custom-back-text { transform: translateY(1px); }
+        .custom-back-text {
+            width: 101px;
+            height: 39px;
+            pointer-events: none;
+            transform: translateY(-2px);
+            transition: transform 0.044s cubic-bezier(0.1, 0.9, 0.2, 1);
+        }
+
+        .pd-content { display: none; }
+        .pd-content.is-visible { display: block; }
+
+        .pd-avatar {
+            position: absolute;
+            left: 350px;
+            top: 22px;
+            width: 175px;
+            height: 175px;
+            border-radius: 14px;
+            background-color: #FFFFFF;
+            object-fit: cover;
+            z-index: 910;
+        }
+
+        .pd-name {
+            position: absolute;
+            left: 548px;
+            top: 22px;
+            font-size: 48px;
+            line-height: 1.2;
+            color: #000000;
+            -webkit-text-stroke: 6px #000000;
+            stroke-linejoin: round;
+            -webkit-stroke-linejoin: round;
+            paint-order: stroke fill;
+            font-weight: 800 !important;
+            z-index: 910;
+            white-space: nowrap;
+        }
+        .pd-name::after {
+            content: attr(data-text);
+            position: absolute;
+            left: 0;
+            top: 0;
+            -webkit-text-stroke: 0px transparent;
+            background: linear-gradient(to bottom, #7CF6FA, #60E0FE);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .pd-clan {
+            position: absolute;
+            left: 550px;
+            top: 88px;
+            height: 46px;
+            padding: 0 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background-color: #F7FFFF;
+            border: 4px solid #000000;
+            border-radius: 12px;
+            cursor: pointer;
+            z-index: 910;
+            -webkit-tap-highlight-color: transparent;
+            transition: transform 0.044s cubic-bezier(0.1, 0.9, 0.2, 1);
+        }
+        .pd-clan:hover:not(:active) { transform: scale(1.05); }
+        .pd-clan:active { transform: scale(0.95); }
+        .pd-clan-label { font-size: 20px; font-weight: 700 !important; color: #696A6E; }
+        .pd-clan-tag {
+            font-size: 28px;
+            color: #FEFEFE;
+            -webkit-text-stroke: 7px #000000;
+            stroke-linejoin: round;
+            -webkit-stroke-linejoin: round;
+            paint-order: stroke fill;
+            font-weight: 800 !important;
+            white-space: nowrap;
+        }
+
+        .pd-points-icon {
+            position: absolute;
+            left: 550px;
+            top: 148px;
+            width: 51px;
+            height: 41px;
+            object-fit: contain;
+            z-index: 910;
+        }
+        .pd-points {
+            position: absolute;
+            left: 610px;
+            top: 140px;
+            font-size: 40px;
+            color: #FEFEFE;
+            -webkit-text-stroke: 6px #000000;
+            stroke-linejoin: round;
+            -webkit-stroke-linejoin: round;
+            paint-order: stroke fill;
+            font-weight: 800 !important;
+            white-space: nowrap;
+            z-index: 910;
+        }
+
+        .pd-rank {
+            position: absolute;
+            left: 552px;
+            top: 202px;
+            display: flex;
+            align-items: baseline;
+            gap: 8px;
+            white-space: nowrap;
+            z-index: 910;
+        }
+        .pd-rank-label { font-size: 20px; font-weight: 700 !important; color: #696A6E; }
+        .pd-rank-num {
+            font-size: 30px;
+            color: #FEFEFE;
+            -webkit-text-stroke: 6px #000000;
+            stroke-linejoin: round;
+            -webkit-stroke-linejoin: round;
+            paint-order: stroke fill;
+            font-weight: 800 !important;
+        }
+        .pd-rank-total { font-size: 20px; font-weight: 700 !important; color: #696A6E; }
+
+        .pd-chart-card {
+            position: absolute;
+            left: 348px;
+            top: 246px;
+            width: 742px;
+            height: 304px;
+            background-color: #F7FFFF;
+            border: 4px solid #000000;
+            border-radius: 12px;
+            z-index: 910;
+        }
+        .pd-chart-title {
+            position: absolute;
+            left: 18px;
+            top: 8px;
+            font-size: 26px;
+            font-weight: 800 !important;
+            color: #2B2B2B;
+            white-space: nowrap;
+        }
+        .pd-chart-info {
+            position: absolute;
+            right: 18px;
+            top: 13px;
+            font-size: 19px;
+            font-weight: 700 !important;
+            color: #696A6E;
+            white-space: nowrap;
+            text-align: right;
+        }
+        .pd-chart-svg { position: absolute; left: 6px; top: 44px; width: 726px; height: 250px; overflow: visible; }
+        .pd-chart-svg text { font-family: 'Fredoka', sans-serif; font-weight: 700; font-size: 14px; fill: #696A6E; }
+        .pd-hit { fill: transparent; cursor: pointer; }
+        .pd-hit:hover + .pd-bar, .pd-bar.is-hover { filter: brightness(1.08); }
+
+        .pd-chart-msg {
+            position: absolute;
+            left: 0; right: 0; top: 70px;
+            text-align: center;
+            padding: 0 40px;
+            display: none;
+        }
+        .pd-chart-msg.is-visible { display: block; }
+        .pd-chart-msg-main { font-size: 34px; font-weight: 800 !important; color: #262C2D; line-height: 1.15; margin-bottom: 8px; }
+        .pd-chart-msg-sub { font-size: 22px; font-weight: 700 !important; color: #9E9E9E; line-height: 1.2; }
+
+        .pd-center-msg {
+            position: absolute;
+            left: 334px;
+            top: 210px;
+            width: 770px;
+            text-align: center;
+            padding: 0 40px;
+            font-size: 34px;
+            font-weight: 800 !important;
+            color: #B1B1B1;
+            z-index: 950;
+        }
+        .pd-center-msg.is-error { color: #ff4a4a; }
+
+        html, body {
+            width: 100vw;
+            height: 100dvh;
+            margin: 0;
+            padding: 0;
+            overflow: hidden !important;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            overscroll-behavior: none !important;
+            touch-action: none;
+        }
+
+
+        .ps99-feedback-btn {
+            position: fixed;
+            top: 14px;
+            right: 14px;
+            z-index: 99999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 5px 13px;
+            background: #FFFFFF;
+            border: 2.5px solid #000000;
+            border-radius: 9px;
+            color: #000000;
+            font-size: 13.5px;
+            font-weight: 600 !important;
+            font-family: 'Fredoka', sans-serif !important;
+            text-decoration: none;
+            box-shadow: 0 3px 0 #000000, 0 5px 10px rgba(0, 0, 0, 0.2);
+            cursor: pointer;
+            transition: transform 0.044s cubic-bezier(0.1, 0.9, 0.2, 1), 
+                        box-shadow 0.044s cubic-bezier(0.1, 0.9, 0.2, 1), 
+                        background-color 0.044s cubic-bezier(0.1, 0.9, 0.2, 1);
+            user-select: none;
+        }
+
+        .ps99-feedback-btn:hover:not(:active) {
+            background-color: #F0F4FF;
+            transform: translateY(-1.5px) scale(1.02);
+            box-shadow: 0 4.5px 0 #000000, 0 7px 12px rgba(0, 0, 0, 0.25);
+        }
+
+        .ps99-feedback-btn:active {
+            transform: translateY(2px) scale(0.96);
+            box-shadow: 0 1px 0 #000000, 0 2px 4px rgba(0, 0, 0, 0.2);
+            background-color: #E2E8F0;
+        }
+
+        .privacy-link {
+            position: fixed;
+            bottom: 14px;
+            right: 14px;
+            z-index: 99999;
+            color: #FFFFFF;
+            font-size: 13px;
+            font-weight: 700 !important;
+            text-decoration: underline;
+            -webkit-text-stroke: 2.5px #000000;
+            paint-order: stroke fill;
+            cursor: pointer;
+            opacity: 0.8;
+            transition: opacity 0.2s ease;
+        }
+
+        .privacy-link:hover {
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="app-scaler" id="appScaler">
+        <div class="game-window">
+            <img class="menu-bg" src="/images/main-menu.png" draggable="false">
+            
+            <div class="clans-logo"></div>
+        <div class="menu-btn btn-clans" onclick="location.href='/'"></div>
+        <div class="menu-btn btn-topclans" onclick="location.href='/topclans/'"></div>
+        <div class="menu-btn btn-people" onclick="location.href='/leagues/'"></div>
+        <div class="menu-btn btn-search is-active" onclick="location.href='/people/'"></div>
+        
+        <img class="menu-text text-clans" src="/images/text-Clans.png" draggable="false">
+        <img class="menu-text text-topclans" src="/images/text-Top-Clans.png" draggable="false">
+        <img class="menu-text text-people" src="/images/leagues-text.png" draggable="false">
+        <img class="menu-text text-search" src="/images/text-People.png" draggable="false">
+
+            <div class="tab-content">
+                <div class="custom-back-btn" onclick="location.href='/people/'">
+                    <img class="custom-back-text" src="/images/Back-text.png" draggable="false">
+                </div>
+
+                <div class="pd-center-msg" id="centerMsg">Loading player...</div>
+
+                <div class="pd-content" id="pdContent">
+                    <img class="pd-avatar" id="pdAvatar" src="data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==" alt="" draggable="false">
+                    <div class="pd-name" id="pdName" data-text="">&nbsp;</div>
+
+                    <div class="pd-clan" id="pdClan">
+                        <span class="pd-clan-label">Clan</span>
+                        <span class="pd-clan-tag" id="pdClanTag">-</span>
+                    </div>
+
+                    <img class="pd-points-icon" src="/images/stars.png" draggable="false" alt="">
+                    <div class="pd-points" id="pdPoints">0</div>
+
+                    <div class="pd-rank">
+                        <span class="pd-rank-label">Rank</span>
+                        <span class="pd-rank-num" id="pdRankNum">#-</span>
+                        <span class="pd-rank-total" id="pdRankTotal"></span>
+                    </div>
+
+                    <div class="pd-chart-card">
+                        <div class="pd-chart-title">Points per hour</div>
+                        <div class="pd-chart-info" id="pdChartInfo"></div>
+                        <svg class="pd-chart-svg" id="pdChartSvg" viewBox="0 0 726 250"></svg>
+                        <div class="pd-chart-msg" id="pdChartMsg">
+                            <div class="pd-chart-msg-main" id="pdChartMsgMain"></div>
+                            <div class="pd-chart-msg-sub" id="pdChartMsgSub"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="close-btn" onclick="location.href='/people/'"></div>
+        </div>
+    </div>
+
+    <script>
+        const WORKER_URL = "https://rough-pine-d90f.ps99clans.workers.dev";
+        const NAME_MAX_WIDTH = 480;
+
+        const $ = id => document.getElementById(id);
+
+        function escapeHtml(str) {
+            return String(str ?? "").replace(/[&<>"']/g, c => ({
+                "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
+            }[c]));
+        }
+
+        function formatNumber(num) {
+            if (num === undefined || num === null || isNaN(num)) return "0";
+            const fmt = (v, suffix) => (v >= 100 ? Math.round(v) : v.toFixed(1).replace(/\.0$/, "")) + suffix;
+            if (num >= 1e9) return fmt(num / 1e9, "b");
+            if (num >= 1e6) return fmt(num / 1e6, "m");
+            if (num >= 1e3) return fmt(num / 1e3, "k");
+            return String(Math.round(num));
+        }
+
+        function fullNumber(num) {
+            return Number(num || 0).toLocaleString("en-US");
+        }
+
+        function showCenter(text, isError = false) {
+            $("pdContent").classList.remove("is-visible");
+            const el = $("centerMsg");
+            el.textContent = text;
+            el.classList.toggle("is-error", isError);
+            el.style.display = "block";
+        }
+
+        // Zmenšuje písmo nicku, dokud se nevejde do NAME_MAX_WIDTH (48px -> 20px)
+        function fitTitle() {
+            const el = $("pdName");
+            let size = 48;
+            const apply = () => {
+                el.style.fontSize = size + "px";
+                el.style.webkitTextStroke = Math.max(3, Math.round(size / 8)) + "px #000000";
+            };
+            apply();
+            while (el.offsetWidth > NAME_MAX_WIDTH && size > 20) {
+                size -= 1;
+                apply();
+            }
+        }
+
+        function setName(name) {
+            const el = $("pdName");
+            el.textContent = name;
+            el.setAttribute("data-text", name);
+            document.title = `${name} - PS99 Clans`;
+            fitTitle();
+        }
+
+        async function loadAvatar(userId) {
+            try {
+                const res = await fetch(`${WORKER_URL}/roblox/avatars?userIds=${userId}&size=420x420&format=Png&isCircular=false`);
+                const json = await res.json();
+                const item = (json.data || []).find(x => x && Number(x.targetId) === userId && x.imageUrl);
+                if (item) $("pdAvatar").src = item.imageUrl;
+            } catch (e) {
+                console.warn("Avatar se nepodařilo načíst:", e.message);
+            }
+        }
+
+        async function loadMissingName(userId) {
+            try {
+                const res = await fetch(`${WORKER_URL}/roblox/users`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ userIds: [userId] }),
+                });
+                const json = await res.json();
+                const u = (json.data || []).find(x => x && Number(x.id) === userId && x.name);
+                if (u) setName(u.name);
+            } catch (e) {
+                console.warn("Jméno se nepodařilo načíst:", e.message);
+            }
+        }
+
+        // ---------- Graf bodů za hodinu (vlastní SVG, bez externí knihovny) ----------
+        function niceMax(v) {
+            if (v <= 1) return 1;
+            const p = Math.pow(10, Math.floor(Math.log10(v)));
+            const f = v / p;
+            return (f <= 1 ? 1 : f <= 2 ? 2 : f <= 5 ? 5 : 10) * p;
+        }
+
+        function hourLabel(ts) {
+            return String(new Date(ts * 1000).getHours()).padStart(2, "0") + ":00";
+        }
+
+        function renderChart(history) {
+            const svg = $("pdChartSvg");
+            const msg = $("pdChartMsg");
+            const info = $("pdChartInfo");
+            msg.classList.remove("is-visible");
+            svg.style.display = "block";
+
+            const W = 726, H = 250, padL = 52, padR = 8, padT = 12, padB = 30;
+            const slots = 24;
+            const slotW = (W - padL - padR) / slots;
+            const barW = Math.round(slotW * 0.68);
+            const plotH = H - padT - padB;
+
+            const gains = history.map(h => h.gain);
+            const total = gains.reduce((a, b) => a + b, 0);
+            const max = niceMax(Math.max(...gains, 1));
+            const currentHour = Math.floor(Date.now() / 3600000) * 3600;
+            const defaultInfo = `Last ${history.length}h: +${formatNumber(total)}`;
+            info.textContent = defaultInfo;
+
+            let out = "";
+            // vodorovné čáry a popisky osy Y
+            [0, 0.5, 1].forEach(f => {
+                const y = padT + plotH - f * plotH;
+                out += `<line x1="${padL}" y1="${y}" x2="${W - padR}" y2="${y}" stroke="${f === 0 ? "#2B2B2B" : "#D5E3E3"}" stroke-width="${f === 0 ? 3 : 2}" stroke-linecap="round"/>`;
+                out += `<text x="${padL - 8}" y="${y + 5}" text-anchor="end">${formatNumber(max * f)}</text>`;
+            });
+
+            history.forEach((h, i) => {
+                const x = padL + i * slotW + (slotW - barW) / 2;
+                const bh = h.gain > 0 ? Math.max(4, (h.gain / max) * plotH) : 0;
+                const isCurrent = h.hour === currentHour;
+                if (bh > 0) {
+                    out += `<rect class="pd-bar" id="pdBar${i}" x="${x}" y="${padT + plotH - bh}" width="${barW}" height="${bh}" rx="4" fill="${isCurrent ? "#BFF3FF" : "#60E0FE"}" stroke="#000" stroke-width="3"${isCurrent ? ' stroke-dasharray="5 3"' : ""}/>`;
+                } else {
+                    out += `<rect x="${x}" y="${padT + plotH - 3}" width="${barW}" height="3" rx="1.5" fill="#CFE0E0"/>`;
+                }
+                if (i % 3 === 0) {
+                    out += `<text x="${x + barW / 2}" y="${H - 8}" text-anchor="middle">${hourLabel(h.hour)}</text>`;
+                }
+                out += `<rect class="pd-hit" data-i="${i}" x="${padL + i * slotW}" y="${padT}" width="${slotW}" height="${plotH}"/>`;
+            });
+            svg.innerHTML = out;
+
+            const show = i => {
+                const h = history[i];
+                if (!h) return;
+                const hh = hourLabel(h.hour);
+                const end = hh.slice(0, 2) + ":59";
+                info.textContent = `${hh}-${end}: +${fullNumber(h.gain)}${h.hour === currentHour ? " (so far)" : ""}`;
+            };
+            svg.onmouseover = e => { const t = e.target.closest("[data-i]"); if (t) show(+t.dataset.i); };
+            svg.onclick = e => { const t = e.target.closest("[data-i]"); if (t) show(+t.dataset.i); };
+            svg.onmouseleave = () => { info.textContent = defaultInfo; };
+        }
+
+        function renderNoChart(main, sub) {
+            $("pdChartSvg").style.display = "none";
+            $("pdChartInfo").textContent = "";
+            $("pdChartMsgMain").textContent = main;
+            $("pdChartMsgSub").textContent = sub;
+            $("pdChartMsg").classList.add("is-visible");
+        }
+
+        // ---------- Načtení hráče ----------
+        async function loadPlayer() {
+            const userId = parseInt(new URLSearchParams(location.search).get("id"), 10);
+            if (!userId) { showCenter("Player not found."); return; }
+
+            try {
+                const res = await fetch(`${WORKER_URL}/api/player/${userId}`);
+                const json = await res.json();
+
+                if (!json || json.status !== "ok") { showCenter("API Error.", true); return; }
+                if (!json.found || !json.player) {
+                    showCenter(json.message || "Player not found in top 25,000.");
+                    return;
+                }
+
+                const p = json.player;
+                $("centerMsg").style.display = "none";
+                $("pdContent").classList.add("is-visible");
+
+                setName(p.username || `User ${p.userId}`);
+                $("pdClanTag").textContent = p.clan || "-";
+                $("pdClan").onclick = () => { if (p.clan) location.href = `/clan-detail/?name=${encodeURIComponent(p.clan)}`; };
+                $("pdPoints").textContent = fullNumber(p.points);
+                $("pdRankNum").textContent = `#${fullNumber(p.rank)}`;
+                $("pdRankTotal").textContent = `of ${fullNumber(p.total)}`;
+
+                loadAvatar(p.userId);
+                if (!p.username) loadMissingName(p.userId);
+
+                // Graf jen při aktivní válce; po jejím konci se místo něj ukáže hláška (žádné nuly)
+                if (json.active && Array.isArray(json.history) && json.history.length > 0) {
+                    renderChart(json.history);
+                } else if (json.active) {
+                    renderNoChart("No data yet", "The graph fills in hour by hour during the clan war.");
+                } else {
+                    renderNoChart("Clan war is not active", "The hourly graph is shown during a clan war.");
+                }
+            } catch (err) {
+                console.error(err);
+                showCenter("API Error.", true);
+            }
+        }
+
+        function autoFitScreen() {
+            const scaler = $("appScaler");
+            if (!scaler) return;
+            const winW = window.innerWidth;
+            const winH = window.innerHeight;
+            if (winW >= 1150) {
+                document.body.classList.remove("is-mobile");
+                scaler.style.transform = "none";
+                return;
+            }
+            document.body.classList.add("is-mobile");
+            const scale = Math.min(winW / 1120, winH / 650) * 0.92;
+            scaler.style.transform = `scale(${scale})`;
+        }
+
+        window.addEventListener("resize", autoFitScreen);
+        window.addEventListener("orientationchange", autoFitScreen);
+        window.addEventListener("DOMContentLoaded", autoFitScreen);
+        window.addEventListener("DOMContentLoaded", loadPlayer);
+        if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitTitle);
+    </script>
+
+    <a href="https://forms.gle/2DWB7Hzcv2XZ1PVCA" target="_blank" class="ps99-feedback-btn">
+        FEEDBACK
+    </a>
+
+    <a href="/privacy/" class="privacy-link">Privacy Policy</a>
+    <script src="/scrollbar.js"></script>
+</body>
+</html>
