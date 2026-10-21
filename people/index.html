@@ -592,15 +592,6 @@
                     return;
                 }
 
-                // Žádná aktivní clan war -> žádné hráče a žádné nuly
-                if (json.active === false) {
-                    playersData = [];
-                    totalPages = 1;
-                    document.getElementById("pageNumberDisplay").textContent = 1;
-                    showMessage("No active clan war.");
-                    return;
-                }
-
                 totalPages = Math.max(1, json.totalPages || 1);
 
                 if (Array.isArray(json.data) && json.data.length > 0) {
@@ -640,7 +631,7 @@
             try {
                 const res = await fetch(`${WORKER_URL}/api/player/search?name=${encodeURIComponent(name)}`);
                 const json = await res.json();
-                if (json && json.status === "ok" && json.active && json.found && json.player) {
+                if (json && json.status === "ok" && json.found && json.player) {
                     const p = json.player;
                     return { UserID: p.userId, Username: p.username, Clan: p.clan, Points: p.points, Rank: p.rank };
                 }
@@ -664,6 +655,10 @@
                 const absoluteRank = player.Rank || (((currentPage - 1) * itemsPerPage) + index + 1);
                 const card = document.createElement("div");
                 card.className = "player-card";
+                card.style.cursor = "pointer";
+                card.addEventListener("click", () => {
+                    location.href = `/people-detail/?id=${encodeURIComponent(player.UserID)}`;
+                });
 
                 const rankColor = (absoluteRank === 1) ? "#ffe066" : "#FFFFFF";
                 const formattedPoints = formatNumber(player.Points);
