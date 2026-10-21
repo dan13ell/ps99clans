@@ -594,8 +594,18 @@
 
                 totalPages = Math.max(1, json.totalPages || 1);
 
-                if (Array.isArray(json.data) && json.data.length > 0) {
-                    playersData = json.data;
+                const list = Array.isArray(json.data) ? json.data.slice() : [];
+
+                // Hledání: přesný nick dáme na první místo, i když ho databáze ještě nezná podle jména
+                if (searchQuery && currentPage === 1 && list.length > 0 &&
+                    !list.some(p => (p.Username || "").toLowerCase() === searchQuery.toLowerCase())) {
+                    const exact = await searchByRobloxName(searchQuery);
+                    if (myRequest !== requestCounter) return;
+                    if (exact && !list.some(p => p.UserID === exact.UserID)) list.unshift(exact);
+                }
+
+                if (list.length > 0) {
+                    playersData = list;
                     renderGrid();
                     return;
                 }
@@ -668,7 +678,7 @@
                 card.innerHTML = `
                     <div class="player-rank" style="color: ${rankColor};">#${absoluteRank}</div>
                     <img class="player-avatar" id="${imgId}" src="https://placehold.co/150x150/f0f4ff/1c1d22?text=..." alt="Avatar" draggable="false">
-                    <div class="player-userid" title="${escapeHtml(displayName)}">${escapeHtml(displayName)}</div>
+                    <div class="player-userid" id="name-${player.UserID}-${index}" title="${escapeHtml(displayName)}">${escapeHtml(displayName)}</div>
                     <div class="player-clan-badge">${escapeHtml(player.Clan)}</div>
                     <div class="player-divider"></div>
                     <div class="player-points-box">
@@ -680,8 +690,45 @@
             });
 
             loadAllAvatarsBatch(playersData);
+            fillMissingNames(playersData);
 
             document.getElementById("pageNumberDisplay").textContent = currentPage;
+        }
+
+        // Hráčům bez jména dotáhne nick přes worker (/roblox/users) a doplní ho do karet
+        async function fillMissingNames(players) {
+            const myRequest = requestCounter;
+            const missing = players.map((p, i) => ({ p, i })).filter(x => !x.p.Username);
+            if (missing.length === 0) return;
+
+            for (let attempt = 0; attempt < 2; attempt++) {
+                try {
+                    const ids = missing.map(x => x.p.UserID).slice(0, 100);
+                    const res = await fetch(`${WORKER_URL}/roblox/users`, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ userIds: ids }),
+                    });
+                    const json = await res.json();
+                    if (myRequest !== requestCounter) return; // stránka se mezitím změnila
+                    const names = {};
+                    (json.data || []).forEach(u => { if (u && u.id && u.name) names[u.id] = u.name; });
+
+                    for (const x of missing) {
+                        const name = names[x.p.UserID];
+                        const el = document.getElementById(`name-${x.p.UserID}-${x.i}`);
+                        if (name && el) {
+                            x.p.Username = name;
+                            el.textContent = name;
+                            el.title = name;
+                        }
+                    }
+                    if (missing.every(x => x.p.Username)) return;
+                } catch (err) {
+                    console.warn("Doplnění jmen selhalo:", err.message);
+                }
+                await new Promise(r => setTimeout(r, 800));
+            }
         }
 
         document.getElementById("playerSearch").addEventListener("input", (e) => {
