@@ -212,27 +212,27 @@
             image-rendering: pixelated; 
         }
 
-        /* ===== Karty hráčů: styl clan-row z top-clans, 3 vedle sebe ===== */
+        /* ===== Karty hráčů: styl clan-row z top-clans, na výšku, 3 vedle sebe ===== */
         .players-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 0; /* karty natěsno k sobě, sousední rámečky se překrývají */
+            gap: 8px;
             width: 736px;
             margin-top: 40px; /* první řada pod vyhledávacím polem, ať ho pořadí nepřekrývá */
             margin-bottom: 4px;
-            min-height: 112px;
+            min-height: 214px;
         }
 
         .player-card {
             position: relative;
-            width: calc(100% + 4px);
-            margin: 0 -4px -4px 0; /* překryv o tloušťku rámečku => jedna čára mezi kartami */
-            height: 112px;
+            width: 100%;
+            height: 214px;
             background-color: #F7FFFF;
             border: 4px solid #000000;
             border-radius: 12px;
             cursor: pointer;
             flex-shrink: 0;
+            -webkit-tap-highlight-color: transparent;
             transition: transform 0.044s cubic-bezier(0.1, 0.9, 0.2, 1);
         }
         .player-card:hover { transform: scale(1.03); z-index: 10; }
@@ -254,28 +254,32 @@
         }
         .player-rank.is-long { font-size: 26px; top: -11px; }
 
+        /* velký avatar uprostřed nahoře */
         .player-avatar {
             position: absolute;
-            left: 8px;
-            top: 8px;
-            width: 88px;
-            height: 88px;
-            border-radius: 8px;
+            left: 50%;
+            top: 10px;
+            width: 100px;
+            height: 100px;
+            margin-left: -50px;
+            border-radius: 10px;
             background-color: #ffffff;
             object-fit: cover;
             pointer-events: none;
             z-index: 10;
         }
 
+        /* nick na celou šířku karty, velikost písma se přizpůsobí (JS fitName) */
         .player-userid {
             position: absolute;
-            left: 99px;
-            top: 6px;
-            width: 128px;
-            padding: 0 6px 0 4px;
-            margin-left: -4px;
-            font-size: 23px;
-            line-height: 1.25;
+            left: 0;
+            top: 116px;
+            width: 100%;
+            height: 34px;
+            padding: 0 8px;
+            font-size: 25px;
+            line-height: 34px;
+            text-align: center;
             color: #FEFEFE;
             -webkit-text-stroke: 7px #000000;
             stroke-linejoin: round;
@@ -285,44 +289,30 @@
             text-shadow: none !important;
             white-space: nowrap;
             overflow: hidden;
-            text-overflow: ellipsis;
-            pointer-events: none;
-        }
-
-        .player-clan-badge {
-            position: absolute;
-            left: 99px;
-            top: 38px;
-            width: 128px;
-            font-size: 17px;
-            font-weight: 700 !important;
-            font-style: italic;
-            color: #2B2B2B;
-            line-height: 1;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
+            text-overflow: ellipsis; /* jen nouzově, když by nick nevešel ani v nejmenším písmu */
             pointer-events: none;
         }
 
         .player-points-box {
             position: absolute;
-            left: 96px;
-            top: 58px;
+            left: 0;
+            right: 0;
+            top: 152px;
             display: flex;
             align-items: center;
-            gap: 4px;
+            justify-content: center;
+            gap: 5px;
             pointer-events: none;
         }
         .points-icon {
-            width: 33px;
-            height: 27px;
+            width: 35px;
+            height: 29px;
             background: url("/images/stars.png") no-repeat center center;
             background-size: 100% 100%;
             flex-shrink: 0;
         }
         .player-points {
-            font-size: 25px;
+            font-size: 28px;
             color: #FEFEFE;
             -webkit-text-stroke: 8px #000000;
             stroke-linejoin: round;
@@ -331,6 +321,24 @@
             font-weight: 800 !important;
             text-shadow: none !important;
             white-space: nowrap;
+        }
+
+        .player-clan-badge {
+            position: absolute;
+            left: 0;
+            top: 187px;
+            width: 100%;
+            padding: 0 10px;
+            text-align: center;
+            font-size: 18px;
+            font-weight: 700 !important;
+            font-style: italic;
+            color: #2B2B2B;
+            line-height: 1;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            pointer-events: none;
         }
 
         .loading-overlay {
@@ -532,7 +540,7 @@
         let playersData = [];
         let currentPage = 1;
         let totalPages = 1;
-        const itemsPerPage = 90;
+        const itemsPerPage = 60;
         let searchQuery = "";
         let searchTimeout = null;
         let requestCounter = 0; // ochrana proti out-of-order odpovědím při psaní
@@ -703,8 +711,30 @@
 
             loadAllAvatarsBatch(playersData);
             fillMissingNames(playersData);
+            fitAllNames();
+            // až se načte font, šířky písma se změní, tak se nicky přizpůsobí znovu
+            if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitAllNames);
 
             document.getElementById("pageNumberDisplay").textContent = currentPage;
+        }
+
+        // Zmenšuje písmo nicku, dokud se nevejde celý (25px -> 12px), obrys se zmenšuje úměrně
+        function fitName(el) {
+            if (!el) return;
+            let size = 25;
+            const apply = () => {
+                el.style.fontSize = size + "px";
+                el.style.webkitTextStroke = Math.max(3, Math.round(size * 0.29)) + "px #000000";
+            };
+            apply();
+            while (el.scrollWidth > el.clientWidth && size > 12) {
+                size -= 1;
+                apply();
+            }
+        }
+
+        function fitAllNames() {
+            document.querySelectorAll(".player-userid").forEach(fitName);
         }
 
         // Hráčům bez jména dotáhne nick přes worker (/roblox/users) a doplní ho do karet
@@ -733,6 +763,7 @@
                             x.p.Username = name;
                             el.textContent = name;
                             el.title = name;
+                            fitName(el);
                         }
                     }
                     if (missing.every(x => x.p.Username)) return;
