@@ -533,16 +533,31 @@
             border-radius: 0;
         }
 
+        /* Vnější karta je pevná (stabilní plocha pro najetí/klik), animuje se jen vnitřní vrstva,
+           takže se při hoveru nic nechvěje pod kurzorem ani se neopakuje animace. */
         .member-card {
             width: 313px;
             height: 110px;
-            background: url("/images/member-menu.png") no-repeat center center;
-            background-size: 100% 100%;
             margin-bottom: 6px;
             position: relative; 
-            image-rendering: pixelated;
             display: block;
+            cursor: pointer;
+            -webkit-tap-highlight-color: transparent;
         }
+        .member-card-inner {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: url("/images/member-menu.png") no-repeat center center;
+            background-size: 100% 100%;
+            image-rendering: pixelated;
+            transform-origin: left center; /* roste doprava, ať se nic neořízne na levém okraji seznamu */
+            transition: transform 0.08s ease-out;
+        }
+        .member-card:hover .member-card-inner { transform: scale(1.02); }
+        .member-card:active .member-card-inner { transform: scale(0.985); }
 
         .member-username-text {
             position: absolute;
@@ -1245,6 +1260,17 @@
             if (el) el.textContent = `Place: ${cachedGlobalRank}`;
         }
 
+        // Klik na člena -> detail hráče. Delegace na kontejner, protože se seznam při obnovení překresluje.
+        (function () {
+            const box = document.getElementById("membersListContainer");
+            if (!box) return;
+            box.addEventListener("click", (e) => {
+                const card = e.target.closest(".member-card");
+                if (!card || !card.dataset.uid) return;
+                location.href = `/people-detail/?id=${encodeURIComponent(card.dataset.uid)}`;
+            });
+        })();
+
         function renderMembers(finalMembersList, namesFinal) {
             const listContainer = document.getElementById("membersListContainer");
             if (!listContainer) return;
@@ -1266,7 +1292,8 @@
                 }
 
                 membersHtml += `
-                    <div class="member-card">
+                    <div class="member-card" data-uid="${uid}">
+                      <div class="member-card-inner">
                         <div class="member-username-text">${usernameWithAt}</div>
                         ${rankHtml}
                         <div class="member-avatar-container">
@@ -1278,6 +1305,7 @@
                             <img class="member-stat-gem-icon" src="/images/gems.png" >
                             <span class="member-stat-gem-text">${formatNumber(member.resolvedDiamonds || 0)}</span>
                         </div>
+                      </div>
                     </div>
                 `;
             });
