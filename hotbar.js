@@ -9,19 +9,24 @@
   // newTab – true = otevře se v nové záložce
   const BUTTONS = [
     { id: "clans",  label: "Clans", icon: "/images/hotbar/clans.png",  href: "/" },
-    { id: "arrows", label: "Soon",  icon: "/images/hotbar/arrows.png" }, // zatím nikam nevede
+    { id: "compare", label: "Compare", icon: "/images/hotbar/arrows.png" }, // zatím nikam nevede
     // { id: "discord", label: "Discord", icon: "/images/hotbar/discord.png", badge: "NEW", href: "https://discord.gg/...", newTab: true },
   ];
   // ====================================================
 
-  const SIZE = 100;          // velikost ikony v px (jako v PS99 HUD)
-  const HOVER_SCALE = 1.06;  // hover zvětšení
-  const PRESS_SCALE = 0.93;  // stisk
-  const HOVER_IN = "transform 0.12s cubic-bezier(0.34, 1.56, 0.64, 1)"; // náběh s lehkým přestřelením
+  const SIZE = 108;           // výška ikon v px
+  const HOVER_SCALE = 1.08;  // hover zvětšení (roste nahoru)
+  const PRESS_SCALE = 0.92;  // stisk (zmenšení ke spodní hraně)
+  const ACTIVE_SCALE = 1.16; // tlačítko aktuální stránky je trvale větší
+  const ANIM = "transform 0.08s cubic-bezier(0.2, 0.9, 0.3, 1.25)"; // najetí i vyjetí
+  const LIFT = 40;           // o kolik px posunout hlavní okno nahoru
 
   const css = document.createElement("style");
   css.textContent = `
-    /* Lišta visí absolutně pod oknem -> hlavní okno se neposune */
+    /* hlavní okno trochu nahoru (na všech stránkách) */
+    .game-window { transform: translateY(calc(var(--hb-lift, 0) * -1px)); }
+
+    /* Lišta visí absolutně pod oknem -> hlavní okno se kvůli ní neposune */
     .ps-hotbar {
       position: absolute;
       left: 50%;
@@ -31,9 +36,9 @@
       align-items: flex-end;
       justify-content: center;
       width: max-content;
-      margin-top: 2px;
-      padding: 26px 30px 34px;
-      gap: 10px;
+      margin-top: 8px;
+      padding: 30px 30px 30px;
+      gap: 12px;
       z-index: 800;
     }
     .ps-hotbar:empty { display: none; }
@@ -49,17 +54,15 @@
 
     .ps-hb-btn {
       position: relative;
-      width: auto;               /* všechny ikony mají stejnou výšku */
+      width: auto;                    /* všechny ikony mají stejnou výšku */
       height: ${SIZE}px;
       cursor: pointer;
       -webkit-tap-highlight-color: transparent;
-      transform-origin: 50% 55%;
-      transform: scale(1);
-      transition: none;              /* odjetí myší = okamžitý návrat */
+      transform-origin: 50% 100%;     /* zvětšuje/zmenšuje se nahoru od spodní hrany */
+      transition: ${ANIM};
+      will-change: transform;
     }
-    .ps-hb-btn.hb-hover { transform: scale(${HOVER_SCALE}); transition: ${HOVER_IN}; z-index: 2; }
-    .ps-hb-btn.hb-down  { transform: scale(${PRESS_SCALE}); transition: none; }
-    .ps-hb-btn.hb-instant { transition: none !important; }
+    .ps-hb-btn.hb-hover { z-index: 2; }
 
     .ps-hb-icon {
       display: block;
@@ -68,7 +71,7 @@
       pointer-events: none;
       -webkit-user-drag: none;
       /* jemný odraz pod ikonou */
-      -webkit-box-reflect: below -4px linear-gradient(transparent 62%, rgba(255,255,255,0.16));
+      -webkit-box-reflect: below -4px linear-gradient(transparent 74%, rgba(255,255,255,0.13));
     }
 
     .ps-hb-label {
@@ -83,7 +86,7 @@
       color: #1C2130;
       letter-spacing: 0.2px;
       pointer-events: none;
-      visibility: hidden;            /* popisek se ukazuje okamžitě, bez fade */
+      visibility: hidden;             /* popisek se ukazuje okamžitě, bez fade */
     }
     .ps-hb-btn.hb-hover .ps-hb-label { visibility: visible; }
 
@@ -112,40 +115,65 @@
     .ps-hb-badge.is-pill { height: 26px; min-width: 0; top: 2px; padding: 0 7px; border-width: 2.5px; }
 
     /* Stránka Top Clans na mobilu má pod oknem šipku filtru zemí */
-    body.is-mobile .ps-hotbar.ps-hb-has-arrow { margin-top: 36px; }
+    body.is-mobile .ps-hotbar.ps-hb-has-arrow { margin-top: 40px; }
   `;
   document.head.appendChild(css);
 
-  function wire(btn, b) {
-    let over = false;
-    const instant = (fn) => {
-      btn.classList.add("hb-instant");
-      fn();
-      void btn.offsetWidth;            // vynutí okamžité překreslení
-      btn.classList.remove("hb-instant");
-    };
+  const items = []; // { el, active, hover, down }
+
+  function isActive(href) {
+    if (!href || /^https?:/i.test(href)) return false;
+    const norm = (x) => x.replace(/index\.html$/, "").replace(/\/?$/, "/");
+    const here = norm(location.pathname), target = norm(href);
+    return target === "/" ? here === "/" : here.startsWith(target);
+  }
+
+  // Spočítá měřítko každého tlačítka a posun sousedů, aby se odsunuly v souladu s animací
+  function layout(animate) {
+    const scales = items.map((it) => {
+      let s = it.active ? ACTIVE_SCALE : 1;
+      if (it.down) s *= PRESS_SCALE;
+      else if (it.hover) s *= HOVER_SCALE;
+      return s;
+    });
+    const extra = items.map((it, i) => it.el.offsetWidth * (scales[i] - 1) / 2); // o kolik přesahuje na každou stranu
+    items.forEach((it, k) => {
+      let shift = 0;
+      for (let j = 0; j < items.length; j++) {
+        if (j < k) shift += extra[j];
+        else if (j > k) shift -= extra[j];
+      }
+      it.el.style.transition = animate ? "" : "none";
+      it.el.style.transform = `translateX(${shift.toFixed(2)}px) scale(${scales[k]})`;
+    });
+    if (!animate) {
+      void document.body.offsetWidth;
+      items.forEach((it) => (it.el.style.transition = ""));
+    }
+  }
+
+  function wire(it, b) {
+    const btn = it.el;
+    const setHover = (v) => { it.hover = v; btn.classList.toggle("hb-hover", v); };
 
     btn.addEventListener("pointerenter", (e) => {
       if (e.pointerType === "touch") return;
-      over = true;
-      btn.classList.add("hb-hover");
+      setHover(true); layout(true);
     });
     btn.addEventListener("pointerleave", () => {
-      over = false;
-      instant(() => btn.classList.remove("hb-hover", "hb-down"));
+      setHover(false); it.down = false; layout(true);
     });
     btn.addEventListener("pointerdown", (e) => {
       if (e.button !== undefined && e.button !== 0) return;
-      btn.classList.add("hb-down");
-      if (e.pointerType === "touch") btn.classList.add("hb-hover");
+      it.down = true;
+      if (e.pointerType === "touch") setHover(true);
+      layout(false);                   // stisk je okamžitý (jako v PS99)
     });
     const release = (e) => {
-      if (!btn.classList.contains("hb-down")) return;
-      instant(() => {
-        btn.classList.remove("hb-down");
-        if (e && e.pointerType === "touch") btn.classList.remove("hb-hover");
-        else if (over) btn.classList.add("hb-hover");
-      });
+      if (!it.down) return;
+      it.down = false;
+      if (e && e.pointerType === "touch") setHover(false);
+      layout(false);                   // puštění je okamžité
     };
     btn.addEventListener("pointerup", release);
     btn.addEventListener("pointercancel", release);
@@ -178,6 +206,7 @@
       img.src = b.icon;
       img.alt = "";
       img.draggable = false;
+      img.addEventListener("load", () => layout(false));
       btn.appendChild(img);
 
       if (b.label) {
@@ -193,15 +222,41 @@
         btn.appendChild(d);
       }
 
-      wire(btn, b);
+      const it = { el: btn, active: isActive(b.href), hover: false, down: false };
+      if (it.active) btn.classList.add("hb-active");
+      items.push(it);
+      wire(it, b);
       bar.appendChild(btn);
     });
 
-    // Lišta je uvnitř okna (škáluje se s ním), ale absolutně pod ním -> okno zůstává na místě
+    // Lišta je uvnitř okna (škáluje se s ním), ale absolutně pod ním
     win.appendChild(bar);
+    layout(false);
   }
 
-  function init() { build(); }
+  // Posun hlavního okna nahoru – jen tolik, aby logo nad oknem nevyjelo z obrazovky
+  function lift() {
+    const win = document.querySelector(".game-window");
+    const bg = win && win.querySelector(".menu-bg");
+    if (!bg) return;
+    const scaler = document.getElementById("appScaler");
+    const m = scaler && /scale\(([\d.]+)\)/.exec(scaler.style.transform || "");
+    const s = m ? parseFloat(m[1]) : 1;
+    const cur = parseFloat(win.style.getPropertyValue("--hb-lift")) || 0;
+    const topNoLift = bg.getBoundingClientRect().top + cur * s;  // horní hrana okna bez posunu
+    const room = (topNoLift - 75 * s - 6) / s;                    // místo pro logo (~70 px nad oknem)
+    win.style.setProperty("--hb-lift", Math.max(0, Math.min(LIFT, room)).toFixed(1));
+  }
+
+  if (typeof window.autoFitScreen === "function") {
+    const orig = window.autoFitScreen;
+    window.autoFitScreen = function () { const r = orig.apply(this, arguments); lift(); return r; };
+  }
+
+  function init() { build(); lift(); }
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init);
   else init();
+  window.addEventListener("load", lift);
+  window.addEventListener("resize", lift);
+  window.addEventListener("orientationchange", lift);
 })();
