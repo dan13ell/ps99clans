@@ -14,11 +14,11 @@
   ];
   // ====================================================
 
-  const SIZE = 108;           // výška ikon v px
-  const HOVER_SCALE = 1.08;  // hover zvětšení (roste nahoru)
-  const PRESS_SCALE = 0.92;  // stisk (zmenšení ke spodní hraně)
-  const ACTIVE_SCALE = 1.16; // tlačítko aktuální stránky je trvale větší
-  const ANIM = "transform 0.08s cubic-bezier(0.2, 0.9, 0.3, 1.25)"; // najetí i vyjetí
+  const SIZE = 94;            // výška ikon v px
+  const HOVER_SCALE = 1.04;  // hover zvětšení (roste nahoru)
+  const PRESS_SCALE = 0.95;  // stisk (zmenšení ke spodní hraně)
+  const ACTIVE_SCALE = 1.10; // tlačítko aktuální stránky je trvale větší
+  const ANIM = "transform 0.045s cubic-bezier(0.1, 0.9, 0.2, 1)"; // najetí i vyjetí
   const LIFT = 40;           // o kolik px posunout hlavní okno nahoru
 
   const css = document.createElement("style");
