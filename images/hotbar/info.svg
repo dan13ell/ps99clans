@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+  <defs>
+    <linearGradient id="face" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#7FD3FF"/>
+      <stop offset="0.55" stop-color="#2F9BF5"/>
+      <stop offset="1" stop-color="#1A6FD8"/>
+    </linearGradient>
+    <linearGradient id="side" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#1557B3"/>
+      <stop offset="1" stop-color="#0E3F88"/>
+    </linearGradient>
+    <linearGradient id="gloss" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#FFFFFF" stop-opacity="0.85"/>
+      <stop offset="1" stop-color="#FFFFFF" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="glyph" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#FFFFFF"/>
+      <stop offset="1" stop-color="#DCEBFF"/>
+    </linearGradient>
+  </defs>
+  <!-- 3D spodní strana -->
+  <circle cx="100" cy="110" r="80" fill="url(#side)" stroke="#1C2130" stroke-width="10"/>
+  <!-- čelo -->
+  <circle cx="100" cy="96" r="80" fill="url(#face)" stroke="#1C2130" stroke-width="10"/>
+  <!-- lesk -->
+  <ellipse cx="86" cy="56" rx="50" ry="26" fill="url(#gloss)"/>
+  <circle cx="146" cy="70" r="7" fill="#FFFFFF" opacity="0.8"/>
+  <!-- písmeno i -->
+  <g stroke="#1C2130" stroke-width="9" stroke-linejoin="round" paint-order="stroke fill" fill="url(#glyph)">
+    <circle cx="100" cy="58" r="15"/>
+    <rect x="86" y="82" width="28" height="70" rx="12"/>
+  </g>
+</svg>

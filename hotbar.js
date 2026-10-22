@@ -1,122 +1,158 @@
-// Spodní lišta s tlačítky (hotbar) pod hlavním oknem – sdílená pro všechny stránky.
+// Spodní lišta s tlačítky (hotbar) pod hlavním oknem – styl a animace podle PS99 HUD.
 // Nové tlačítko = přidej jeden řádek do BUTTONS níže.
 (function () {
   // ===================== TLAČÍTKA =====================
-  // label  – text pod ikonou
-  // icon   – cesta k obrázku ("/images/neco.png") NEBO krátký text ("i", "?", "★")
-  // color  – blue | pink | green | yellow | purple | orange | grey
+  // label  – popisek, který se ukáže nad ikonou při najetí myší
+  // icon   – obrázek ikony (PNG s průhledným pozadím, ideálně ~200x200 px)
+  // badge  – volitelný odznak vlevo nahoře: "NEW", "999+", "3" ...
   // href   – kam vede (nebo onClick: function () { ... })
   // newTab – true = otevře se v nové záložce
   const BUTTONS = [
-    { id: "info", label: "Info", icon: "i", color: "blue", href: "/about/" },
-    // { id: "discord", label: "Discord", icon: "/images/discord.png", color: "purple", href: "https://discord.gg/...", newTab: true },
+    { id: "info", label: "Info", icon: "/images/hotbar/info.svg", href: "/about/" },
+    // { id: "discord", label: "Discord", icon: "/images/hotbar/discord.png", badge: "NEW", href: "https://discord.gg/...", newTab: true },
   ];
   // ====================================================
 
-  const COLORS = {
-    blue:   ["#7FD0FF", "#2E9BF0", "#1F74C4"],
-    pink:   ["#FF7FA8", "#F2386F", "#C21E50"],
-    green:  ["#9CF27A", "#4CC93A", "#2F9426"],
-    yellow: ["#FFE680", "#FFC226", "#D99611"],
-    purple: ["#C99BFF", "#8F55F2", "#6A35C4"],
-    orange: ["#FFB870", "#FF8424", "#D25E0E"],
-    grey:   ["#D2D6E4", "#A6ABBE", "#80859A"],
-  };
-
-  // Stejné časování jako tvoje ostatní tlačítka (X, menu-btn)
-  const EASE = "0.044s cubic-bezier(0.1, 0.9, 0.2, 1)";
+  const SIZE = 100;          // velikost ikony v px (jako v PS99 HUD)
+  const HOVER_SCALE = 1.06;  // hover zvětšení
+  const PRESS_SCALE = 0.93;  // stisk
+  const HOVER_IN = "transform 0.12s cubic-bezier(0.34, 1.56, 0.64, 1)"; // náběh s lehkým přestřelením
 
   const css = document.createElement("style");
   css.textContent = `
     .ps-hotbar {
       position: relative;
       display: flex;
+      align-items: flex-end;
+      justify-content: center;
       width: fit-content;
-      margin: 22px auto 0;
-      padding: 12px 18px 14px;
-      gap: 16px;
-      background: linear-gradient(180deg, #FFFFFF 0%, #E9E9EC 100%);
-      border: 6px solid #2A2B31;
-      border-radius: 24px;
-      filter: drop-shadow(0px 10px 20px rgba(0, 0, 0, 0.35));
+      margin: 6px auto 0;
+      padding: 26px 30px 34px;
+      gap: 10px;
       z-index: 800;
     }
     .ps-hotbar:empty { display: none; }
+    /* měkká bílá záře za řadou ikon */
+    .ps-hotbar::before {
+      content: "";
+      position: absolute;
+      inset: -30px -90px -30px;
+      background: radial-gradient(closest-side at 50% 55%, rgba(255,255,255,0.45) 0%, rgba(255,255,255,0.18) 50%, rgba(255,255,255,0) 100%);
+      pointer-events: none;
+      z-index: -1;
+    }
 
     .ps-hb-btn {
       position: relative;
-      width: 76px;
-      height: 76px;
+      width: ${SIZE}px;
+      height: ${SIZE}px;
       cursor: pointer;
       -webkit-tap-highlight-color: transparent;
-      transform-origin: center center;
-      transition: transform ${EASE};
+      transform-origin: 50% 55%;
+      transform: scale(1);
+      transition: none;              /* odjetí myší = okamžitý návrat */
     }
-    .ps-hb-face {
-      position: absolute;
-      inset: 0;
-      border: 4px solid #2A2B31;
-      border-radius: 18px;
-      background: linear-gradient(180deg, var(--c1) 0%, var(--c2) 100%);
-      box-shadow:
-        inset 0 -7px 0 var(--c3),
-        inset 0 3px 0 rgba(255, 255, 255, 0.45);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      overflow: hidden;
-      transition: box-shadow ${EASE}, background ${EASE};
-    }
-    .ps-hb-icon-img {
-      width: 74%;
-      height: 74%;
+    .ps-hb-btn.hb-hover { transform: scale(${HOVER_SCALE}); transition: ${HOVER_IN}; z-index: 2; }
+    .ps-hb-btn.hb-down  { transform: scale(${PRESS_SCALE}); transition: none; }
+    .ps-hb-btn.hb-instant { transition: none !important; }
+
+    .ps-hb-icon {
+      display: block;
+      width: 100%;
+      height: 100%;
       object-fit: contain;
-      margin-bottom: 8px;
       pointer-events: none;
-      filter: drop-shadow(0px 2px 0px rgba(0, 0, 0, 0.25));
+      -webkit-user-drag: none;
+      /* jemný odraz pod ikonou */
+      -webkit-box-reflect: below -4px linear-gradient(transparent 62%, rgba(255,255,255,0.16));
     }
-    .ps-hb-icon-txt {
-      margin-bottom: 10px;
-      font-size: 40px;
-      line-height: 1;
-      font-weight: 800 !important;
-      color: #FFFFFF;
-      -webkit-text-stroke: 6px #2A2B31;
-      paint-order: stroke fill;
-      pointer-events: none;
-    }
+
     .ps-hb-label {
       position: absolute;
       left: 50%;
-      bottom: -9px;
+      bottom: calc(100% + 1px);
       transform: translateX(-50%);
       white-space: nowrap;
       font-size: 17px;
-      font-weight: 800 !important;
+      line-height: 1;
+      font-weight: 700 !important;
+      color: #1C2130;
+      letter-spacing: 0.2px;
+      pointer-events: none;
+      visibility: hidden;            /* popisek se ukazuje okamžitě, bez fade */
+    }
+    .ps-hb-btn.hb-hover .ps-hb-label { visibility: visible; }
+
+    .ps-hb-badge {
+      position: absolute;
+      left: -10px;
+      top: -6px;
+      min-width: 40px;
+      height: 40px;
+      padding: 0 5px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 20px;
+      background: radial-gradient(circle at 50% 35%, #FF4A6E 0%, #E8164A 70%);
+      border: 3px solid #FFFFFF;
+      box-shadow: 0 0 0 2.5px #1C2130, 0 2px 3px rgba(0,0,0,0.25);
       color: #FFFFFF;
-      -webkit-text-stroke: 5px #2A2B31;
+      font-size: 12.5px;
+      font-weight: 800 !important;
+      -webkit-text-stroke: 3px #1C2130;
       paint-order: stroke fill;
       pointer-events: none;
-      z-index: 2;
+      z-index: 3;
     }
-
-    /* HOVER – zvětšení jako u X (72 -> 76 px) */
-    @media (hover: hover) {
-      .ps-hb-btn:hover:not(:active) { transform: scale(1.055); z-index: 2; }
-    }
-    /* CLICK – zmáčknutí (72 -> 66 px) + "clicked" vzhled: nižší spodní hrana, tmavší */
-    .ps-hb-btn:active { transform: scale(0.917); }
-    .ps-hb-btn:active .ps-hb-face {
-      background: linear-gradient(180deg, var(--c2) 0%, var(--c2) 100%);
-      box-shadow:
-        inset 0 -3px 0 var(--c3),
-        inset 0 2px 0 rgba(255, 255, 255, 0.25);
-    }
+    .ps-hb-badge.is-pill { height: 26px; min-width: 0; top: 2px; padding: 0 7px; border-width: 2.5px; }
 
     /* Stránka Top Clans na mobilu má pod oknem šipku filtru zemí */
-    body.is-mobile .ps-hotbar.ps-hb-has-arrow { margin-top: 56px; }
+    body.is-mobile .ps-hotbar.ps-hb-has-arrow { margin-top: 40px; }
   `;
   document.head.appendChild(css);
+
+  function wire(btn, b) {
+    let over = false;
+    const instant = (fn) => {
+      btn.classList.add("hb-instant");
+      fn();
+      void btn.offsetWidth;            // vynutí okamžité překreslení
+      btn.classList.remove("hb-instant");
+    };
+
+    btn.addEventListener("pointerenter", (e) => {
+      if (e.pointerType === "touch") return;
+      over = true;
+      btn.classList.add("hb-hover");
+    });
+    btn.addEventListener("pointerleave", () => {
+      over = false;
+      instant(() => btn.classList.remove("hb-hover", "hb-down"));
+    });
+    btn.addEventListener("pointerdown", (e) => {
+      if (e.button !== undefined && e.button !== 0) return;
+      btn.classList.add("hb-down");
+      if (e.pointerType === "touch") btn.classList.add("hb-hover");
+    });
+    const release = (e) => {
+      if (!btn.classList.contains("hb-down")) return;
+      instant(() => {
+        btn.classList.remove("hb-down");
+        if (e && e.pointerType === "touch") btn.classList.remove("hb-hover");
+        else if (over) btn.classList.add("hb-hover");
+      });
+    };
+    btn.addEventListener("pointerup", release);
+    btn.addEventListener("pointercancel", release);
+
+    btn.addEventListener("click", () => {
+      if (typeof b.onClick === "function") return b.onClick();
+      if (!b.href) return;
+      if (b.newTab) window.open(b.href, "_blank");
+      else location.href = b.href;
+    });
+  }
 
   function build() {
     const win = document.querySelector(".game-window");
@@ -127,30 +163,18 @@
     if (document.querySelector(".country-toggle-arrow")) bar.classList.add("ps-hb-has-arrow");
 
     BUTTONS.forEach((b) => {
-      const c = COLORS[b.color] || COLORS.grey;
       const btn = document.createElement("div");
       btn.className = "ps-hb-btn";
       if (b.id) btn.id = "hb-" + b.id;
-      btn.style.setProperty("--c1", c[0]);
-      btn.style.setProperty("--c2", c[1]);
-      btn.style.setProperty("--c3", c[2]);
-      btn.title = b.label || "";
+      btn.setAttribute("role", "button");
+      btn.setAttribute("aria-label", b.label || "");
 
-      const face = document.createElement("div");
-      face.className = "ps-hb-face";
-      if (b.icon && /\.(png|gif|svg|webp|jpe?g)$/i.test(b.icon)) {
-        const img = document.createElement("img");
-        img.className = "ps-hb-icon-img";
-        img.src = b.icon;
-        img.draggable = false;
-        face.appendChild(img);
-      } else if (b.icon) {
-        const t = document.createElement("span");
-        t.className = "ps-hb-icon-txt";
-        t.textContent = b.icon;
-        face.appendChild(t);
-      }
-      btn.appendChild(face);
+      const img = document.createElement("img");
+      img.className = "ps-hb-icon";
+      img.src = b.icon;
+      img.alt = "";
+      img.draggable = false;
+      btn.appendChild(img);
 
       if (b.label) {
         const l = document.createElement("span");
@@ -158,14 +182,14 @@
         l.textContent = b.label;
         btn.appendChild(l);
       }
+      if (b.badge) {
+        const d = document.createElement("span");
+        d.className = "ps-hb-badge" + (/^[A-Za-z]{3,}$/.test(b.badge) ? " is-pill" : "");
+        d.textContent = b.badge;
+        btn.appendChild(d);
+      }
 
-      btn.addEventListener("click", () => {
-        if (typeof b.onClick === "function") return b.onClick();
-        if (!b.href) return;
-        if (b.newTab) window.open(b.href, "_blank");
-        else location.href = b.href;
-      });
-
+      wire(btn, b);
       bar.appendChild(btn);
     });
 
