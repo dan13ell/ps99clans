@@ -8,7 +8,8 @@
   // href   – kam vede (nebo onClick: function () { ... })
   // newTab – true = otevře se v nové záložce
   const BUTTONS = [
-    { id: "info", label: "Info", icon: "/images/hotbar/info.svg", href: "/about/" },
+    { id: "clans",  label: "Clans", icon: "/images/hotbar/clans.png",  href: "/" },
+    { id: "arrows", label: "Soon",  icon: "/images/hotbar/arrows.png" }, // zatím nikam nevede
     // { id: "discord", label: "Discord", icon: "/images/hotbar/discord.png", badge: "NEW", href: "https://discord.gg/...", newTab: true },
   ];
   // ====================================================
@@ -20,13 +21,17 @@
 
   const css = document.createElement("style");
   css.textContent = `
+    /* Lišta visí absolutně pod oknem -> hlavní okno se neposune */
     .ps-hotbar {
-      position: relative;
+      position: absolute;
+      left: 50%;
+      top: 100%;
+      transform: translateX(-50%);
       display: flex;
       align-items: flex-end;
       justify-content: center;
-      width: fit-content;
-      margin: 6px auto 0;
+      width: max-content;
+      margin-top: 2px;
       padding: 26px 30px 34px;
       gap: 10px;
       z-index: 800;
@@ -44,7 +49,7 @@
 
     .ps-hb-btn {
       position: relative;
-      width: ${SIZE}px;
+      width: auto;               /* všechny ikony mají stejnou výšku */
       height: ${SIZE}px;
       cursor: pointer;
       -webkit-tap-highlight-color: transparent;
@@ -58,9 +63,8 @@
 
     .ps-hb-icon {
       display: block;
-      width: 100%;
+      width: auto;
       height: 100%;
-      object-fit: contain;
       pointer-events: none;
       -webkit-user-drag: none;
       /* jemný odraz pod ikonou */
@@ -108,7 +112,7 @@
     .ps-hb-badge.is-pill { height: 26px; min-width: 0; top: 2px; padding: 0 7px; border-width: 2.5px; }
 
     /* Stránka Top Clans na mobilu má pod oknem šipku filtru zemí */
-    body.is-mobile .ps-hotbar.ps-hb-has-arrow { margin-top: 40px; }
+    body.is-mobile .ps-hotbar.ps-hb-has-arrow { margin-top: 36px; }
   `;
   document.head.appendChild(css);
 
@@ -193,37 +197,11 @@
       bar.appendChild(btn);
     });
 
-    // Lišta je v toku pod obrázkem okna -> škáluje se a centruje spolu s oknem
+    // Lišta je uvnitř okna (škáluje se s ním), ale absolutně pod ním -> okno zůstává na místě
     win.appendChild(bar);
   }
 
-  // Doškálování, aby se okno + lišta vešly na výšku (i na desktopu)
-  function fit() {
-    const scaler = document.getElementById("appScaler");
-    const win = document.querySelector(".game-window");
-    if (!scaler || !win || !win.querySelector(".ps-hotbar")) return;
-    const m = /scale\(([\d.]+)\)/.exec(scaler.style.transform || "");
-    const s = m ? parseFloat(m[1]) : 1;
-    const need = (win.offsetHeight + 90) * s; // +90 = logo nad oknem a rezerva
-    const avail = window.innerHeight;
-    if (need > avail) scaler.style.transform = `scale(${(s * avail) / need})`;
-  }
-
-  // Napojení na autoFitScreen dané stránky (spustí se vždy hned po něm)
-  if (typeof window.autoFitScreen === "function") {
-    const orig = window.autoFitScreen;
-    window.autoFitScreen = function () {
-      const r = orig.apply(this, arguments);
-      fit();
-      return r;
-    };
-  }
-
-  function init() { build(); fit(); }
+  function init() { build(); }
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init);
   else init();
-  window.addEventListener("load", fit);
-  window.addEventListener("resize", fit);
-  window.addEventListener("orientationchange", fit);
-  if (document.fonts && document.fonts.ready) document.fonts.ready.then(fit);
 })();
