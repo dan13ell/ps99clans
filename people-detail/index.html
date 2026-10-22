@@ -164,210 +164,116 @@
 
         /* ===== people-detail ===== */
         .custom-back-btn {
-            position: absolute;
-            left: 19px;
-            top: 472px;
-            width: 254px;
-            height: 79px;
-            background: url("/images/back-button.png") no-repeat center center;
-            background-size: 100% 100%;
-            cursor: pointer;
-            z-index: 990;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            transition: transform 0.044s cubic-bezier(0.1, 0.9, 0.2, 1);
-            transform-origin: center center;
-            filter: drop-shadow(0px 4px 6px rgba(0, 0, 0, 0.15));
-            -webkit-tap-highlight-color: transparent;
+            position: absolute; left: 19px; top: 472px; width: 254px; height: 79px;
+            background: url("/images/back-button.png") no-repeat center center; background-size: 100% 100%;
+            cursor: pointer; z-index: 990; display: flex; justify-content: center; align-items: center;
+            transition: transform 0.044s cubic-bezier(0.1, 0.9, 0.2, 1); transform-origin: center center;
+            filter: drop-shadow(0px 4px 6px rgba(0, 0, 0, 0.15)); -webkit-tap-highlight-color: transparent;
         }
         .custom-back-btn:hover:not(:active) { transform: scale(1.05); }
         .custom-back-btn:active { background-image: url("/images/back-button-clicked.png"); transform: scale(0.95); }
         .custom-back-btn:active .custom-back-text { transform: translateY(1px); }
-        .custom-back-text {
-            width: 101px;
-            height: 39px;
-            pointer-events: none;
-            transform: translateY(-2px);
-            transition: transform 0.044s cubic-bezier(0.1, 0.9, 0.2, 1);
-        }
+        .custom-back-text { width: 101px; height: 39px; pointer-events: none; transform: translateY(-2px); transition: transform 0.044s cubic-bezier(0.1, 0.9, 0.2, 1); }
 
-        .pd-content { display: none; }
-        .pd-content.is-visible { display: block; }
-
-        .pd-avatar {
-            position: absolute;
-            left: 350px;
-            top: 22px;
-            width: 175px;
-            height: 175px;
-            border-radius: 14px;
-            background-color: #FFFFFF;
-            object-fit: cover;
-            z-index: 910;
-        }
-
-        .pd-name {
-            position: absolute;
-            left: 548px;
-            top: 22px;
-            font-size: 48px;
-            line-height: 1.2;
-            color: #000000;
+        /* Společné: obrysový text jako na zbytku webu */
+        .pd-outline {
+            color: #FEFEFE;
             -webkit-text-stroke: 6px #000000;
-            stroke-linejoin: round;
-            -webkit-stroke-linejoin: round;
+            stroke-linejoin: round; -webkit-stroke-linejoin: round;
             paint-order: stroke fill;
             font-weight: 800 !important;
-            z-index: 910;
+            text-shadow: none !important;
             white-space: nowrap;
         }
-        .pd-name::after {
-            content: attr(data-text);
-            position: absolute;
-            left: 0;
-            top: 0;
-            -webkit-text-stroke: 0px transparent;
-            background: linear-gradient(to bottom, #7CF6FA, #60E0FE);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
+        .pd-card { background-color: #F7FFFF; border: 4px solid #000000; border-radius: 12px; }
 
+        /* Celý obsah: jeden blok 736 px široký, zarovnaný stejně jako řádky v top-clans */
+        .pd-wrap { position: absolute; left: 344px; top: 12px; width: 736px; height: 544px; z-index: 910; display: none; }
+        .pd-wrap.is-visible { display: block; }
+
+        /* --- hlavička vlevo --- */
+        .pd-avatar {
+            position: absolute; left: 0; top: 8px; width: 108px; height: 108px;
+            border-radius: 50%; background-color: #FFFFFF; border: 4px solid #000000; object-fit: cover;
+        }
+        .pd-name {
+            position: absolute; left: 124px; top: 2px; font-size: 40px; line-height: 50px;
+            color: #000000; -webkit-text-stroke: 6px #000000; stroke-linejoin: round; -webkit-stroke-linejoin: round;
+            paint-order: stroke fill; font-weight: 800 !important; white-space: nowrap;
+        }
+        .pd-name::after {
+            content: attr(data-text); position: absolute; left: 0; top: 0; -webkit-text-stroke: 0px transparent;
+            background: linear-gradient(to bottom, #7CF6FA, #60E0FE); -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        }
         .pd-clan {
-            position: absolute;
-            left: 550px;
-            top: 88px;
-            height: 46px;
-            padding: 0 16px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            background-color: #F7FFFF;
-            border: 4px solid #000000;
-            border-radius: 12px;
-            cursor: pointer;
-            z-index: 910;
-            -webkit-tap-highlight-color: transparent;
+            position: absolute; left: 124px; top: 54px; height: 38px; padding: 0 14px;
+            display: flex; align-items: center; gap: 8px; cursor: pointer; -webkit-tap-highlight-color: transparent;
             transition: transform 0.044s cubic-bezier(0.1, 0.9, 0.2, 1);
         }
         .pd-clan:hover:not(:active) { transform: scale(1.05); }
         .pd-clan:active { transform: scale(0.95); }
-        .pd-clan-label { font-size: 20px; font-weight: 700 !important; color: #696A6E; }
-        .pd-clan-tag {
-            font-size: 28px;
-            color: #FEFEFE;
-            -webkit-text-stroke: 7px #000000;
-            stroke-linejoin: round;
-            -webkit-stroke-linejoin: round;
-            paint-order: stroke fill;
-            font-weight: 800 !important;
-            white-space: nowrap;
-        }
+        .pd-clan-label { font-size: 16px; font-weight: 700 !important; color: #696A6E; }
+        .pd-clan-tag { font-size: 24px; -webkit-text-stroke: 6px #000000; }
+        .pd-points { position: absolute; left: 124px; top: 96px; height: 34px; display: flex; align-items: center; gap: 6px; }
+        .pd-points img { width: 40px; height: 33px; object-fit: contain; }
+        .pd-points-num { font-size: 28px; }
 
-        .pd-points-icon {
-            position: absolute;
-            left: 550px;
-            top: 148px;
-            width: 51px;
-            height: 41px;
-            object-fit: contain;
-            z-index: 910;
-        }
-        .pd-points {
-            position: absolute;
-            left: 610px;
-            top: 140px;
-            font-size: 40px;
-            color: #FEFEFE;
-            -webkit-text-stroke: 6px #000000;
-            stroke-linejoin: round;
-            -webkit-stroke-linejoin: round;
-            paint-order: stroke fill;
-            font-weight: 800 !important;
-            white-space: nowrap;
-            z-index: 910;
-        }
+        /* --- karta žebříčku vpravo --- */
+        .pd-rankcard { position: absolute; left: 394px; top: 0; width: 342px; height: 130px; }
+        .pd-nb { position: absolute; top: 6px; width: 100px; text-align: center; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+        .pd-nb.is-empty { cursor: default; visibility: hidden; }
+        .pd-nb-behind { left: 6px; }
+        .pd-nb-ahead { right: 6px; }
+        .pd-nb img { width: 34px; height: 34px; border-radius: 50%; border: 2px solid #000000; background: #FFFFFF; object-fit: cover; display: block; margin: 0 auto 2px; }
+        .pd-nb-name { height: 15px; line-height: 15px; font-size: 12px; font-weight: 800 !important; color: #262C2D; white-space: nowrap; overflow: hidden; }
+        .pd-nb-sub { font-size: 11px; font-weight: 700 !important; color: #696A6E; line-height: 13px; }
+        .pd-rank-center { position: absolute; left: 108px; top: 6px; width: 118px; text-align: center; }
+        .pd-rank-label { font-size: 11px; font-weight: 800 !important; letter-spacing: 1px; color: #696A6E; line-height: 14px; }
+        .pd-rank-num { font-size: 32px; line-height: 40px; -webkit-text-stroke: 7px #000000; }
+        .pd-rank-total { font-size: 11px; font-weight: 700 !important; color: #696A6E; line-height: 13px; }
+        .pd-bar-track { position: absolute; left: 16px; right: 16px; top: 78px; height: 12px; border: 2px solid #000000; border-radius: 7px; background: #D5E3E3; }
+        .pd-bar-fill { position: absolute; left: 0; top: 0; bottom: 0; width: 0; border-radius: 5px; background: linear-gradient(to bottom, #7CF6FA, #60E0FE); }
+        .pd-bar-knob { position: absolute; top: 50%; width: 16px; height: 16px; margin: -8px 0 0 -8px; border-radius: 50%; background: #FFFFFF; border: 2px solid #000000; }
+        .pd-pct { position: absolute; top: 96px; font-size: 11px; font-weight: 700 !important; color: #696A6E; line-height: 15px; white-space: nowrap; }
+        .pd-pct b { font-size: 15px; font-weight: 800 !important; color: #262C2D; margin-right: 3px; }
+        .pd-pct-l { left: 16px; }
+        .pd-pct-r { right: 16px; }
 
-        .pd-rank {
-            position: absolute;
-            left: 552px;
-            top: 202px;
-            display: flex;
-            align-items: baseline;
-            gap: 8px;
-            white-space: nowrap;
-            z-index: 910;
-        }
-        .pd-rank-label { font-size: 20px; font-weight: 700 !important; color: #696A6E; }
-        .pd-rank-num {
-            font-size: 30px;
-            color: #FEFEFE;
-            -webkit-text-stroke: 6px #000000;
-            stroke-linejoin: round;
-            -webkit-stroke-linejoin: round;
-            paint-order: stroke fill;
-            font-weight: 800 !important;
-        }
-        .pd-rank-total { font-size: 20px; font-weight: 700 !important; color: #696A6E; }
+        /* --- 4 statistiky --- */
+        .pd-stats { position: absolute; left: 0; top: 140px; width: 736px; height: 64px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+        .pd-stat { position: relative; height: 64px; text-align: center; }
+        .pd-stat-label { position: absolute; left: 0; right: 0; top: 4px; font-size: 13px; font-weight: 700 !important; color: #696A6E; line-height: 16px; white-space: nowrap; }
+        .pd-stat-value { position: absolute; left: 0; right: 0; top: 20px; font-size: 28px; line-height: 34px; -webkit-text-stroke: 7px #000000; }
+        .pd-stat-value.is-na { color: #B1B1B1; -webkit-text-stroke: 0; font-size: 24px; }
 
-        .pd-chart-card {
-            position: absolute;
-            left: 348px;
-            top: 246px;
-            width: 742px;
-            height: 304px;
-            background-color: #F7FFFF;
-            border: 4px solid #000000;
-            border-radius: 12px;
-            z-index: 910;
-        }
-        .pd-chart-title {
-            position: absolute;
-            left: 18px;
-            top: 8px;
-            font-size: 26px;
-            font-weight: 800 !important;
-            color: #2B2B2B;
-            white-space: nowrap;
-        }
-        .pd-chart-info {
-            position: absolute;
-            right: 18px;
-            top: 13px;
-            font-size: 19px;
-            font-weight: 700 !important;
-            color: #696A6E;
-            white-space: nowrap;
-            text-align: right;
-        }
-        .pd-chart-svg { position: absolute; left: 6px; top: 44px; width: 726px; height: 250px; overflow: visible; }
-        .pd-chart-svg text { font-family: 'Fredoka', sans-serif; font-weight: 700; font-size: 14px; fill: #696A6E; }
+        /* --- graf --- */
+        .pd-chart-card { position: absolute; left: 0; top: 214px; width: 736px; height: 330px; }
+        .pd-chart-title { position: absolute; left: 16px; top: 6px; font-size: 22px; line-height: 28px; -webkit-text-stroke: 5px #000000; }
+        .pd-chart-sub { position: absolute; left: 16px; top: 36px; font-size: 13px; font-weight: 700 !important; color: #696A6E; white-space: nowrap; max-width: 440px; overflow: hidden; text-overflow: ellipsis; }
+        .pd-badge { position: absolute; right: 16px; top: 9px; display: flex; align-items: center; gap: 6px; font-size: 14px; font-weight: 700 !important; color: #262C2D; pointer-events: none; }
+        .pd-dot { width: 12px; height: 12px; border-radius: 50%; background: #2ECC40; border: 2px solid #000000; animation: pdPulse 1.4s infinite ease-in-out; }
+        .pd-badge.is-ended .pd-dot { background: #FF4A4A; animation: none; }
+        @keyframes pdPulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }
+        .pd-legend { position: absolute; right: 16px; top: 33px; display: flex; align-items: center; gap: 14px; font-size: 12px; font-weight: 700 !important; color: #696A6E; pointer-events: none; }
+        .pd-legend span { display: flex; align-items: center; gap: 5px; }
+        .pd-legend i { display: inline-block; }
+        .pd-leg-dot { width: 10px; height: 10px; border-radius: 50%; background: #FFFFFF; border: 2px solid #000000; }
+        .pd-leg-dash { width: 18px; height: 0; border-top: 2px dashed #262C2D; opacity: 0.6; }
+        .pd-chart-svg { position: absolute; left: 6px; top: 58px; width: 716px; height: 262px; overflow: visible; }
+        .pd-chart-svg text { font-family: 'Fredoka', sans-serif; font-weight: 700; font-size: 11px; fill: #262C2D; }
         .pd-hit { fill: transparent; cursor: pointer; }
-        .pd-hit:hover + .pd-bar, .pd-bar.is-hover { filter: brightness(1.08); }
-
-        .pd-chart-msg {
-            position: absolute;
-            left: 0; right: 0; top: 70px;
-            text-align: center;
-            padding: 0 40px;
-            display: none;
+        .pd-tip {
+            position: absolute; display: none; z-index: 30; pointer-events: none;
+            background: #FFFFFF; border: 2px solid #000000; border-radius: 6px; padding: 4px 9px; text-align: center; white-space: nowrap;
         }
+        .pd-tip-title { font-size: 14px; font-weight: 800 !important; color: #262C2D; line-height: 17px; }
+        .pd-tip-body { font-size: 13px; font-weight: 700 !important; color: #262C2D; line-height: 16px; }
+        .pd-chart-msg { position: absolute; left: 0; right: 0; top: 96px; text-align: center; padding: 0 60px; display: none; }
         .pd-chart-msg.is-visible { display: block; }
-        .pd-chart-msg-main { font-size: 34px; font-weight: 800 !important; color: #262C2D; line-height: 1.15; margin-bottom: 8px; }
-        .pd-chart-msg-sub { font-size: 22px; font-weight: 700 !important; color: #9E9E9E; line-height: 1.2; }
+        .pd-chart-msg-main { font-size: 30px; font-weight: 800 !important; color: #262C2D; line-height: 1.15; margin-bottom: 8px; }
+        .pd-chart-msg-sub { font-size: 18px; font-weight: 700 !important; color: #9E9E9E; line-height: 1.25; }
 
-        .pd-center-msg {
-            position: absolute;
-            left: 334px;
-            top: 210px;
-            width: 770px;
-            text-align: center;
-            padding: 0 40px;
-            font-size: 34px;
-            font-weight: 800 !important;
-            color: #B1B1B1;
-            z-index: 950;
-        }
+        .pd-center-msg { position: absolute; left: 334px; top: 210px; width: 770px; text-align: center; padding: 0 40px; font-size: 34px; font-weight: 800 !important; color: #B1B1B1; z-index: 950; }
         .pd-center-msg.is-error { color: #ff4a4a; }
 
         html, body {
@@ -468,28 +374,53 @@
 
                 <div class="pd-center-msg" id="centerMsg">Loading player...</div>
 
-                <div class="pd-content" id="pdContent">
+                <div class="pd-wrap" id="pdContent">
                     <img class="pd-avatar" id="pdAvatar" src="data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==" alt="" draggable="false">
                     <div class="pd-name" id="pdName" data-text="">&nbsp;</div>
-
-                    <div class="pd-clan" id="pdClan">
+                    <div class="pd-clan pd-card" id="pdClan">
                         <span class="pd-clan-label">Clan</span>
-                        <span class="pd-clan-tag" id="pdClanTag">-</span>
+                        <span class="pd-clan-tag pd-outline" id="pdClanTag">-</span>
+                    </div>
+                    <div class="pd-points">
+                        <img src="/images/stars.png" draggable="false" alt="">
+                        <span class="pd-points-num pd-outline" id="pdPoints">0</span>
                     </div>
 
-                    <img class="pd-points-icon" src="/images/stars.png" draggable="false" alt="">
-                    <div class="pd-points" id="pdPoints">0</div>
-
-                    <div class="pd-rank">
-                        <span class="pd-rank-label">Rank</span>
-                        <span class="pd-rank-num" id="pdRankNum">#-</span>
-                        <span class="pd-rank-total" id="pdRankTotal"></span>
+                    <div class="pd-rankcard pd-card">
+                        <div class="pd-nb pd-nb-behind is-empty" id="nbBehind">
+                            <img id="nbBehindImg" alt="" draggable="false" src="data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==">
+                            <div class="pd-nb-name" id="nbBehindName"></div>
+                            <div class="pd-nb-sub" id="nbBehindSub"></div>
+                        </div>
+                        <div class="pd-rank-center">
+                            <div class="pd-rank-label">GLOBAL RANK</div>
+                            <div class="pd-rank-num pd-outline" id="pdRankNum">#-</div>
+                            <div class="pd-rank-total" id="pdRankTotal"></div>
+                        </div>
+                        <div class="pd-nb pd-nb-ahead is-empty" id="nbAhead">
+                            <img id="nbAheadImg" alt="" draggable="false" src="data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==">
+                            <div class="pd-nb-name" id="nbAheadName"></div>
+                            <div class="pd-nb-sub" id="nbAheadSub"></div>
+                        </div>
+                        <div class="pd-bar-track"><div class="pd-bar-fill" id="pdBarFill"><div class="pd-bar-knob" id="pdBarKnob" style="left:100%"></div></div></div>
+                        <div class="pd-pct pd-pct-l"><b id="pdPctBehind">0%</b>players behind</div>
+                        <div class="pd-pct pd-pct-r"><b id="pdPctAhead">0%</b>players ahead</div>
                     </div>
 
-                    <div class="pd-chart-card">
-                        <div class="pd-chart-title">Points per hour</div>
-                        <div class="pd-chart-info" id="pdChartInfo"></div>
-                        <svg class="pd-chart-svg" id="pdChartSvg" viewBox="0 0 726 250"></svg>
+                    <div class="pd-stats">
+                        <div class="pd-stat pd-card"><div class="pd-stat-label" id="stLabelTotal">Total points</div><div class="pd-stat-value pd-outline" id="stTotal">N/A</div></div>
+                        <div class="pd-stat pd-card"><div class="pd-stat-label">Average / hour</div><div class="pd-stat-value pd-outline" id="stAvg">N/A</div></div>
+                        <div class="pd-stat pd-card"><div class="pd-stat-label" id="stLabelBest">Best hour</div><div class="pd-stat-value pd-outline" id="stBest">N/A</div></div>
+                        <div class="pd-stat pd-card"><div class="pd-stat-label">Latest hour</div><div class="pd-stat-value pd-outline" id="stLatest">N/A</div></div>
+                    </div>
+
+                    <div class="pd-chart-card pd-card" id="pdChartCard">
+                        <div class="pd-chart-title pd-outline">HOURLY POINTS</div>
+                        <div class="pd-chart-sub" id="pdChartSub"></div>
+                        <div class="pd-badge" id="pdBadge"><span class="pd-dot"></span><span id="pdBadgeText"></span></div>
+                        <div class="pd-legend"><span><i class="pd-leg-dot"></i>Hourly points</span><span><i class="pd-leg-dash"></i>Average</span></div>
+                        <svg class="pd-chart-svg" id="pdChartSvg" viewBox="0 0 716 262"></svg>
+                        <div class="pd-tip" id="pdTip"><div class="pd-tip-title" id="pdTipTitle"></div><div class="pd-tip-body" id="pdTipBody"></div></div>
                         <div class="pd-chart-msg" id="pdChartMsg">
                             <div class="pd-chart-msg-main" id="pdChartMsgMain"></div>
                             <div class="pd-chart-msg-sub" id="pdChartMsgSub"></div>
@@ -504,163 +435,255 @@
 
     <script>
         const WORKER_URL = "https://rough-pine-d90f.ps99clans.workers.dev";
-        const NAME_MAX_WIDTH = 480;
-
+        const BLANK = "data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==";
         const $ = id => document.getElementById(id);
 
-        function escapeHtml(str) {
-            return String(str ?? "").replace(/[&<>"']/g, c => ({
-                "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
-            }[c]));
+        // ---------- pomocné funkce ----------
+        function fullNumber(n) { return Number(n || 0).toLocaleString("en-US"); }
+
+        // Číslo zkrácené na 2 desetinná místa (909.73k, 21.83m), pro osu Y bez zbytečných nul
+        function short2(v, trim) {
+            const f = (x, s) => { let t = x.toFixed(2); if (trim) t = t.replace(/\.?0+$/, ""); return t + s; };
+            if (v >= 1e9) return f(v / 1e9, "b");
+            if (v >= 1e6) return f(v / 1e6, "m");
+            if (v >= 1e3) return f(v / 1e3, "k");
+            return String(Math.round(v));
         }
 
-        function formatNumber(num) {
-            if (num === undefined || num === null || isNaN(num)) return "0";
-            const fmt = (v, suffix) => (v >= 100 ? Math.round(v) : v.toFixed(1).replace(/\.0$/, "")) + suffix;
-            if (num >= 1e9) return fmt(num / 1e9, "b");
-            if (num >= 1e6) return fmt(num / 1e6, "m");
-            if (num >= 1e3) return fmt(num / 1e3, "k");
-            return String(Math.round(num));
-        }
-
-        function fullNumber(num) {
-            return Number(num || 0).toLocaleString("en-US");
-        }
-
-        function showCenter(text, isError = false) {
+        function showCenter(text, isError) {
             $("pdContent").classList.remove("is-visible");
             const el = $("centerMsg");
             el.textContent = text;
-            el.classList.toggle("is-error", isError);
+            el.classList.toggle("is-error", !!isError);
             el.style.display = "block";
         }
 
-        // Zmenšuje písmo nicku, dokud se nevejde do NAME_MAX_WIDTH (48px -> 20px)
-        function fitTitle() {
-            const el = $("pdName");
-            let size = 48;
+        // Zmenšuje písmo, dokud se text nevejde do dané šířky (bez zkracování na "...")
+        function fitWidth(el, maxPx, startPx, minPx, strokeRatio) {
+            let size = startPx;
             const apply = () => {
                 el.style.fontSize = size + "px";
-                el.style.webkitTextStroke = Math.max(3, Math.round(size / 8)) + "px #000000";
+                if (strokeRatio) el.style.webkitTextStroke = Math.max(3, Math.round(size * strokeRatio)) + "px #000000";
             };
             apply();
-            while (el.offsetWidth > NAME_MAX_WIDTH && size > 20) {
-                size -= 1;
-                apply();
-            }
+            while (el.offsetWidth > maxPx && size > minPx) { size -= 1; apply(); }
+        }
+        function fitInside(el, startPx, minPx) {
+            let size = startPx;
+            el.style.fontSize = size + "px";
+            while (el.scrollWidth > el.clientWidth && size > minPx) { size -= 1; el.style.fontSize = size + "px"; }
         }
 
+        let currentName = "";
         function setName(name) {
+            currentName = name;
             const el = $("pdName");
             el.textContent = name;
             el.setAttribute("data-text", name);
             document.title = `${name} - PS99 Clans`;
-            fitTitle();
+            fitWidth(el, 262, 40, 20, 0.15);
         }
 
-        async function loadAvatar(userId) {
+        async function fetchAvatars(ids, size) {
             try {
-                const res = await fetch(`${WORKER_URL}/roblox/avatars?userIds=${userId}&size=420x420&format=Png&isCircular=false`);
+                const res = await fetch(`${WORKER_URL}/roblox/avatars?userIds=${ids.join(",")}&size=${size}&format=Png&isCircular=false`);
                 const json = await res.json();
-                const item = (json.data || []).find(x => x && Number(x.targetId) === userId && x.imageUrl);
-                if (item) $("pdAvatar").src = item.imageUrl;
+                const map = {};
+                (json.data || []).forEach(x => { if (x && x.targetId && x.imageUrl) map[Number(x.targetId)] = x.imageUrl; });
+                return map;
             } catch (e) {
-                console.warn("Avatar se nepodařilo načíst:", e.message);
+                console.warn("Avatary se nepodařilo načíst:", e.message);
+                return {};
             }
         }
 
         async function loadMissingName(userId) {
             try {
                 const res = await fetch(`${WORKER_URL}/roblox/users`, {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ userIds: [userId] }),
+                    method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ userIds: [userId] }),
                 });
                 const json = await res.json();
                 const u = (json.data || []).find(x => x && Number(x.id) === userId && x.name);
                 if (u) setName(u.name);
-            } catch (e) {
-                console.warn("Jméno se nepodařilo načíst:", e.message);
-            }
+            } catch (e) { console.warn("Jméno se nepodařilo načíst:", e.message); }
         }
 
-        // ---------- Graf bodů za hodinu (vlastní SVG, bez externí knihovny) ----------
+        // ---------- sousedé v žebříčku + postup ----------
+        function fillNeighbor(prefix, n, label) {
+            const box = $(prefix);
+            if (!n) { box.classList.add("is-empty"); box.onclick = null; return; }
+            box.classList.remove("is-empty");
+            const name = n.username || `User ${n.userId}`;
+            const nameEl = $(prefix + "Name");
+            nameEl.textContent = name;
+            fitInside(nameEl, 12, 8);
+            $(prefix + "Sub").textContent = `#${fullNumber(n.rank)} · ${label}`;
+            box.onclick = () => { location.href = `/people-detail/?id=${encodeURIComponent(n.userId)}`; };
+        }
+
+        function fillRank(p, nb) {
+            $("pdRankNum").textContent = `#${fullNumber(p.rank)}`;
+            $("pdRankTotal").textContent = `of ${fullNumber(p.total)} players`;
+            const behind = p.total > 0 ? ((p.total - p.rank) / p.total) * 100 : 0;
+            const ahead = p.total > 0 ? ((p.rank - 1) / p.total) * 100 : 0;
+            $("pdPctBehind").textContent = behind.toFixed(2) + "%";
+            $("pdPctAhead").textContent = ahead.toFixed(2) + "%";
+            $("pdBarFill").style.width = Math.max(0, Math.min(100, behind)) + "%";
+            fillNeighbor("nbBehind", nb && nb.behind, "Behind");
+            fillNeighbor("nbAhead", nb && nb.ahead, "Ahead");
+        }
+
+        // ---------- graf: plynulá křivka (monotónní kubická interpolace, nepřestřelí pod nulu) ----------
+        function smoothPath(pts) {
+            const n = pts.length;
+            if (n === 1) return `M${pts[0].x} ${pts[0].y}`;
+            const dx = [], s = [], m = new Array(n);
+            for (let i = 0; i < n - 1; i++) { dx[i] = pts[i + 1].x - pts[i].x; s[i] = (pts[i + 1].y - pts[i].y) / dx[i]; }
+            m[0] = s[0]; m[n - 1] = s[n - 2];
+            for (let i = 1; i < n - 1; i++) m[i] = s[i - 1] * s[i] <= 0 ? 0 : (s[i - 1] + s[i]) / 2;
+            for (let i = 0; i < n - 1; i++) {
+                if (s[i] === 0) { m[i] = 0; m[i + 1] = 0; continue; }
+                const a = m[i] / s[i], b = m[i + 1] / s[i], h = a * a + b * b;
+                if (h > 9) { const t = 3 / Math.sqrt(h); m[i] = t * a * s[i]; m[i + 1] = t * b * s[i]; }
+            }
+            let d = `M${pts[0].x.toFixed(1)} ${pts[0].y.toFixed(1)}`;
+            for (let i = 0; i < n - 1; i++) {
+                const x1 = pts[i].x + dx[i] / 3, y1 = pts[i].y + m[i] * dx[i] / 3;
+                const x2 = pts[i + 1].x - dx[i] / 3, y2 = pts[i + 1].y - m[i + 1] * dx[i] / 3;
+                d += ` C${x1.toFixed(1)} ${y1.toFixed(1)} ${x2.toFixed(1)} ${y2.toFixed(1)} ${pts[i + 1].x.toFixed(1)} ${pts[i + 1].y.toFixed(1)}`;
+            }
+            return d;
+        }
+
         function niceMax(v) {
             if (v <= 1) return 1;
             const p = Math.pow(10, Math.floor(Math.log10(v)));
             const f = v / p;
-            return (f <= 1 ? 1 : f <= 2 ? 2 : f <= 5 ? 5 : 10) * p;
+            return (f <= 1 ? 1 : f <= 2 ? 2 : f <= 2.5 ? 2.5 : f <= 5 ? 5 : 10) * p;
         }
 
-        function hourLabel(ts) {
-            return String(new Date(ts * 1000).getHours()).padStart(2, "0") + ":00";
-        }
+        const pad2 = x => String(x).padStart(2, "0");
+        const hh = ts => pad2(new Date(ts * 1000).getHours());
 
-        function renderChart(history) {
-            const svg = $("pdChartSvg");
-            const msg = $("pdChartMsg");
-            const info = $("pdChartInfo");
-            msg.classList.remove("is-visible");
-            svg.style.display = "block";
+        const SVG_W = 716, SVG_H = 262, PAD_L = 54, PAD_R = 26, PAD_T = 26, PAD_B = 28;
 
-            const W = 726, H = 250, padL = 52, padR = 8, padT = 12, padB = 30;
-            const slots = 24;
-            const slotW = (W - padL - padR) / slots;
-            const barW = Math.round(slotW * 0.68);
-            const plotH = H - padT - padB;
-
+        function setStats(history, ended, available) {
+            const vals = ["stTotal", "stAvg", "stBest", "stLatest"];
+            vals.forEach(id => $(id).classList.toggle("is-na", !available || history.length === 0));
+            if (!available || history.length === 0) {
+                vals.forEach(id => { $(id).textContent = "N/A"; });
+                $("stLabelTotal").textContent = "Total points";
+                $("stLabelBest").textContent = "Best hour";
+                return;
+            }
             const gains = history.map(h => h.gain);
             const total = gains.reduce((a, b) => a + b, 0);
+            const bestI = gains.indexOf(Math.max(...gains));
+            $("stLabelTotal").textContent = `Total · ${history.length}h`;
+            $("stLabelBest").textContent = gains[bestI] > 0 ? `Best hour · ${hh(history[bestI].hour)}:00` : "Best hour";
+            $("stTotal").textContent = short2(total);
+            $("stAvg").textContent = short2(total / history.length);
+            $("stBest").textContent = short2(gains[bestI]);
+            $("stLatest").textContent = short2(gains[gains.length - 1]);
+        }
+
+        function renderChart(history, ended) {
+            const svg = $("pdChartSvg"), card = $("pdChartCard"), tip = $("pdTip");
+            $("pdChartMsg").classList.remove("is-visible");
+            svg.style.display = "block";
+
+            const n = history.length;
+            const plotW = SVG_W - PAD_L - PAD_R, plotH = SVG_H - PAD_T - PAD_B;
+            const gains = history.map(h => h.gain);
+            const total = gains.reduce((a, b) => a + b, 0), avg = total / n;
             const max = niceMax(Math.max(...gains, 1));
-            const currentHour = Math.floor(Date.now() / 3600000) * 3600;
-            const defaultInfo = `Last ${history.length}h: +${formatNumber(total)}`;
-            info.textContent = defaultInfo;
+            const baseY = PAD_T + plotH;
+            const xAt = i => n === 1 ? PAD_L + plotW / 2 : PAD_L + (i * plotW) / (n - 1);
+            const yAt = v => baseY - (v / max) * plotH;
+            const pts = gains.map((g, i) => ({ x: xAt(i), y: yAt(g) }));
+            const nowHour = Math.floor(Date.now() / 3600000) * 3600;
 
-            let out = "";
-            // vodorovné čáry a popisky osy Y
-            [0, 0.5, 1].forEach(f => {
-                const y = padT + plotH - f * plotH;
-                out += `<line x1="${padL}" y1="${y}" x2="${W - padR}" y2="${y}" stroke="${f === 0 ? "#2B2B2B" : "#D5E3E3"}" stroke-width="${f === 0 ? 3 : 2}" stroke-linecap="round"/>`;
-                out += `<text x="${padL - 8}" y="${y + 5}" text-anchor="end">${formatNumber(max * f)}</text>`;
+            let out = `<defs><linearGradient id="pdFill" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0" stop-color="rgba(28,46,74,0.8)"/><stop offset="1" stop-color="rgba(255,255,255,0)"/></linearGradient></defs>`;
+
+            // mřížka + osa Y (jako v live)
+            [0, 0.25, 0.5, 0.75, 1].forEach(f => {
+                const y = baseY - f * plotH;
+                out += `<line x1="${PAD_L}" y1="${y}" x2="${SVG_W - PAD_R}" y2="${y}" stroke="rgba(0,0,0,0.08)" stroke-width="1.5"/>`;
+                out += `<text x="${PAD_L - 8}" y="${y + 4}" text-anchor="end">${f === 0 ? "0" : short2(max * f, true)}</text>`;
             });
 
-            history.forEach((h, i) => {
-                const x = padL + i * slotW + (slotW - barW) / 2;
-                const bh = h.gain > 0 ? Math.max(4, (h.gain / max) * plotH) : 0;
-                const isCurrent = h.hour === currentHour;
-                if (bh > 0) {
-                    out += `<rect class="pd-bar" id="pdBar${i}" x="${x}" y="${padT + plotH - bh}" width="${barW}" height="${bh}" rx="4" fill="${isCurrent ? "#BFF3FF" : "#60E0FE"}" stroke="#000" stroke-width="3"${isCurrent ? ' stroke-dasharray="5 3"' : ""}/>`;
-                } else {
-                    out += `<rect x="${x}" y="${padT + plotH - 3}" width="${barW}" height="3" rx="1.5" fill="#CFE0E0"/>`;
-                }
-                if (i % 3 === 0) {
-                    out += `<text x="${x + barW / 2}" y="${H - 8}" text-anchor="middle">${hourLabel(h.hour)}</text>`;
-                }
-                out += `<rect class="pd-hit" data-i="${i}" x="${padL + i * slotW}" y="${padT}" width="${slotW}" height="${plotH}"/>`;
-            });
+            // popisky osy X
+            const step = n > 12 ? 6 : n > 6 ? 3 : 1;
+            for (let i = n - 1; i >= 0; i -= step) {
+                const ago = n - 1 - i;
+                const label = ago === 0 ? (ended ? "END" : "NOW") : (ended ? `${hh(history[i].hour)}:00` : `${ago}h ago`);
+                const anchor = i === n - 1 && n > 1 ? "end" : "middle";
+                out += `<text x="${xAt(i) + (anchor === "end" ? 6 : 0)}" y="${SVG_H - 8}" text-anchor="${anchor}" style="${ago === 0 ? "font-weight:800" : ""}">${label}</text>`;
+            }
+
+            // průměr (čárkovaně)
+            const avgY = yAt(avg);
+            out += `<line x1="${PAD_L}" y1="${avgY}" x2="${SVG_W - PAD_R}" y2="${avgY}" stroke="#262C2D" stroke-opacity="0.55" stroke-width="2" stroke-dasharray="6 5"/>`;
+
+            // plocha, obrys a bílá čára křivky
+            const line = smoothPath(pts);
+            if (n > 1) out += `<path d="${line} L${pts[n - 1].x.toFixed(1)} ${baseY} L${pts[0].x.toFixed(1)} ${baseY} Z" fill="url(#pdFill)"/>`;
+            if (n > 1) {
+                out += `<path d="${line}" fill="none" stroke="#000000" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>`;
+                out += `<path d="${line}" fill="none" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>`;
+            }
+
+            // body (bílé s černým okrajem jako v live)
+            pts.forEach((p, i) => { out += `<circle id="pdPt${i}" cx="${p.x}" cy="${p.y}" r="4" fill="#FFFFFF" stroke="#000000" stroke-width="2"/>`; });
+
+            // bublina s posledním přírůstkem
+            const last = pts[n - 1], txt = short2(gains[n - 1]);
+            const bw = txt.length * 8 + 16, bx = Math.max(PAD_L - 8, Math.min(SVG_W - 4 - bw, last.x - bw / 2));
+            const by = Math.max(2, last.y - 30);
+            out += `<g pointer-events="none"><rect x="${bx}" y="${by}" width="${bw}" height="22" rx="6" fill="#FFFFFF" stroke="#000000" stroke-width="2"/>
+                    <text x="${bx + bw / 2}" y="${by + 15.5}" text-anchor="middle" style="font-size:13px;font-weight:800">${txt}</text></g>`;
+
+            // neviditelné plochy pro hover/klepnutí
+            const hw = n === 1 ? plotW : plotW / (n - 1);
+            pts.forEach((p, i) => { out += `<rect class="pd-hit" data-i="${i}" x="${p.x - hw / 2}" y="0" width="${hw}" height="${baseY}"/>`; });
             svg.innerHTML = out;
 
+            let activeI = -1;
+            const hide = () => {
+                tip.style.display = "none";
+                if (activeI >= 0) { const c = $("pdPt" + activeI); if (c) c.setAttribute("r", "4"); }
+                activeI = -1;
+            };
             const show = i => {
-                const h = history[i];
-                if (!h) return;
-                const hh = hourLabel(h.hour);
-                const end = hh.slice(0, 2) + ":59";
-                info.textContent = `${hh}-${end}: +${fullNumber(h.gain)}${h.hour === currentHour ? " (so far)" : ""}`;
+                hide();
+                activeI = i;
+                const h = history[i], c = $("pdPt" + i);
+                if (c) c.setAttribute("r", "6.5");
+                $("pdTipTitle").textContent = `${hh(h.hour)}:00 - ${hh(h.hour)}:59${!ended && h.hour === nowHour ? " (so far)" : ""}`;
+                $("pdTipBody").textContent = `+${fullNumber(h.gain)} points`;
+                tip.style.display = "block";
+                const w = tip.offsetWidth, th = tip.offsetHeight;
+                let left = 6 + pts[i].x - w / 2;
+                left = Math.max(6, Math.min(728 - w - 2, left));
+                let top = 58 + pts[i].y - th - 12;
+                if (top < 4) top = 58 + pts[i].y + 14;
+                tip.style.left = left + "px"; tip.style.top = top + "px";
             };
             svg.onmouseover = e => { const t = e.target.closest("[data-i]"); if (t) show(+t.dataset.i); };
             svg.onclick = e => { const t = e.target.closest("[data-i]"); if (t) show(+t.dataset.i); };
-            svg.onmouseleave = () => { info.textContent = defaultInfo; };
+            svg.onmouseleave = hide;
         }
 
         function renderNoChart(main, sub) {
             $("pdChartSvg").style.display = "none";
-            $("pdChartInfo").textContent = "";
+            $("pdTip").style.display = "none";
             $("pdChartMsgMain").textContent = main;
             $("pdChartMsgSub").textContent = sub;
             $("pdChartMsg").classList.add("is-visible");
         }
 
-        // ---------- Načtení hráče ----------
+        // ---------- načtení hráče ----------
         async function loadPlayer() {
             const userId = parseInt(new URLSearchParams(location.search).get("id"), 10);
             if (!userId) { showCenter("Player not found."); return; }
@@ -668,14 +691,13 @@
             try {
                 const res = await fetch(`${WORKER_URL}/api/player/${userId}`);
                 const json = await res.json();
-
                 if (!json || json.status !== "ok") { showCenter("API Error.", true); return; }
-                if (!json.found || !json.player) {
-                    showCenter(json.message || "Player not found in top 25,000.");
-                    return;
-                }
+                if (!json.found || !json.player) { showCenter(json.message || "Player not found in top 25,000."); return; }
 
-                const p = json.player;
+                const p = json.player, ended = !json.active, battle = json.battle || {};
+                const history = Array.isArray(json.history) ? json.history : [];
+                const available = json.historyAvailable !== false && history.length > 0;
+
                 $("centerMsg").style.display = "none";
                 $("pdContent").classList.add("is-visible");
 
@@ -683,20 +705,31 @@
                 $("pdClanTag").textContent = p.clan || "-";
                 $("pdClan").onclick = () => { if (p.clan) location.href = `/clan-detail/?name=${encodeURIComponent(p.clan)}`; };
                 $("pdPoints").textContent = fullNumber(p.points);
-                $("pdRankNum").textContent = `#${fullNumber(p.rank)}`;
-                $("pdRankTotal").textContent = `of ${fullNumber(p.total)}`;
+                fillRank(p, json.neighbors);
 
-                loadAvatar(p.userId);
+                // avatary: hlavní ve větším rozlišení, sousedé malé (dva dotazy najednou)
+                const nbIds = [json.neighbors && json.neighbors.behind, json.neighbors && json.neighbors.ahead].filter(Boolean).map(n => n.userId);
+                fetchAvatars([p.userId], "420x420").then(m => { if (m[p.userId]) $("pdAvatar").src = m[p.userId]; });
+                if (nbIds.length) fetchAvatars(nbIds, "150x150").then(m => {
+                    const b = json.neighbors.behind, a = json.neighbors.ahead;
+                    if (b && m[b.userId]) $("nbBehindImg").src = m[b.userId];
+                    if (a && m[a.userId]) $("nbAheadImg").src = m[a.userId];
+                });
                 if (!p.username) loadMissingName(p.userId);
 
-                // Graf jen při aktivní válce; po jejím konci se místo něj ukáže hláška (žádné nuly)
-                if (json.active && Array.isArray(json.history) && json.history.length > 0) {
-                    renderChart(json.history);
-                } else if (json.active) {
-                    renderNoChart("No data yet", "The graph fills in hour by hour during the clan war.");
-                } else {
-                    renderNoChart("Clan war is not active", "The hourly graph is shown during a clan war.");
-                }
+                // záhlaví grafu
+                const warName = battle.name || "clan war";
+                $("pdBadge").classList.toggle("is-ended", ended);
+                $("pdBadgeText").textContent = ended ? "WAR ENDED" : "WAR ACTIVE";
+                $("pdChartSub").textContent = available
+                    ? (() => { const hrs = history.length === 1 ? "hour" : `${history.length} hours`; return ended ? `Final ${hrs} of ${warName}` : `Last ${hrs} of ${warName}`; })()
+                    : warName;
+
+                setStats(history, ended, available);
+                if (available) renderChart(history, ended);
+                else renderNoChart("No hourly data for this war",
+                    ended ? "Hourly history is recorded while a clan war is running. This war was not tracked from its start, so the graph will be available from the next war."
+                          : "The graph fills in hour by hour during the clan war.");
             } catch (err) {
                 console.error(err);
                 showCenter("API Error.", true);
@@ -706,23 +739,17 @@
         function autoFitScreen() {
             const scaler = $("appScaler");
             if (!scaler) return;
-            const winW = window.innerWidth;
-            const winH = window.innerHeight;
-            if (winW >= 1150) {
-                document.body.classList.remove("is-mobile");
-                scaler.style.transform = "none";
-                return;
-            }
+            const winW = window.innerWidth, winH = window.innerHeight;
+            if (winW >= 1150) { document.body.classList.remove("is-mobile"); scaler.style.transform = "none"; return; }
             document.body.classList.add("is-mobile");
-            const scale = Math.min(winW / 1120, winH / 650) * 0.92;
-            scaler.style.transform = `scale(${scale})`;
+            scaler.style.transform = `scale(${Math.min(winW / 1120, winH / 650) * 0.92})`;
         }
 
         window.addEventListener("resize", autoFitScreen);
         window.addEventListener("orientationchange", autoFitScreen);
         window.addEventListener("DOMContentLoaded", autoFitScreen);
         window.addEventListener("DOMContentLoaded", loadPlayer);
-        if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitTitle);
+        if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { if (currentName) setName(currentName); });
     </script>
 
     <a href="https://forms.gle/2DWB7Hzcv2XZ1PVCA" target="_blank" class="ps99-feedback-btn">
