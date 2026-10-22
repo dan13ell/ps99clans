@@ -500,129 +500,6 @@
             overscroll-behavior: contain !important;
         }
 
-        .orientation-popup-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            background: rgba(0, 0, 0, 0.65);
-            backdrop-filter: blur(4px);
-            z-index: 99999;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.3s ease;
-        }
-
-        .orientation-popup-overlay.show {
-            opacity: 1;
-            pointer-events: auto;
-        }
-
-        .orientation-popup-card {
-            position: relative;
-            width: 88%;
-            max-width: 380px;
-            background: #FFFFFF;
-            border: 5px solid #000000;
-            border-radius: 20px;
-            padding: 25px 20px 20px 20px;
-            text-align: center;
-            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            transform: scale(0.85);
-            transition: transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
-
-        .orientation-popup-overlay.show .orientation-popup-card {
-            transform: scale(1);
-        }
-
-        .popup-close-x {
-            position: absolute;
-            right: -14px;
-            top: -14px;
-            width: 44px;
-            height: 44px;
-            background: url("/images/X.png") no-repeat center center;
-            background-size: 100% 100%;
-            cursor: pointer;
-            filter: drop-shadow(0px 3px 5px rgba(0,0,0,0.3));
-            transition: transform 0.1s ease;
-        }
-
-        .popup-close-x:active {
-            background-image: url("/images/X-clicked.png");
-            transform: scale(0.9);
-        }
-
-        .popup-icon-container {
-            width: 64px;
-            height: 64px;
-            margin-bottom: 12px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .popup-icon-svg {
-            width: 100%;
-            height: 100%;
-            fill: #3b82f6;
-            animation: rotatePhone 2.5s infinite ease-in-out;
-        }
-
-        @keyframes rotatePhone {
-            0%, 15% { transform: rotate(0deg); }
-            50%, 65% { transform: rotate(-90deg); }
-            85%, 100% { transform: rotate(0deg); }
-        }
-
-        .popup-title {
-            font-size: 24px;
-            color: #FFFFFF;
-            -webkit-text-stroke: 4.5px #000000;
-            paint-order: stroke fill;
-            stroke-linejoin: round;
-            font-weight: 800 !important;
-            margin-bottom: 8px;
-            text-transform: uppercase;
-        }
-
-        .popup-text {
-            font-size: 16px;
-            color: #2A2B31;
-            font-weight: 700;
-            margin-bottom: 18px;
-            line-height: 1.35;
-        }
-
-        .popup-rotate-btn {
-            width: 100%;
-            padding: 12px 0;
-            background: linear-gradient(180deg, #4292FF 0%, #176BFF 100%);
-            border: 3.5px solid #000000;
-            border-radius: 12px;
-            color: #FFFFFF;
-            font-size: 18px;
-            font-weight: 800 !important;
-            -webkit-text-stroke: 3px #000000;
-            paint-order: stroke fill;
-            cursor: pointer;
-            box-shadow: 0 4px 0 #000000;
-            transition: transform 0.05s ease, box-shadow 0.05s ease;
-        }
-
-        .popup-rotate-btn:active {
-            transform: translateY(3px);
-            box-shadow: 0 1px 0 #000000;
-        }
-
         .ps99-feedback-btn {
             position: fixed;
             top: 14px;
@@ -762,23 +639,6 @@
         </div>
     </div>
 
-    <div class="orientation-popup-overlay" id="orientationPopup">
-        <div class="orientation-popup-card">
-            <div class="popup-close-x" id="popupCloseBtn"></div>
-            
-            <div class="popup-icon-container">
-                <svg class="popup-icon-svg" viewBox="0 0 24 24">
-                    <path d="M17 1.01L7 1c-1.1 0-2 .9-2 2v18c0 1.1.9 2 2 2h10c1.1 0 2-.9 2-2V3c0-1.1-.9-1.99-2-1.99zM17 19H7V5h10v14z"/>
-                </svg>
-            </div>
-            
-            <div class="popup-title">Rotate Phone</div>
-            <div class="popup-text">Rotate your device horizontally for the best experience!</div>
-            
-            <button class="popup-rotate-btn" id="popupRotateActionBtn">ROTATE SCREEN</button>
-        </div>
-    </div>
-
     <script>
         const WORKER_URL = "https://rough-pine-d90f.ps99clans.workers.dev";
         const params = new URLSearchParams(window.location.search);
@@ -837,7 +697,6 @@
             if (winW >= 1150) {
                 document.body.classList.remove("is-mobile");
                 scaler.style.transform = "none";
-                hideOrientationPopup();
                 return;
             }
 
@@ -850,43 +709,7 @@
 
             const scale = Math.min(scaleX, scaleY) * 0.92;
             scaler.style.transform = `scale(${scale})`;
-
-            checkOrientationPopup();
         }
-
-        function checkOrientationPopup() {
-            const popup = document.getElementById("orientationPopup");
-            if (!popup) return;
-
-            const hasBeenDismissed = sessionStorage.getItem("orientationPopupDismissed") === "true";
-            const isMobile = window.innerWidth < 1150;
-            const isPortrait = window.innerHeight > window.innerWidth;
-
-            if (isMobile && isPortrait && !hasBeenDismissed) {
-                popup.classList.add("show");
-            } else {
-                popup.classList.remove("show");
-            }
-        }
-
-        function dismissOrientationPopup() {
-            sessionStorage.setItem("orientationPopupDismissed", "true");
-            hideOrientationPopup();
-        }
-
-        function hideOrientationPopup() {
-            const popup = document.getElementById("orientationPopup");
-            if (popup) popup.classList.remove("show");
-        }
-
-        document.getElementById("popupCloseBtn")?.addEventListener("click", dismissOrientationPopup);
-
-        document.getElementById("popupRotateActionBtn")?.addEventListener("click", () => {
-            if (screen.orientation && screen.orientation.lock) {
-                screen.orientation.lock("landscape").catch(() => {});
-            }
-            dismissOrientationPopup();
-        });
 
         window.addEventListener("resize", autoFitScreen);
         window.addEventListener("orientationchange", autoFitScreen);
