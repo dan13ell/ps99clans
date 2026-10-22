@@ -212,31 +212,43 @@
             image-rendering: pixelated; 
         }
 
-        /* ===== Karty hráčů: styl clan-row z top-clans, na výšku, 3 vedle sebe ===== */
+        /* ===== Karty hráčů: tvar z první verze (kulatý avatar, vše pod sebou), barvy a písmo jako top-clans ===== */
+        /* Všechny karty a avatary mají pevné, stejné rozměry. */
         .players-grid {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 8px;
+            grid-template-columns: repeat(3, 234px);
+            gap: 15px 17px;
+            justify-content: start;
             width: 736px;
             margin-top: 40px; /* první řada pod vyhledávacím polem, ať ho pořadí nepřekrývá */
-            margin-bottom: 4px;
-            min-height: 214px;
+            margin-bottom: 8px;
+            min-height: 232px;
         }
 
         .player-card {
             position: relative;
-            width: 100%;
-            height: 214px;
+            width: 234px;
+            height: 232px;
             background-color: #F7FFFF;
             border: 4px solid #000000;
-            border-radius: 12px;
+            border-radius: 20px;
             cursor: pointer;
-            flex-shrink: 0;
             -webkit-tap-highlight-color: transparent;
             transition: transform 0.044s cubic-bezier(0.1, 0.9, 0.2, 1);
         }
         .player-card:hover { transform: scale(1.03); z-index: 10; }
         .player-card:active { transform: scale(0.95); }
+        .player-card::after { /* oddělovač nad body */
+            content: "";
+            position: absolute;
+            left: 12%;
+            width: 76%;
+            top: 177px;
+            height: 3px;
+            border-radius: 2px;
+            background: #D5E3E3;
+            pointer-events: none;
+        }
 
         .player-rank {
             position: absolute;
@@ -254,16 +266,16 @@
         }
         .player-rank.is-long { font-size: 26px; top: -11px; }
 
-        /* velký avatar uprostřed nahoře */
         .player-avatar {
             position: absolute;
             left: 50%;
-            top: 10px;
-            width: 100px;
-            height: 100px;
-            margin-left: -50px;
-            border-radius: 10px;
+            top: 12px;
+            width: 92px;
+            height: 92px;
+            margin-left: -46px;
+            border-radius: 50%;
             background-color: #ffffff;
+            border: 4px solid #000000;
             object-fit: cover;
             pointer-events: none;
             z-index: 10;
@@ -273,12 +285,12 @@
         .player-userid {
             position: absolute;
             left: 0;
-            top: 116px;
+            top: 112px;
             width: 100%;
-            height: 34px;
-            padding: 0 8px;
+            height: 32px;
+            padding: 0 10px;
             font-size: 25px;
-            line-height: 34px;
+            line-height: 32px;
             text-align: center;
             color: #FEFEFE;
             -webkit-text-stroke: 7px #000000;
@@ -293,11 +305,34 @@
             pointer-events: none;
         }
 
+        .player-clan-badge {
+            position: absolute;
+            left: 50%;
+            top: 146px;
+            transform: translateX(-50%);
+            max-width: 200px;
+            height: 26px;
+            padding: 0 14px;
+            background-color: #000000;
+            border-radius: 13px;
+            font-size: 16px;
+            line-height: 26px;
+            font-weight: 800 !important;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            color: #8AFCED;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            pointer-events: none;
+        }
+
         .player-points-box {
             position: absolute;
             left: 0;
             right: 0;
-            top: 152px;
+            top: 184px;
+            height: 36px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -321,24 +356,6 @@
             font-weight: 800 !important;
             text-shadow: none !important;
             white-space: nowrap;
-        }
-
-        .player-clan-badge {
-            position: absolute;
-            left: 0;
-            top: 187px;
-            width: 100%;
-            padding: 0 10px;
-            text-align: center;
-            font-size: 18px;
-            font-weight: 700 !important;
-            font-style: italic;
-            color: #2B2B2B;
-            line-height: 1;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            pointer-events: none;
         }
 
         .loading-overlay {
