@@ -10,6 +10,7 @@
   const BUTTONS = [
     { id: "clans",  label: "Clans", icon: "/images/hotbar/clans.png",  href: "/" },
     { id: "compare", label: "Compare", icon: "/images/hotbar/arrows.png" }, // zatím nikam nevede
+    { id: "live",    label: "Live Placement", icon: "/images/hotbar/live.png" }, // zatím nikam nevede
     // { id: "discord", label: "Discord", icon: "/images/hotbar/discord.png", badge: "NEW", href: "https://discord.gg/...", newTab: true },
   ];
   // ====================================================
@@ -19,7 +20,6 @@
   const PRESS_SCALE = 0.95;  // stisk (zmenšení ke spodní hraně)
   const ACTIVE_SCALE = 1.10; // tlačítko aktuální stránky je trvale větší
   const ANIM = "transform 0.045s cubic-bezier(0.1, 0.9, 0.2, 1)"; // najetí i vyjetí
-  const LIFT = 40;           // o kolik px posunout hlavní okno nahoru
 
   const css = document.createElement("style");
   css.textContent = `
@@ -36,7 +36,7 @@
       align-items: flex-end;
       justify-content: center;
       width: max-content;
-      margin-top: 8px;
+      margin-top: 30px;              /* odstup od hlavního okna */
       padding: 30px 30px 30px;
       gap: 12px;
       z-index: 800;
@@ -63,6 +63,7 @@
       will-change: transform;
     }
     .ps-hb-btn.hb-hover { z-index: 2; }
+    .ps-hb-btn.hb-active { cursor: default; }
 
     .ps-hb-icon {
       display: block;
@@ -179,6 +180,7 @@
     btn.addEventListener("pointercancel", release);
 
     btn.addEventListener("click", () => {
+      if (it.active) return;           // už jsem na té stránce -> nic nedělat
       if (typeof b.onClick === "function") return b.onClick();
       if (!b.href) return;
       if (b.newTab) window.open(b.href, "_blank");
@@ -234,7 +236,8 @@
     layout(false);
   }
 
-  // Posun hlavního okna nahoru – jen tolik, aby logo nad oknem nevyjelo z obrazovky
+  // Hlavní okno zůstává přesně uprostřed. Nahoru se posune jen tehdy, když by se lišta
+  // pod ním nevešla na obrazovku – a jen o tolik, kolik je potřeba (logo nesmí vyjet nahoru).
   function lift() {
     const win = document.querySelector(".game-window");
     const bg = win && win.querySelector(".menu-bg");
@@ -245,7 +248,13 @@
     const cur = parseFloat(win.style.getPropertyValue("--hb-lift")) || 0;
     const topNoLift = bg.getBoundingClientRect().top + cur * s;  // horní hrana okna bez posunu
     const room = (topNoLift - 75 * s - 6) / s;                    // místo pro logo (~70 px nad oknem)
-    win.style.setProperty("--hb-lift", Math.max(0, Math.min(LIFT, room)).toFixed(1));
+    const bar = win.querySelector(".ps-hotbar");
+    let need = 0;
+    if (bar) {
+      const barBottom = bar.getBoundingClientRect().bottom - 12 * s + cur * s; // spodek lišty bez posunu
+      need = (barBottom - (window.innerHeight - 4)) / s;
+    }
+    win.style.setProperty("--hb-lift", Math.max(0, Math.min(need, room)).toFixed(1));
   }
 
   if (typeof window.autoFitScreen === "function") {
