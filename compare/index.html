@@ -1,0 +1,1052 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-M5T889PLGJ"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-M5T889PLGJ');
+    </script>
+
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5302554896051137"
+     crossorigin="anonymous"></script>
+
+    <link rel="icon" href="/images/favicon.png" type="image/png">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>PS99 Clans - Clan Compare</title>
+    <meta name="description" content="Compare two Pet Simulator 99 clans side by side: battle points, difference, place, diamonds, members, medals and more.">
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <link rel="preload" as="image" href="/images/main-menu.png">
+    <link rel="preload" as="image" href="/images/topclans-leaderboard-search.png">
+    <link rel="preload" as="image" href="/images/stars.png">
+    <link rel="preload" as="image" href="/images/gems.png">
+    <link rel="preload" as="image" href="/images/scroller.png">
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Fredoka', sans-serif !important;
+            font-weight: 600;
+            user-select: none;
+        }
+
+        body {
+            background-color: #89b3f9;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        html, body {
+            width: 100vw;
+            height: 100dvh;
+            margin: 0;
+            padding: 0;
+            overflow: hidden !important;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            overscroll-behavior: none !important;
+            touch-action: none;
+        }
+
+        .app-scaler {
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transform-origin: center center;
+        }
+
+        .game-window {
+            position: relative;
+            display: inline-block;
+            overflow: visible;
+        }
+
+        .menu-bg {
+            display: block;
+            width: auto;
+            height: auto;
+            filter: drop-shadow(0px 10px 20px rgba(0, 0, 0, 0.35));
+        }
+
+        .clans-logo {
+            position: absolute;
+            left: -36px;
+            top: -69px;
+            width: 315px;
+            height: 117px;
+            background: url("/images/clans-logo.png") no-repeat center center;
+            background-size: 100% 100%;
+            z-index: 998;
+        }
+
+        .close-btn {
+            position: absolute;
+            left: 1044px;
+            top: -30px;
+            width: 72px;
+            height: 73px;
+            background: url("/images/X.png") no-repeat center center;
+            background-size: 100% 100%;
+            cursor: pointer;
+            z-index: 999;
+            filter: drop-shadow(0px 4px 6px rgba(0, 0, 0, 0.35));
+            transition: all 0.044s cubic-bezier(0.1, 0.9, 0.2, 1);
+        }
+        .close-btn:hover:not(:active) { left: 1042px; top: -34px; width: 76px; height: 77px; }
+        .close-btn:active { background-image: url("/images/X-clicked.png"); left: 1047px; top: -29px; width: 66px; height: 67px; }
+
+        /* ---------- společné textové styly ---------- */
+        .stroke {
+            color: #FEFEFE;
+            -webkit-text-stroke: 6px #000000;
+            stroke-linejoin: round;
+            -webkit-stroke-linejoin: round;
+            paint-order: stroke fill;
+            font-weight: 800 !important;
+            white-space: nowrap;
+        }
+        .grad {
+            position: relative;
+            color: #000000;
+            -webkit-text-stroke: 6px #000000;
+            stroke-linejoin: round;
+            -webkit-stroke-linejoin: round;
+            paint-order: stroke fill;
+            font-weight: 800 !important;
+            white-space: nowrap;
+        }
+        .grad::after {
+            content: attr(data-text);
+            position: absolute;
+            left: 0;
+            top: 0;
+            -webkit-text-stroke: 0px transparent;
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .grad-a::after  { background-image: linear-gradient(to bottom, #7CF6FA, #60E0FE); }
+        .grad-b::after  { background-image: linear-gradient(to bottom, #FFA3C1, #FF4F86); }
+        .grad-vs::after { background-image: linear-gradient(to bottom, #FFE873, #FFB21E); }
+
+        /* ================= LEVÝ PANEL – zadání klanů ================= */
+        .left-panel {
+            position: absolute;
+            left: 8px;
+            top: 8px;
+            width: 322px;
+            height: 554px;
+            z-index: 900;
+        }
+
+        .side-label {
+            position: absolute;
+            left: 22px;
+            font-size: 17px;
+            letter-spacing: 0.5px;
+            z-index: 2;
+        }
+        .side-label.a { color: #33C5EC; }
+        .side-label.b { color: #FF4F86; }
+        .side-label .stroke { font-size: 17px; -webkit-text-stroke: 4px #000; }
+
+        .clan-input-wrap {
+            position: absolute;
+            left: 14px;
+            width: 294px;
+            height: 50px;
+            background: url("/images/topclans-leaderboard-search.png") no-repeat center center;
+            background-size: 100% 100%;
+            z-index: 3;
+        }
+        .clan-input-wrap::before {
+            content: "";
+            position: absolute;
+            left: 13px;
+            top: 50%;
+            width: 18px;
+            height: 18px;
+            margin-top: -9px;
+            border-radius: 50%;
+            border: 3px solid #000;
+        }
+        .clan-input-wrap.a::before { background: #60E0FE; }
+        .clan-input-wrap.b::before { background: #FF4F86; }
+
+        .clan-input {
+            width: 100%;
+            height: 100%;
+            background: transparent;
+            border: none;
+            outline: none;
+            padding: 0 18px 0 42px;
+            color: #000000;
+            font-size: 28px;
+            font-weight: 800 !important;
+            text-align: center;
+            text-transform: uppercase;
+            user-select: text;
+        }
+        .clan-input::placeholder { color: #B1B1B1; font-weight: 600; text-transform: none; }
+
+        .clan-preview {
+            position: absolute;
+            left: 14px;
+            width: 294px;
+            height: 74px;
+            background: #FFFFFF;
+            border: 3px solid #000000;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            padding: 0 10px;
+            gap: 10px;
+            z-index: 3;
+            overflow: hidden;
+        }
+        .clan-preview.empty { justify-content: center; color: #B1B1B1; font-size: 17px; }
+        .clan-preview.error { justify-content: center; color: #FF5555; font-size: 19px; font-weight: 800 !important; }
+        .clan-preview .pv-icon {
+            width: 54px;
+            height: 54px;
+            border-radius: 10px;
+            border: 2.5px solid #000;
+            background: #FFF;
+            object-fit: contain;
+            flex: 0 0 auto;
+        }
+        .clan-preview .pv-text { display: flex; flex-direction: column; min-width: 0; }
+        .clan-preview .pv-name { font-size: 26px; line-height: 1.05; }
+        .clan-preview .pv-sub {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 15px;
+            color: #696A6E;
+            font-weight: 700 !important;
+            white-space: nowrap;
+        }
+        .clan-preview .pv-sub img { width: 22px; height: 16px; border-radius: 3px; object-fit: cover; }
+        .clan-preview { cursor: pointer; transition: transform 0.044s cubic-bezier(0.1, 0.9, 0.2, 1); }
+        .clan-preview.empty, .clan-preview.error { cursor: default; }
+        .clan-preview.filled:hover:not(:active) { transform: scale(1.02); }
+        .clan-preview.filled:active { transform: scale(0.97); }
+
+        .vs-badge {
+            position: absolute;
+            left: 0;
+            width: 322px;
+            text-align: center;
+            font-size: 46px;
+            line-height: 1;
+            z-index: 3;
+        }
+
+        .battle-card {
+            position: absolute;
+            left: 14px;
+            top: 452px;
+            width: 294px;
+            height: 92px;
+            background: #FFFFFF;
+            border: 3px solid #000000;
+            border-radius: 14px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            z-index: 3;
+        }
+        .battle-card .bc-title { font-size: 14px; color: #9E9E9E; font-weight: 700 !important; letter-spacing: 0.5px; }
+        .battle-card .bc-name  { font-size: 22px; line-height: 1.1; -webkit-text-stroke: 5px #000; }
+        .battle-card .bc-timer { font-size: 18px; color: #FF2B2B; font-weight: 800 !important; }
+
+        /* ================= PRAVÝ PANEL – porovnání ================= */
+        .compare-area {
+            position: absolute;
+            left: 350px;
+            top: 8px;
+            width: 742px;
+            height: 554px;
+            z-index: 900;
+        }
+
+        .compare-empty {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 14px;
+            text-align: center;
+        }
+        .compare-empty .ce-icon { width: 150px; height: auto; opacity: 0.9; }
+        .compare-empty .ce-title { font-size: 44px; }
+        .compare-empty .ce-sub { font-size: 22px; color: #9E9E9E; font-weight: 700 !important; }
+        .compare-empty.loading .ce-title { color: #B1B1B1; -webkit-text-stroke: 0; font-size: 32px; }
+
+        .compare-content { position: absolute; left: 0; top: 0; width: 100%; height: 100%; display: none; }
+
+        /* hlavička se dvěma klany */
+        .head-side {
+            position: absolute;
+            top: 10px;
+            width: 300px;
+            height: 112px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+        }
+        .head-side.a { left: 4px; }
+        .head-side.b { right: 52px; flex-direction: row-reverse; text-align: right; } /* místo pro tlačítko X */
+        .head-icon {
+            width: 100px;
+            height: 100px;
+            border-radius: 14px;
+            border: 3px solid #000;
+            background: #FFFFFF;
+            object-fit: contain;
+            flex: 0 0 auto;
+            transition: transform 0.044s cubic-bezier(0.1, 0.9, 0.2, 1);
+        }
+        .head-side:hover:not(:active) .head-icon { transform: scale(1.04); }
+        .head-side:active .head-icon { transform: scale(0.96); }
+        .head-text { display: flex; flex-direction: column; min-width: 0; }
+        .head-side.b .head-text { align-items: flex-end; }
+        .head-name { font-size: 42px; line-height: 1.05; }
+        .head-row {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            margin-top: 4px;
+        }
+        .head-flag { width: 29px; height: 22px; border-radius: 3px; object-fit: cover; }
+        .place-pill {
+            padding: 2px 11px;
+            border-radius: 12px;
+            border: 3px solid #000;
+            background: #FFFFFF;
+            font-size: 18px;
+            font-weight: 800 !important;
+            color: #262C2D;
+            white-space: nowrap;
+        }
+        .place-pill.gold   { background: linear-gradient(#FFE873, #FFB21E); }
+        .place-pill.silver { background: linear-gradient(#F4F6FA, #BFC6D4); }
+        .place-pill.bronze { background: linear-gradient(#FFC48A, #E4893A); }
+        .head-members { font-size: 15px; color: #696A6E; font-weight: 700 !important; margin-top: 3px; white-space: nowrap; }
+
+        .head-vs {
+            position: absolute;
+            left: calc(50% - 24px);
+            top: 30px;
+            transform: translateX(-50%);
+            font-size: 52px;
+            line-height: 1;
+        }
+
+        /* přetahovaná – poměr bodů */
+        .tug {
+            position: absolute;
+            left: 8px;
+            top: 134px;
+            width: 726px;
+            height: 46px;
+            border: 4px solid #000000;
+            border-radius: 23px;
+            overflow: hidden;
+            background: linear-gradient(to bottom, #FFA3C1, #FF4F86);
+        }
+        .tug-a {
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 50%;
+            background: linear-gradient(to bottom, #8FF8FB, #48D2F7);
+            border-right: 4px solid #000;
+            transition: width 0.6s cubic-bezier(0.2, 0.9, 0.2, 1);
+        }
+        .tug-label {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 22px;
+            -webkit-text-stroke: 5px #000;
+            z-index: 2;
+        }
+        .tug-label.a { left: 14px; }
+        .tug-label.b { right: 14px; }
+        .tug-shine {
+            position: absolute;
+            left: 10px;
+            right: 10px;
+            top: 4px;
+            height: 9px;
+            border-radius: 6px;
+            background: rgba(255, 255, 255, 0.35);
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        /* rozdíl */
+        .diff-card {
+            position: absolute;
+            left: 8px;
+            top: 190px;
+            width: 726px;
+            height: 96px;
+            background: #FFFFFF;
+            border: 4px solid #000000;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            padding: 0 22px;
+            gap: 14px;
+        }
+        .diff-icon { width: 58px; height: 47px; object-fit: contain; flex: 0 0 auto; }
+        .diff-main { display: flex; flex-direction: column; align-items: flex-start; min-width: 0; }
+        .diff-value { font-size: 46px; line-height: 1.05; }
+        .diff-label { font-size: 15px; color: #9E9E9E; font-weight: 700 !important; letter-spacing: 0.5px; }
+        .diff-side {
+            margin-left: auto;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            text-align: right;
+            gap: 2px;
+            min-width: 0;
+        }
+        .diff-lead { font-size: 26px; line-height: 1.1; -webkit-text-stroke: 5px #000; }
+        .diff-sub { font-size: 16px; color: #696A6E; font-weight: 700 !important; white-space: nowrap; }
+
+        /* řádky statistik */
+        .rows-scroll {
+            position: absolute;
+            left: 8px;
+            top: 296px;
+            width: 734px;
+            height: 252px;
+            overflow-y: auto;
+            overflow-x: hidden;
+            padding-right: 22px;
+            touch-action: pan-y !important;
+            overscroll-behavior: contain !important;
+        }
+        .stat-row {
+            position: relative;
+            width: 704px;
+            height: 54px;
+            margin-bottom: 6px;
+            margin-left: 2px;
+            background: #FFFFFF;
+            border: 3px solid #000000;
+            border-radius: 13px;
+            display: flex;
+            align-items: center;
+            padding: 0 16px;
+        }
+        .stat-val {
+            flex: 1 1 0;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            min-width: 0;
+            font-size: 27px;
+        }
+        .stat-val.b { justify-content: flex-end; }
+        .stat-val img { width: 32px; height: 28px; object-fit: contain; }
+        .stat-val .sv-sub { font-size: 14px; color: #696A6E; -webkit-text-stroke: 0; font-weight: 700 !important; }
+        .stat-val.win .stroke { color: #7CFF5B; }
+        .stat-val .crown {
+            font-size: 15px;
+            line-height: 1;
+            color: #2BC02B;
+            -webkit-text-stroke: 0;
+        }
+        .stat-label {
+            flex: 0 0 200px;
+            text-align: center;
+            font-size: 16px;
+            color: #9E9E9E;
+            font-weight: 700 !important;
+            letter-spacing: 0.4px;
+            line-height: 1.1;
+        }
+        .medals { display: flex; align-items: center; gap: 4px; }
+        .medal {
+            min-width: 30px;
+            height: 30px;
+            padding: 0 6px;
+            border-radius: 15px;
+            border: 2.5px solid #000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 15px;
+            font-weight: 800 !important;
+            color: #262C2D;
+        }
+        .medal.g { background: linear-gradient(#FFE873, #FFB21E); }
+        .medal.s { background: linear-gradient(#F4F6FA, #BFC6D4); }
+        .medal.c { background: linear-gradient(#FFC48A, #E4893A); }
+        .player-name { font-size: 20px; max-width: 150px; overflow: hidden; text-overflow: ellipsis; }
+
+        /* ---------- tlačítka FEEDBACK / Privacy (stejná jako jinde) ---------- */
+        .ps99-feedback-btn {
+            position: fixed;
+            top: 14px;
+            right: 14px;
+            z-index: 99999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 5px 13px;
+            background: #FFFFFF;
+            border: 2.5px solid #000000;
+            border-radius: 9px;
+            color: #000000;
+            font-size: 13.5px;
+            font-weight: 600 !important;
+            font-family: 'Fredoka', sans-serif !important;
+            text-decoration: none;
+            box-shadow: 0 3px 0 #000000, 0 5px 10px rgba(0, 0, 0, 0.2);
+            cursor: pointer;
+            transition: transform 0.044s cubic-bezier(0.1, 0.9, 0.2, 1),
+                        box-shadow 0.044s cubic-bezier(0.1, 0.9, 0.2, 1),
+                        background-color 0.044s cubic-bezier(0.1, 0.9, 0.2, 1);
+            user-select: none;
+        }
+        .ps99-feedback-btn:hover:not(:active) {
+            background-color: #F0F4FF;
+            transform: translateY(-1.5px) scale(1.02);
+            box-shadow: 0 4.5px 0 #000000, 0 7px 12px rgba(0, 0, 0, 0.25);
+        }
+        .ps99-feedback-btn:active {
+            transform: translateY(2px) scale(0.96);
+            box-shadow: 0 1px 0 #000000, 0 2px 4px rgba(0, 0, 0, 0.2);
+            background-color: #E2E8F0;
+        }
+
+        .privacy-link {
+            position: fixed;
+            bottom: 14px;
+            right: 14px;
+            z-index: 99999;
+            color: #FFFFFF;
+            font-size: 13px;
+            font-weight: 700 !important;
+            text-decoration: underline;
+            -webkit-text-stroke: 2.5px #000000;
+            paint-order: stroke fill;
+            cursor: pointer;
+            opacity: 0.8;
+            transition: opacity 0.2s ease;
+        }
+        .privacy-link:hover { opacity: 1; }
+    </style>
+</head>
+<body>
+
+    <div class="app-scaler" id="appScaler">
+        <div class="game-window">
+            <img class="menu-bg" src="/images/main-menu.png" draggable="false">
+
+            <div class="clans-logo"></div>
+
+            <!-- LEVÝ PANEL: zadání dvou klanů -->
+            <div class="left-panel">
+                <div class="side-label a" style="top: 50px;"><span class="stroke">CLAN 1</span></div>
+                <div class="clan-input-wrap a" style="top: 76px;">
+                    <input type="text" class="clan-input" id="inputA" placeholder="Clan tag" maxlength="4" autocomplete="off" spellcheck="false">
+                </div>
+                <div class="clan-preview empty" id="previewA" style="top: 134px;">Type a clan &amp; press Enter</div>
+
+                <div class="vs-badge" style="top: 216px;"><span class="grad grad-vs" data-text="VS">VS</span></div>
+
+                <div class="side-label b" style="top: 268px;"><span class="stroke">CLAN 2</span></div>
+                <div class="clan-input-wrap b" style="top: 294px;">
+                    <input type="text" class="clan-input" id="inputB" placeholder="Clan tag" maxlength="4" autocomplete="off" spellcheck="false">
+                </div>
+                <div class="clan-preview empty" id="previewB" style="top: 352px;">Type a clan &amp; press Enter</div>
+
+                <div class="battle-card" id="battleCard">
+                    <div class="bc-title">ACTIVE CLAN BATTLE</div>
+                    <div class="bc-name stroke" id="battleName">Loading...</div>
+                    <div class="bc-timer" id="battleTimer"></div>
+                </div>
+            </div>
+
+            <!-- PRAVÝ PANEL: porovnání -->
+            <div class="compare-area">
+                <div class="compare-empty" id="compareEmpty">
+                    <img class="ce-icon" src="/images/hotbar/arrows.png" draggable="false" alt="">
+                    <div class="ce-title"><span class="grad grad-a" data-text="Clan Compare">Clan Compare</span></div>
+                    <div class="ce-sub" id="emptySub">Enter two clans on the left to compare them!</div>
+                </div>
+
+                <div class="compare-content" id="compareContent">
+                    <div class="head-side a" id="headA">
+                        <img class="head-icon" id="iconA" src="" alt="">
+                        <div class="head-text">
+                            <div class="head-name grad grad-a" id="nameA" data-text=""></div>
+                            <div class="head-row"><img class="head-flag" id="flagA" src="" alt=""><span class="place-pill" id="placeA">#?</span></div>
+                            <div class="head-members" id="membersA"></div>
+                        </div>
+                    </div>
+                    <div class="head-vs"><span class="grad grad-vs" data-text="VS">VS</span></div>
+                    <div class="head-side b" id="headB">
+                        <img class="head-icon" id="iconB" src="" alt="">
+                        <div class="head-text">
+                            <div class="head-name grad grad-b" id="nameB" data-text=""></div>
+                            <div class="head-row"><span class="place-pill" id="placeB">#?</span><img class="head-flag" id="flagB" src="" alt=""></div>
+                            <div class="head-members" id="membersB"></div>
+                        </div>
+                    </div>
+
+                    <div class="tug">
+                        <div class="tug-a" id="tugA"></div>
+                        <div class="tug-shine"></div>
+                        <span class="tug-label a stroke" id="tugLabelA">50%</span>
+                        <span class="tug-label b stroke" id="tugLabelB">50%</span>
+                    </div>
+
+                    <div class="diff-card">
+                        <img class="diff-icon" src="/images/stars.png" alt="">
+                        <div class="diff-main">
+                            <div class="diff-value stroke" id="diffValue">0</div>
+                            <div class="diff-label">POINT DIFFERENCE</div>
+                        </div>
+                        <div class="diff-side">
+                            <div class="diff-lead stroke" id="diffLead"></div>
+                            <div class="diff-sub" id="diffSub"></div>
+                        </div>
+                    </div>
+
+                    <div class="rows-scroll" id="compareRows"></div>
+                </div>
+            </div>
+
+            <div class="close-btn" onclick="location.href='/'"></div>
+        </div>
+    </div>
+
+    <script>
+        const WORKER_URL = "https://rough-pine-d90f.ps99clans.workers.dev";
+        const $ = (id) => document.getElementById(id);
+
+        function autoFitScreen() {
+            const scaler = $("appScaler");
+            if (!scaler) return;
+            const winW = window.innerWidth, winH = window.innerHeight;
+            if (winW >= 1150) { document.body.classList.remove("is-mobile"); scaler.style.transform = "none"; return; }
+            document.body.classList.add("is-mobile");
+            scaler.style.transform = `scale(${Math.min(winW / 1120, winH / 960) * 0.92})`;
+        }
+        window.addEventListener("resize", autoFitScreen);
+        window.addEventListener("orientationchange", autoFitScreen);
+
+        // ---------- pomocné funkce ----------
+        function formatNumber(num) {
+            if (num === undefined || num === null || isNaN(num)) return "0";
+            if (num === 0) return "0";
+            const suffixes = ["", "k", "m", "b", "t"];
+            let i = 0, val = Math.abs(num);
+            while (val >= 1000 && i < suffixes.length - 1) { val /= 1000; i++; }
+            let f = val >= 100 ? val.toFixed(0) : val >= 10 ? val.toFixed(1) : val.toFixed(2);
+            if (f.includes(".")) f = f.replace(/\.?0+$/, "");
+            return (num < 0 ? "-" : "") + f + suffixes[i];
+        }
+        const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+
+        function getTwemojiUrl(cc) {
+            if (!cc || cc.length !== 2) return "";
+            const cp = cc.toUpperCase().split("").map((ch) => 0x1F1E6 + ch.charCodeAt(0) - 65);
+            return `https://twemoji.maxcdn.com/v/14.0.2/svg/${cp[0].toString(16)}-${cp[1].toString(16)}.svg`;
+        }
+        function getClanIconUrl(icon) {
+            const id = (icon || "").replace("rbxassetid://", "").trim();
+            return id ? `https://ps99.biggamesapi.io/image/${id}` : "https://placehold.co/175x175/ffffff/000000?text=Clan";
+        }
+        function prettyBattle(name) {
+            return (name || "").replace(/([a-z])([A-Z0-9])/g, "$1 $2").replace(/([0-9])([A-Z])/g, "$1 $2").trim();
+        }
+        function ageText(created) {
+            if (!created) return "?";
+            const days = Math.floor((Date.now() / 1000 - created) / 86400);
+            if (days >= 365) { const y = Math.floor(days / 365), m = Math.floor((days % 365) / 30); return m ? `${y}y ${m}mo` : `${y}y`; }
+            if (days >= 30) return `${Math.floor(days / 30)}mo ${days % 30}d`;
+            return `${days}d`;
+        }
+        function agoText(ts) {
+            if (!ts) return "?";
+            const s = Math.max(0, Math.floor(Date.now() / 1000 - ts));
+            if (s < 60) return "now";
+            if (s < 3600) return `${Math.floor(s / 60)}m ago`;
+            if (s < 86400) return `${Math.floor(s / 3600)}h ago`;
+            return `${Math.floor(s / 86400)}d ago`;
+        }
+        function setGrad(el, text) { el.textContent = text; el.setAttribute("data-text", text); }
+
+        // ---------- data ----------
+        let battle = null;            // { configName, StartTime, FinishTime }
+        let globalRanks = null;       // { NAME: rank } mimo aktivní bitvu
+        const nameCache = {};
+        const state = { a: null, b: null };   // načtená data klanů
+
+        async function loadBattle() {
+            try {
+                const r = await fetch(`${WORKER_URL}/activeClanBattle`);
+                const j = await r.json();
+                if (j && j.status === "ok" && j.data) battle = j.data;
+            } catch (e) {}
+            renderBattleCard();
+        }
+
+        function renderBattleCard() {
+            const nameEl = $("battleName"), timerEl = $("battleTimer");
+            if (!battle || !battle.configName) { nameEl.textContent = "No active battle"; timerEl.textContent = ""; return; }
+            nameEl.textContent = prettyBattle(battle.configName);
+            const left = (battle.FinishTime || 0) - Date.now() / 1000;
+            if (left <= 0) { timerEl.textContent = "Ended"; return; }
+            const d = Math.floor(left / 86400), h = Math.floor((left % 86400) / 3600), m = Math.floor((left % 3600) / 60), s = Math.floor(left % 60);
+            const p = (n) => String(n).padStart(2, "0");
+            timerEl.textContent = `Ends in ${d > 0 ? p(d) + "d:" : ""}${p(h)}h:${p(m)}m:${p(s)}s`;
+        }
+        setInterval(renderBattleCard, 1000);
+
+        async function loadGlobalRanks() {
+            if (globalRanks) return globalRanks;
+            try {
+                const r = await fetch(`${WORKER_URL}/clans?page=1&pageSize=1000&sort=Points&sortOrder=desc`);
+                const j = await r.json();
+                globalRanks = {};
+                if (j && j.status === "ok" && Array.isArray(j.data)) j.data.forEach((c, i) => { globalRanks[c.Name.toUpperCase()] = i + 1; });
+            } catch (e) { globalRanks = {}; }
+            return globalRanks;
+        }
+
+        async function fetchNames(ids) {
+            const need = ids.filter((id) => id && !nameCache[id]);
+            if (!need.length) return;
+            try {
+                const r = await fetch(`${WORKER_URL}/roblox/users`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ userIds: need })
+                });
+                const d = await r.json();
+                (d.data || []).forEach((u) => { nameCache[u.id] = u.name; });
+            } catch (e) {}
+        }
+
+        // Stáhne klan a vytáhne z něj vše potřebné pro porovnání
+        async function fetchClan(tag) {
+            const r = await fetch(`${WORKER_URL}/clan/${encodeURIComponent(tag)}`);
+            const j = await r.json();
+            if (!j || j.status !== "ok" || !j.data) return null;
+            const c = j.data;
+
+            const battles = c.Battles || {};
+            const list = Array.isArray(battles) ? battles : Object.values(battles);
+            let active = null;
+            if (battle && battle.configName) {
+                active = (!Array.isArray(battles) && battles[battle.configName]) || list.find((b) => b.BattleID === battle.configName) || null;
+            }
+            const contribs = (active && Array.isArray(active.PointContributions)) ? active.PointContributions : [];
+            const contributors = contribs.filter((x) => (x.Points || 0) > 0);
+            let top = null;
+            contributors.forEach((x) => { if (!top || x.Points > top.Points) top = x; });
+
+            const members = (c.Members || []).length + (c.Members && c.Members.some((m) => m.UserID === c.Owner) ? 0 : 1);
+            const points = active ? (active.Points || 0) : 0;
+
+            return {
+                name: c.Name,
+                icon: getClanIconUrl(c.Icon),
+                flag: getTwemojiUrl(c.CountryCode),
+                country: c.CountryCode || "",
+                members,
+                capacity: c.MemberCapacity || 75,
+                diamonds: c.DepositedDiamonds || 0,
+                level: c.GuildLevel || 0,
+                gold: c.GoldMedals || 0,
+                silver: c.SilverMedals || 0,
+                bronze: c.GoodMedals || 0,
+                battlesPlayed: list.filter((b) => (b.Points || 0) > 0).length,
+                created: c.Created || 0,
+                lastActive: c.LastActiveAt || 0,
+                hasBattle: !!active,
+                points,
+                place: active && active.Place ? active.Place : null,
+                contributors: contributors.length,
+                avg: contributors.length ? points / members : 0,
+                top
+            };
+        }
+
+        // ---------- levý panel: náhled klanu ----------
+        function renderPreview(side, data, status) {
+            const el = $(side === "a" ? "previewA" : "previewB");
+            el.className = "clan-preview";
+            el.onclick = null;
+            if (status === "empty") { el.classList.add("empty"); el.textContent = "Type a clan & press Enter"; return; }
+            if (status === "loading") { el.classList.add("empty"); el.textContent = "Loading..."; return; }
+            if (status === "error") { el.classList.add("error"); el.textContent = data; return; }
+            el.classList.add("filled");
+            el.innerHTML = `
+                <img class="pv-icon" src="${esc(data.icon)}" onerror="this.src='https://placehold.co/175x175/ffffff/000000?text=Clan'" alt="">
+                <div class="pv-text">
+                    <div class="pv-name stroke">[${esc(data.name)}]</div>
+                    <div class="pv-sub">${data.flag ? `<img src="${esc(data.flag)}" onerror="this.style.display='none'" alt="">` : ""}
+                        <span>${data.members}/${data.capacity} members</span></div>
+                </div>`;
+            el.onclick = () => { location.href = `/clan-detail/?name=${encodeURIComponent(data.name)}`; };
+        }
+
+        // ---------- pravý panel ----------
+        function showEmpty(text, loading) {
+            $("compareContent").style.display = "none";
+            const e = $("compareEmpty");
+            e.style.display = "flex";
+            e.classList.toggle("loading", !!loading);
+            $("emptySub").textContent = text;
+        }
+
+        function placeClass(p) { return p === 1 ? "gold" : p === 2 ? "silver" : p === 3 ? "bronze" : ""; }
+
+        // Řádek: hodnoty A/B, kdo vyhrává (higher/lower/none) a jak je zobrazit
+        function row(label, va, vb, opts = {}) {
+            const { better = "higher", fmt = (v) => esc(formatNumber(v)), icon = "", subA = "", subB = "", html = false } = opts;
+            let win = 0;
+            if (better !== "none" && va != null && vb != null && va !== vb) {
+                win = (better === "higher" ? va > vb : va < vb) ? 1 : 2;
+            }
+            const cell = (v, side, sub) => {
+                const isWin = (side === "a" && win === 1) || (side === "b" && win === 2);
+                const content = html ? fmt(v, side) : `<span class="stroke">${fmt(v, side)}</span>`;
+                const img = icon ? `<img src="${icon}" alt="">` : "";
+                const crown = isWin ? `<span class="crown">▲</span>` : "";
+                const subHtml = sub ? `<span class="sv-sub">${sub}</span>` : "";
+                return side === "a"
+                    ? `<div class="stat-val a${isWin ? " win" : ""}">${img}${content}${subHtml}${crown}</div>`
+                    : `<div class="stat-val b${isWin ? " win" : ""}">${crown}${subHtml}${content}${img}</div>`;
+            };
+            return `<div class="stat-row">${cell(va, "a", subA)}<div class="stat-label">${label}</div>${cell(vb, "b", subB)}</div>`;
+        }
+
+        function renderCompare() {
+            const A = state.a, B = state.b;
+            if (!A || !B) return;
+            $("compareEmpty").style.display = "none";
+            $("compareContent").style.display = "block";
+
+            // hlavička
+            for (const [s, d] of [["A", A], ["B", B]]) {
+                $("icon" + s).src = d.icon;
+                $("icon" + s).onerror = function () { this.src = "https://placehold.co/175x175/ffffff/000000?text=Clan"; };
+                setGrad($("name" + s), `[${d.name}]`);
+                const f = $("flag" + s);
+                if (d.flag) { f.src = d.flag; f.style.display = ""; } else f.style.display = "none";
+                f.onerror = function () { this.style.display = "none"; };
+                const pl = $("place" + s);
+                pl.textContent = d.place ? `#${d.place}` : "#?";
+                pl.className = "place-pill " + placeClass(d.place);
+                $("members" + s).textContent = `${d.members}/${d.capacity} members · Lv ${d.level}`;
+                $("head" + s).onclick = () => { location.href = `/clan-detail/?name=${encodeURIComponent(d.name)}`; };
+            }
+
+            // přetahovaná
+            const total = A.points + B.points;
+            const pa = total > 0 ? A.points / total : 0.5;
+            $("tugA").style.width = `${Math.max(3, Math.min(97, pa * 100)).toFixed(2)}%`;
+            $("tugLabelA").textContent = `${(pa * 100).toFixed(1)}%`;
+            $("tugLabelB").textContent = `${((1 - pa) * 100).toFixed(1)}%`;
+
+            // rozdíl
+            const diff = Math.abs(A.points - B.points);
+            const lead = A.points === B.points ? null : (A.points > B.points ? A : B);
+            const behind = lead === A ? B : A;
+            $("diffValue").textContent = formatNumber(diff);
+            const leadEl = $("diffLead"), subEl = $("diffSub");
+            if (!A.hasBattle && !B.hasBattle) {
+                leadEl.textContent = "No battle points";
+                leadEl.style.color = "#FEFEFE";
+                subEl.textContent = "Neither clan is in the active battle";
+            } else if (!lead) {
+                leadEl.textContent = "It's a tie!";
+                leadEl.style.color = "#FFD34A";
+                subEl.textContent = "Exactly the same points";
+            } else {
+                leadEl.textContent = `[${lead.name}] leads`;
+                leadEl.style.color = lead === A ? "#60E0FE" : "#FF4F86";
+                const ratio = behind.points > 0 ? lead.points / behind.points : null;
+                const pct = behind.points > 0 ? ((lead.points / behind.points - 1) * 100) : null;
+                subEl.textContent = ratio
+                    ? `${ratio >= 10 ? ratio.toFixed(0) : ratio.toFixed(2)}× more · +${pct >= 1000 ? formatNumber(pct) : pct.toFixed(1)}% ahead`
+                    : `[${behind.name}] has no points yet`;
+            }
+
+            // řádky
+            const medals = (d) => `<div class="medals"><span class="medal g">${d.gold}</span><span class="medal s">${d.silver}</span><span class="medal c">${d.bronze}</span></div>`;
+            const medalScore = (d) => d.gold * 10000 + d.silver * 100 + d.bronze;
+            const topName = (d) => {
+                if (!d.top) return `<span class="stroke player-name">-</span>`;
+                const n = nameCache[d.top.UserID] ? "@" + nameCache[d.top.UserID] : "@...";
+                return `<span class="stroke player-name">${esc(n)}</span>`;
+            };
+
+            let html = "";
+            html += row("BATTLE POINTS", A.points, B.points, { icon: "/images/stars.png" });
+            html += row("BATTLE PLACE", A.place, B.place, { better: "lower", fmt: (v) => v ? `#${v}` : "-" });
+            html += row("TO OVERTAKE", lead === A ? 0 : diff + 1, lead === B ? 0 : diff + 1, {
+                better: "none",
+                fmt: (v) => v ? formatNumber(v) : "Leading"
+            });
+            html += row("AVG / MEMBER", A.avg, B.avg, { icon: "/images/stars.png" });
+            html += row("ACTIVE PLAYERS", A.contributors, B.contributors, {
+                fmt: (v) => `${v}`,
+                subA: `/${A.members}`, subB: `/${B.members}`
+            });
+            html += row("TOP PLAYER", A.top ? A.top.Points : 0, B.top ? B.top.Points : 0, {
+                html: true,
+                fmt: (v, side) => {
+                    const d = side === "a" ? A : B;
+                    return side === "a"
+                        ? `${topName(d)}<span class="sv-sub">${formatNumber(v)}</span>`
+                        : `<span class="sv-sub">${formatNumber(v)}</span>${topName(d)}`;
+                }
+            });
+            html += row("DIAMONDS", A.diamonds, B.diamonds, { icon: "/images/gems.png" });
+            html += row("MEMBERS", A.members, B.members, { fmt: (v) => `${v}`, subA: `/${A.capacity}`, subB: `/${B.capacity}` });
+            html += row("MEDALS", medalScore(A), medalScore(B), { html: true, fmt: (v, side) => medals(side === "a" ? A : B) });
+            html += row("BATTLES PLAYED", A.battlesPlayed, B.battlesPlayed, { fmt: (v) => `${v}` });
+            html += row("CLAN LEVEL", A.level, B.level, { fmt: (v) => `${v}` });
+            html += row("CLAN AGE", A.created, B.created, { better: "lower", fmt: (v) => ageText(v) });
+            html += row("LAST ACTIVE", A.lastActive, B.lastActive, { better: "none", fmt: (v) => agoText(v) });
+
+            const box = $("compareRows");
+            const keep = box.scrollTop;
+            box.innerHTML = html;
+            box.scrollTop = keep;
+        }
+
+        // ---------- načtení ----------
+        let loadToken = 0;
+        let inflightKey = "";
+        async function loadSide(side, tag, silent) {
+            tag = (tag || "").trim().toUpperCase();
+            if (!tag) { state[side] = null; renderPreview(side, null, "empty"); return; }
+            if (!silent) renderPreview(side, null, "loading");
+            try {
+                const d = await fetchClan(tag);
+                if (!d) { state[side] = null; renderPreview(side, `[${tag}] not found!`, "error"); return; }
+                state[side] = d;
+                renderPreview(side, d);
+            } catch (e) {
+                if (!silent) { state[side] = null; renderPreview(side, "Error loading clan!", "error"); }
+            }
+        }
+
+        async function compare(silent = false) {
+            const ta = $("inputA").value.trim().toUpperCase();
+            const tb = $("inputB").value.trim().toUpperCase();
+            updateUrl(ta, tb);
+            const key = ta + "|" + tb;
+            if (!silent && key === inflightKey) return;     // stejné porovnání už běží
+            inflightKey = key;
+            const token = ++loadToken;
+            if (!silent) {
+                if (ta && tb) showEmpty("Loading clans...", true);
+                else showEmpty("Enter two clans on the left to compare them!");
+            }
+            if (!battle) await loadBattle();
+            await Promise.all([loadSide("a", ta, silent), loadSide("b", tb, silent)]);
+            if (token !== loadToken) return;
+            inflightKey = "";
+
+            if (!state.a || !state.b) {
+                if (ta && tb) showEmpty("One of the clans could not be loaded.");
+                else if (!silent) showEmpty("Enter two clans on the left to compare them!");
+                return;
+            }
+
+            // pořadí mimo aktivní bitvu (když klan v bitvě není)
+            if (!state.a.place || !state.b.place) {
+                const ranks = await loadGlobalRanks();
+                for (const d of [state.a, state.b]) if (!d.place && ranks[d.name.toUpperCase()]) d.place = ranks[d.name.toUpperCase()];
+            }
+            renderCompare();
+
+            // jména nejlepších hráčů dotáhnout a překreslit
+            const ids = [state.a.top, state.b.top].filter(Boolean).map((t) => t.UserID);
+            if (ids.some((id) => !nameCache[id])) {
+                await fetchNames(ids);
+                if (token === loadToken) renderCompare();
+            }
+        }
+
+        function updateUrl(a, b) {
+            const p = new URLSearchParams();
+            if (a) p.set("a", a);
+            if (b) p.set("b", b);
+            const q = p.toString();
+            history.replaceState(null, "", location.pathname + (q ? "?" + q : ""));
+        }
+
+        // Enter v políčku -> porovnat (v prvním políčku Enter skočí do druhého, když je prázdné)
+        ["inputA", "inputB"].forEach((id) => {
+            const el = $(id);
+            el.addEventListener("input", () => { el.value = el.value.replace(/\s+/g, ""); });
+            el.addEventListener("keydown", (e) => {
+                if (e.key !== "Enter") return;
+                e.preventDefault();
+                if (id === "inputA" && !$("inputB").value.trim()) { $("inputB").focus(); loadSide("a", el.value); return; }
+                el.blur();
+                compare();
+            });
+            el.addEventListener("change", () => {
+                const other = $(id === "inputA" ? "inputB" : "inputA");
+                if (el.value.trim() && other.value.trim()) compare();
+                else loadSide(id === "inputA" ? "a" : "b", el.value);
+            });
+        });
+
+        window.addEventListener("DOMContentLoaded", () => {
+            autoFitScreen();
+            const p = new URLSearchParams(location.search);
+            $("inputA").value = (p.get("a") || "").toUpperCase().slice(0, 4);
+            $("inputB").value = (p.get("b") || "").toUpperCase().slice(0, 4);
+            loadBattle().then(() => { if ($("inputA").value || $("inputB").value) compare(); });
+            setInterval(() => { if (state.a && state.b) compare(true); }, 60000);
+        });
+    </script>
+
+    <a href="https://forms.gle/2DWB7Hzcv2XZ1PVCA" target="_blank" class="ps99-feedback-btn">
+        FEEDBACK
+    </a>
+
+    <a href="/privacy/" class="privacy-link">Privacy Policy</a>
+    <script src="/scrollbar.js"></script>
+    <script src="/hotbar.js"></script>
+</body>
+</html>

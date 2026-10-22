@@ -8,8 +8,11 @@
   // href   – kam vede (nebo onClick: function () { ... })
   // newTab – true = otevře se v nové záložce
   const BUTTONS = [
-    { id: "clans",  label: "Clans", icon: "/images/hotbar/clans.png",  href: "/" },
-    { id: "compare", label: "Compare", icon: "/images/hotbar/arrows.png" }, // zatím nikam nevede
+    // activeOn – na kterých stránkách je tlačítko "aktivní" (zvětšené, klik nic nedělá)
+    { id: "clans",   label: "Clans",   icon: "/images/hotbar/clans.png",  href: "/",
+      activeOn: (p) => !p.startsWith("/compare/") },                    // všechny stránky klanů
+    { id: "compare", label: "Compare", icon: "/images/hotbar/arrows.png", href: "/compare/",
+      activeOn: (p) => p.startsWith("/compare/") },
     { id: "live",    label: "Live Placement", icon: "/images/hotbar/live.png" }, // zatím nikam nevede
     // { id: "discord", label: "Discord", icon: "/images/hotbar/discord.png", badge: "NEW", href: "https://discord.gg/...", newTab: true },
   ];
@@ -36,7 +39,7 @@
       align-items: flex-end;
       justify-content: center;
       width: max-content;
-      margin-top: 30px;              /* odstup od hlavního okna */
+      margin-top: 0;                 /* dopočítává se v lift() – stejná mezera nad i pod */
       padding: 30px 30px 30px;
       gap: 12px;
       z-index: 800;
@@ -115,14 +118,14 @@
     }
     .ps-hb-badge.is-pill { height: 26px; min-width: 0; top: 2px; padding: 0 7px; border-width: 2.5px; }
 
-    /* Stránka Top Clans na mobilu má pod oknem šipku filtru zemí */
-    body.is-mobile .ps-hotbar.ps-hb-has-arrow { margin-top: 40px; }
   `;
   document.head.appendChild(css);
 
   const items = []; // { el, active, hover, down }
 
-  function isActive(href) {
+  function isActive(b) {
+    if (typeof b.activeOn === "function") return !!b.activeOn(location.pathname);
+    const href = b.href;
     if (!href || /^https?:/i.test(href)) return false;
     const norm = (x) => x.replace(/index\.html$/, "").replace(/\/?$/, "/");
     const here = norm(location.pathname), target = norm(href);
@@ -224,7 +227,7 @@
         btn.appendChild(d);
       }
 
-      const it = { el: btn, active: isActive(b.href), hover: false, down: false };
+      const it = { el: btn, active: isActive(b), hover: false, down: false };
       if (it.active) btn.classList.add("hb-active");
       items.push(it);
       wire(it, b);
@@ -236,25 +239,34 @@
     layout(false);
   }
 
-  // Hlavní okno zůstává přesně uprostřed. Nahoru se posune jen tehdy, když by se lišta
-  // pod ním nevešla na obrazovku – a jen o tolik, kolik je potřeba (logo nesmí vyjet nahoru).
+  // Hlavní okno zůstává přesně uprostřed a lišta je přesně v půlce mezi oknem a spodkem stránky.
+  // Když na to není místo, okno se posune nahoru jen o tolik, kolik je potřeba (logo nesmí vyjet).
+  const PAD_TOP = 30;   // horní padding lišty (místo pro popisek)
   function lift() {
     const win = document.querySelector(".game-window");
     const bg = win && win.querySelector(".menu-bg");
-    if (!bg) return;
+    const bar = win && win.querySelector(".ps-hotbar");
+    if (!bg || !bar) return;
     const scaler = document.getElementById("appScaler");
     const m = scaler && /scale\(([\d.]+)\)/.exec(scaler.style.transform || "");
     const s = m ? parseFloat(m[1]) : 1;
     const cur = parseFloat(win.style.getPropertyValue("--hb-lift")) || 0;
-    const topNoLift = bg.getBoundingClientRect().top + cur * s;  // horní hrana okna bez posunu
-    const room = (topNoLift - 75 * s - 6) / s;                    // místo pro logo (~70 px nad oknem)
-    const bar = win.querySelector(".ps-hotbar");
-    let need = 0;
-    if (bar) {
-      const barBottom = bar.getBoundingClientRect().bottom - 12 * s + cur * s; // spodek lišty bez posunu
-      need = (barBottom - (window.innerHeight - 4)) / s;
+    const r = bg.getBoundingClientRect();
+    const top0 = r.top + cur * s, bottom0 = r.bottom + cur * s;          // okno bez posunu
+    const room = Math.max(0, (top0 - 75 * s - 6) / s);                   // místo pro logo nad oknem
+    // Top Clans na mobilu má hned pod oknem šipku filtru zemí -> větší minimální mezera
+    const arrow = bar.classList.contains("ps-hb-has-arrow") && document.body.classList.contains("is-mobile");
+    const minGap = (arrow ? 52 : 14) * s;
+    const tall = items.some((it) => it.active) ? ACTIVE_SCALE : 1;      // aktivní tlačítko je vyšší (roste nahoru)
+    const iconH = SIZE * tall * s;
+    let gap = (window.innerHeight - bottom0 - iconH) / 2;                // stejná mezera nad i pod
+    let up = 0;
+    if (gap < minGap) {
+      up = Math.min(room, (bottom0 + minGap + iconH + minGap - window.innerHeight) / s);
+      gap = minGap;
     }
-    win.style.setProperty("--hb-lift", Math.max(0, Math.min(need, room)).toFixed(1));
+    win.style.setProperty("--hb-lift", up.toFixed(1));
+    bar.style.marginTop = (gap / s - PAD_TOP + SIZE * (tall - 1)).toFixed(1) + "px";
   }
 
   if (typeof window.autoFitScreen === "function") {
