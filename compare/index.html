@@ -356,7 +356,11 @@
             transform: scale(0.9);
             transition: transform 0.12s cubic-bezier(0.1, 0.9, 0.2, 1);
         }
-        .modal-bg.open .modal { transform: scale(1); }
+        .modal-bg.open .modal { transform: scale(var(--ms, 1)); }
+        /* na mobilu: okno se zmenší a umístí do viditelné části obrazovky (i s otevřenou klávesnicí) */
+        .modal-bg.fit { align-items: flex-start; justify-content: flex-start; }
+        .modal-bg.fit .modal { position: absolute; transform-origin: top left; transform: scale(calc(var(--ms, 1) * 0.94)); }
+        .modal-bg.fit.open .modal { transform: scale(var(--ms, 1)); }
         .modal-title {
             position: relative;
             font-size: 44px;
@@ -1071,7 +1075,34 @@
         }
 
         // ---------- okno "Select Clans" ----------
+        // velikost a pozice okna podle viditelné části obrazovky (mobil, klávesnice)
+        function fitModal() {
+            const bg = $("modalBg"), m = bg.querySelector(".modal");
+            const vv = window.visualViewport;
+            const vw = vv ? vv.width : window.innerWidth, vh = vv ? vv.height : window.innerHeight;
+            const ox = vv ? vv.offsetLeft : 0, oy = vv ? vv.offsetTop : 0;
+            const w = m.offsetWidth, h = m.offsetHeight;
+            const pad = 22;                                           // místo pro křížek přečnívající přes roh
+            const s = Math.min(1, (vw - 2 * pad - 20) / (w + 20), (vh - 2 * pad - 20) / (h + 20));
+            if (s >= 1 && vw >= w + 2 * pad + 40) {                   // na počítači beze změny
+                bg.classList.remove("fit");
+                bg.style.removeProperty("--ms");
+                m.style.left = m.style.top = "";
+                return;
+            }
+            bg.classList.add("fit");
+            bg.style.setProperty("--ms", s.toFixed(3));
+            m.style.left = (ox + (vw - w * s) / 2).toFixed(1) + "px";
+            m.style.top = (oy + Math.max(pad + 10, (vh - h * s) / 2)).toFixed(1) + "px";
+        }
+        if (window.visualViewport) {
+            window.visualViewport.addEventListener("resize", () => { if ($("modalBg").classList.contains("open")) fitModal(); });
+            window.visualViewport.addEventListener("scroll", () => { if ($("modalBg").classList.contains("open")) fitModal(); });
+        }
+        window.addEventListener("resize", () => { if ($("modalBg").classList.contains("open")) fitModal(); });
+
         function openModal() {
+            fitModal();
             $("inputA").value = side.a.tag; $("inputB").value = side.b.tag;
             $("modalErr").textContent = "";
             $("modalBg").classList.add("open");
