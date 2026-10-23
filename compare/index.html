@@ -261,6 +261,8 @@
         .stats.b .stats-head { background: #FF4F86; }
 
         .diff { flex: 1 1 0; height: 146px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; min-width: 0; }
+        .diff-num { display: flex; align-items: flex-start; }
+        #diffSign { line-height: 1.15; }
         .diff-lead { font-size: 17px; font-weight: 700 !important; color: #8E9099; white-space: nowrap; }
         .diff-lead b { font-weight: 800 !important; }
 
@@ -559,7 +561,7 @@
                         <div class="card stats a" id="statsA"></div>
                         <div class="card diff">
                             <div class="label muted">POINT DIFFERENCE</div>
-                            <div class="roboto" id="diffValue"></div>
+                            <div class="roboto diff-num" id="diffNum"><span id="diffSign"></span><span id="diffValue"></span></div>
                             <div class="diff-lead" id="diffLead">&nbsp;</div>
                         </div>
                         <div class="card stats b" id="statsB"></div>
@@ -828,8 +830,11 @@
             const both = A.data && B.data;
             if (both) {
                 const diff = A.current - B.current;
-                fit($("diffValue"), Math.abs(diff), 56, 380);
+                // z pohledu klanu vlevo: když prohrává, je rozdíl záporný
+                fit($("diffNum"), Math.abs(diff), 56, diff < 0 ? 350 : 380);
+                $("diffSign").textContent = diff < 0 ? "-" : "";
                 odo.D.set(Math.abs(diff), rendered);
+                renderLegend();
                 const lead = $("diffLead");
                 if (!diff) lead.textContent = "It's a tie!";
                 else {
@@ -1001,7 +1006,10 @@
 
         function renderLegend() {
             const a = side.a.data, b = side.b.data;
-            $("chartSub").innerHTML = a && b ? `<b style="color:${COL_A}">[${a.name}]</b> lead over <b style="color:${COL_B}">[${b.name}]</b>` : "";
+            if (!a || !b) { $("chartSub").innerHTML = ""; return; }
+            const d = side.a.current - side.b.current;
+            const A = `<b style="color:${COL_A}">[${a.name}]</b>`, B = `<b style="color:${COL_B}">[${b.name}]</b>`;
+            $("chartSub").innerHTML = d > 0 ? `${A} leads over ${B}` : d < 0 ? `${A} is behind ${B}` : `${A} and ${B} are tied`;
         }
 
         // ---------- načítání ----------
