@@ -101,10 +101,6 @@
             transition: transform 0.044s cubic-bezier(0.1, 0.9, 0.2, 1);
         }
         .lp-card:hover .lp-inner { transform: scale(1.02); }
-        /* sledovaný klan (?clan=NAZEV) – tyrkysový okraj jako #1 */
-        .lp-card.is-followed .lp-inner {
-            box-shadow: 0 0 0 calc(3.5 * var(--u)) #8AFCED, 0 0 0 calc(6 * var(--u)) #000000, 0 calc(3 * var(--u)) 0 rgba(0, 0, 0, 0.18);
-        }
         .lp-card:active .lp-inner { transform: scale(0.96); }
 
         /* zelené zbarvení karty při přičtení – jen opacity */
@@ -393,7 +389,6 @@
         const WORKER_URL = "https://rough-pine-d90f.ps99clans.workers.dev";
         const params = new URLSearchParams(location.search);
         const DEMO = params.has("demo");   // ?demo=1 → vymyšlená data, ?tick=4 → rychlejší aktualizace
-        const FOLLOW = (params.get("clan") || "").trim().toLowerCase(); // ?clan=NAZEV → zvýrazní klan a stránka ho sleduje
 
         // ---------- NASTAVENÍ ----------
         const TICK_MS = DEMO ? Math.max(2, Number(params.get("tick")) || 15) * 1000 : 15000; // aktualizace každých 15 s
@@ -573,7 +568,7 @@
         // ---------- KARTA (jen pro viditelnou stránku) ----------
         function createCard(c) {
             const el = document.createElement("div");
-            el.className = "lp-card" + (FOLLOW && c.name.toLowerCase() === FOLLOW ? " is-followed" : "");
+            el.className = "lp-card";
             el.innerHTML = `
                 <div class="lp-inner">
                     <div class="lp-glow"></div>
@@ -969,18 +964,7 @@
 
             // pořadí i u klanů mimo stránku
             order.forEach((c, i) => { c.rank = i; });
-            followPage();
             clans.forEach(c => { if (c.removed && !c.el) clans.delete(c.name); });
-        }
-
-        // ---------- SLEDOVANÝ KLAN ----------
-        let manualPageAt = 0;
-        function followPage() {
-            if (!FOLLOW || Date.now() - manualPageAt < 30000) return;   // po ručním přepnutí 30 s nechat být
-            const c = clans.get([...clans.keys()].find(n => n.toLowerCase() === FOLLOW));
-            if (!c || c.removed || !isFinite(c.rank)) return;
-            const p = pageOf(c.rank);
-            if (p !== page) showPage(p);
         }
 
         // ---------- STRÁNKY (#1-50 … #451-500) ----------
@@ -1011,19 +995,12 @@
             }, 230);
         }
 
-        function userPage(p) { manualPageAt = Date.now(); showPage(p); }
-        document.getElementById("prevPageBtn").onclick = () => userPage(page - 1);
-        document.getElementById("nextPageBtn").onclick = () => userPage(page + 1);
+        document.getElementById("prevPageBtn").onclick = () => showPage(page - 1);
+        document.getElementById("nextPageBtn").onclick = () => showPage(page + 1);
         window.addEventListener("keydown", e => {
-            if (e.key === "ArrowLeft") userPage(page - 1);
-            if (e.key === "ArrowRight") userPage(page + 1);
-            // F = celá obrazovka (třeba na stream)
-            if ((e.key === "f" || e.key === "F") && !e.ctrlKey && !e.metaKey && !e.altKey) {
-                if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
-                else document.documentElement.requestFullscreen().catch(() => {});
-            }
+            if (e.key === "ArrowLeft") showPage(page - 1);
+            if (e.key === "ArrowRight") showPage(page + 1);
         });
-        document.addEventListener("fullscreenchange", onResize);
 
         // ---------- PLYNULÉ PŘIČÍTÁNÍ (stejný princip jako live.html) ----------
         // Nová hodnota z API se rozdělí na 4 kusy; každých 15 s se přičte jeden.
@@ -1134,10 +1111,6 @@
                     firstLoad = false;
                     sortOrder();
                     order.forEach((c, i) => { c.rank = i; });
-                    if (FOLLOW) {
-                        const f = order.find(c => c.name.toLowerCase() === FOLLOW);
-                        if (f) { page = pageOf(f.rank); updatePager(); }
-                    }
                     // první načtení: kaskádový nástup karet
                     const start = (page - 1) * PER_PAGE;
                     for (let rank = start; rank < Math.min(start + PER_PAGE, order.length); rank++) {
