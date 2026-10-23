@@ -122,61 +122,38 @@
         }
         .is-hidden { display: none !important; }
 
-        /* ---------- řádek s bitvou (pevně nahoře v okně) ---------- */
-        .battle-info {
-            position: absolute;
-            left: 340px;
-            width: 640px;
-            top: 14px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            font-size: 18px;
-            font-weight: 700 !important;
-            color: #1C2130;
-            z-index: 901;
-            pointer-events: none;
-            white-space: nowrap;
-        }
-        .battle-info .timer { color: #FF2B2B; }
-        .live-dot { width: 12px; height: 12px; border-radius: 50%; background: #2ECC40; border: 2px solid #000; animation: livePulse 1.4s infinite ease-in-out; }
-        @keyframes livePulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
-
         /* ---------- posuvná oblast uvnitř okna ---------- */
         .cmp-scroll {
             position: absolute;
-            left: 12px;
-            top: 46px;
-            width: 1078px;
-            height: 512px;
+            left: 8px;
+            top: 7px;
+            width: 1096px;
+            height: 556px;
+            clip-path: inset(0 0 0 0 round 16px);
             overflow-y: auto;
             overflow-x: hidden;
             z-index: 900;
             touch-action: pan-y !important;
             overscroll-behavior: contain !important;
         }
-        .cmp-inner { position: relative; width: 1078px; padding: 4px 26px 22px 12px; display: flex; flex-direction: column; gap: 18px; }
+        .cmp-inner { position: relative; width: 1096px; padding: 50px 38px 18px 12px; display: flex; flex-direction: column; gap: 18px; }
 
         /* ---------- karty klanů ---------- */
         .row-cards { position: relative; display: flex; gap: 20px; }
         .clan-card {
             flex: 1 1 0;
-            height: 404px;
+            height: 336px;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
         }
         .clan-card > * { flex: 0 0 auto; }
-        .clan-card .side-bar { position: absolute; left: 18px; right: 18px; bottom: 14px; height: 8px; border-radius: 4px; border: 2px solid #000; }
-        .clan-card.a .side-bar { background: #48D2F7; }
-        .clan-card.b .side-bar { background: #FF4F86; }
 
-        .icon-wrap { position: relative; width: 150px; height: 150px; }
+        .icon-wrap { position: relative; width: 172px; height: 172px; }
         .c-icon {
-            width: 150px;
-            height: 150px;
+            width: 172px;
+            height: 172px;
             border-radius: 50%;
             border: 4px solid #000;
             background: #FFFFFF;
@@ -191,8 +168,8 @@
             position: absolute;
             right: 0;
             bottom: 0;
-            width: 44px;
-            height: 44px;
+            width: 48px;
+            height: 48px;
             border-radius: 50%;
             border: 3px solid #000;
             background: #FFFFFF;
@@ -217,12 +194,12 @@
         .rank-pill.silver { background: linear-gradient(#F4F6FA, #BFC6D4); }
         .rank-pill.bronze { background: linear-gradient(#FFC48A, #E4893A); }
 
-        .c-name { margin-top: 12px; font-size: 46px; line-height: 1.1; font-weight: 700 !important; color: #1C2130; white-space: nowrap; }
+        .c-name { margin-top: 8px; font-size: 32px; line-height: 1.15; font-weight: 700 !important; color: #1C2130; white-space: nowrap; }
         .c-name.empty { color: #B6B8BF; }
-        .c-points { margin-top: 4px; }
-        .c-points-label { display: flex; align-items: center; gap: 7px; margin-top: 4px; font-size: 18px; }
+        .c-points { margin-top: 2px; }
+        .c-points-label { display: flex; align-items: center; gap: 7px; margin-top: 2px; font-size: 17px; }
         .c-points-label img { width: 23px; height: 23px; }
-        .c-hint { margin-top: 8px; font-size: 15px; color: #A3A6AE; font-weight: 600 !important; }
+        .c-hint { margin-top: 4px; font-size: 14px; color: #A3A6AE; font-weight: 600 !important; }
         .c-hint.err { color: #FF4A4A; }
 
         .vs-badge {
@@ -278,74 +255,39 @@
         .pulse { transform-box: fill-box; transform-origin: center; animation: pulse 1.6s ease-out infinite; }
         @keyframes pulse { 0% { transform: scale(1); opacity: 0.55; } 100% { transform: scale(3.2); opacity: 0; } }
 
-        /* bublina grafu */
+        /* bublina grafu – stejná jako v live stránce (Chart.js tooltip) */
         .tip {
             position: absolute;
             left: 0;
             top: 0;
-            width: 236px;
+            padding: 6px;
             background: #FFFFFF;
-            border: 3px solid #000;
-            border-radius: 14px;
-            box-shadow: 0 6px 0 rgba(0, 0, 0, 0.12), 0 10px 18px rgba(0, 0, 0, 0.16);
+            border: 2px solid #000000;
+            border-radius: 6px;
             pointer-events: none;
             opacity: 0;
-            transform: translate(-50%, calc(-100% - 18px)) scale(0.85);
-            transform-origin: var(--arrow, 50%) 100%;
-            transition: opacity 0.1s ease-out, transform 0.12s cubic-bezier(0.2, 1.4, 0.4, 1), left 0.08s ease-out, top 0.08s ease-out;
+            white-space: nowrap;
+            transform: translateY(-50%);
+            transition: opacity 0.25s ease-out, left 0.4s cubic-bezier(0.25, 1, 0.5, 1), top 0.4s cubic-bezier(0.25, 1, 0.5, 1);
             z-index: 6;
-            overflow: visible;
         }
-        .tip.show { opacity: 1; transform: translate(-50%, calc(-100% - 18px)) scale(1); }
-        .tip.below { transform: translate(-50%, 18px) scale(0.85); transform-origin: var(--arrow, 50%) 0%; }
-        .tip.below.show { transform: translate(-50%, 18px) scale(1); }
-        .tip::after {
+        .tip.show { opacity: 1; }
+        .tip-title { font-size: 14px; font-weight: 700 !important; color: #262C2D; margin-bottom: 6px; line-height: 1.2; }
+        .tip-body, .tip-body * { font-family: 'Roboto', sans-serif !important; font-weight: 700 !important; }
+        .tip-body { font-size: 13px; color: #262C2D; line-height: 1.2; }
+        /* šipka (caret) jako u Chart.js */
+        .tip::before, .tip::after {
             content: "";
             position: absolute;
-            left: var(--arrow, 50%);
-            bottom: -9px;
-            width: 14px;
-            height: 14px;
-            margin-left: -7px;
-            background: #FFFFFF;
-            border-right: 3px solid #000;
-            border-bottom: 3px solid #000;
-            transform: rotate(45deg);
+            top: 50%;
+            width: 0;
+            height: 0;
+            border-style: solid;
         }
-        .tip.below::after { bottom: auto; top: -9px; transform: rotate(225deg); }
-        .tip-head {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 8px;
-            padding: 6px 12px 5px;
-            border-bottom: 3px solid #000;
-            border-radius: 11px 11px 0 0;
-            font-size: 14px;
-            font-weight: 800 !important;
-            color: #FFFFFF;
-            -webkit-text-stroke: 4px #000;
-            paint-order: stroke fill;
-        }
-        .tip-head span:last-child { font-size: 12px; -webkit-text-stroke: 3px #000; }
-        .tip-body { padding: 7px 12px 9px; }
-        .tip-val { font-size: 25px; line-height: 1.15; }
-        .tip-rows { display: flex; flex-direction: column; gap: 3px; margin-top: 6px; }
-        .tip-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; font-size: 13px; font-weight: 700 !important; color: #5A5D66; }
-        .tip-row i { display: inline-block; width: 11px; height: 11px; border-radius: 50%; border: 2px solid #000; margin-right: 5px; vertical-align: -1px; }
-        .tip-row .roboto { font-size: 13px; color: #1C2130; }
-        .tip-chg {
-            display: inline-block;
-            margin-top: 7px;
-            padding: 1px 9px;
-            border-radius: 10px;
-            border: 2px solid #000;
-            font-size: 13px;
-            font-weight: 800 !important;
-            color: #FFFFFF;
-            -webkit-text-stroke: 3px #000;
-            paint-order: stroke fill;
-        }
+        .tip.right::before { left: -8px; margin-top: -7px; border-width: 7px 8px 7px 0; border-color: transparent #000 transparent transparent; }
+        .tip.right::after  { left: -5px; margin-top: -5px; border-width: 5px 6px 5px 0; border-color: transparent #FFF transparent transparent; }
+        .tip.left::before  { right: -8px; margin-top: -7px; border-width: 7px 0 7px 8px; border-color: transparent transparent transparent #000; }
+        .tip.left::after   { right: -5px; margin-top: -5px; border-width: 5px 0 5px 6px; border-color: transparent transparent transparent #FFF; }
 
         /* ---------- tlačítko Select Clans (klik = zasunutá verze obrázku) ---------- */
         .select-wrap { position: relative; width: 337px; height: 111px; margin: 2px auto 0; flex: 0 0 auto; }
@@ -553,7 +495,6 @@
             <img class="menu-bg" src="/images/compare-bg.png" draggable="false" alt="">
             <div class="compare-logo"></div>
 
-            <div class="battle-info" id="battleInfo"><span class="live-dot"></span><span id="battleName">Loading battle...</span><span class="timer" id="battleTimer"></span></div>
 
             <!-- vše uvnitř okna se scrolluje -->
             <div class="cmp-scroll" id="cmpScroll">
@@ -569,8 +510,7 @@
                             <div class="c-points roboto" id="pointsA"></div>
                             <div class="c-points-label label"><img src="/images/hvezda.png" alt="">TOTAL POINTS</div>
                             <div class="c-hint" id="hintA">Press "Select Clans" below</div>
-                            <div class="side-bar"></div>
-                        </div>
+                                                    </div>
                         <div class="vs-badge"><span class="vs-text">VS</span></div>
                         <div class="card clan-card b" id="cardB">
                             <span class="rank-pill is-hidden" id="rankB"></span>
@@ -582,8 +522,7 @@
                             <div class="c-points roboto" id="pointsB"></div>
                             <div class="c-points-label label"><img src="/images/hvezda.png" alt="">TOTAL POINTS</div>
                             <div class="c-hint" id="hintB">Press "Select Clans" below</div>
-                            <div class="side-bar"></div>
-                        </div>
+                                                    </div>
                     </div>
 
                     <!-- jen když jsou vybrané oba klany -->
@@ -755,20 +694,7 @@
                 const j = await (await fetch(`${WORKER_URL}/activeClanBattle`)).json();
                 if (j && j.status === "ok" && j.data) { battle = j.data; battleAt = Date.now(); }
             } catch (e) {}
-            renderBattle();
         }
-        function renderBattle() {
-            const n = $("battleName"), t = $("battleTimer");
-            if (!battle || !battle.configName) { n.textContent = "No active clan battle"; t.textContent = ""; return; }
-            n.textContent = prettyBattle(battle.configName);
-            const left = (battle.FinishTime || 0) - Date.now() / 1000;
-            if (left <= 0) { t.textContent = "· ended"; return; }
-            const d = Math.floor(left / 86400), h = Math.floor((left % 86400) / 3600), m = Math.floor((left % 3600) / 60), s = Math.floor(left % 60);
-            const p = (x) => String(x).padStart(2, "0");
-            t.textContent = `· ends in ${d ? p(d) + "d:" : ""}${p(h)}h:${p(m)}m:${p(s)}s`;
-        }
-        setInterval(renderBattle, 1000);
-
         async function fetchClan(tag) {
             const j = await (await fetch(`${WORKER_URL}/clan/${encodeURIComponent(tag)}`)).json();
             if (!j || j.status !== "ok" || !j.data) return null;
@@ -856,8 +782,8 @@
         let rendered = false;
         function render() {
             const A = side.a, B = side.b;
-            fit($("pointsA"), A.current, 66, 450);
-            fit($("pointsB"), B.current, 66, 450);
+            fit($("pointsA"), A.current, 60, 440);
+            fit($("pointsB"), B.current, 60, 440);
             odo.A.set(A.data ? A.current : 0, rendered);
             odo.B.set(B.data ? B.current : 0, rendered);
             renderCard(A); renderCard(B);
@@ -981,49 +907,39 @@
                 <line x1="${L}" x2="${W - R}" y1="${y0.toFixed(1)}" y2="${y0.toFixed(1)}" stroke="#000" stroke-width="2" stroke-dasharray="6 6" opacity="0.35"/>
                 <path d="${line}" fill="none" stroke="#000" stroke-width="7" stroke-linejoin="round" stroke-linecap="round"/>
                 <path d="${line}" fill="none" stroke="${COL_A}" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"/>
+                ${n <= 40 ? xs.slice(0, n === 1 ? 1 : n).map((x, i) => `<circle cx="${x.toFixed(1)}" cy="${ys[i].toFixed(1)}" r="4" fill="#FFFFFF" stroke="#000000" stroke-width="2"/>`).join("") : ""}
                 <g id="hoverLayer"></g>
                 <circle class="pulse" cx="${lx.toFixed(1)}" cy="${ly.toFixed(1)}" r="6" fill="${COL_A}"/>
                 <circle cx="${lx.toFixed(1)}" cy="${ly.toFixed(1)}" r="6" fill="#fff" stroke="#000" stroke-width="3"/>`;
             if (hoverIdx >= 0) showHover(hoverIdx, true);
         }
 
-        // bublina při najetí na bod
+        // bublina při najetí na bod (stejná jako v live stránce)
         function showHover(i, keep) {
             if (!target || i < 0 || i >= points.length) return hideHover();
             const changed = i !== hoverIdx;
             hoverIdx = i;
-            const { W, H, T, B, R } = CH, p = points[i], n = points.length;
+            const { W, H, R } = CH, p = points[i], n = points.length;
             const x = n === 1 ? W - R : target.xs[i], y = target.ys[i];
-            const A = side.a.data, Bd = side.b.data;
-            if (!A || !Bd) return;
-            const ahead = p.v > 0, tie = p.v === 0;
-            const headCol = tie ? "#B6B8BF" : ahead ? COL_A : "#FF5C5C";
             const layer = document.getElementById("hoverLayer");
-            if (layer) layer.innerHTML = `
-                <line x1="${x.toFixed(1)}" x2="${x.toFixed(1)}" y1="${T}" y2="${H - B}" stroke="#000" stroke-width="2" stroke-dasharray="4 4" opacity="0.4"/>
-                <circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="9" fill="${headCol}" stroke="#000" stroke-width="3"/>`;
+            if (layer) layer.innerHTML = `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="6" fill="#FFFFFF" stroke="#000000" stroke-width="2"/>`;
             if (keep && !changed) return;
 
             const prev = i > 0 ? points[i - 1] : null;
             const chg = prev ? p.v - prev.v : null;
+            const sign = (v) => (v > 0 ? "+" : v < 0 ? "-" : "");
             const tip = $("tip");
-            tip.innerHTML = `
-                <div class="tip-head" style="background:${headCol}"><span>${tie ? "TIE" : `[${A.name}] ${ahead ? "AHEAD" : "BEHIND"}`}</span><span>${clock(p.t)}</span></div>
-                <div class="tip-body">
-                    <div class="tip-val roboto">${p.v < 0 ? "-" : p.v > 0 ? "+" : ""}${full(Math.abs(p.v))}</div>
-                    <div class="tip-rows">
-                        <div class="tip-row"><span><i style="background:${COL_A}"></i>[${A.name}]</span><span class="roboto">${full(p.a)}</span></div>
-                        <div class="tip-row"><span><i style="background:${COL_B}"></i>[${Bd.name}]</span><span class="roboto">${full(p.b)}</span></div>
-                    </div>
-                    ${chg === null ? "" : `<span class="tip-chg" style="background:${chg > 0 ? "#6BF06B" : chg < 0 ? "#FF5C5C" : "#B6B8BF"}">${chg > 0 ? "▲ +" : chg < 0 ? "▼ -" : ""}${chg === 0 ? "No change" : short(Math.abs(chg))} · ${agoLabel(p.t)}</span>`}
-                </div>`;
+            tip.innerHTML = `<div class="tip-title">${agoLabel(p.t)}</div>`
+                + `<div class="tip-body"> Difference: ${sign(p.v)}${full(Math.abs(p.v))}${chg === null ? "" : ` (${chg >= 0 ? "+" : "-"}${full(Math.abs(chg))})`}</div>`;
+            // jako Chart.js: bublina vpravo od bodu, když se nevejde, tak vlevo
             const area = $("chartArea"), sx = area.clientWidth / W, sy = area.clientHeight / H;
-            const px = x * sx, py = y * sy;
-            const half = 118 + 4, clamped = Math.max(half, Math.min(area.clientWidth - half, px));
-            tip.classList.toggle("below", py < 150);              // u horního okraje se bublina ukáže pod bodem
-            tip.style.left = clamped + "px";
-            tip.style.top = py + "px";
-            tip.style.setProperty("--arrow", `calc(50% + ${(px - clamped).toFixed(0)}px)`);
+            const px = x * sx, py = y * sy, gap = 9;
+            const w = tip.offsetWidth, h = tip.offsetHeight;
+            const right = px + gap + w <= area.clientWidth;
+            tip.classList.toggle("right", right);
+            tip.classList.toggle("left", !right);
+            tip.style.left = (right ? px + gap : px - gap - w) + "px";
+            tip.style.top = Math.max(h / 2, Math.min(area.clientHeight - h / 2, py)) + "px";
             tip.classList.add("show");
         }
         function hideHover() {
