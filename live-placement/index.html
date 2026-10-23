@@ -97,6 +97,16 @@
         }
         .lp-inner.is-gain .lp-glow { opacity: 1; transition: opacity 0.3s ease-out; }
 
+        /* obsah karty (72 u vysoký) – svisle na střed, když je karta vyšší */
+        .lp-content {
+            position: absolute;
+            left: 0;
+            right: 0;
+            top: var(--oy, 0px);
+            height: calc(72 * var(--u));
+            pointer-events: none;
+        }
+
         .lp-rank {
             position: absolute;
             left: calc(-8 * var(--u));
@@ -398,6 +408,7 @@
             grid.style.setProperty("--u", U + "px");
             grid.style.setProperty("--cw", CW + "px");
             grid.style.setProperty("--ch", CH + "px");
+            grid.style.setProperty("--oy", Math.max(0, (CH - 72 * U) / 2 - 3.5 * U) + "px");
             document.getElementById("bottomBar").style.setProperty("--bottom-h", BOTTOM_H + "px");
         }
 
@@ -565,11 +576,13 @@
                 <div class="lp-lift-shadow"></div>
                 <div class="lp-inner">
                     <div class="lp-glow"></div>
-                    <img class="lp-icon" draggable="false" decoding="async">
-                    <img class="lp-flag" draggable="false" decoding="async">
-                    <div class="lp-name"></div>
-                    <div class="lp-pts"><span class="num"></span></div>
-                    <div class="lp-delta"></div>
+                    <div class="lp-content">
+                        <img class="lp-icon" draggable="false" decoding="async">
+                        <img class="lp-flag" draggable="false" decoding="async">
+                        <div class="lp-name"></div>
+                        <div class="lp-pts"><span class="num"></span></div>
+                        <div class="lp-delta"></div>
+                    </div>
                     <div class="lp-rank"></div>
                 </div>`;
             el._c = c;
@@ -1015,6 +1028,6 @@
         }
     </script>
 
-    <script src="/hotbar.js"></script>
+    <script src="/hotbar.js?v=2"></script>
 </body>
 </html>
