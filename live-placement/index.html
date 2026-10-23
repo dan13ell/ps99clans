@@ -174,11 +174,15 @@
             height: calc(36 * var(--u));
             display: flex;
             align-items: center;
-            color: #262C2D;
-            transition: color 2.4s cubic-bezier(0.25, 0.1, 0.25, 1);
+            /* číslo je zelené a v klidu ho filtr ztmaví na #262C2D;
+               při přičtení se filtr plynule uvolní → zezelená (filtr běží na GPU,
+               přechod přes "color" by překresloval každou číslici každý snímek) */
+            color: #17A63E;
+            filter: saturate(0) brightness(0.3);
+            transition: filter 2s cubic-bezier(0.25, 0.1, 0.25, 1);
             pointer-events: none;
         }
-        .lp-inner.is-gain .lp-pts { color: #17A63E; transition: color 0.3s ease-out; }
+        .lp-inner.is-gain .lp-pts { filter: saturate(1) brightness(1); transition: filter 0.3s ease-out; }
 
         .num {
             display: inline-flex;
@@ -200,7 +204,7 @@
             line-height: 1em;
             transform: translateY(0);
         }
-        .num .s.roll { transition: transform 2s cubic-bezier(0.22, 0.8, 0.28, 1); }
+        .num .s.roll { transition: transform 1.6s cubic-bezier(0.22, 0.8, 0.28, 1); }
         .num .c { display: inline-block; }
 
         .lp-delta {
@@ -367,8 +371,7 @@
         const TICK_MS = DEMO ? Math.max(2, Number(params.get("tick")) || 15) * 1000 : 15000; // aktualizace každých 15 s
         const SMOOTH_STEPS = 4;          // jako live.html: rozdíl se přičte ve 4 krocích
         const STEP_SPREAD = 0.85;        // kroky klanů se rozprostřou do 85 % intervalu → pořád se něco přičítá
-        const ROLL_MS = 2000;            // jak dlouho se točí číslo
-        const REORDER_DELAY_MS = 1900;   // předběhnutí až po dotočení čísla
+        const REORDER_DELAY_MS = 1500;   // předběhnutí až po dotočení čísla
         const MOVE_MS = 1500;            // zvednout → přesunout → položit
 
         const COLS = 5, ROWS = 10, PER_PAGE = COLS * ROWS, MAX_CLANS = 100;
