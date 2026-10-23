@@ -150,17 +150,17 @@
         }
         .clan-card > * { flex: 0 0 auto; }
 
-        .icon-wrap { position: relative; width: 172px; height: 172px; }
+        .icon-wrap { position: relative; width: 118px; height: 118px; }
         .c-icon {
-            width: 172px;
-            height: 172px;
+            width: 118px;
+            height: 118px;
             border-radius: 50%;
             border: 4px solid #000;
             background: #FFFFFF;
             object-fit: cover;
             display: block;
         }
-        .c-icon.placeholder { object-fit: contain; padding: 26px; opacity: 0.3; }
+        .c-icon.placeholder { object-fit: contain; padding: 20px; opacity: 0.3; }
         .c-icon.link { cursor: pointer; transition: transform 0.044s cubic-bezier(0.1, 0.9, 0.2, 1); }
         .c-icon.link:hover:not(:active) { transform: scale(1.03); }
         .c-icon.link:active { transform: scale(0.97); }
@@ -168,8 +168,8 @@
             position: absolute;
             right: 0;
             bottom: 0;
-            width: 48px;
-            height: 48px;
+            width: 38px;
+            height: 38px;
             border-radius: 50%;
             border: 3px solid #000;
             background: #FFFFFF;
@@ -194,12 +194,29 @@
         .rank-pill.silver { background: linear-gradient(#F4F6FA, #BFC6D4); }
         .rank-pill.bronze { background: linear-gradient(#FFC48A, #E4893A); }
 
-        .c-name { margin-top: 8px; font-size: 32px; line-height: 1.15; font-weight: 700 !important; color: #1C2130; white-space: nowrap; }
+        .c-name { margin-top: 8px; font-size: 36px; line-height: 1.15; font-weight: 700 !important; color: #1C2130; white-space: nowrap; }
         .c-name.empty { color: #B6B8BF; }
         .c-points { margin-top: 2px; }
-        .c-points-label { display: flex; align-items: center; gap: 7px; margin-top: 2px; font-size: 17px; }
+        .c-points-label { display: flex; align-items: center; gap: 8px; margin-top: 4px; font-size: 21px; }
+        .c-points-label img { width: 27px !important; height: 27px !important; }
         .c-points-label img { width: 23px; height: 23px; }
         .c-hint { margin-top: 4px; font-size: 14px; color: #A3A6AE; font-weight: 600 !important; }
+        .clan-card.is-empty .c-points, .clan-card.is-empty .c-points * { color: #D3D5DB !important; }
+        .clan-card.is-empty .c-points-label { color: #B6B8BF; }
+        .clan-card.is-empty .c-points-label img { opacity: 0.35; }
+
+        /* úvodní karta, když ještě nejsou vybrané klany */
+        .intro { display: flex; align-items: center; gap: 22px; padding: 18px 26px; }
+        .intro-icon { width: 104px; height: auto; flex: 0 0 auto; }
+        .intro-text { display: flex; flex-direction: column; gap: 6px; min-width: 0; flex: 1 1 auto; }
+        .intro .select-wrap { margin: 0; }
+        .intro-title { font-size: 30px; }
+        .intro-sub { font-size: 17px; color: #5A5D66; font-weight: 600 !important; }
+        .intro-chips { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 4px; }
+        .intro-chips span { padding: 3px 12px; border-radius: 12px; border: 3px solid #000; font-size: 14px; font-weight: 800 !important; color: #1C2130; background: #F1F4FA; white-space: nowrap; }
+        .intro-chips span:nth-child(1) { background: #8FF8FB; }
+        .intro-chips span:nth-child(2) { background: #FFE873; }
+        .intro-chips span:nth-child(3) { background: #FFA3C1; }
         .c-hint.err { color: #FF4A4A; }
 
         .vs-badge {
@@ -509,7 +526,7 @@
                             <div class="c-name empty" id="nameA">[CLAN]</div>
                             <div class="c-points roboto" id="pointsA"></div>
                             <div class="c-points-label label"><img src="/images/hvezda.png" alt="">TOTAL POINTS</div>
-                            <div class="c-hint" id="hintA">Press "Select Clans" below</div>
+                            <div class="c-hint is-hidden" id="hintA"></div>
                                                     </div>
                         <div class="vs-badge"><span class="vs-text">VS</span></div>
                         <div class="card clan-card b" id="cardB">
@@ -521,11 +538,20 @@
                             <div class="c-name empty" id="nameB">[CLAN]</div>
                             <div class="c-points roboto" id="pointsB"></div>
                             <div class="c-points-label label"><img src="/images/hvezda.png" alt="">TOTAL POINTS</div>
-                            <div class="c-hint" id="hintB">Press "Select Clans" below</div>
+                            <div class="c-hint is-hidden" id="hintB"></div>
                                                     </div>
                     </div>
 
                     <!-- jen když jsou vybrané oba klany -->
+                    <div class="card intro no-clans-only">
+                        <img class="intro-icon" src="/images/hotbar/compare.png" alt="" draggable="false">
+                        <div class="intro-text">
+                            <span class="title-stroke intro-title">Compare two clans!</span>
+                            <span class="intro-sub">Pick two clans and watch the battle live.</span>
+                            <div class="intro-chips"><span>Live total points</span><span>Point difference</span><span>Difference chart</span></div>
+                        </div>
+                    </div>
+
                     <div class="row-mid only-clans">
                         <div class="card stats a" id="statsA"></div>
                         <div class="card diff">
@@ -735,6 +761,11 @@
             const both = !!(side.a.data && side.b.data);
             document.body.classList.toggle("no-clans", !both);
             document.querySelectorAll(".only-clans").forEach((el) => el.classList.toggle("is-hidden", !both));
+            document.querySelectorAll(".no-clans-only").forEach((el) => el.classList.toggle("is-hidden", both));
+            // bez klanů je tlačítko přímo v úvodní kartě, jinak úplně dole
+            const btn = document.querySelector(".select-wrap");
+            const home = both ? document.querySelector(".cmp-inner") : document.querySelector(".intro");
+            if (btn.parentElement !== home) home.appendChild(btn);
 
             if (window.autoFitScreen !== autoFitScreen) window.autoFitScreen();
         }
@@ -742,6 +773,7 @@
         function renderCard(s) {
             const K = s.key, d = s.data;
             const icon = $("icon" + K), flag = $("flag" + K), rank = $("rank" + K), name = $("name" + K);
+            $("card" + K).classList.toggle("is-empty", !d);
             if (!d) {
                 icon.src = "/images/hotbar/clans.png"; icon.className = "c-icon placeholder"; icon.onclick = null; delete icon.dataset.src;
                 flag.classList.add("is-hidden");
@@ -782,8 +814,8 @@
         let rendered = false;
         function render() {
             const A = side.a, B = side.b;
-            fit($("pointsA"), A.current, 60, 440);
-            fit($("pointsB"), B.current, 60, 440);
+            fit($("pointsA"), A.current, 80, 455);
+            fit($("pointsB"), B.current, 80, 455);
             odo.A.set(A.data ? A.current : 0, rendered);
             odo.B.set(B.data ? B.current : 0, rendered);
             renderCard(A); renderCard(B);
@@ -831,10 +863,12 @@
             if (area.clientWidth > 0) CH.W = area.clientWidth;          // žádné deformace písma
             if (area.clientHeight > 0) CH.H = area.clientHeight;
             const vals = points.map((p) => p.v);
-            let min = Math.min(...vals, 0), max = Math.max(...vals, 0);   // nula je vždy vidět
-            if (min === max) { min -= 1; max += 1; }
-            const pad = (max - min) * 0.12;
-            min -= min < 0 ? pad : 0; max += max > 0 ? pad : 0;
+            // rozsah podle dat, aby čára byla uprostřed grafu (ne nalepená nahoře/dole)
+            let min = Math.min(...vals), max = Math.max(...vals);
+            let span = max - min;
+            if (!span) span = Math.max(1, Math.abs(max) * 0.02);
+            const mid = (max + min) / 2;
+            min = mid - span * 0.8; max = mid + span * 0.8;
             const n = points.length, { W, H, L, R, T, B } = CH;
             const x = (i) => n === 1 ? W - R : L + (i / (n - 1)) * (W - L - R);
             const y = (v) => T + (1 - (v - min) / (max - min)) * (H - T - B);
@@ -904,7 +938,7 @@
                 ${grid}${xl}
                 <path d="${area}" fill="url(#gUp)" clip-path="url(#above)"/>
                 <path d="${area}" fill="url(#gDown)" clip-path="url(#below)"/>
-                <line x1="${L}" x2="${W - R}" y1="${y0.toFixed(1)}" y2="${y0.toFixed(1)}" stroke="#000" stroke-width="2" stroke-dasharray="6 6" opacity="0.35"/>
+                ${target.min < 0 && target.max > 0 ? `<line x1="${L}" x2="${W - R}" y1="${y0.toFixed(1)}" y2="${y0.toFixed(1)}" stroke="#000" stroke-width="2" stroke-dasharray="6 6" opacity="0.35"/>` : ""}
                 <path d="${line}" fill="none" stroke="#000" stroke-width="7" stroke-linejoin="round" stroke-linecap="round"/>
                 <path d="${line}" fill="none" stroke="${COL_A}" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"/>
                 ${n <= 40 ? xs.slice(0, n === 1 ? 1 : n).map((x, i) => `<circle cx="${x.toFixed(1)}" cy="${ys[i].toFixed(1)}" r="4" fill="#FFFFFF" stroke="#000000" stroke-width="2"/>`).join("") : ""}
@@ -1003,7 +1037,7 @@
             for (const [s, tag] of [[side.a, a], [side.b, b]]) {
                 stopSmoothing(s);
                 s.tag = tag; s.data = null; s.current = 0; s.lastApi = null;
-                setHint(s, tag ? "Loading..." : 'Press "Select Clans" below');
+                setHint(s, tag ? "Loading..." : "");
             }
             points = []; lastChartAt = 0; geo = target = null; hideHover(); buildTarget(false);
             rendered = false;
