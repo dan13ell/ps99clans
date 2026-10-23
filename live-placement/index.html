@@ -13,11 +13,17 @@
     <link rel="icon" href="/images/favicon.png" type="image/png">
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>PS99 Clans - Live Top 100</title>
+    <title>PS99 Clans - Live Top 500</title>
+    <script>
+        // odometry vytváříme ručně jen pro karty, které jsou vidět
+        window.odometerOptions = { auto: false };
+    </script>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@600;700;800&family=Roboto:wght@800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/odometer.js/0.4.7/themes/odometer-theme-minimal.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/odometer.js/0.4.7/odometer.min.js"></script>
     <link rel="preload" as="image" href="/images/page-select.png">
 
     <style>
@@ -41,12 +47,19 @@
             background-color: #89b3f9;
         }
 
-        /* ---------- MŘÍŽKA KARET (celá obrazovka) ----------
-           --u = 1 "designový pixel" (karta je navržená na výšku 72 u), dopočítává se v JS */
-        .lp-grid {
+        /* ---------- SCÉNA ----------
+           PC: přes celé okno. Mobil: stejné rozhraní jako na PC (1600×900), jen zmenšené. */
+        .stage {
             position: absolute;
             left: 0;
             top: 0;
+            transform-origin: 0 0;
+        }
+
+        /* --u = 1 "designový pixel" (karta je navržená na výšku 72 u), dopočítává se v JS */
+        .lp-grid {
+            position: absolute;
+            left: 0;
             right: 0;
             --u: 1px;
         }
@@ -60,14 +73,25 @@
             cursor: pointer;
             contain: layout style;
         }
-        .lp-card.is-hidden { visibility: hidden; pointer-events: none; }
 
-        /* stín při zvednutí – animuje se jen průhlednost (levné) */
+        /* stín + zlatý okraj při zvednutí – animuje se jen průhlednost (levné) */
         .lp-lift-shadow {
             position: absolute;
             inset: 0;
             border-radius: calc(12 * var(--u));
-            box-shadow: 0 calc(22 * var(--u)) calc(30 * var(--u)) rgba(0, 0, 0, 0.32);
+            box-shadow: 0 calc(24 * var(--u)) calc(34 * var(--u)) rgba(0, 0, 0, 0.34),
+                        0 0 0 calc(3 * var(--u)) #FFD84A,
+                        0 0 calc(20 * var(--u)) calc(5 * var(--u)) rgba(255, 216, 74, 0.55);
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        /* kroužek, který se rozplyne při položení karty */
+        .lp-ring {
+            position: absolute;
+            inset: 0;
+            border-radius: calc(12 * var(--u));
+            border: calc(3 * var(--u)) solid #FFD84A;
             opacity: 0;
             pointer-events: none;
         }
@@ -111,22 +135,45 @@
             position: absolute;
             left: calc(-8 * var(--u));
             top: calc(-13 * var(--u));
+            display: flex;
+            align-items: center;
+            gap: calc(3 * var(--u));
             font-size: calc(25 * var(--u));
             line-height: 1;
+            pointer-events: none;
+            z-index: 5;
+        }
+        .lp-rank-num {
             color: #FFFFFF;
             -webkit-text-stroke: calc(6 * var(--u)) #000000;
             paint-order: stroke fill;
             font-weight: 800 !important;
-            pointer-events: none;
-            z-index: 5;
             transform-origin: 30% 60%;
         }
-        .lp-rank.is-first { color: #8AFCED; }
-        .lp-rank.pop { animation: rankPop 0.5s cubic-bezier(0.2, 0.8, 0.2, 1); }
+        .lp-rank.is-first .lp-rank-num { color: #8AFCED; }
+        .lp-rank-num.pop { animation: rankPop 0.55s cubic-bezier(0.2, 0.8, 0.2, 1); }
         @keyframes rankPop {
             0% { transform: scale(1); }
-            40% { transform: scale(1.35); }
+            40% { transform: scale(1.45); }
             100% { transform: scale(1); }
+        }
+
+        /* zelená šipka nahoru po předběhnutí */
+        .lp-up {
+            font-size: calc(17 * var(--u));
+            color: #3BE15C;
+            -webkit-text-stroke: calc(5 * var(--u)) #000000;
+            paint-order: stroke fill;
+            font-weight: 800 !important;
+            opacity: 0;
+        }
+        .lp-up.show { animation: upPop 2.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; }
+        @keyframes upPop {
+            0%   { opacity: 0; transform: translateY(40%) scale(0.4); }
+            12%  { opacity: 1; transform: translateY(-10%) scale(1.25); }
+            22%  { opacity: 1; transform: translateY(0) scale(1); }
+            75%  { opacity: 1; transform: translateY(0) scale(1); }
+            100% { opacity: 0; transform: translateY(-50%) scale(0.9); }
         }
 
         .lp-icon {
@@ -139,7 +186,6 @@
             background-color: #FFFFFF;
             object-fit: contain;
             box-shadow: 0 0 0 calc(2 * var(--u)) rgba(0, 0, 0, 0.12);
-            pointer-events: none;
         }
 
         .lp-flag {
@@ -148,7 +194,6 @@
             top: calc(4 * var(--u));
             width: calc(24 * var(--u));
             height: calc(24 * var(--u));
-            pointer-events: none;
         }
 
         .lp-name {
@@ -162,11 +207,10 @@
             paint-order: stroke fill;
             font-weight: 800 !important;
             white-space: nowrap;
-            pointer-events: none;
         }
 
-        /* ---------- VLASTNÍ LEHKÝ ODOMETR ----------
-           každá číslice = jeden text "0..9 0..9 0..9" posouvaný přes transform (běží na GPU) */
+        /* číslo (originální odometer) – je zelené a v klidu ho filtr ztmaví na #262C2D;
+           při přičtení se filtr plynule uvolní → zezelená (filtr běží na GPU) */
         .lp-pts {
             position: absolute;
             left: calc(67 * var(--u));
@@ -174,38 +218,18 @@
             height: calc(36 * var(--u));
             display: flex;
             align-items: center;
-            /* číslo je zelené a v klidu ho filtr ztmaví na #262C2D;
-               při přičtení se filtr plynule uvolní → zezelená (filtr běží na GPU,
-               přechod přes "color" by překresloval každou číslici každý snímek) */
             color: #17A63E;
             filter: saturate(0) brightness(0.3);
             transition: filter 2s cubic-bezier(0.25, 0.1, 0.25, 1);
-            pointer-events: none;
         }
         .lp-inner.is-gain .lp-pts { filter: saturate(1) brightness(1); transition: filter 0.3s ease-out; }
-
-        .num {
-            display: inline-flex;
+        .lp-pts .odometer,
+        .lp-pts .odometer * {
             font-family: 'Roboto', sans-serif !important;
             font-weight: 800 !important;
-            font-variant-numeric: tabular-nums;
-            line-height: 1;
-            white-space: nowrap;
+            color: inherit !important;
+            line-height: 1.1 !important;
         }
-        .num * { font-family: inherit !important; font-weight: inherit !important; }
-        .num .d {
-            display: inline-block;
-            height: 1em;
-            overflow: hidden;
-        }
-        .num .s {
-            display: block;
-            white-space: pre;
-            line-height: 1em;
-            transform: translateY(0);
-        }
-        .num .s.roll { transition: transform 1.6s cubic-bezier(0.22, 0.8, 0.28, 1); }
-        .num .c { display: inline-block; }
 
         .lp-delta {
             position: absolute;
@@ -218,7 +242,6 @@
             paint-order: stroke fill;
             font-weight: 800 !important;
             white-space: nowrap;
-            pointer-events: none;
             opacity: 0;
             transform-origin: right center;
         }
@@ -237,7 +260,7 @@
             left: 0;
             right: 0;
             bottom: 0;
-            height: var(--bottom-h, 150px);
+            height: 150px;
             display: flex;
             align-items: flex-end;
             justify-content: center;
@@ -251,7 +274,6 @@
             bottom: 34px;
             display: flex;
             align-items: center;
-            gap: 14px;
         }
         .lp-side-left { left: 22px; }
         .lp-side-right { right: 22px; }
@@ -293,12 +315,13 @@
             align-items: center;
         }
         .page-number-text {
-            font-size: 28px !important;
+            font-size: 24px !important;
             font-weight: 800 !important;
             color: #FFFFFF;
             -webkit-text-stroke: 6px #2A2B31;
             paint-order: stroke fill;
             padding-bottom: 3px;
+            white-space: nowrap;
         }
         .page-arrow {
             position: absolute;
@@ -313,8 +336,8 @@
         .page-arrow:hover:not(:active) { transform: scale(1.08); }
         .page-arrow:active { transform: scale(0.92); }
         .page-arrow.is-disabled { opacity: 0.35; pointer-events: none; }
-        .arrow-left { left: 22px; background-image: url("/images/sipka-leva.png"); }
-        .arrow-right { right: 22px; background-image: url("/images/sipka-prava.png"); }
+        .arrow-left { left: 18px; background-image: url("/images/sipka-leva.png"); }
+        .arrow-right { right: 18px; background-image: url("/images/sipka-prava.png"); }
 
         .lp-status {
             position: absolute;
@@ -331,33 +354,30 @@
             pointer-events: none;
             transition: opacity 0.3s ease;
         }
-
-        /* na úzkých obrazovkách boční prvky pod sebe nad hotbar */
-        @media (max-width: 1100px) {
-            .lp-side { bottom: auto; top: 6px; }
-        }
     </style>
 </head>
 <body>
 
-    <div class="lp-grid" id="grid"></div>
-    <div class="lp-status" id="statusText">Loading clans...</div>
+    <div class="stage" id="stage">
+        <div class="lp-grid" id="grid"></div>
+        <div class="lp-status" id="statusText">Loading clans...</div>
 
-    <div class="lp-bottom" id="bottomBar">
-        <div class="lp-side lp-side-left">
-            <div class="live-badge" id="liveBadge">
-                <span class="live-dot"></span>
-                <span id="liveBadgeText">LIVE</span>
+        <div class="lp-bottom">
+            <div class="lp-side lp-side-left">
+                <div class="live-badge" id="liveBadge">
+                    <span class="live-dot"></span>
+                    <span id="liveBadgeText">LIVE</span>
+                </div>
             </div>
-        </div>
 
-        <div class="ps-hotbar-host"></div>
+            <div class="ps-hotbar-host"></div>
 
-        <div class="lp-side lp-side-right">
-            <div class="page-select-bg">
-                <div class="page-arrow arrow-left is-disabled" id="prevPageBtn"></div>
-                <span class="page-number-text" id="pageText">#1-50</span>
-                <div class="page-arrow arrow-right" id="nextPageBtn"></div>
+            <div class="lp-side lp-side-right">
+                <div class="page-select-bg">
+                    <div class="page-arrow arrow-left is-disabled" id="prevPageBtn"></div>
+                    <span class="page-number-text" id="pageText">#1-50</span>
+                    <div class="page-arrow arrow-right" id="nextPageBtn"></div>
+                </div>
             </div>
         </div>
     </div>
@@ -365,46 +385,60 @@
     <script>
         const WORKER_URL = "https://rough-pine-d90f.ps99clans.workers.dev";
         const params = new URLSearchParams(location.search);
-        const DEMO = params.has("demo");   // ?demo=1 → vymyšlená data (na zkoušení animací), ?tick=4 → rychlejší
+        const DEMO = params.has("demo");   // ?demo=1 → vymyšlená data, ?tick=4 → rychlejší aktualizace
 
         // ---------- NASTAVENÍ ----------
         const TICK_MS = DEMO ? Math.max(2, Number(params.get("tick")) || 15) * 1000 : 15000; // aktualizace každých 15 s
         const SMOOTH_STEPS = 4;          // jako live.html: rozdíl se přičte ve 4 krocích
         const STEP_SPREAD = 0.85;        // kroky klanů se rozprostřou do 85 % intervalu → pořád se něco přičítá
-        const REORDER_DELAY_MS = 1500;   // předběhnutí až po dotočení čísla
-        const MOVE_MS = 1500;            // zvednout → přesunout → položit
+        const ODO_MS = 2500;             // odometer jako v live.html
+        const REORDER_DELAY_MS = 2300;   // předběhnutí až po dotočení čísla
+        const MOVE_MS = 1700;            // zvednout → přesunout → položit
 
-        const COLS = 5, ROWS = 10, PER_PAGE = COLS * ROWS, MAX_CLANS = 100;
-        const PAD_X = 14, PAD_TOP = 16, GAP_X = 12, GAP_Y_RATIO = 0.125; // mezera mezi řadami = 12,5 % výšky karty
+        const MAX_CLANS = 500;
+        const COLS = 5, ROWS = 10, PER_PAGE = COLS * ROWS, PAGES = MAX_CLANS / PER_PAGE;
+        const PAD_X = 14, PAD_TOP = 16, GAP_X = 12, GAP_Y_RATIO = 0.125;
         const BOTTOM_H = 150;            // místo na hotbar dole
+        const MOBILE_BREAK = 1150;       // stejná hranice jako na ostatních stránkách
+        const VIRTUAL_W = 1600, VIRTUAL_H = 900; // rozhraní na mobilu (zmenšené jako celek)
 
         const ICON_FALLBACK = "data:image/svg+xml;utf8," + encodeURIComponent(
             '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52"><rect width="52" height="52" fill="#fff"/><text x="26" y="34" font-family="Arial" font-weight="bold" font-size="22" text-anchor="middle" fill="#B1B1B1">?</text></svg>'
         );
-        const STRIP_TEXT = "0123456789".repeat(3).split("").join("\n"); // 30 řádků
 
+        const stage = document.getElementById("stage");
         const grid = document.getElementById("grid");
-        const clans = new Map();   // jméno → stav karty
+        const clans = new Map();   // jméno → stav (všech až 500 klanů; DOM má jen viditelná stránka)
+        const rendered = new Set(); // klany, které mají kartu v DOM
         let order = [];
         let page = 1;
         let lastOkAt = 0;
         let nextTickAt = 0;
         let firstLoad = true;
 
-        // rozměry (dopočítávají se podle okna)
         let CW = 352, CH = 72, U = 1, GAP_Y = 9, PTS_W = 200;
 
-        // ---------- ROZMĚRY PODLE OKNA ----------
+        // ---------- ROZMĚRY ----------
         function computeLayout() {
-            const w = window.innerWidth;
-            const h = window.innerHeight;
-            const gridH = h - BOTTOM_H - PAD_TOP;
-            CW = (w - PAD_X * 2 - GAP_X * (COLS - 1)) / COLS;
+            const winW = window.innerWidth, winH = window.innerHeight;
+            const mobile = winW < MOBILE_BREAK;
+            const SW = mobile ? VIRTUAL_W : winW;
+            const SH = mobile ? VIRTUAL_H : winH;
+            const scale = mobile ? Math.min(winW / SW, winH / SH) : 1;
+
+            stage.style.width = SW + "px";
+            stage.style.height = SH + "px";
+            stage.style.transform = mobile
+                ? `translate(${(winW - SW * scale) / 2}px, ${(winH - SH * scale) / 2}px) scale(${scale})`
+                : "none";
+            document.body.classList.toggle("is-mobile", mobile);
+
+            const gridH = SH - BOTTOM_H - PAD_TOP;
+            CW = (SW - PAD_X * 2 - GAP_X * (COLS - 1)) / COLS;
             CH = gridH / (ROWS + GAP_Y_RATIO * (ROWS - 1));
             GAP_Y = CH * GAP_Y_RATIO;
-            // obsah karty roste s výškou, ale nesmí přetéct na šířku
             U = Math.min(CH / 72, CW / 300);
-            PTS_W = CW - 67 * U - 78 * U;
+            PTS_W = CW - 67 * U - 80 * U;
 
             grid.style.top = PAD_TOP + "px";
             grid.style.height = gridH + "px";
@@ -412,24 +446,23 @@
             grid.style.setProperty("--cw", CW + "px");
             grid.style.setProperty("--ch", CH + "px");
             grid.style.setProperty("--oy", Math.max(0, (CH - 72 * U) / 2 - 3.5 * U) + "px");
-            document.getElementById("bottomBar").style.setProperty("--bottom-h", BOTTOM_H + "px");
         }
 
         let resizeRaf = 0;
-        window.addEventListener("resize", () => {
+        function onResize() {
             cancelAnimationFrame(resizeRaf);
             resizeRaf = requestAnimationFrame(() => {
                 computeLayout();
-                clans.forEach(c => {
-                    if (c.rank < 0) return;
+                widthCache.clear();
+                rendered.forEach(c => {
                     stopAnim(c);
-                    const to = slotOf(c.rank);
-                    c.el.style.transform = `translate(${to.x}px, ${to.y}px)`;
-                    c.x = to.x; c.y = to.y;
+                    placeAt(c, slotOf(c.rank));
                     fitNumber(c, true);
                 });
             });
-        });
+        }
+        window.addEventListener("resize", onResize);
+        window.addEventListener("orientationchange", onResize);
 
         // ---------- POMOCNÉ FUNKCE ----------
         function getTwemojiUrl(countryCode) {
@@ -452,29 +485,26 @@
             return f(n / 1e3, "k");
         }
 
-        // velikost písma čísla podle šířky (měří se jednou na počet číslic, ne pokaždé)
+        // velikost písma čísla podle šířky (měří se jednou pro každý počet číslic)
         const measurer = document.createElement("span");
-        measurer.style.cssText = "position:absolute;left:-9999px;top:-9999px;visibility:hidden;white-space:nowrap;font-size:100px;font-family:'Roboto',sans-serif;font-weight:800;font-variant-numeric:tabular-nums;";
+        measurer.style.cssText = "position:absolute;left:-9999px;top:-9999px;visibility:hidden;white-space:nowrap;font-size:100px;font-family:'Roboto',sans-serif;font-weight:800;";
         document.body.appendChild(measurer);
         const widthCache = new Map();
 
-        function textWidth100(str) {
-            const key = str.replace(/\d/g, "0");
+        function fitNumber(c, force) {
+            if (!c.el) return;
+            const str = c.shown.toLocaleString("en-US");
+            if (!force && c.fitLen === str.length) return;
+            c.fitLen = str.length;
+            const key = str.replace(/\d/g, "8");
             let w = widthCache.get(key);
             if (w === undefined) {
                 measurer.textContent = key;
                 w = measurer.offsetWidth || 1;
                 widthCache.set(key, w);
             }
-            return w;
-        }
-
-        function fitNumber(c, force) {
-            const str = c.shown.toLocaleString("en-US");
-            if (!force && c.fitLen === str.length) return;
-            c.fitLen = str.length;
-            const size = Math.max(14 * U, Math.min(34 * U, (100 * PTS_W * 0.97) / textWidth100(str)));
-            c.numEl.style.fontSize = size.toFixed(2) + "px";
+            const size = Math.max(14 * U, Math.min(34 * U, (100 * PTS_W * 0.97) / w));
+            c.odoEl.style.fontSize = size.toFixed(2) + "px";
         }
 
         function slotOf(rank) {
@@ -485,155 +515,103 @@
         }
 
         function pageOf(rank) { return Math.floor(rank / PER_PAGE) + 1; }
+        function onPage(rank) { return rank >= 0 && pageOf(rank) === page; }
 
         // nižší karta musí být nad vyšší, aby přes ni přečuhovalo "#x"
         function baseZ(rank) { return 10 + (rank % PER_PAGE); }
 
-        // ---------- ODOMETR ----------
-        function buildNumber(c, value) {
-            const str = value.toLocaleString("en-US");
-            const frag = document.createDocumentFragment();
-            c.digits = [];
-            for (const ch of str) {
-                if (ch >= "0" && ch <= "9") {
-                    const d = document.createElement("span");
-                    d.className = "d";
-                    const s = document.createElement("span");
-                    s.className = "s";
-                    s.textContent = STRIP_TEXT;
-                    s.style.transform = `translateY(${-Number(ch)}em)`;
-                    d.appendChild(s);
-                    frag.appendChild(d);
-                    c.digits.push({ s, pos: Number(ch) });
-                } else {
-                    const sep = document.createElement("span");
-                    sep.className = "c";
-                    sep.textContent = ch;
-                    frag.appendChild(sep);
-                }
-            }
-            c.numEl.replaceChildren(frag);
-            c.numStr = str;
-        }
-
-        function setNumber(c, from, to, animate) {
-            const str = to.toLocaleString("en-US");
-            if (str.length !== c.numStr.length) {
-                // změnil se počet číslic → postavit znovu (výchozí stav = staré číslo zarovnané doprava)
-                buildNumber(c, to);
-                if (!animate) return;
-                const oldDigits = String(from).padStart(c.digits.length, "0");
-                c.digits.forEach((dg, i) => { dg.pos = Number(oldDigits[i]); dg.s.style.transform = `translateY(${-dg.pos}em)`; });
-                void c.numEl.offsetWidth;
-            }
-            const newDigits = String(to);
-            const n = c.digits.length;
-            for (let i = 0; i < n; i++) {
-                const dg = c.digits[i];
-                const place = n - 1 - i;                       // řád číslice (0 = jednotky)
-                const target = Number(newDigits[i]);
-                if (!animate || to < from) {
-                    dg.s.classList.remove("roll");
-                    dg.pos = target;
-                    dg.s.style.transform = `translateY(${-target}em)`;
-                    continue;
-                }
-                const p = Math.pow(10, place);
-                const passed = Math.floor(to / p) - Math.floor(from / p); // kolikrát se číslice "přetočí"
-                if (passed <= 0) continue;
-                const steps = (passed % 10) + (passed >= 10 ? 10 : 0);    // max. jedna otáčka navíc
-                if (dg.pos + steps > 29) {
-                    // předchozí otáčka ještě nedoběhla a pás by nestačil → srovnat na 0–9
-                    dg.s.classList.remove("roll");
-                    dg.pos %= 10;
-                    dg.s.style.transform = `translateY(${-dg.pos}em)`;
-                    void dg.s.offsetHeight;
-                }
-                dg.pos += steps;
-                dg.s.classList.add("roll");
-                dg.s.style.transform = `translateY(${-dg.pos}em)`;
-            }
-        }
-
-        // po dotočení vrátit pás na 0–9 (jeden posluchač pro celou mřížku)
-        grid.addEventListener("transitionend", e => {
-            const s = e.target;
-            if (!s.classList || !s.classList.contains("s") || e.propertyName !== "transform") return;
-            const m = /translateY\((-?[\d.]+)em\)/.exec(s.style.transform);
-            if (!m) return;
-            const pos = -Number(m[1]);
-            s.classList.remove("roll");
-            if (pos >= 10) {
-                s.style.transform = `translateY(${-(pos % 10)}em)`;
-                const card = s.closest(".lp-card");
-                const c = card && card._c;
-                if (c) { const dg = c.digits.find(d => d.s === s); if (dg) dg.pos = pos % 10; }
-            }
-        });
-
-        // ---------- KARTA ----------
-        function createCard(c, d) {
+        // ---------- KARTA (jen pro viditelnou stránku) ----------
+        function createCard(c) {
             const el = document.createElement("div");
-            el.className = "lp-card is-hidden";
+            el.className = "lp-card";
             el.innerHTML = `
                 <div class="lp-lift-shadow"></div>
+                <div class="lp-ring"></div>
                 <div class="lp-inner">
                     <div class="lp-glow"></div>
                     <div class="lp-content">
                         <img class="lp-icon" draggable="false" decoding="async">
                         <img class="lp-flag" draggable="false" decoding="async">
                         <div class="lp-name"></div>
-                        <div class="lp-pts"><span class="num"></span></div>
+                        <div class="lp-pts"><div class="odometer"></div></div>
                         <div class="lp-delta"></div>
                     </div>
-                    <div class="lp-rank"></div>
+                    <div class="lp-rank"><span class="lp-rank-num"></span><span class="lp-up">▲</span></div>
                 </div>`;
-            el._c = c;
             c.el = el;
             c.inner = el.querySelector(".lp-inner");
             c.shadowEl = el.querySelector(".lp-lift-shadow");
-            c.rankEl = el.querySelector(".lp-rank");
-            c.iconEl = el.querySelector(".lp-icon");
-            c.flagEl = el.querySelector(".lp-flag");
-            c.nameEl = el.querySelector(".lp-name");
-            c.numEl = el.querySelector(".num");
+            c.ringEl = el.querySelector(".lp-ring");
+            c.rankWrap = el.querySelector(".lp-rank");
+            c.rankEl = el.querySelector(".lp-rank-num");
+            c.upEl = el.querySelector(".lp-up");
+            c.odoEl = el.querySelector(".odometer");
             c.deltaEl = el.querySelector(".lp-delta");
-            c.iconEl.onerror = () => { c.iconEl.onerror = null; c.iconEl.src = ICON_FALLBACK; };
+            c.shownRank = -1;
+            c.fitLen = 0;
+
+            const icon = el.querySelector(".lp-icon");
+            icon.onerror = () => { icon.onerror = null; icon.src = ICON_FALLBACK; };
+            icon.src = getClanIconUrl(c.data.Icon);
+            el.querySelector(".lp-flag").src = getTwemojiUrl(c.data.CountryCode);
+            el.querySelector(".lp-name").textContent = `[${c.name}]`;
             el.onclick = () => { location.href = `/clan-detail/?name=${encodeURIComponent(c.name)}`; };
 
-            buildNumber(c, c.shown);
-            fitNumber(c, true);
+            if (typeof Odometer !== "undefined") {
+                c.odo = new Odometer({ el: c.odoEl, value: c.shown, format: "(,ddd)", theme: "minimal", duration: ODO_MS, animation: "slide" });
+            } else {
+                c.odo = null;
+                c.odoEl.textContent = c.shown.toLocaleString("en-US");
+            }
             c.renderedPts = c.shown;
+            fitNumber(c, true);
 
-            updateStatic(c, d);
             grid.appendChild(el);
+            rendered.add(c);
         }
 
-        function updateStatic(c, d) {
-            const key = [d.Name, d.Icon, d.CountryCode].join("|");
+        function destroyCard(c) {
+            if (!c.el) return;
+            stopAnim(c);
+            clearTimeout(c.gainTimer);
+            c.el.remove();
+            c.el = null;
+            c.odo = null;
+            c.leaving = false;
+            rendered.delete(c);
+        }
+
+        function refreshStatic(c, d) {
+            const key = [d.Icon, d.CountryCode].join("|");
             if (key === c.staticKey) return;
             c.staticKey = key;
-            c.nameEl.textContent = `[${d.Name}]`;
-            c.iconEl.src = getClanIconUrl(d.Icon);
-            c.flagEl.src = getTwemojiUrl(d.CountryCode);
+            c.data = d;
+            if (!c.el) return;
+            c.el.querySelector(".lp-icon").src = getClanIconUrl(d.Icon);
+            c.el.querySelector(".lp-flag").src = getTwemojiUrl(d.CountryCode);
+        }
+
+        // statické přepsání odometru (bez animace)
+        function setOdoStatic(c, value) {
+            if (c.odo) { c.odo.value = value; c.odo.render(); }
+            else c.odoEl.textContent = value.toLocaleString("en-US");
         }
 
         function renderPoints(c) {
-            if (c.renderedPts === c.shown) return;
-            const from = c.renderedPts;
+            if (!c.el || c.renderedPts === c.shown) return;
             c.renderedPts = c.shown;
-            // neviditelné karty (druhá stránka / skrytý panel) se jen přepíšou bez animace
-            setNumber(c, from, c.shown, c.visible && !document.hidden);
             fitNumber(c, false);
+            if (c.odo && !document.hidden) c.odo.update(c.shown);
+            else setOdoStatic(c, c.shown);
         }
 
         function flashGain(c, delta) {
-            if (!c.visible || document.hidden) return;
+            if (!c.el || document.hidden) return;
             c.inner.classList.remove("is-gain");
             void c.inner.offsetWidth;
             c.inner.classList.add("is-gain");
             clearTimeout(c.gainTimer);
-            c.gainTimer = setTimeout(() => c.inner.classList.remove("is-gain"), 1300);
+            c.gainTimer = setTimeout(() => c.inner && c.inner.classList.remove("is-gain"), 1300);
 
             c.deltaEl.textContent = formatDelta(delta);
             c.deltaEl.classList.remove("show");
@@ -641,30 +619,37 @@
             c.deltaEl.classList.add("show");
         }
 
-        function setRankText(c, rank, pop) {
-            const txt = `#${rank + 1}`;
-            if (c.rankEl.textContent === txt) return;
-            c.rankEl.textContent = txt;
-            c.rankEl.classList.toggle("is-first", rank === 0);
+        function setRankText(c, rank, pop, up) {
+            if (!c.el) return;
+            if (c.shownRank !== rank) {
+                c.shownRank = rank;
+                c.rankEl.textContent = `#${rank + 1}`;
+                c.rankWrap.classList.toggle("is-first", rank === 0);
+            }
             if (pop) {
                 c.rankEl.classList.remove("pop");
                 void c.rankEl.offsetWidth;
                 c.rankEl.classList.add("pop");
             }
+            if (up) {
+                c.upEl.classList.remove("show");
+                void c.upEl.offsetWidth;
+                c.upEl.classList.add("show");
+            }
         }
 
         // ---------- POHYB KARET ----------
-        // Karty se pozicují přes transform (žádný přepočet layoutu stránky).
+        // Karty se pozicují přes transform (žádný přepočet layoutu).
         function placeAt(c, to) {
             c.x = to.x; c.y = to.y;
             c.el.style.transform = `translate(${to.x}px, ${to.y}px)`;
         }
 
-        // aktuální (i rozpracovaná) pozice karty bez čtení layoutu
+        // aktuální pozice i uprostřed animace, bez čtení layoutu
         function currentPos(c) {
-            if (c.anim && c.animFrom && c.anim.effect) {
+            if (c.anim && c.animFrom) {
                 const t = Math.min(1, Math.max(0, (c.anim.currentTime || 0) / MOVE_MS));
-                const k = t < 0.2 ? 0 : t > 0.76 ? 1 : (t - 0.2) / 0.56;
+                const k = t < 0.18 ? 0 : t > 0.72 ? 1 : (t - 0.18) / 0.54;
                 const e = k < 0.5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2;
                 return { x: c.animFrom.x + (c.x - c.animFrom.x) * e, y: c.animFrom.y + (c.y - c.animFrom.y) * e };
             }
@@ -672,101 +657,111 @@
         }
 
         function stopAnim(c) {
-            if (c.anim) { c.anim.cancel(); c.anim = null; }
+            if (c.anim) { c.anim.onfinish = null; c.anim.cancel(); c.anim = null; }
             if (c.shadowAnim) { c.shadowAnim.cancel(); c.shadowAnim = null; }
+            if (c.ringAnim) { c.ringAnim.cancel(); c.ringAnim = null; }
             c.animFrom = null;
             clearTimeout(c.rankTimer);
         }
 
+        const T = (x, y, s, r) => `translate(${x}px, ${y}px) scale(${s}) rotate(${r || 0}deg)`;
+
+        // předbíhající karta: zvednout (se zlatým okrajem) → přenést → dopadnout s lehkým odrazem
         function animateMove(c, to, kind) {
             const from = currentPos(c);
             stopAnim(c);
             placeAt(c, to);
             c.animFrom = from;
-            const T = (x, y, s) => `translate(${x}px, ${y}px) scale(${s})`;
-            const L = 7 * U;   // o kolik se karta zvedne
+            const L = 12 * U;   // výška zvednutí
+            const dir = to.x === from.x ? 0 : (to.x < from.x ? -1 : 1);
 
-            let frames;
             if (kind === "lift") {
                 c.el.style.zIndex = 400;
-                frames = [
-                    { offset: 0,    transform: T(from.x, from.y, 1),          easing: "cubic-bezier(0.3, 0.7, 0.4, 1)" },
-                    { offset: 0.2,  transform: T(from.x, from.y - L, 1.09),   easing: "cubic-bezier(0.65, 0, 0.35, 1)" },
-                    { offset: 0.76, transform: T(to.x, to.y - L, 1.09),       easing: "cubic-bezier(0.55, 0, 0.8, 0.3)" },
-                    { offset: 0.88, transform: T(to.x, to.y + U, 0.98),       easing: "cubic-bezier(0.2, 0.8, 0.3, 1)" },
-                    { offset: 1,    transform: T(to.x, to.y, 1) }
-                ];
+                c.anim = c.el.animate([
+                    { offset: 0,    transform: T(from.x, from.y, 1, 0),                         easing: "cubic-bezier(0.25, 0.8, 0.35, 1)" },
+                    { offset: 0.18, transform: T(from.x, from.y - L, 1.13, -1.6),               easing: "cubic-bezier(0.65, 0, 0.35, 1)" },
+                    { offset: 0.72, transform: T(to.x, to.y - L, 1.13, dir ? 1.2 * dir : 1.2),   easing: "cubic-bezier(0.55, 0, 0.85, 0.35)" },
+                    { offset: 0.84, transform: T(to.x, to.y + 2 * U, 0.96, 0),                  easing: "cubic-bezier(0.25, 0.8, 0.35, 1)" },
+                    { offset: 0.93, transform: T(to.x, to.y - U, 1.025, 0),                     easing: "ease-in-out" },
+                    { offset: 1,    transform: T(to.x, to.y, 1, 0) }
+                ], { duration: MOVE_MS });
                 c.shadowAnim = c.shadowEl.animate(
-                    [{ opacity: 0, offset: 0 }, { opacity: 1, offset: 0.2 }, { opacity: 1, offset: 0.76 }, { opacity: 0, offset: 0.88 }, { opacity: 0, offset: 1 }],
+                    [{ opacity: 0, offset: 0 }, { opacity: 1, offset: 0.18 }, { opacity: 1, offset: 0.72 }, { opacity: 0, offset: 0.84 }, { opacity: 0, offset: 1 }],
                     { duration: MOVE_MS }
                 );
+                c.ringAnim = c.ringEl.animate(
+                    [{ opacity: 0.95, transform: "scale(1)" }, { opacity: 0, transform: "scale(1.12, 1.45)" }],
+                    { duration: 600, delay: MOVE_MS * 0.84, easing: "cubic-bezier(0.2, 0.8, 0.3, 1)", fill: "backwards" }
+                );
+                c.ringEl.style.opacity = 0;
+                c.rankTimer = setTimeout(() => setRankText(c, c.rank, true, true), MOVE_MS * 0.84);
             } else {
+                // předběhnutá karta se přikrčí a podsune o příčku níž
                 c.el.style.zIndex = 300;
-                frames = [
-                    { offset: 0,    transform: T(from.x, from.y, 1),    easing: "cubic-bezier(0.4, 0, 0.6, 1)" },
-                    { offset: 0.2,  transform: T(from.x, from.y, 0.97), easing: "cubic-bezier(0.65, 0, 0.35, 1)" },
-                    { offset: 0.76, transform: T(to.x, to.y, 0.97),     easing: "cubic-bezier(0.3, 0.7, 0.4, 1)" },
+                c.anim = c.el.animate([
+                    { offset: 0,    transform: T(from.x, from.y, 1),     easing: "cubic-bezier(0.4, 0, 0.6, 1)" },
+                    { offset: 0.18, transform: T(from.x, from.y, 0.94),  easing: "cubic-bezier(0.65, 0, 0.35, 1)" },
+                    { offset: 0.72, transform: T(to.x, to.y, 0.94),      easing: "cubic-bezier(0.3, 0.7, 0.4, 1)" },
+                    { offset: 0.86, transform: T(to.x, to.y, 1.015),     easing: "ease-in-out" },
                     { offset: 1,    transform: T(to.x, to.y, 1) }
-                ];
+                ], { duration: MOVE_MS });
+                c.rankTimer = setTimeout(() => setRankText(c, c.rank, true, false), MOVE_MS * 0.8);
             }
 
-            const anim = c.el.animate(frames, { duration: MOVE_MS });
-            c.anim = anim;
-            c.rankTimer = setTimeout(() => setRankText(c, c.rank, true), MOVE_MS * 0.8);
+            const anim = c.anim;
             anim.onfinish = () => {
                 if (c.anim !== anim) return;
                 c.anim = null;
                 c.animFrom = null;
-                c.el.style.zIndex = baseZ(c.rank);
+                if (c.el) c.el.style.zIndex = baseZ(c.rank);
             };
         }
 
-        function animateIn(c, to, delay, lifted) {
+        // karta přichází (nová stránka / postup z nižší stránky)
+        function animateIn(c, to, delay, climbed) {
             stopAnim(c);
             placeAt(c, to);
-            c.el.style.zIndex = lifted ? 400 : baseZ(c.rank);
-            c.el.classList.remove("is-hidden");
-            setRankText(c, c.rank, false);
-            const T = (dy, s) => `translate(${to.x}px, ${to.y + dy}px) scale(${s})`;
-            const frames = lifted
-                ? [
-                    { offset: 0,    opacity: 0, transform: T(-14 * U, 1.12) },
-                    { offset: 0.55, opacity: 1, transform: T(-7 * U, 1.09), easing: "cubic-bezier(0.55, 0, 0.8, 0.3)" },
-                    { offset: 0.8,  opacity: 1, transform: T(U, 0.98),       easing: "cubic-bezier(0.2, 0.8, 0.3, 1)" },
-                    { offset: 1,    opacity: 1, transform: T(0, 1) }
-                  ]
-                : [
-                    { opacity: 0, transform: T(10 * U, 0.92) },
-                    { opacity: 1, transform: T(0, 1) }
-                  ];
-            const anim = c.el.animate(frames, {
-                duration: lifted ? MOVE_MS * 0.8 : 480,
-                delay: delay || 0,
-                easing: lifted ? "linear" : "cubic-bezier(0.2, 0.8, 0.2, 1)",
-                fill: "backwards"
-            });
-            c.anim = anim;
+            c.el.style.zIndex = climbed ? 400 : baseZ(c.rank);
+            c.el.style.opacity = "";
+            setRankText(c, c.rank, false, false);
+            const D = (dy, s) => `translate(${to.x}px, ${to.y + dy}px) scale(${s})`;
+            if (climbed) {
+                c.anim = c.el.animate([
+                    { offset: 0,    opacity: 0, transform: D(-18 * U, 1.16) },
+                    { offset: 0.5,  opacity: 1, transform: D(-12 * U, 1.13), easing: "cubic-bezier(0.55, 0, 0.85, 0.35)" },
+                    { offset: 0.72, opacity: 1, transform: D(2 * U, 0.96),   easing: "cubic-bezier(0.25, 0.8, 0.35, 1)" },
+                    { offset: 0.86, opacity: 1, transform: D(-U, 1.025),     easing: "ease-in-out" },
+                    { offset: 1,    opacity: 1, transform: D(0, 1) }
+                ], { duration: MOVE_MS * 0.85, fill: "backwards" });
+                c.shadowAnim = c.shadowEl.animate(
+                    [{ opacity: 1, offset: 0 }, { opacity: 1, offset: 0.5 }, { opacity: 0, offset: 0.72 }, { opacity: 0, offset: 1 }],
+                    { duration: MOVE_MS * 0.85 }
+                );
+                c.rankTimer = setTimeout(() => setRankText(c, c.rank, true, true), MOVE_MS * 0.85 * 0.72);
+            } else {
+                c.anim = c.el.animate([
+                    { opacity: 0, transform: D(10 * U, 0.92) },
+                    { opacity: 1, transform: D(0, 1) }
+                ], { duration: 460, delay: delay || 0, easing: "cubic-bezier(0.2, 0.8, 0.2, 1)", fill: "backwards" });
+            }
+            const anim = c.anim;
             anim.onfinish = () => {
                 if (c.anim !== anim) return;
                 c.anim = null;
-                c.el.style.zIndex = baseZ(c.rank);
+                if (c.el) c.el.style.zIndex = baseZ(c.rank);
             };
         }
 
-        function animateOut(c, done) {
+        // karta odchází (jiná stránka / vypadla z top 500) → po animaci se smaže z DOM
+        function animateOut(c, delay) {
             stopAnim(c);
+            c.leaving = true;
             const anim = c.el.animate(
-                [{ opacity: 1 }, { opacity: 0, transform: `translate(${c.x}px, ${c.y}px) scale(0.92)` }],
-                { duration: 240, easing: "cubic-bezier(0.4, 0, 1, 1)", fill: "forwards" }
+                [{ opacity: 1 }, { opacity: 0, transform: `translate(${c.x}px, ${c.y + 8 * U}px) scale(0.92)` }],
+                { duration: 220, delay: delay || 0, easing: "cubic-bezier(0.4, 0, 1, 1)", fill: "forwards" }
             );
             c.anim = anim;
-            anim.onfinish = () => {
-                if (c.anim !== anim) return;
-                c.el.classList.add("is-hidden");
-                anim.cancel();
-                c.anim = null;
-                if (done) done();
-            };
+            anim.onfinish = () => { if (c.anim === anim) destroyCard(c); };
         }
 
         // ---------- ŘAZENÍ ----------
@@ -775,9 +770,9 @@
                 .filter(c => !c.removed)
                 .sort((a, b) => (b.shown - a.shown) || (b.lastApi - a.lastApi) || a.name.localeCompare(b.name))
                 .slice(0, MAX_CLANS);
+            order.forEach((c, i) => { c.newRank = i; });
         }
 
-        // víc změn během jednoho snímku → jen jedno přeskládání
         let relayoutQueued = false;
         function queueRelayout() {
             if (relayoutQueued) return;
@@ -788,75 +783,73 @@
         function relayout(animate) {
             sortOrder();
             const anim = animate && !document.hidden;
+            const start = (page - 1) * PER_PAGE;
 
-            order.forEach((c, rank) => {
+            // karty, které už na stránku nepatří
+            rendered.forEach(c => {
+                const inOrder = order[c.newRank] === c && !c.removed;
+                if (inOrder && onPage(c.newRank)) return;
+                if (c.leaving) return;
+                if (inOrder) c.rank = c.newRank;
+                if (anim) animateOut(c); else destroyCard(c);
+            });
+
+            // karty viditelné stránky
+            for (let rank = start; rank < Math.min(start + PER_PAGE, order.length); rank++) {
+                const c = order[rank];
                 const oldRank = c.rank;
-                const wasVisible = c.visible;
-                const nowVisible = pageOf(rank) === page;
-                if (oldRank === rank && wasVisible === nowVisible && !c.fresh) return;
-
-                const to = slotOf(rank);
-                const isFresh = c.fresh;
-                c.fresh = false;
                 c.rank = rank;
-                c.visible = nowVisible;
+                const to = slotOf(rank);
 
-                if (!nowVisible) {
-                    const finish = () => { placeAt(c, to); c.el.style.zIndex = baseZ(rank); setRankText(c, rank, false); };
-                    if (wasVisible && anim) animateOut(c, finish);
-                    else { stopAnim(c); c.el.classList.add("is-hidden"); finish(); }
-                    return;
+                if (!c.el || c.leaving) {
+                    if (c.el) destroyCard(c);
+                    createCard(c);
+                    if (anim) animateIn(c, to, 0, oldRank > rank);
+                    else { placeAt(c, to); c.el.style.zIndex = baseZ(rank); setRankText(c, rank, false, false); }
+                    continue;
                 }
-
+                if (oldRank === rank) continue;
                 if (!anim) {
                     stopAnim(c);
                     placeAt(c, to);
                     c.el.style.zIndex = baseZ(rank);
-                    c.el.classList.remove("is-hidden");
-                    setRankText(c, rank, false);
-                    return;
+                    setRankText(c, rank, false, false);
+                    continue;
                 }
-
-                if (!wasVisible) {
-                    // přišla z druhé stránky (#51 → #50) nebo je nově v top 100
-                    animateIn(c, to, 0, !isFresh && oldRank > rank);
-                    return;
-                }
-
                 animateMove(c, to, rank < oldRank ? "lift" : "slide");
-            });
+            }
 
-            // klany, které vypadly z top 100
-            clans.forEach(c => {
-                if (!c.removed || c.gone || order.includes(c)) return;
-                c.gone = true;
-                const kill = () => { c.el.remove(); clans.delete(c.name); };
-                if (c.visible && anim) animateOut(c, kill); else kill();
-            });
+            // pořadí i u klanů mimo stránku
+            order.forEach((c, i) => { c.rank = i; });
+            clans.forEach(c => { if (c.removed && !c.el) clans.delete(c.name); });
         }
 
-        // ---------- STRÁNKY (#1-50 / #51-100) ----------
-        function showPage(p) {
-            if (p === page || p < 1 || p > 2) return;
-            page = p;
-            document.getElementById("pageText").textContent = p === 1 ? "#1-50" : "#51-100";
-            document.getElementById("prevPageBtn").classList.toggle("is-disabled", p === 1);
-            document.getElementById("nextPageBtn").classList.toggle("is-disabled", p === 2);
+        // ---------- STRÁNKY (#1-50 … #451-500) ----------
+        function updatePager() {
+            const s = (page - 1) * PER_PAGE + 1;
+            document.getElementById("pageText").textContent = `#${s}-${s + PER_PAGE - 1}`;
+            document.getElementById("prevPageBtn").classList.toggle("is-disabled", page === 1);
+            document.getElementById("nextPageBtn").classList.toggle("is-disabled", page === PAGES);
+        }
 
-            order.forEach(c => { if (c.visible && pageOf(c.rank) !== page) animateOut(c); });
-            setTimeout(() => {
-                order.forEach((c, rank) => {
+        function showPage(p) {
+            if (p === page || p < 1 || p > PAGES) return;
+            page = p;
+            updatePager();
+            rendered.forEach(c => animateOut(c, 0));
+            clearTimeout(showPage.t);
+            showPage.t = setTimeout(() => {
+                rendered.forEach(c => destroyCard(c));
+                sortOrder();
+                const start = (page - 1) * PER_PAGE;
+                for (let rank = start; rank < Math.min(start + PER_PAGE, order.length); rank++) {
+                    const c = order[rank];
                     c.rank = rank;
-                    c.visible = pageOf(rank) === page;
-                    if (!c.visible) return;
-                    // čísla na nové stránce rovnou na aktuální hodnotu
-                    setNumber(c, c.renderedPts, c.shown, false);
-                    c.renderedPts = c.shown;
-                    fitNumber(c, false);
-                    const i = rank % PER_PAGE;
-                    animateIn(c, slotOf(rank), (Math.floor(i / ROWS) * 3 + (i % ROWS)) * 20, false);
-                });
-            }, 250);
+                    createCard(c);
+                    const i = rank - start;
+                    animateIn(c, slotOf(rank), (Math.floor(i / ROWS) * 3 + (i % ROWS)) * 18, false);
+                }
+            }, 230);
         }
 
         document.getElementById("prevPageBtn").onclick = () => showPage(page - 1);
@@ -876,10 +869,13 @@
             c.steps--;
             c.shown = c.steps === 0 ? c.target : Math.min(c.target, Math.round(c.shown + c.chunk));
             const delta = c.shown - before;
-            renderPoints(c);
-            if (delta > 0) flashGain(c, delta);
-            // nejdřív se dotočí číslo, pak teprve karta předběhne
-            setTimeout(queueRelayout, c.visible ? REORDER_DELAY_MS : 0);
+            if (c.el) {
+                renderPoints(c);
+                if (delta > 0) flashGain(c, delta);
+                setTimeout(queueRelayout, REORDER_DELAY_MS);   // nejdřív se dotočí číslo
+            } else {
+                queueRelayout();
+            }
         }
 
         function scheduleSteps() {
@@ -897,15 +893,15 @@
                 seen.add(d.Name);
                 let c = clans.get(d.Name);
 
-                if (!c || c.removed) {
-                    if (c) { stopAnim(c); c.el.remove(); clans.delete(d.Name); }
-                    c = { name: d.Name, shown: pts, target: pts, lastApi: pts, chunk: 0, steps: 0, rank: -1, visible: false, fresh: true, x: 0, y: 0 };
+                if (!c) {
+                    c = { name: d.Name, data: d, shown: pts, target: pts, lastApi: pts, chunk: 0, steps: 0, rank: Infinity, el: null };
+                    c.staticKey = [d.Icon, d.CountryCode].join("|");
                     clans.set(d.Name, c);
-                    createCard(c, d);
                     return;
                 }
 
-                updateStatic(c, d);
+                c.removed = false;
+                refreshStatic(c, d);
                 if (pts !== c.lastApi) {
                     c.lastApi = pts;
                     if (pts > c.shown) {
@@ -916,12 +912,12 @@
                         // body klesly (nová bitva apod.) → hned bez animace
                         c.steps = 0;
                         c.target = c.shown = pts;
-                        renderPoints(c);
+                        if (c.el) { c.renderedPts = pts; setOdoStatic(c, pts); fitNumber(c, false); }
                     }
                 }
             });
 
-            clans.forEach(c => { if (!seen.has(c.name)) c.removed = true; });
+            clans.forEach(c => { if (!seen.has(c.name)) { c.removed = true; c.steps = 0; } });
         }
 
         // ---------- DATA ----------
@@ -931,11 +927,11 @@
             if (!demoData) {
                 const used = new Set();
                 demoData = [];
-                for (let i = 0; i < 100; i++) {
+                for (let i = 0; i < MAX_CLANS; i++) {
                     let n;
                     do { n = Array.from({ length: 3 + (i % 2) }, () => String.fromCharCode(65 + Math.floor(Math.random() * 26))).join(""); } while (used.has(n));
                     used.add(n);
-                    demoData.push({ Name: n, Points: Math.round(18000000000 * Math.pow(0.965, i) + Math.random() * 3e7), CountryCode: countries[i % countries.length], Icon: "" });
+                    demoData.push({ Name: n, Points: Math.round(18000000000 * Math.pow(0.99, i) + Math.random() * 3e7), CountryCode: countries[i % countries.length], Icon: "" });
                 }
             } else {
                 demoData.forEach(d => {
@@ -971,19 +967,15 @@
                 if (firstLoad) {
                     firstLoad = false;
                     sortOrder();
+                    order.forEach((c, i) => { c.rank = i; });
                     // první načtení: kaskádový nástup karet
-                    order.forEach((c, rank) => {
-                        c.rank = rank;
-                        c.fresh = false;
-                        c.visible = pageOf(rank) === page;
-                        placeAt(c, slotOf(rank));
-                        c.el.style.zIndex = baseZ(rank);
-                        setRankText(c, rank, false);
-                        if (c.visible) {
-                            const i = rank % PER_PAGE;
-                            animateIn(c, slotOf(rank), (Math.floor(i / ROWS) * 3 + (i % ROWS)) * 25, false);
-                        }
-                    });
+                    const start = (page - 1) * PER_PAGE;
+                    for (let rank = start; rank < Math.min(start + PER_PAGE, order.length); rank++) {
+                        const c = order[rank];
+                        createCard(c);
+                        const i = rank - start;
+                        animateIn(c, slotOf(rank), (Math.floor(i / ROWS) * 3 + (i % ROWS)) * 22, false);
+                    }
                 } else {
                     queueRelayout();
                 }
@@ -1009,28 +1001,29 @@
             document.getElementById("liveBadge").classList.toggle("is-stale", s > 60);
         }
 
-        // po návratu na záložku: srovnat čísla a pozice bez animací, pak zase normálně
+        // po návratu na záložku: srovnat čísla a pozice bez animací
         document.addEventListener("visibilitychange", () => {
             if (document.hidden) return;
-            clans.forEach(c => {
-                if (c.renderedPts !== c.shown) { setNumber(c, c.renderedPts, c.shown, false); c.renderedPts = c.shown; fitNumber(c, false); }
+            rendered.forEach(c => {
+                if (c.renderedPts !== c.shown) { c.renderedPts = c.shown; setOdoStatic(c, c.shown); fitNumber(c, false); }
             });
             relayout(false);
             if (Date.now() - lastOkAt > TICK_MS) tick();
         });
 
         computeLayout();
+        updatePager();
         loop();
         setInterval(updateBadge, 1000);
 
         if (document.fonts && document.fonts.ready) {
             document.fonts.ready.then(() => {
                 widthCache.clear();
-                clans.forEach(c => fitNumber(c, true));
+                rendered.forEach(c => fitNumber(c, true));
             });
         }
     </script>
 
-    <script src="/hotbar.js?v=2"></script>
+    <script src="/hotbar.js?v=3"></script>
 </body>
 </html>

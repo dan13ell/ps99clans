@@ -278,6 +278,8 @@
     const tall = items.some((it) => it.active) ? ACTIVE_SCALE : 1;      // aktivní tlačítko je vyšší (roste nahoru)
     const iconH = SIZE * tall * s;
     let gap = (window.innerHeight - bottom0 - iconH) / 2;                // stejná mezera nad i pod
+    // na mobilu lišta hned pod oknem (jinak je moc daleko od main menu)
+    if (document.body.classList.contains("is-mobile")) gap = Math.min(gap, minGap + 10 * s);
     let up = 0;
     if (gap < minGap) {
       up = Math.min(room, (bottom0 + minGap + iconH + minGap - window.innerHeight) / s);
