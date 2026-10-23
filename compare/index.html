@@ -18,7 +18,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>PS99 Clans - Clan Compare</title>
     <meta name="description" content="Compare two Pet Simulator 99 clans live: total points, point difference, diamonds, average per member and a live difference chart.">
+    <script>
+        // odometer.js stejně jako live stránka; instance si stránka vytváří sama
+        window.odometerOptions = { auto: false, duration: 2500, animation: 'slide' };
+    </script>
     <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@300;400;500;600;700;800&family=Roboto:wght@600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/odometer.js/0.4.7/themes/odometer-theme-minimal.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/odometer.js/0.4.7/odometer.min.js"></script>
 
     <link rel="preload" as="image" href="/images/compare-bg.png">
     <link rel="preload" as="image" href="/images/compare-logo.png">
@@ -448,12 +454,8 @@
         .go-btn[disabled] { filter: grayscale(0.4) brightness(0.95); cursor: default; }
 
         /* ---------- odometer (rolující číslice) ---------- */
-        .odo { display: inline-flex; align-items: flex-start; line-height: 1.15; height: 1.15em; overflow: hidden; }
-        .odo-col { position: relative; display: inline-block; width: 0.56em; height: 1.15em; overflow: hidden; text-align: center; }
-        .odo-sep { display: inline-block; width: 0.25em; text-align: center; }
-        .odo-ribbon { position: absolute; left: 0; right: 0; top: 0; }
-        .odo-ribbon > span { display: block; height: 1.15em; }
-        .odo-col.rolling { -webkit-mask-image: linear-gradient(to bottom, transparent 0%, #000 22%, #000 78%, transparent 100%); mask-image: linear-gradient(to bottom, transparent 0%, #000 22%, #000 78%, transparent 100%); }
+        .c-points, .diff-num { line-height: 1.15; }
+        .c-points .odometer, .diff-num .odometer { vertical-align: top; }
 
         /* ---------- FEEDBACK / Privacy ---------- */
         .ps99-feedback-btn {
@@ -533,7 +535,7 @@
                                 <img class="c-flag is-hidden" id="flagA" src="" alt="" draggable="false">
                             </div>
                             <div class="c-name empty" id="nameA">[CLAN]</div>
-                            <div class="c-points roboto" id="pointsA"></div>
+                            <div class="c-points roboto" id="pointsBoxA"><span id="pointsA">0</span></div>
                             <div class="c-points-label label"><img src="/images/hvezda.png" alt="">TOTAL POINTS</div>
                             <div class="c-hint is-hidden" id="hintA"></div>
                                                     </div>
@@ -545,7 +547,7 @@
                                 <img class="c-flag is-hidden" id="flagB" src="" alt="" draggable="false">
                             </div>
                             <div class="c-name empty" id="nameB">[CLAN]</div>
-                            <div class="c-points roboto" id="pointsB"></div>
+                            <div class="c-points roboto" id="pointsBoxB"><span id="pointsB">0</span></div>
                             <div class="c-points-label label"><img src="/images/hvezda.png" alt="">TOTAL POINTS</div>
                             <div class="c-hint is-hidden" id="hintB"></div>
                                                     </div>
@@ -661,51 +663,28 @@
         const clock = (t) => new Date(t).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit", second: "2-digit" });
         const prettyBattle = (n) => (n || "").replace(/([a-z])([A-Z0-9])/g, "$1 $2").replace(/([0-9])([A-Z])/g, "$1 $2").trim();
 
-        // ---------- ODOMETER: číslice jsou pásky, které se plynule odrolují ----------
-        class Odometer {
-            constructor(el) { this.el = el; this.value = null; this.timer = null; el.classList.add("odo"); }
+        // ---------- ODOMETER: stejná knihovna a nastavení jako live stránka (odometer.js, 2.5 s, slide) ----------
+        const ODO_OPTS = { format: "(,ddd)", theme: "minimal", duration: 2500, animation: "slide" };
+        class LiveOdo {
+            constructor(id) { this.id = id; this.inst = null; this.value = null; }
             set(v, animate = true) {
                 v = Math.max(0, Math.round(v || 0));
-                const old = this.value;
-                this.value = v;
-                clearTimeout(this.timer);
-                if (old === null || !animate || old === v) return this.draw(v);
-                this.roll(old, v);
-                this.timer = setTimeout(() => this.draw(v), ODO_MS + 60);
-            }
-            put(cols) {
-                const out = [];
-                cols.forEach((c, i) => { if (i && i % 3 === 0) out.push(`<span class="odo-sep">,</span>`); out.push(c); });
-                this.el.innerHTML = out.reverse().join("");
-            }
-            draw(v) {
-                const s = String(v), cols = [];
-                for (let i = s.length - 1; i >= 0; i--) cols.push(`<span class="odo-col"><span class="odo-ribbon"><span>${s[i]}</span></span></span>`);
-                this.put(cols);
-            }
-            roll(old, v) {
-                const len = String(v).length, up = v > old, cols = [];
-                for (let i = 0; i < len; i++) {
-                    const p = 10 ** i, t0 = Math.floor(old / p), t1 = Math.floor(v / p);
-                    if (t0 === t1) { cols.push(`<span class="odo-col"><span class="odo-ribbon"><span>${t1 % 10}</span></span></span>`); continue; }
-                    // páska číslic od staré k nové hodnotě; u velkých skoků jen začátek + konec (max 12 číslic)
-                    const steps = Math.abs(t1 - t0), seq = [];
-                    if (steps <= 11) for (let k = 0; k <= steps; k++) seq.push(up ? t0 + k : t0 - k);
-                    else { for (let k = 0; k < 3; k++) seq.push(up ? t0 + k : t0 - k); for (let k = 8; k >= 0; k--) seq.push(up ? t1 - k : t1 + k); }
-                    let d = seq.map((t) => ((t % 10) + 10) % 10);
-                    if (!up) d = d.reverse();
-                    const n = d.length - 1;
-                    cols.push(`<span class="odo-col rolling"><span class="odo-ribbon" data-n="${n}" style="transform:translate3d(0,${up ? 0 : -n * 1.15}em,0)">${d.map((x) => `<span>${x}</span>`).join("")}</span></span>`);
+                if (typeof window.Odometer !== "function") {            // knihovna se nenačetla -> jen text
+                    $(this.id).textContent = v.toLocaleString("en-US");
+                    this.value = v;
+                    return;
                 }
-                this.put(cols);
-                void this.el.offsetWidth;
-                requestAnimationFrame(() => {
-                    this.el.querySelectorAll(".odo-ribbon[data-n]").forEach((r) => {
-                        const n = +r.dataset.n;
-                        r.style.transition = `transform ${ODO_MS}ms cubic-bezier(0.22, 0.61, 0.36, 1)`;
-                        r.style.transform = `translate3d(0,${up ? -n * 1.15 : 0}em,0)`;
-                    });
-                });
+                if (!this.inst || !animate) {
+                    if (this.inst && this.value === v) return;
+                    // nový prvek = číslo se ukáže hned, bez rolování od nuly
+                    const old = $(this.id), el = document.createElement("span");
+                    el.id = this.id;
+                    old.replaceWith(el);
+                    this.inst = new window.Odometer(Object.assign({ el, value: v }, ODO_OPTS));
+                    this.value = v;
+                    return;
+                }
+                if (v !== this.value) { this.value = v; this.inst.update(v); }
             }
         }
         // velikost písma tak, aby se číslo vešlo (0.56em číslice, 0.25em čárka)
@@ -824,8 +803,8 @@
         let rendered = false;
         function render() {
             const A = side.a, B = side.b;
-            fit($("pointsA"), A.current, 80, 455);
-            fit($("pointsB"), B.current, 80, 455);
+            fit($("pointsBoxA"), A.current, 80, 455);
+            fit($("pointsBoxB"), B.current, 80, 455);
             odo.A.set(A.data ? A.current : 0, rendered);
             odo.B.set(B.data ? B.current : 0, rendered);
             renderCard(A); renderCard(B);
@@ -1143,9 +1122,9 @@
 
         window.addEventListener("DOMContentLoaded", () => {
             autoFitScreen();
-            odo.A = new Odometer($("pointsA"));
-            odo.B = new Odometer($("pointsB"));
-            odo.D = new Odometer($("diffValue"));
+            odo.A = new LiveOdo("pointsA");
+            odo.B = new LiveOdo("pointsB");
+            odo.D = new LiveOdo("diffValue");
             const p = new URLSearchParams(location.search);
             const a = (p.get("a") || "").toUpperCase().slice(0, 4), b = (p.get("b") || "").toUpperCase().slice(0, 4);
             setLayout();
