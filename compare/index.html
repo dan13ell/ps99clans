@@ -23,6 +23,8 @@
     <link rel="preload" as="image" href="/images/compare-bg.png">
     <link rel="preload" as="image" href="/images/compare-logo.png">
     <link rel="preload" as="image" href="/images/select-clans.png">
+    <link rel="preload" as="image" href="/images/select-clans-clicked.png">
+    <link rel="preload" as="image" href="/images/scroller.png">
 
     <style>
         * {
@@ -33,44 +35,43 @@
             font-weight: 600;
             user-select: none;
         }
+        /* Roboto SemiBold jen pro celkové body a rozdíl (i pro každou číslici odometru) */
+        .roboto, .roboto * {
+            font-family: 'Roboto', sans-serif !important;
+            font-weight: 600 !important;
+        }
+        .roboto { color: #1C2130; white-space: nowrap; }
 
-        /* tahle stránka se scrolluje */
-        html, body { width: 100%; min-height: 100%; }
+        html, body {
+            width: 100vw;
+            height: 100dvh;
+            margin: 0;
+            padding: 0;
+            overflow: hidden !important;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            overscroll-behavior: none !important;
+            touch-action: none;
+        }
         body {
             background-color: #89b3f9;
-            overflow-x: hidden;
-            overflow-y: auto;
-        }
-        .page {
-            min-height: 100vh;
-            min-height: 100dvh;
             display: flex;
-            flex-direction: column;
-            align-items: center;
             justify-content: center;
-            padding: 96px 0 180px;   /* dole místo pro lištu s ikonami */
-            overflow-x: hidden;
+            align-items: center;
         }
 
         .app-scaler {
             position: relative;
-            transform-origin: top center;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transform-origin: center center;
         }
-
-        .game-window {
-            position: relative;
-            display: block;
-            width: 1100px;
-            overflow: visible;
-        }
-
-        .menu-bg {
-            display: block;
-            width: 1100px;
-            height: 570px;
-            filter: drop-shadow(0px 10px 20px rgba(0, 0, 0, 0.35));
-        }
-        .spacer { display: block; width: 1100px; height: 160px; }
+        .game-window { position: relative; display: inline-block; overflow: visible; }
+        .menu-bg { display: block; width: auto; height: auto; filter: drop-shadow(0px 10px 20px rgba(0, 0, 0, 0.35)); }
 
         .compare-logo {
             position: absolute;
@@ -101,18 +102,11 @@
         .close-btn:active { background-image: url("/images/X-clicked.png"); left: 1047px; top: -29px; width: 66px; height: 67px; }
 
         /* ---------- společné ---------- */
-        .roboto {
-            font-family: 'Roboto', sans-serif !important;
-            font-weight: 600 !important;
-            color: #1C2130;
-            white-space: nowrap;
-        }
         .card {
-            position: absolute;
+            position: relative;
             background: #FFFFFF;
             border: 4px solid #000000;
             border-radius: 18px;
-            z-index: 900;
         }
         .label { font-size: 16px; font-weight: 700 !important; color: #1C2130; letter-spacing: 0.4px; white-space: nowrap; }
         .muted { color: #8E9099; }
@@ -128,12 +122,12 @@
         }
         .is-hidden { display: none !important; }
 
-        /* ---------- hlavička s bitvou ---------- */
+        /* ---------- řádek s bitvou (pevně nahoře v okně) ---------- */
         .battle-info {
             position: absolute;
-            left: 0;
-            width: 1100px;
-            top: 18px;
+            left: 340px;
+            width: 640px;
+            top: 14px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -143,55 +137,62 @@
             color: #1C2130;
             z-index: 901;
             pointer-events: none;
+            white-space: nowrap;
         }
         .battle-info .timer { color: #FF2B2B; }
-        .live-dot {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            background: #2ECC40;
-            border: 2px solid #000;
-            animation: livePulse 1.4s infinite ease-in-out;
-        }
+        .live-dot { width: 12px; height: 12px; border-radius: 50%; background: #2ECC40; border: 2px solid #000; animation: livePulse 1.4s infinite ease-in-out; }
         @keyframes livePulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
 
-        /* ---------- karty klanů (v okně) ---------- */
+        /* ---------- posuvná oblast uvnitř okna ---------- */
+        .cmp-scroll {
+            position: absolute;
+            left: 12px;
+            top: 46px;
+            width: 1078px;
+            height: 512px;
+            overflow-y: auto;
+            overflow-x: hidden;
+            z-index: 900;
+            touch-action: pan-y !important;
+            overscroll-behavior: contain !important;
+        }
+        .cmp-inner { position: relative; width: 1078px; padding: 4px 26px 22px 12px; display: flex; flex-direction: column; gap: 18px; }
+
+        /* ---------- karty klanů ---------- */
+        .row-cards { position: relative; display: flex; gap: 20px; }
         .clan-card {
-            top: 56px;
-            width: 512px;
-            height: 486px;
+            flex: 1 1 0;
+            height: 404px;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
         }
         .clan-card > * { flex: 0 0 auto; }
-        .clan-card.a { left: 28px; }
-        .clan-card.b { left: 560px; }
         .clan-card .side-bar { position: absolute; left: 18px; right: 18px; bottom: 14px; height: 8px; border-radius: 4px; border: 2px solid #000; }
         .clan-card.a .side-bar { background: #48D2F7; }
         .clan-card.b .side-bar { background: #FF4F86; }
 
-        .icon-wrap { position: relative; width: 168px; height: 168px; }
+        .icon-wrap { position: relative; width: 150px; height: 150px; }
         .c-icon {
-            width: 168px;
-            height: 168px;
+            width: 150px;
+            height: 150px;
             border-radius: 50%;
             border: 4px solid #000;
             background: #FFFFFF;
             object-fit: cover;
             display: block;
         }
-        .c-icon.placeholder { object-fit: contain; padding: 28px; opacity: 0.3; }
+        .c-icon.placeholder { object-fit: contain; padding: 26px; opacity: 0.3; }
         .c-icon.link { cursor: pointer; transition: transform 0.044s cubic-bezier(0.1, 0.9, 0.2, 1); }
         .c-icon.link:hover:not(:active) { transform: scale(1.03); }
         .c-icon.link:active { transform: scale(0.97); }
         .c-flag {
             position: absolute;
-            right: 2px;
-            bottom: 2px;
-            width: 48px;
-            height: 48px;
+            right: 0;
+            bottom: 0;
+            width: 44px;
+            height: 44px;
             border-radius: 50%;
             border: 3px solid #000;
             background: #FFFFFF;
@@ -200,7 +201,7 @@
 
         .rank-pill {
             position: absolute;
-            top: 16px;
+            top: 14px;
             padding: 2px 13px;
             border-radius: 14px;
             border: 3px solid #000;
@@ -210,42 +211,36 @@
             color: #1C2130;
             white-space: nowrap;
         }
-        .clan-card.a .rank-pill { left: 16px; }
-        .clan-card.b .rank-pill { right: 16px; }
+        .clan-card.a .rank-pill { left: 14px; }
+        .clan-card.b .rank-pill { right: 14px; }
         .rank-pill.gold   { background: linear-gradient(#FFE873, #FFB21E); }
         .rank-pill.silver { background: linear-gradient(#F4F6FA, #BFC6D4); }
         .rank-pill.bronze { background: linear-gradient(#FFC48A, #E4893A); }
 
-        .c-name { margin-top: 14px; font-size: 50px; line-height: 1.1; font-weight: 700 !important; color: #1C2130; white-space: nowrap; }
+        .c-name { margin-top: 12px; font-size: 46px; line-height: 1.1; font-weight: 700 !important; color: #1C2130; white-space: nowrap; }
         .c-name.empty { color: #B6B8BF; }
-        .c-points { margin-top: 6px; }
-        .c-points-label { display: flex; align-items: center; gap: 7px; margin-top: 4px; font-size: 19px; }
-        .c-points-label img { width: 24px; height: 24px; }
-        .c-hint { margin-top: 10px; font-size: 15px; color: #A3A6AE; font-weight: 600 !important; }
+        .c-points { margin-top: 4px; }
+        .c-points-label { display: flex; align-items: center; gap: 7px; margin-top: 4px; font-size: 18px; }
+        .c-points-label img { width: 23px; height: 23px; }
+        .c-hint { margin-top: 8px; font-size: 15px; color: #A3A6AE; font-weight: 600 !important; }
         .c-hint.err { color: #FF4A4A; }
 
         .vs-badge {
             position: absolute;
-            left: 509px;
-            top: 262px;
-            width: 82px;
-            height: 82px;
+            left: 50%;
+            top: 50%;
+            width: 78px;
+            height: 78px;
+            margin: -39px 0 0 -39px;
             border-radius: 50%;
             background: #FFFFFF;
             border: 4px solid #000;
             display: flex;
             align-items: center;
             justify-content: center;
-            z-index: 905;
+            z-index: 5;
         }
-        .vs-text {
-            position: relative;
-            font-size: 34px;
-            color: #000;
-            -webkit-text-stroke: 5px #000;
-            paint-order: stroke fill;
-            font-weight: 800 !important;
-        }
+        .vs-text { position: relative; font-size: 32px; color: #000; -webkit-text-stroke: 5px #000; paint-order: stroke fill; font-weight: 800 !important; }
         .vs-text::after {
             content: "VS";
             position: absolute;
@@ -257,90 +252,58 @@
             -webkit-text-fill-color: transparent;
         }
 
-        /* ---------- pod oknem: statistiky + rozdíl ---------- */
-        .stats {
-            top: 596px;
-            width: 300px;
-            height: 150px;
-            display: flex;
-            align-items: center;
-            justify-content: space-around;
-            padding: 0 6px;
-        }
-        .stats.a { left: 28px; }
-        .stats.b { left: 772px; }
+        /* ---------- statistiky + rozdíl ---------- */
+        .row-mid { display: flex; gap: 14px; margin-top: 6px; }
+        .stats { width: 300px; height: 146px; display: flex; align-items: center; justify-content: space-around; padding: 0 6px; flex: 0 0 auto; }
         .stat { display: flex; flex-direction: column; align-items: center; gap: 2px; }
-        .stat img { width: 34px; height: 34px; object-fit: contain; }
-        .stat .val { font-size: 27px; font-weight: 700 !important; color: #1C2130; line-height: 1.15; white-space: nowrap; }
+        .stat img { width: 32px; height: 32px; object-fit: contain; }
+        .stat .val { font-size: 26px; font-weight: 700 !important; color: #1C2130; line-height: 1.15; white-space: nowrap; }
         .stat .label { font-size: 12px; color: #8E9099; }
-        .stats-head { position: absolute; top: -13px; left: 50%; transform: translateX(-50%); padding: 0 10px; border-radius: 10px; border: 3px solid #000; font-size: 15px; font-weight: 800 !important; color: #1C2130; white-space: nowrap; background: #FFF; }
+        .stats-head { position: absolute; top: -14px; left: 50%; transform: translateX(-50%); padding: 0 10px; border-radius: 10px; border: 3px solid #000; font-size: 15px; font-weight: 800 !important; color: #1C2130; white-space: nowrap; background: #FFF; }
         .stats.a .stats-head { background: #48D2F7; }
         .stats.b .stats-head { background: #FF4F86; }
 
-        .diff {
-            top: 596px;
-            left: 342px;
-            width: 416px;
-            height: 150px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            gap: 2px;
-        }
+        .diff { flex: 1 1 0; height: 146px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; min-width: 0; }
         .diff-lead { font-size: 17px; font-weight: 700 !important; color: #8E9099; white-space: nowrap; }
         .diff-lead b { font-weight: 800 !important; }
 
         /* ---------- graf ---------- */
-        .chart {
-            top: 766px;
-            left: 28px;
-            width: 1044px;
-            height: 330px;
-            padding: 12px 16px 10px;
-        }
-        .chart-head { display: flex; align-items: center; justify-content: space-between; }
-        .chart-legend { display: flex; align-items: center; gap: 14px; font-size: 14px; font-weight: 700 !important; color: #5A5D66; }
-        .chart-legend i { display: inline-block; width: 14px; height: 14px; border-radius: 4px; border: 2px solid #000; margin-right: 5px; vertical-align: -2px; }
-        .chart-area { position: relative; width: 1004px; height: 262px; margin-top: 6px; touch-action: pan-y; }
+        .chart { height: 336px; padding: 12px 16px 10px; }
+        .chart-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+        .chart-sub { font-size: 15px; font-weight: 700 !important; color: #5A5D66; white-space: nowrap; }
+        .chart-sub b { font-weight: 800 !important; }
+        .chart-area { position: relative; width: 100%; height: 268px; margin-top: 6px; touch-action: pan-y; }
         .chart-area svg { position: absolute; left: 0; top: 0; width: 100%; height: 100%; overflow: visible; }
-        .chart-empty {
-            position: absolute;
-            inset: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 17px;
-            color: #A3A6AE;
-            font-weight: 600 !important;
-        }
+        .chart-empty { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 17px; color: #A3A6AE; font-weight: 600 !important; }
         .pulse { transform-box: fill-box; transform-origin: center; animation: pulse 1.6s ease-out infinite; }
         @keyframes pulse { 0% { transform: scale(1); opacity: 0.55; } 100% { transform: scale(3.2); opacity: 0; } }
 
+        /* bublina grafu */
         .tip {
             position: absolute;
             left: 0;
             top: 0;
-            min-width: 190px;
-            padding: 8px 12px 9px;
+            width: 236px;
             background: #FFFFFF;
             border: 3px solid #000;
-            border-radius: 12px;
-            box-shadow: 0 5px 12px rgba(0, 0, 0, 0.18);
+            border-radius: 14px;
+            box-shadow: 0 6px 0 rgba(0, 0, 0, 0.12), 0 10px 18px rgba(0, 0, 0, 0.16);
             pointer-events: none;
             opacity: 0;
-            transform: translate(-50%, calc(-100% - 16px)) scale(0.9);
-            transform-origin: 50% 100%;
-            transition: opacity 0.12s ease-out, transform 0.12s ease-out;
-            z-index: 5;
-            white-space: nowrap;
+            transform: translate(-50%, calc(-100% - 18px)) scale(0.85);
+            transform-origin: var(--arrow, 50%) 100%;
+            transition: opacity 0.1s ease-out, transform 0.12s cubic-bezier(0.2, 1.4, 0.4, 1), left 0.08s ease-out, top 0.08s ease-out;
+            z-index: 6;
+            overflow: visible;
         }
-        .tip.show { opacity: 1; transform: translate(-50%, calc(-100% - 16px)) scale(1); }
+        .tip.show { opacity: 1; transform: translate(-50%, calc(-100% - 18px)) scale(1); }
+        .tip.below { transform: translate(-50%, 18px) scale(0.85); transform-origin: var(--arrow, 50%) 0%; }
+        .tip.below.show { transform: translate(-50%, 18px) scale(1); }
         .tip::after {
             content: "";
             position: absolute;
             left: var(--arrow, 50%);
-            bottom: -10px;
+            bottom: -9px;
             width: 14px;
             height: 14px;
             margin-left: -7px;
@@ -349,30 +312,59 @@
             border-bottom: 3px solid #000;
             transform: rotate(45deg);
         }
-        .tip-time { font-size: 13px; color: #8E9099; font-weight: 700 !important; }
-        .tip-lead { font-size: 15px; font-weight: 800 !important; margin-top: 1px; }
-        .tip-val { font-size: 22px; margin-top: 1px; }
-        .tip-chg { font-size: 13px; font-weight: 700 !important; margin-top: 2px; }
+        .tip.below::after { bottom: auto; top: -9px; transform: rotate(225deg); }
+        .tip-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            padding: 6px 12px 5px;
+            border-bottom: 3px solid #000;
+            border-radius: 11px 11px 0 0;
+            font-size: 14px;
+            font-weight: 800 !important;
+            color: #FFFFFF;
+            -webkit-text-stroke: 4px #000;
+            paint-order: stroke fill;
+        }
+        .tip-head span:last-child { font-size: 12px; -webkit-text-stroke: 3px #000; }
+        .tip-body { padding: 7px 12px 9px; }
+        .tip-val { font-size: 25px; line-height: 1.15; }
+        .tip-rows { display: flex; flex-direction: column; gap: 3px; margin-top: 6px; }
+        .tip-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; font-size: 13px; font-weight: 700 !important; color: #5A5D66; }
+        .tip-row i { display: inline-block; width: 11px; height: 11px; border-radius: 50%; border: 2px solid #000; margin-right: 5px; vertical-align: -1px; }
+        .tip-row .roboto { font-size: 13px; color: #1C2130; }
+        .tip-chg {
+            display: inline-block;
+            margin-top: 7px;
+            padding: 1px 9px;
+            border-radius: 10px;
+            border: 2px solid #000;
+            font-size: 13px;
+            font-weight: 800 !important;
+            color: #FFFFFF;
+            -webkit-text-stroke: 3px #000;
+            paint-order: stroke fill;
+        }
 
-        /* ---------- tlačítko Select Clans ---------- */
+        /* ---------- tlačítko Select Clans (klik = zasunutá verze obrázku) ---------- */
+        .select-wrap { position: relative; width: 337px; height: 111px; margin: 2px auto 0; flex: 0 0 auto; }
         .select-btn {
             position: absolute;
-            left: 382px;
-            top: 1118px;
-            width: 336px;
+            left: 0;
+            bottom: 0;
+            width: 337px;
             height: 111px;
-            background: url("/images/select-clans.png") no-repeat center center;
+            background: url("/images/select-clans.png") no-repeat center bottom;
             background-size: 100% 100%;
             cursor: pointer;
-            z-index: 900;
-            filter: drop-shadow(0px 4px 6px rgba(0, 0, 0, 0.2));
-            transition: transform 0.044s cubic-bezier(0.1, 0.9, 0.2, 1), filter 0.044s;
+            transform-origin: center bottom;
+            transition: all 0.044s cubic-bezier(0.1, 0.9, 0.2, 1);
         }
-        .select-btn:hover:not(:active) { transform: scale(1.04); }
-        .select-btn:active { transform: scale(0.95); filter: drop-shadow(0px 2px 3px rgba(0, 0, 0, 0.2)) brightness(0.93); }
-        body.no-clans .select-btn { top: 600px; }
+        .select-btn:hover:not(:active) { transform: scale(1.03); }
+        .select-btn:active { background-image: url("/images/select-clans-clicked.png"); height: 107px; transform: scale(0.97); }
 
-        /* ---------- okno výběru klanů ---------- */
+        /* ---------- okno výběru klanů (stejný styl jako hlavní okno) ---------- */
         .modal-bg {
             position: fixed;
             inset: 0;
@@ -383,48 +375,68 @@
             z-index: 100000;
             opacity: 0;
             pointer-events: none;
-            transition: opacity 0.15s ease-out;
+            transition: opacity 0.12s ease-out;
         }
         .modal-bg.open { opacity: 1; pointer-events: auto; }
         .modal {
             position: relative;
-            width: 440px;
-            max-width: calc(100vw - 32px);
-            background: #FFFFFF;
-            border: 4px solid #000;
-            border-radius: 20px;
-            padding: 22px 24px 24px;
+            width: 460px;
+            background: linear-gradient(to bottom, #FFFFFF 0%, #F1F1F1 100%);
+            border: 6px solid #313336;
+            border-radius: 24px;
+            padding: 26px 30px 26px;
             display: flex;
             flex-direction: column;
-            gap: 10px;
-            transform: scale(0.88);
-            transition: transform 0.18s cubic-bezier(0.2, 1.4, 0.4, 1);
+            align-items: center;
+            filter: drop-shadow(0px 10px 20px rgba(0, 0, 0, 0.35));
+            transform: scale(0.9);
+            transition: transform 0.12s cubic-bezier(0.1, 0.9, 0.2, 1);
         }
         .modal-bg.open .modal { transform: scale(1); }
-        .modal h2 { text-align: center; font-size: 30px; margin-bottom: 4px; }
+        .modal-title {
+            position: relative;
+            font-size: 44px;
+            color: #000;
+            -webkit-text-stroke: 6px #000;
+            stroke-linejoin: round;
+            -webkit-stroke-linejoin: round;
+            paint-order: stroke fill;
+            font-weight: 800 !important;
+            white-space: nowrap;
+            margin-bottom: 14px;
+        }
+        .modal-title::after {
+            content: attr(data-text);
+            position: absolute;
+            left: 0; top: 0;
+            -webkit-text-stroke: 0;
+            background: linear-gradient(to bottom, #7CF6FA, #60E0FE);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
         .modal .x {
             position: absolute;
-            right: -22px;
-            top: -24px;
-            width: 56px;
-            height: 57px;
+            right: -34px;
+            top: -34px;
+            width: 72px;
+            height: 73px;
             background: url("/images/X.png") no-repeat center / 100% 100%;
             cursor: pointer;
-            transition: transform 0.044s cubic-bezier(0.1, 0.9, 0.2, 1);
+            filter: drop-shadow(0px 4px 6px rgba(0, 0, 0, 0.35));
+            transition: all 0.044s cubic-bezier(0.1, 0.9, 0.2, 1);
         }
-        .modal .x:hover:not(:active) { transform: scale(1.05); }
-        .modal .x:active { transform: scale(0.92); background-image: url("/images/X-clicked.png"); }
-        .field-label { font-size: 15px; font-weight: 700 !important; color: #5A5D66; margin-bottom: -4px; }
+        .modal .x:hover:not(:active) { right: -36px; top: -38px; width: 76px; height: 77px; }
+        .modal .x:active { background-image: url("/images/X-clicked.png"); right: -31px; top: -33px; width: 66px; height: 67px; }
+        .field-label { align-self: flex-start; margin: 0 0 4px 6px; font-size: 19px; color: #FFFFFF; -webkit-text-stroke: 4px #000; paint-order: stroke fill; font-weight: 800 !important; }
         .field {
             position: relative;
-            height: 54px;
-            border: 3px solid #000;
-            border-radius: 27px;
-            background: #FFFFFF;
-            display: flex;
-            align-items: center;
+            width: 390px;
+            height: 57px;
+            margin-bottom: 12px;
+            background: url("/images/topclans-leaderboard-search.png") no-repeat center / 100% 100%;
         }
-        .field i { position: absolute; left: 14px; width: 20px; height: 20px; border-radius: 50%; border: 3px solid #000; }
+        .field i { position: absolute; left: 16px; top: 50%; width: 22px; height: 22px; margin-top: -11px; border-radius: 50%; border: 3px solid #000; }
         .field.a i { background: #48D2F7; }
         .field.b i { background: #FF4F86; }
         .field input {
@@ -433,35 +445,39 @@
             border: none;
             outline: none;
             background: transparent;
-            padding: 0 20px 0 46px;
-            font-size: 28px;
-            font-weight: 700 !important;
-            color: #1C2130;
+            padding: 0 22px 0 50px;
+            font-size: 30px;
+            font-weight: 800 !important;
+            color: #000;
             text-align: center;
             text-transform: uppercase;
             user-select: text;
         }
-        .field input::placeholder { color: #B6B8BF; text-transform: none; }
-        .field:focus-within { box-shadow: 0 0 0 3px #BDE9FF; }
-        .modal-err { min-height: 20px; text-align: center; font-size: 15px; color: #FF4A4A; font-weight: 700 !important; }
+        .field input::placeholder { color: #B1B1B1; font-weight: 600; text-transform: none; }
+        .modal-err { min-height: 22px; text-align: center; font-size: 17px; color: #FF5555; font-weight: 800 !important; -webkit-text-stroke: 3px #000; paint-order: stroke fill; margin-bottom: 6px; }
+        .go-wrap { position: relative; width: 338px; height: 92px; }
         .go-btn {
-            margin-top: 2px;
-            height: 62px;
-            border: 4px solid #1F4F5E;
-            border-radius: 16px;
-            background: linear-gradient(to bottom, #8FF8FB, #48D2F7);
-            box-shadow: inset 0 -5px 0 rgba(0, 0, 0, 0.12);
+            position: absolute;
+            left: 0;
+            bottom: 0;
+            width: 338px;
+            height: 92px;
+            border: none;
+            background: url("/images/live-stats-button.png") no-repeat center / 100% 100%;
             cursor: pointer;
-            font-size: 30px;
+            transform-origin: center bottom;
+            transition: all 0.044s cubic-bezier(0.1, 0.9, 0.2, 1);
+            font-size: 42px;
             color: #FFFFFF;
-            -webkit-text-stroke: 6px #000;
+            -webkit-text-stroke: 7px #000;
+            stroke-linejoin: round;
             paint-order: stroke fill;
             font-weight: 800 !important;
-            transition: transform 0.044s cubic-bezier(0.1, 0.9, 0.2, 1);
+            padding-bottom: 8px;
         }
         .go-btn:hover:not(:active) { transform: scale(1.03); }
-        .go-btn:active { transform: scale(0.96); }
-        .go-btn[disabled] { opacity: 0.6; cursor: default; }
+        .go-btn:active { background-image: url("/images/live-stats-button-clicked.png"); height: 88px; transform: scale(0.97); padding-bottom: 5px; }
+        .go-btn[disabled] { filter: grayscale(0.4) brightness(0.95); cursor: default; }
 
         /* ---------- odometer (rolující číslice) ---------- */
         .odo { display: inline-flex; align-items: flex-start; line-height: 1.15; height: 1.15em; overflow: hidden; }
@@ -530,83 +546,88 @@
         }
     </style>
 </head>
-<body data-hotbar="flow" class="no-clans">
+<body class="no-clans">
 
-    <div class="page" id="page">
     <div class="app-scaler" id="appScaler">
         <div class="game-window">
             <img class="menu-bg" src="/images/compare-bg.png" draggable="false" alt="">
-            <div class="spacer" id="spacer"></div>
             <div class="compare-logo"></div>
 
             <div class="battle-info" id="battleInfo"><span class="live-dot"></span><span id="battleName">Loading battle...</span><span class="timer" id="battleTimer"></span></div>
 
-            <!-- karty klanů -->
-            <div class="card clan-card a" id="cardA">
-                <span class="rank-pill is-hidden" id="rankA"></span>
-                <div class="icon-wrap">
-                    <img class="c-icon placeholder" id="iconA" src="/images/hotbar/clans.png" alt="" draggable="false">
-                    <img class="c-flag is-hidden" id="flagA" src="" alt="" draggable="false">
-                </div>
-                <div class="c-name empty" id="nameA">[CLAN]</div>
-                <div class="c-points roboto" id="pointsA"></div>
-                <div class="c-points-label label"><img src="/images/hvezda.png" alt="">TOTAL POINTS</div>
-                <div class="c-hint" id="hintA">Press "Select Clans" below</div>
-                <div class="side-bar"></div>
-            </div>
-            <div class="vs-badge"><span class="vs-text">VS</span></div>
-            <div class="card clan-card b" id="cardB">
-                <span class="rank-pill is-hidden" id="rankB"></span>
-                <div class="icon-wrap">
-                    <img class="c-icon placeholder" id="iconB" src="/images/hotbar/clans.png" alt="" draggable="false">
-                    <img class="c-flag is-hidden" id="flagB" src="" alt="" draggable="false">
-                </div>
-                <div class="c-name empty" id="nameB">[CLAN]</div>
-                <div class="c-points roboto" id="pointsB"></div>
-                <div class="c-points-label label"><img src="/images/hvezda.png" alt="">TOTAL POINTS</div>
-                <div class="c-hint" id="hintB">Press "Select Clans" below</div>
-                <div class="side-bar"></div>
-            </div>
+            <!-- vše uvnitř okna se scrolluje -->
+            <div class="cmp-scroll" id="cmpScroll">
+                <div class="cmp-inner">
+                    <div class="row-cards">
+                        <div class="card clan-card a" id="cardA">
+                            <span class="rank-pill is-hidden" id="rankA"></span>
+                            <div class="icon-wrap">
+                                <img class="c-icon placeholder" id="iconA" src="/images/hotbar/clans.png" alt="" draggable="false">
+                                <img class="c-flag is-hidden" id="flagA" src="" alt="" draggable="false">
+                            </div>
+                            <div class="c-name empty" id="nameA">[CLAN]</div>
+                            <div class="c-points roboto" id="pointsA"></div>
+                            <div class="c-points-label label"><img src="/images/hvezda.png" alt="">TOTAL POINTS</div>
+                            <div class="c-hint" id="hintA">Press "Select Clans" below</div>
+                            <div class="side-bar"></div>
+                        </div>
+                        <div class="vs-badge"><span class="vs-text">VS</span></div>
+                        <div class="card clan-card b" id="cardB">
+                            <span class="rank-pill is-hidden" id="rankB"></span>
+                            <div class="icon-wrap">
+                                <img class="c-icon placeholder" id="iconB" src="/images/hotbar/clans.png" alt="" draggable="false">
+                                <img class="c-flag is-hidden" id="flagB" src="" alt="" draggable="false">
+                            </div>
+                            <div class="c-name empty" id="nameB">[CLAN]</div>
+                            <div class="c-points roboto" id="pointsB"></div>
+                            <div class="c-points-label label"><img src="/images/hvezda.png" alt="">TOTAL POINTS</div>
+                            <div class="c-hint" id="hintB">Press "Select Clans" below</div>
+                            <div class="side-bar"></div>
+                        </div>
+                    </div>
 
-            <!-- pod oknem: jen když jsou vybrané oba klany -->
-            <div class="card stats a only-clans" id="statsA"></div>
-            <div class="card diff only-clans">
-                <div class="label muted">POINT DIFFERENCE</div>
-                <div class="roboto" id="diffValue"></div>
-                <div class="diff-lead" id="diffLead">&nbsp;</div>
-            </div>
-            <div class="card stats b only-clans" id="statsB"></div>
+                    <!-- jen když jsou vybrané oba klany -->
+                    <div class="row-mid only-clans">
+                        <div class="card stats a" id="statsA"></div>
+                        <div class="card diff">
+                            <div class="label muted">POINT DIFFERENCE</div>
+                            <div class="roboto" id="diffValue"></div>
+                            <div class="diff-lead" id="diffLead">&nbsp;</div>
+                        </div>
+                        <div class="card stats b" id="statsB"></div>
+                    </div>
 
-            <div class="card chart only-clans">
-                <div class="chart-head">
-                    <span class="title-stroke">Difference History</span>
-                    <span class="chart-legend" id="chartLegend"></span>
-                </div>
-                <div class="chart-area" id="chartArea">
-                    <svg id="chartSvg" viewBox="0 0 1004 262" preserveAspectRatio="none"></svg>
-                    <div class="chart-empty" id="chartEmpty">Waiting for data...</div>
-                    <div class="tip" id="tip"></div>
+                    <div class="card chart only-clans">
+                        <div class="chart-head">
+                            <span class="title-stroke">Difference History</span>
+                            <span class="chart-sub" id="chartSub"></span>
+                        </div>
+                        <div class="chart-area" id="chartArea">
+                            <svg id="chartSvg"></svg>
+                            <div class="chart-empty" id="chartEmpty">Waiting for data...</div>
+                            <div class="tip" id="tip"></div>
+                        </div>
+                    </div>
+
+                    <div class="select-wrap"><div class="select-btn" id="selectBtn" role="button" aria-label="Select Clans"></div></div>
                 </div>
             </div>
-
-            <div class="select-btn" id="selectBtn" role="button" aria-label="Select Clans"></div>
 
             <div class="close-btn" onclick="location.href='/'"></div>
         </div>
-    </div>
     </div>
 
     <!-- okno pro výběr klanů -->
     <div class="modal-bg" id="modalBg">
         <div class="modal" role="dialog" aria-modal="true">
             <div class="x" id="modalClose"></div>
-            <h2 class="title-stroke">Select Clans</h2>
+            <div class="modal-title" data-text="Select Clans">Select Clans</div>
             <div class="field-label">Clan 1</div>
             <div class="field a"><i></i><input id="inputA" maxlength="4" placeholder="Clan tag" autocomplete="off" spellcheck="false"></div>
             <div class="field-label">Clan 2</div>
             <div class="field b"><i></i><input id="inputB" maxlength="4" placeholder="Clan tag" autocomplete="off" spellcheck="false"></div>
             <div class="modal-err" id="modalErr"></div>
-            <button class="go-btn" id="goBtn">Compare!</button>
+            <div class="go-wrap"><button class="go-btn" id="goBtn">Compare!</button></div>
         </div>
     </div>
 
@@ -626,25 +647,13 @@
         const $ = (id) => document.getElementById(id);
         const COL_A = "#2DB9E5", COL_B = "#FF4F86";
 
-        // ---------- velikost na mobilu (stránka se scrolluje, škáluje se jen podle šířky) ----------
         function autoFitScreen() {
             const scaler = $("appScaler");
             if (!scaler) return;
-            const winW = window.innerWidth;
-            if (winW >= 1150) {
-                document.body.classList.remove("is-mobile");
-                scaler.style.transform = "none";
-                scaler.style.marginBottom = "0px";
-                $("page").style.paddingTop = "96px";
-                $("page").style.paddingBottom = "180px";
-                return;
-            }
+            const winW = window.innerWidth, winH = window.innerHeight;
+            if (winW >= 1150) { document.body.classList.remove("is-mobile"); scaler.style.transform = "none"; return; }
             document.body.classList.add("is-mobile");
-            const s = (winW / 1120) * 0.92;
-            scaler.style.transform = `scale(${s})`;
-            scaler.style.marginBottom = `${-(scaler.offsetHeight * (1 - s))}px`;   // škálovaný obsah nezabírá původní výšku
-            $("page").style.paddingTop = `${Math.round(96 * s)}px`;
-            $("page").style.paddingBottom = `${Math.round(180 * s)}px`;
+            scaler.style.transform = `scale(${Math.min(winW / 1120, winH / 650) * 0.92})`;
         }
         window.addEventListener("resize", autoFitScreen);
         window.addEventListener("orientationchange", autoFitScreen);
@@ -800,9 +809,8 @@
             const both = !!(side.a.data && side.b.data);
             document.body.classList.toggle("no-clans", !both);
             document.querySelectorAll(".only-clans").forEach((el) => el.classList.toggle("is-hidden", !both));
-            // výška obsahu pod oknem (kvůli scrollu a liště pod ním)
-            $("spacer").style.height = (both ? 1118 + 111 + 10 - 570 : 600 + 111 + 10 - 570) + "px";
-            autoFitScreen();
+
+            if (window.autoFitScreen !== autoFitScreen) window.autoFitScreen();
         }
 
         function renderCard(s) {
@@ -824,8 +832,9 @@
             icon.className = "c-icon link";
             icon.onclick = () => { location.href = `/clan-detail/?name=${encodeURIComponent(d.name)}`; };
             if (d.flag) {
+                if (flag.dataset.src !== d.flag) { flag.dataset.src = d.flag; flag.src = d.flag; }
+                flag.classList.remove("is-hidden");
                 flag.onerror = function () { this.classList.add("is-hidden"); };
-                if (flag.dataset.src !== d.flag) { flag.dataset.src = d.flag; flag.classList.remove("is-hidden"); flag.src = d.flag; }
             } else flag.classList.add("is-hidden");
             rank.textContent = d.place ? `#${d.place}` : "";
             rank.className = "rank-pill " + (!d.place ? "is-hidden" : d.place === 1 ? "gold" : d.place === 2 ? "silver" : d.place === 3 ? "bronze" : "");
@@ -847,8 +856,8 @@
         let rendered = false;
         function render() {
             const A = side.a, B = side.b;
-            fit($("pointsA"), A.current, 70, 470);
-            fit($("pointsB"), B.current, 70, 470);
+            fit($("pointsA"), A.current, 66, 450);
+            fit($("pointsB"), B.current, 66, 450);
             odo.A.set(A.data ? A.current : 0, rendered);
             odo.B.set(B.data ? B.current : 0, rendered);
             renderCard(A); renderCard(B);
@@ -857,7 +866,7 @@
             const both = A.data && B.data;
             if (both) {
                 const diff = A.current - B.current;
-                fit($("diffValue"), Math.abs(diff), 58, 390);
+                fit($("diffValue"), Math.abs(diff), 56, 380);
                 odo.D.set(Math.abs(diff), rendered);
                 const lead = $("diffLead");
                 if (!diff) lead.textContent = "It's a tie!";
@@ -872,10 +881,10 @@
             rendered = true;
         }
 
-        // ================= GRAF ROZDÍLU (SVG, interaktivní) =================
-        const CH = { W: 1004, H: 262, L: 74, R: 14, T: 14, B: 26 };
-        let geo = null;          // aktuálně vykreslená geometrie {xs, ys}
-        let target = null;       // cílová geometrie + hodnoty
+        // ================= GRAF (z pohledu klanu vlevo: + = vede, - = ztrácí) =================
+        const CH = { W: 1000, H: 268, L: 74, R: 16, T: 14, B: 26 };
+        let geo = null;          // aktuálně vykreslená geometrie {xs, ys, y0}
+        let target = null;       // cílová geometrie
         let animId = null;
         let hoverIdx = -1;
 
@@ -892,6 +901,9 @@
             const empty = $("chartEmpty");
             if (!points.length) { $("chartSvg").innerHTML = ""; empty.classList.remove("is-hidden"); geo = target = null; return; }
             empty.classList.add("is-hidden");
+            const area = $("chartArea");
+            if (area.clientWidth > 0) CH.W = area.clientWidth;          // žádné deformace písma
+            if (area.clientHeight > 0) CH.H = area.clientHeight;
             const vals = points.map((p) => p.v);
             let min = Math.min(...vals, 0), max = Math.max(...vals, 0);   // nula je vždy vidět
             if (min === max) { min -= 1; max += 1; }
@@ -900,23 +912,23 @@
             const n = points.length, { W, H, L, R, T, B } = CH;
             const x = (i) => n === 1 ? W - R : L + (i / (n - 1)) * (W - L - R);
             const y = (v) => T + (1 - (v - min) / (max - min)) * (H - T - B);
-            cancelAnimationFrame(animId); animId = null;      // rozběhnutá animace se nahradí novou
+            cancelAnimationFrame(animId); animId = null;
             target = { min, max, xs: points.map((_, i) => x(i)), ys: points.map((p) => y(p.v)), y0: y(0), yFn: y };
 
-            // start animace: nový bod vyjede z místa posledního bodu
+            // nový bod vyjede z místa posledního bodu
             let from = geo && geo.xs.every(Number.isFinite) ? geo : null;
             if (!animate || !from) from = null;
             else if (from.xs.length === n - 1) from = { xs: [...from.xs, from.xs[n - 2]], ys: [...from.ys, from.ys[n - 2]], y0: from.y0 };
             else if (from.xs.length !== n) from = null;
-            animate && from ? animateTo(from) : (geo = { xs: [...target.xs], ys: [...target.ys], y0: target.y0 }, paint());
+            if (from) animateTo(from);
+            else { geo = { xs: [...target.xs], ys: [...target.ys], y0: target.y0 }; paint(); }
         }
 
         function animateTo(from) {
-            cancelAnimationFrame(animId);
             const start = performance.now(), goal = target;
             const ease = (t) => 1 - Math.pow(1 - t, 3);
             const tick = (now) => {
-                if (goal !== target) return;                 // mezitím přišel nový bod
+                if (goal !== target) return;
                 const k = ease(Math.min(1, (now - start) / CHART_ANIM_MS));
                 geo = {
                     xs: target.xs.map((v, i) => from.xs[i] + (v - from.xs[i]) * k),
@@ -932,19 +944,19 @@
         function paint() {
             if (!geo || !target) return;
             const { W, H, L, R, T, B } = CH, n = geo.xs.length;
+            const svg = $("chartSvg");
+            svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
             const xs = n === 1 ? [L, W - R] : geo.xs, ys = n === 1 ? [geo.ys[0], geo.ys[0]] : geo.ys;
             const line = xs.map((x, i) => (i ? "L" : "M") + x.toFixed(1) + " " + ys[i].toFixed(1)).join(" ");
             const y0 = Math.max(T, Math.min(H - B, geo.y0));
             const area = `${line} L ${xs[xs.length - 1].toFixed(1)} ${y0.toFixed(1)} L ${xs[0].toFixed(1)} ${y0.toFixed(1)} Z`;
 
-            // osa Y: 5 hodnot
             let grid = "";
             for (let i = 0; i <= 4; i++) {
                 const v = target.max - (i / 4) * (target.max - target.min), yy = target.yFn(v);
                 grid += `<line x1="${L}" x2="${W - R}" y1="${yy.toFixed(1)}" y2="${yy.toFixed(1)}" stroke="#000" stroke-opacity="0.07"/>`
-                      + `<text x="${L - 10}" y="${(yy + 4).toFixed(1)}" text-anchor="end" font-family="Fredoka" font-weight="600" font-size="12" fill="#5A5D66">${v < 0 ? "-" : ""}${short(Math.abs(v))}</text>`;
+                      + `<text x="${L - 10}" y="${(yy + 4).toFixed(1)}" text-anchor="end" font-family="Fredoka" font-weight="600" font-size="12" fill="#5A5D66">${v > 0 ? "+" : v < 0 ? "-" : ""}${short(Math.abs(v))}</text>`;
             }
-            // osa X: čas
             let xl = "";
             const ticks = Math.min(5, points.length);
             for (let i = 0; i < ticks; i++) {
@@ -954,57 +966,63 @@
                 xl += `<text x="${xx.toFixed(1)}" y="${H - 4}" text-anchor="${anchor}" font-family="Fredoka" font-weight="600" font-size="12" fill="#8E9099">${agoLabel(points[idx].t)}</text>`;
             }
             const lx = xs[xs.length - 1], ly = ys[ys.length - 1];
-            const col = points[points.length - 1].v >= 0 ? COL_A : COL_B;
 
-            // nad nulou barva klanu 1, pod nulou barva klanu 2
-            $("chartSvg").innerHTML = `
+            // celý graf v barvě klanu vlevo; pod nulou (klan vlevo ztrácí) jemně červeně
+            svg.innerHTML = `
                 <defs>
-                    <clipPath id="above"><rect x="0" y="0" width="${W}" height="${y0.toFixed(1)}"/></clipPath>
-                    <clipPath id="below"><rect x="0" y="${y0.toFixed(1)}" width="${W}" height="${(H - y0).toFixed(1)}"/></clipPath>
-                    <linearGradient id="gA" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${COL_A}" stop-opacity="0.45"/><stop offset="1" stop-color="${COL_A}" stop-opacity="0.04"/></linearGradient>
-                    <linearGradient id="gB" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="${COL_B}" stop-opacity="0.45"/><stop offset="1" stop-color="${COL_B}" stop-opacity="0.04"/></linearGradient>
+                    <clipPath id="above"><rect x="0" y="-20" width="${W}" height="${(y0 + 20).toFixed(1)}"/></clipPath>
+                    <clipPath id="below"><rect x="0" y="${y0.toFixed(1)}" width="${W}" height="${(H - y0 + 20).toFixed(1)}"/></clipPath>
+                    <linearGradient id="gUp" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${COL_A}" stop-opacity="0.5"/><stop offset="1" stop-color="${COL_A}" stop-opacity="0.05"/></linearGradient>
+                    <linearGradient id="gDown" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#FF5C5C" stop-opacity="0.35"/><stop offset="1" stop-color="#FF5C5C" stop-opacity="0.04"/></linearGradient>
                 </defs>
                 ${grid}${xl}
-                <path d="${area}" fill="url(#gA)" clip-path="url(#above)"/>
-                <path d="${area}" fill="url(#gB)" clip-path="url(#below)"/>
+                <path d="${area}" fill="url(#gUp)" clip-path="url(#above)"/>
+                <path d="${area}" fill="url(#gDown)" clip-path="url(#below)"/>
                 <line x1="${L}" x2="${W - R}" y1="${y0.toFixed(1)}" y2="${y0.toFixed(1)}" stroke="#000" stroke-width="2" stroke-dasharray="6 6" opacity="0.35"/>
-                <path d="${line}" fill="none" stroke="${COL_A}" stroke-width="4" stroke-linejoin="round" stroke-linecap="round" clip-path="url(#above)"/>
-                <path d="${line}" fill="none" stroke="${COL_B}" stroke-width="4" stroke-linejoin="round" stroke-linecap="round" clip-path="url(#below)"/>
+                <path d="${line}" fill="none" stroke="#000" stroke-width="7" stroke-linejoin="round" stroke-linecap="round"/>
+                <path d="${line}" fill="none" stroke="${COL_A}" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"/>
                 <g id="hoverLayer"></g>
-                <circle class="pulse" cx="${lx.toFixed(1)}" cy="${ly.toFixed(1)}" r="6" fill="${col}"/>
+                <circle class="pulse" cx="${lx.toFixed(1)}" cy="${ly.toFixed(1)}" r="6" fill="${COL_A}"/>
                 <circle cx="${lx.toFixed(1)}" cy="${ly.toFixed(1)}" r="6" fill="#fff" stroke="#000" stroke-width="3"/>`;
-            if (hoverIdx >= 0) showHover(hoverIdx);
+            if (hoverIdx >= 0) showHover(hoverIdx, true);
         }
 
         // bublina při najetí na bod
-        function showHover(i) {
+        function showHover(i, keep) {
             if (!target || i < 0 || i >= points.length) return hideHover();
+            const changed = i !== hoverIdx;
             hoverIdx = i;
-            const { W, H, T, B, L, R } = CH, p = points[i];
-            const n = points.length;
+            const { W, H, T, B, R } = CH, p = points[i], n = points.length;
             const x = n === 1 ? W - R : target.xs[i], y = target.ys[i];
-            const col = p.v >= 0 ? COL_A : COL_B;
+            const A = side.a.data, Bd = side.b.data;
+            if (!A || !Bd) return;
+            const ahead = p.v > 0, tie = p.v === 0;
+            const headCol = tie ? "#B6B8BF" : ahead ? COL_A : "#FF5C5C";
             const layer = document.getElementById("hoverLayer");
             if (layer) layer.innerHTML = `
                 <line x1="${x.toFixed(1)}" x2="${x.toFixed(1)}" y1="${T}" y2="${H - B}" stroke="#000" stroke-width="2" stroke-dasharray="4 4" opacity="0.4"/>
-                <circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="9" fill="${col}" stroke="#000" stroke-width="3"/>`;
+                <circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="9" fill="${headCol}" stroke="#000" stroke-width="3"/>`;
+            if (keep && !changed) return;
 
-            const leader = p.v === 0 ? null : (p.v > 0 ? side.a : side.b);
             const prev = i > 0 ? points[i - 1] : null;
             const chg = prev ? p.v - prev.v : null;
             const tip = $("tip");
             tip.innerHTML = `
-                <div class="tip-time">${clock(p.t)} · ${agoLabel(p.t)}</div>
-                <div class="tip-lead" style="color:${leader ? col : "#8E9099"}">${leader && leader.data ? `[${leader.data.name}] leads by` : "Tie"}</div>
-                <div class="tip-val roboto">${full(Math.abs(p.v))}</div>
-                ${chg === null ? "" : `<div class="tip-chg" style="color:${chg === 0 ? "#8E9099" : chg > 0 ? COL_A : COL_B}">${chg === 0 ? "No change" : `${chg > 0 ? "▲" : "▼"} ${short(Math.abs(chg))} toward [${(chg > 0 ? side.a : side.b).data ? (chg > 0 ? side.a : side.b).data.name : ""}]`}</div>`}`;
-            // přepočet z viewBoxu na pixely oblasti grafu
+                <div class="tip-head" style="background:${headCol}"><span>${tie ? "TIE" : `[${A.name}] ${ahead ? "AHEAD" : "BEHIND"}`}</span><span>${clock(p.t)}</span></div>
+                <div class="tip-body">
+                    <div class="tip-val roboto">${p.v < 0 ? "-" : p.v > 0 ? "+" : ""}${full(Math.abs(p.v))}</div>
+                    <div class="tip-rows">
+                        <div class="tip-row"><span><i style="background:${COL_A}"></i>[${A.name}]</span><span class="roboto">${full(p.a)}</span></div>
+                        <div class="tip-row"><span><i style="background:${COL_B}"></i>[${Bd.name}]</span><span class="roboto">${full(p.b)}</span></div>
+                    </div>
+                    ${chg === null ? "" : `<span class="tip-chg" style="background:${chg > 0 ? "#6BF06B" : chg < 0 ? "#FF5C5C" : "#B6B8BF"}">${chg > 0 ? "▲ +" : chg < 0 ? "▼ -" : ""}${chg === 0 ? "No change" : short(Math.abs(chg))} · ${agoLabel(p.t)}</span>`}
+                </div>`;
             const area = $("chartArea"), sx = area.clientWidth / W, sy = area.clientHeight / H;
-            let px = x * sx;
-            const half = 105, maxX = area.clientWidth - half;
-            const clamped = Math.max(half, Math.min(maxX, px));
+            const px = x * sx, py = y * sy;
+            const half = 118 + 4, clamped = Math.max(half, Math.min(area.clientWidth - half, px));
+            tip.classList.toggle("below", py < 150);              // u horního okraje se bublina ukáže pod bodem
             tip.style.left = clamped + "px";
-            tip.style.top = (y * sy) + "px";
+            tip.style.top = py + "px";
             tip.style.setProperty("--arrow", `calc(50% + ${(px - clamped).toFixed(0)}px)`);
             tip.classList.add("show");
         }
@@ -1016,7 +1034,7 @@
         }
         function pointerToIndex(e) {
             if (!target || !points.length) return -1;
-            const area = $("chartArea"), r = area.getBoundingClientRect();
+            const r = $("chartArea").getBoundingClientRect();
             const x = ((e.clientX - r.left) / r.width) * CH.W;
             if (points.length === 1) return 0;
             let best = 0, bd = Infinity;
@@ -1030,7 +1048,7 @@
 
         function renderLegend() {
             const a = side.a.data, b = side.b.data;
-            $("chartLegend").innerHTML = a && b ? `<span><i style="background:${COL_A}"></i>[${a.name}] leads</span><span><i style="background:${COL_B}"></i>[${b.name}] leads</span>` : "";
+            $("chartSub").innerHTML = a && b ? `<b style="color:${COL_A}">[${a.name}]</b> lead over <b style="color:${COL_B}">[${b.name}]</b>` : "";
         }
 
         // ---------- načítání ----------
@@ -1112,6 +1130,7 @@
                 if (da === undefined || db === undefined) { err.textContent = "Could not load clans, try again."; return; }
                 if (!da || !db) { err.textContent = `Clan [${!da ? a : b}] not found!`; return; }
                 closeModal();
+                $("cmpScroll").scrollTo({ top: 0, behavior: "smooth" });
                 setClans(a, b);
             } finally { btn.disabled = false; }
         }
@@ -1131,6 +1150,7 @@
         document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeModal(); });
 
         window.addEventListener("DOMContentLoaded", () => {
+            autoFitScreen();
             odo.A = new Odometer($("pointsA"));
             odo.B = new Odometer($("pointsB"));
             odo.D = new Odometer($("diffValue"));
@@ -1148,6 +1168,7 @@
     </a>
 
     <a href="/privacy/" class="privacy-link">Privacy Policy</a>
+    <script src="/scrollbar.js"></script>
     <script src="/hotbar.js"></script>
 </body>
 </html>
