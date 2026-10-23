@@ -14,16 +14,10 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>PS99 Clans - Live Top 500</title>
-    <script>
-        // odometry vytváříme ručně jen pro karty, které jsou vidět
-        window.odometerOptions = { auto: false };
-    </script>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@600;700;800&family=Roboto:wght@800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/odometer.js/0.4.7/themes/odometer-theme-minimal.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/odometer.js/0.4.7/odometer.min.js"></script>
     <link rel="preload" as="image" href="/images/page-select.png">
 
     <style>
@@ -151,12 +145,7 @@
             transform-origin: 30% 60%;
         }
         .lp-rank.is-first .lp-rank-num { color: #8AFCED; }
-        .lp-rank-num.pop { animation: rankPop 0.55s cubic-bezier(0.2, 0.8, 0.2, 1); }
-        @keyframes rankPop {
-            0% { transform: scale(1); }
-            40% { transform: scale(1.45); }
-            100% { transform: scale(1); }
-        }
+
 
         /* zelená šipka nahoru po předběhnutí */
         .lp-up {
@@ -167,14 +156,7 @@
             font-weight: 800 !important;
             opacity: 0;
         }
-        .lp-up.show { animation: upPop 2.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; }
-        @keyframes upPop {
-            0%   { opacity: 0; transform: translateY(40%) scale(0.4); }
-            12%  { opacity: 1; transform: translateY(-10%) scale(1.25); }
-            22%  { opacity: 1; transform: translateY(0) scale(1); }
-            75%  { opacity: 1; transform: translateY(0) scale(1); }
-            100% { opacity: 0; transform: translateY(-50%) scale(0.9); }
-        }
+
 
         .lp-icon {
             position: absolute;
@@ -223,13 +205,31 @@
             transition: filter 2s cubic-bezier(0.25, 0.1, 0.25, 1);
         }
         .lp-inner.is-gain .lp-pts { filter: saturate(1) brightness(1); transition: filter 0.3s ease-out; }
-        .lp-pts .odometer,
-        .lp-pts .odometer * {
+        /* ODOMETR – stejné chování jako odometer.js (theme minimal, "slide"):
+           každá číslice má pás hodnot, nižší řády jich mají víc (točí se rychleji),
+           celý pás odjede za 2 s s "ease". Rozdíl: pás je jeden textový uzel místo
+           desítek elementů s vlastní GPU vrstvou → žádné sekání. */
+        .num {
+            display: inline-flex;
             font-family: 'Roboto', sans-serif !important;
             font-weight: 800 !important;
-            color: inherit !important;
-            line-height: 1.1 !important;
+            font-variant-numeric: tabular-nums;
+            line-height: 1.1;
+            white-space: nowrap;
         }
+        .num * { font-family: inherit !important; font-weight: inherit !important; }
+        .num .d {
+            display: inline-block;
+            height: 1.1em;
+            overflow: hidden;
+            vertical-align: top;
+        }
+        .num .s {
+            display: block;
+            white-space: pre;
+            line-height: 1.1em;
+        }
+        .num .s.go { transition: transform 2s ease; }
 
         .lp-delta {
             position: absolute;
@@ -245,14 +245,7 @@
             opacity: 0;
             transform-origin: right center;
         }
-        .lp-delta.show { animation: deltaPop 3.4s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; }
-        @keyframes deltaPop {
-            0%   { opacity: 0; transform: translateY(-50%) scale(0.5); }
-            9%   { opacity: 1; transform: translateY(-50%) scale(1.15); }
-            17%  { opacity: 1; transform: translateY(-50%) scale(1); }
-            72%  { opacity: 1; transform: translateY(-50%) scale(1); }
-            100% { opacity: 0; transform: translateY(-110%) scale(0.95); }
-        }
+
 
         /* ---------- SPODNÍ LIŠTA ---------- */
         .lp-bottom {
@@ -504,7 +497,7 @@
                 widthCache.set(key, w);
             }
             const size = Math.max(14 * U, Math.min(34 * U, (100 * PTS_W * 0.97) / w));
-            c.odoEl.style.fontSize = size.toFixed(2) + "px";
+            c.numEl.style.fontSize = size.toFixed(2) + "px";
         }
 
         function slotOf(rank) {
@@ -525,27 +518,23 @@
             const el = document.createElement("div");
             el.className = "lp-card";
             el.innerHTML = `
-                <div class="lp-lift-shadow"></div>
-                <div class="lp-ring"></div>
                 <div class="lp-inner">
                     <div class="lp-glow"></div>
                     <div class="lp-content">
                         <img class="lp-icon" draggable="false" decoding="async">
                         <img class="lp-flag" draggable="false" decoding="async">
                         <div class="lp-name"></div>
-                        <div class="lp-pts"><div class="odometer"></div></div>
+                        <div class="lp-pts"><span class="num"></span></div>
                         <div class="lp-delta"></div>
                     </div>
                     <div class="lp-rank"><span class="lp-rank-num"></span><span class="lp-up">▲</span></div>
                 </div>`;
             c.el = el;
             c.inner = el.querySelector(".lp-inner");
-            c.shadowEl = el.querySelector(".lp-lift-shadow");
-            c.ringEl = el.querySelector(".lp-ring");
             c.rankWrap = el.querySelector(".lp-rank");
             c.rankEl = el.querySelector(".lp-rank-num");
             c.upEl = el.querySelector(".lp-up");
-            c.odoEl = el.querySelector(".odometer");
+            c.numEl = el.querySelector(".num");
             c.deltaEl = el.querySelector(".lp-delta");
             c.shownRank = -1;
             c.fitLen = 0;
@@ -557,12 +546,7 @@
             el.querySelector(".lp-name").textContent = `[${c.name}]`;
             el.onclick = () => { location.href = `/clan-detail/?name=${encodeURIComponent(c.name)}`; };
 
-            if (typeof Odometer !== "undefined") {
-                c.odo = new Odometer({ el: c.odoEl, value: c.shown, format: "(,ddd)", theme: "minimal", duration: ODO_MS, animation: "slide" });
-            } else {
-                c.odo = null;
-                c.odoEl.textContent = c.shown.toLocaleString("en-US");
-            }
+            setNumberStatic(c, c.shown);
             c.renderedPts = c.shown;
             fitNumber(c, true);
 
@@ -576,7 +560,6 @@
             clearTimeout(c.gainTimer);
             c.el.remove();
             c.el = null;
-            c.odo = null;
             c.leaving = false;
             rendered.delete(c);
         }
@@ -591,32 +574,120 @@
             c.el.querySelector(".lp-flag").src = getTwemojiUrl(d.CountryCode);
         }
 
-        // statické přepsání odometru (bez animace)
-        function setOdoStatic(c, value) {
-            if (c.odo) { c.odo.value = value; c.odo.render(); }
-            else c.odoEl.textContent = value.toLocaleString("en-US");
+        // ---------- ODOMETR ----------
+        // MAX_VALUES a DIGIT_SPEEDBOOST přesně jako odometer.js s duration 2500 (live.html)
+        const ODO_MAX_VALUES = ((ODO_MS / (1000 / 30)) / 2) | 0;
+        const ODO_SPEEDBOOST = 0.5;
+
+        // postaví číslice pro dané číslo (statický stav)
+        function setNumberStatic(c, value) {
+            const str = value.toLocaleString("en-US");
+            const frag = document.createDocumentFragment();
+            c.digitEls = [];
+            for (const ch of str) {
+                if (ch >= "0" && ch <= "9") {
+                    const d = document.createElement("span");
+                    d.className = "d";
+                    const s = document.createElement("span");
+                    s.className = "s";
+                    s.textContent = ch;
+                    s._final = ch;
+                    d.appendChild(s);
+                    frag.appendChild(d);
+                    c.digitEls.push(s);
+                } else {
+                    const sep = document.createElement("span");
+                    sep.className = "c";
+                    sep.textContent = ch;
+                    frag.appendChild(sep);
+                }
+            }
+            c.numEl.replaceChildren(frag);
+            c.numFmtLen = str.length;
         }
+
+        // animace nahoru – stejný výpočet pásů jako odometer.js animateSlide
+        function animateNumber(c, from, to) {
+            const str = to.toLocaleString("en-US");
+            if (str.length !== c.numFmtLen) setNumberStatic(c, to);   // přibyla číslice → nová struktura
+            const digitCount = c.digitEls.length;
+            const ribbons = [];
+            let boosted = 0;
+            for (let i = 0; i < digitCount; i++) {
+                const p = Math.pow(10, digitCount - i - 1);
+                const start = Math.floor(from / p);
+                const end = Math.floor(to / p);
+                const dist = end - start;
+                let frames;
+                if (dist > ODO_MAX_VALUES) {
+                    frames = [];
+                    const incr = dist / (ODO_MAX_VALUES + ODO_MAX_VALUES * boosted * ODO_SPEEDBOOST);
+                    for (let cur = start; cur < end; cur += incr) frames.push(Math.round(cur));
+                    if (frames[frames.length - 1] !== end) frames.push(end);
+                    boosted++;
+                } else {
+                    frames = [];
+                    for (let v = start; v <= end; v++) frames.push(v);
+                }
+                const s = c.digitEls[i];
+                const last = String(end % 10);
+                s.classList.remove("go");
+                s.style.transform = "";
+                s._final = last;
+                if (frames.length <= 1) { s.textContent = last; continue; }
+                s.textContent = frames.map(f => f % 10).join("\n");
+                ribbons.push([s, frames.length - 1]);
+            }
+            if (!ribbons.length) return;
+            // start pásu se vykreslí, další snímek se pustí přechod (bez vynuceného přepočtu layoutu)
+            requestAnimationFrame(() => requestAnimationFrame(() => {
+                for (const [s, n] of ribbons) {
+                    if (!s.isConnected || s.textContent.length < 2) continue;
+                    s.classList.add("go");
+                    s.style.transform = `translateY(${(-1.1 * n).toFixed(2)}em)`;
+                }
+            }));
+        }
+
+        // po dojetí pásu zůstane jen poslední hodnota
+        grid.addEventListener("transitionend", e => {
+            const s = e.target;
+            if (!s.classList || !s.classList.contains("go")) return;
+            s.classList.remove("go");
+            s.style.transform = "";
+            s.textContent = s._final;
+        });
 
         function renderPoints(c) {
             if (!c.el || c.renderedPts === c.shown) return;
+            const from = c.renderedPts;
             c.renderedPts = c.shown;
             fitNumber(c, false);
-            if (c.odo && !document.hidden) c.odo.update(c.shown);
-            else setOdoStatic(c, c.shown);
+            if (!document.hidden && c.shown > from) animateNumber(c, from, c.shown);
+            else setNumberStatic(c, c.shown);
+        }
+
+        // znovuspuštění CSS třídy bez vynuceného přepočtu layoutu
+        function restartClass(el, cls) {
+            el.classList.remove(cls);
+            requestAnimationFrame(() => requestAnimationFrame(() => el.classList.add(cls)));
         }
 
         function flashGain(c, delta) {
             if (!c.el || document.hidden) return;
-            c.inner.classList.remove("is-gain");
-            void c.inner.offsetWidth;
-            c.inner.classList.add("is-gain");
+            restartClass(c.inner, "is-gain");
             clearTimeout(c.gainTimer);
-            c.gainTimer = setTimeout(() => c.inner && c.inner.classList.remove("is-gain"), 1300);
+            c.gainTimer = setTimeout(() => c.inner && c.inner.classList.remove("is-gain"), 1350);
 
             c.deltaEl.textContent = formatDelta(delta);
-            c.deltaEl.classList.remove("show");
-            void c.deltaEl.offsetWidth;
-            c.deltaEl.classList.add("show");
+            if (c.deltaAnim) c.deltaAnim.cancel();
+            c.deltaAnim = c.deltaEl.animate([
+                { offset: 0,    opacity: 0, transform: "translateY(-50%) scale(0.5)" },
+                { offset: 0.09, opacity: 1, transform: "translateY(-50%) scale(1.15)" },
+                { offset: 0.17, opacity: 1, transform: "translateY(-50%) scale(1)" },
+                { offset: 0.72, opacity: 1, transform: "translateY(-50%) scale(1)" },
+                { offset: 1,    opacity: 0, transform: "translateY(-110%) scale(0.95)" }
+            ], { duration: 3400, easing: "cubic-bezier(0.2, 0.8, 0.2, 1)" });
         }
 
         function setRankText(c, rank, pop, up) {
@@ -627,14 +698,17 @@
                 c.rankWrap.classList.toggle("is-first", rank === 0);
             }
             if (pop) {
-                c.rankEl.classList.remove("pop");
-                void c.rankEl.offsetWidth;
-                c.rankEl.classList.add("pop");
+                c.rankEl.animate([{ transform: "scale(1)" }, { transform: "scale(1.45)", offset: 0.4 }, { transform: "scale(1)" }],
+                    { duration: 550, easing: "cubic-bezier(0.2, 0.8, 0.2, 1)" });
             }
             if (up) {
-                c.upEl.classList.remove("show");
-                void c.upEl.offsetWidth;
-                c.upEl.classList.add("show");
+                c.upEl.animate([
+                    { offset: 0,    opacity: 0, transform: "translateY(40%) scale(0.4)" },
+                    { offset: 0.12, opacity: 1, transform: "translateY(-10%) scale(1.25)" },
+                    { offset: 0.22, opacity: 1, transform: "translateY(0) scale(1)" },
+                    { offset: 0.75, opacity: 1, transform: "translateY(0) scale(1)" },
+                    { offset: 1,    opacity: 0, transform: "translateY(-50%) scale(0.9)" }
+                ], { duration: 2800, easing: "cubic-bezier(0.2, 0.8, 0.2, 1)" });
             }
         }
 
@@ -656,10 +730,25 @@
             return { x: c.x, y: c.y };
         }
 
-        function stopAnim(c) {
-            if (c.anim) { c.anim.onfinish = null; c.anim.cancel(); c.anim = null; }
+        // stín se zlatým okrajem a kroužek existují jen během animace
+        // (i neviditelné rozmazané stíny u 50 karet stojí hodně výkonu)
+        function addFx(c, cls) {
+            const fx = document.createElement("div");
+            fx.className = cls;
+            c.el.insertBefore(fx, c.inner);
+            return fx;
+        }
+
+        function clearFx(c) {
             if (c.shadowAnim) { c.shadowAnim.cancel(); c.shadowAnim = null; }
             if (c.ringAnim) { c.ringAnim.cancel(); c.ringAnim = null; }
+            if (c.shadowEl) { c.shadowEl.remove(); c.shadowEl = null; }
+            if (c.ringEl) { c.ringEl.remove(); c.ringEl = null; }
+        }
+
+        function stopAnim(c) {
+            if (c.anim) { c.anim.onfinish = null; c.anim.cancel(); c.anim = null; }
+            clearFx(c);
             c.animFrom = null;
             clearTimeout(c.rankTimer);
         }
@@ -685,15 +774,16 @@
                     { offset: 0.93, transform: T(to.x, to.y - U, 1.025, 0),                     easing: "ease-in-out" },
                     { offset: 1,    transform: T(to.x, to.y, 1, 0) }
                 ], { duration: MOVE_MS });
+                c.shadowEl = addFx(c, "lp-lift-shadow");
                 c.shadowAnim = c.shadowEl.animate(
                     [{ opacity: 0, offset: 0 }, { opacity: 1, offset: 0.18 }, { opacity: 1, offset: 0.72 }, { opacity: 0, offset: 0.84 }, { opacity: 0, offset: 1 }],
                     { duration: MOVE_MS }
                 );
+                c.ringEl = addFx(c, "lp-ring");
                 c.ringAnim = c.ringEl.animate(
                     [{ opacity: 0.95, transform: "scale(1)" }, { opacity: 0, transform: "scale(1.12, 1.45)" }],
                     { duration: 600, delay: MOVE_MS * 0.84, easing: "cubic-bezier(0.2, 0.8, 0.3, 1)", fill: "backwards" }
                 );
-                c.ringEl.style.opacity = 0;
                 c.rankTimer = setTimeout(() => setRankText(c, c.rank, true, true), MOVE_MS * 0.84);
             } else {
                 // předběhnutá karta se přikrčí a podsune o příčku níž
@@ -713,7 +803,7 @@
                 if (c.anim !== anim) return;
                 c.anim = null;
                 c.animFrom = null;
-                if (c.el) c.el.style.zIndex = baseZ(c.rank);
+                if (c.el) { c.el.style.zIndex = baseZ(c.rank); setTimeout(() => { if (!c.anim && c.el) clearFx(c); }, 700); }
             };
         }
 
@@ -733,6 +823,7 @@
                     { offset: 0.86, opacity: 1, transform: D(-U, 1.025),     easing: "ease-in-out" },
                     { offset: 1,    opacity: 1, transform: D(0, 1) }
                 ], { duration: MOVE_MS * 0.85, fill: "backwards" });
+                c.shadowEl = addFx(c, "lp-lift-shadow");
                 c.shadowAnim = c.shadowEl.animate(
                     [{ opacity: 1, offset: 0 }, { opacity: 1, offset: 0.5 }, { opacity: 0, offset: 0.72 }, { opacity: 0, offset: 1 }],
                     { duration: MOVE_MS * 0.85 }
@@ -748,7 +839,7 @@
             anim.onfinish = () => {
                 if (c.anim !== anim) return;
                 c.anim = null;
-                if (c.el) c.el.style.zIndex = baseZ(c.rank);
+                if (c.el) { c.el.style.zIndex = baseZ(c.rank); clearFx(c); }
             };
         }
 
@@ -912,7 +1003,7 @@
                         // body klesly (nová bitva apod.) → hned bez animace
                         c.steps = 0;
                         c.target = c.shown = pts;
-                        if (c.el) { c.renderedPts = pts; setOdoStatic(c, pts); fitNumber(c, false); }
+                        if (c.el) { c.renderedPts = pts; setNumberStatic(c, pts); fitNumber(c, false); }
                     }
                 }
             });
@@ -1005,7 +1096,7 @@
         document.addEventListener("visibilitychange", () => {
             if (document.hidden) return;
             rendered.forEach(c => {
-                if (c.renderedPts !== c.shown) { c.renderedPts = c.shown; setOdoStatic(c, c.shown); fitNumber(c, false); }
+                if (c.renderedPts !== c.shown) { c.renderedPts = c.shown; setNumberStatic(c, c.shown); fitNumber(c, false); }
             });
             relayout(false);
             if (Date.now() - lastOkAt > TICK_MS) tick();
@@ -1024,6 +1115,6 @@
         }
     </script>
 
-    <script src="/hotbar.js?v=3"></script>
+    <script src="/hotbar.js?v=4"></script>
 </body>
 </html>
