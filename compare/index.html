@@ -136,6 +136,9 @@
             touch-action: pan-y !important;
             overscroll-behavior: contain !important;
         }
+        /* bez vybraných klanů se okno nescrolluje (vše se vejde) */
+        body.no-clans .cmp-scroll { overflow-y: hidden; }
+        body.no-clans .cmp-inner { padding-bottom: 0; }
         .cmp-inner { position: relative; width: 1096px; padding: 40px 38px 18px 12px; display: flex; flex-direction: column; gap: 18px; }
 
         /* ---------- karty klanů ---------- */
@@ -760,6 +763,7 @@
         function setLayout() {
             const both = !!(side.a.data && side.b.data);
             document.body.classList.toggle("no-clans", !both);
+            if (!both) $("cmpScroll").scrollTop = 0;
             document.querySelectorAll(".only-clans").forEach((el) => el.classList.toggle("is-hidden", !both));
             document.querySelectorAll(".no-clans-only").forEach((el) => el.classList.toggle("is-hidden", both));
             // bez klanů je tlačítko přímo v úvodní kartě, jinak úplně dole
@@ -909,7 +913,7 @@
             const xs = n === 1 ? [L, W - R] : geo.xs, ys = n === 1 ? [geo.ys[0], geo.ys[0]] : geo.ys;
             const line = xs.map((x, i) => (i ? "L" : "M") + x.toFixed(1) + " " + ys[i].toFixed(1)).join(" ");
             const y0 = Math.max(T, Math.min(H - B, geo.y0));
-            const area = `${line} L ${xs[xs.length - 1].toFixed(1)} ${y0.toFixed(1)} L ${xs[0].toFixed(1)} ${y0.toFixed(1)} Z`;
+            const area = `${line} L ${xs[xs.length - 1].toFixed(1)} ${H - B} L ${xs[0].toFixed(1)} ${H - B} Z`;   // výplň vždy dolů pod čáru
 
             let grid = "";
             for (let i = 0; i <= 4; i++) {
@@ -936,8 +940,7 @@
                     <linearGradient id="gDown" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#FF5C5C" stop-opacity="0.35"/><stop offset="1" stop-color="#FF5C5C" stop-opacity="0.04"/></linearGradient>
                 </defs>
                 ${grid}${xl}
-                <path d="${area}" fill="url(#gUp)" clip-path="url(#above)"/>
-                <path d="${area}" fill="url(#gDown)" clip-path="url(#below)"/>
+                <path d="${area}" fill="url(#gUp)"/>
                 ${target.min < 0 && target.max > 0 ? `<line x1="${L}" x2="${W - R}" y1="${y0.toFixed(1)}" y2="${y0.toFixed(1)}" stroke="#000" stroke-width="2" stroke-dasharray="6 6" opacity="0.35"/>` : ""}
                 <path d="${line}" fill="none" stroke="#000" stroke-width="7" stroke-linejoin="round" stroke-linecap="round"/>
                 <path d="${line}" fill="none" stroke="${COL_A}" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"/>
