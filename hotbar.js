@@ -10,10 +10,11 @@
   const BUTTONS = [
     // activeOn – na kterých stránkách je tlačítko "aktivní" (zvětšené, klik nic nedělá)
     { id: "clans",   label: "Clans",   icon: "/images/hotbar/clans.png",  href: "/",
-      activeOn: (p) => !p.startsWith("/compare/") },                    // všechny stránky klanů
+      activeOn: (p) => !p.startsWith("/compare/") && !p.startsWith("/live-placement/") }, // všechny stránky klanů
     { id: "compare", label: "Compare", icon: "/images/hotbar/compare.png", href: "/compare/",
       activeOn: (p) => p.startsWith("/compare/") },
-    { id: "live",    label: "Live Placement", icon: "/images/hotbar/live.png" }, // zatím nikam nevede
+    { id: "live",    label: "Live Placement", icon: "/images/hotbar/live.png", href: "/live-placement/",
+      activeOn: (p) => p.startsWith("/live-placement/") },
     // { id: "discord", label: "Discord", icon: "/images/hotbar/discord.png", badge: "NEW", href: "https://discord.gg/...", newTab: true },
   ];
   // ====================================================
@@ -45,6 +46,14 @@
       z-index: 800;
     }
     .ps-hotbar:empty { display: none; }
+    /* stránky bez hlavního okna (Live Placement): lišta je normálně v toku stránky */
+    .ps-hotbar.ps-hb-inline {
+      position: relative;
+      left: auto;
+      top: auto;
+      transform: none;
+      padding: 26px 30px 16px;
+    }
     /* měkká bílá záře za řadou ikon */
     .ps-hotbar::before {
       content: "";
@@ -192,11 +201,13 @@
   }
 
   function build() {
-    const win = document.querySelector(".game-window");
+    // .game-window = klasické stránky; .ps-hotbar-host = stránka bez hlavního okna
+    const host = document.querySelector(".ps-hotbar-host");
+    const win = document.querySelector(".game-window") || host;
     if (!win || win.querySelector(".ps-hotbar")) return;
 
     const bar = document.createElement("div");
-    bar.className = "ps-hotbar";
+    bar.className = "ps-hotbar" + (win === host ? " ps-hb-inline" : "");
     if (document.querySelector(".country-toggle-arrow")) bar.classList.add("ps-hb-has-arrow");
 
     BUTTONS.forEach((b) => {
