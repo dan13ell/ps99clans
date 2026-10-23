@@ -101,6 +101,10 @@
             transition: transform 0.044s cubic-bezier(0.1, 0.9, 0.2, 1);
         }
         .lp-card:hover .lp-inner { transform: scale(1.02); }
+        /* sledovaný klan (?clan=NAZEV) – tyrkysový okraj jako #1 */
+        .lp-card.is-followed .lp-inner {
+            box-shadow: 0 0 0 calc(3.5 * var(--u)) #8AFCED, 0 0 0 calc(6 * var(--u)) #000000, 0 calc(3 * var(--u)) 0 rgba(0, 0, 0, 0.18);
+        }
         .lp-card:active .lp-inner { transform: scale(0.96); }
 
         /* zelené zbarvení karty při přičtení – jen opacity */
@@ -248,28 +252,34 @@
 
 
         /* ---------- SPODNÍ LIŠTA ---------- */
-        .lp-bottom {
-            position: absolute;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            height: 150px;
+        /* Neviditelné "hlavní okno" se stejnou velikostí a škálováním jako na ostatních
+           stránkách → hotbar.js pod něj dá lištu přesně na stejné místo a ve stejné velikosti. */
+        .hb-ghost {
+            position: fixed;
+            inset: 0;
             display: flex;
-            align-items: flex-end;
             justify-content: center;
+            align-items: center;
+            pointer-events: none;
             z-index: 700;
         }
+        .hb-ghost .app-scaler { position: relative; transform-origin: center center; }
+        .hb-ghost .game-window { position: relative; width: 1100px; height: 570px; }
+        .hb-ghost .menu-bg { width: 1100px; height: 570px; visibility: hidden; }
+        .hb-ghost .ps-hotbar { pointer-events: auto; }
 
-        .ps-hotbar-host { display: flex; justify-content: center; }
-
+        /* LIVE odznak a přepínač stránek – vlevo a vpravo ve výšce hotbaru */
         .lp-side {
-            position: absolute;
-            bottom: 34px;
+            position: fixed;
+            top: 0;
             display: flex;
             align-items: center;
+            z-index: 710;
+            visibility: hidden;
         }
-        .lp-side-left { left: 22px; }
-        .lp-side-right { right: 22px; }
+        .lp-side.is-ready { visibility: visible; }
+        .lp-side-left { left: 0; transform-origin: left center; }
+        .lp-side-right { right: 0; transform-origin: right center; }
 
         .live-badge {
             display: flex;
@@ -355,23 +365,27 @@
         <div class="lp-grid" id="grid"></div>
         <div class="lp-status" id="statusText">Loading clans...</div>
 
-        <div class="lp-bottom">
-            <div class="lp-side lp-side-left">
-                <div class="live-badge" id="liveBadge">
-                    <span class="live-dot"></span>
-                    <span id="liveBadgeText">LIVE</span>
-                </div>
-            </div>
+    </div>
 
-            <div class="ps-hotbar-host"></div>
+    <div class="lp-side lp-side-left" id="sideLeft">
+        <div class="live-badge" id="liveBadge">
+            <span class="live-dot"></span>
+            <span id="liveBadgeText">LIVE</span>
+        </div>
+    </div>
 
-            <div class="lp-side lp-side-right">
-                <div class="page-select-bg">
-                    <div class="page-arrow arrow-left is-disabled" id="prevPageBtn"></div>
-                    <span class="page-number-text" id="pageText">#1-50</span>
-                    <div class="page-arrow arrow-right" id="nextPageBtn"></div>
-                </div>
-            </div>
+    <div class="lp-side lp-side-right" id="sideRight">
+        <div class="page-select-bg">
+            <div class="page-arrow arrow-left is-disabled" id="prevPageBtn"></div>
+            <span class="page-number-text" id="pageText">#1-50</span>
+            <div class="page-arrow arrow-right" id="nextPageBtn"></div>
+        </div>
+    </div>
+
+    <!-- neviditelné okno jen kvůli umístění hotbaru (stejně jako na ostatních stránkách) -->
+    <div class="hb-ghost">
+        <div class="app-scaler" id="appScaler">
+            <div class="game-window"><div class="menu-bg"></div></div>
         </div>
     </div>
 
@@ -379,6 +393,7 @@
         const WORKER_URL = "https://rough-pine-d90f.ps99clans.workers.dev";
         const params = new URLSearchParams(location.search);
         const DEMO = params.has("demo");   // ?demo=1 → vymyšlená data, ?tick=4 → rychlejší aktualizace
+        const FOLLOW = (params.get("clan") || "").trim().toLowerCase(); // ?clan=NAZEV → zvýrazní klan a stránka ho sleduje
 
         // ---------- NASTAVENÍ ----------
         const TICK_MS = DEMO ? Math.max(2, Number(params.get("tick")) || 15) * 1000 : 15000; // aktualizace každých 15 s
@@ -391,7 +406,7 @@
         const MAX_CLANS = 500;
         const COLS = 5, ROWS = 10, PER_PAGE = COLS * ROWS, PAGES = MAX_CLANS / PER_PAGE;
         const PAD_X = 14, PAD_TOP = 16, GAP_X = 12, GAP_Y_RATIO = 0.125;
-        const BOTTOM_H = 150;            // místo na hotbar dole
+        const BAR_MARGIN = 14;           // mezera mezi kartami a hotbarem
         const MOBILE_BREAK = 1150;       // stejná hranice jako na ostatních stránkách
         const VIRTUAL_W = 1600, VIRTUAL_H = 900; // rozhraní na mobilu (zmenšené jako celek)
 
@@ -411,22 +426,58 @@
 
         let CW = 352, CH = 72, U = 1, GAP_Y = 9, PTS_W = 200;
 
+        // ---------- HOTBAR (stejné škálování okna jako hlavní menu) ----------
+        function autoFitScreen() {
+            const scaler = document.getElementById("appScaler");
+            const winW = window.innerWidth, winH = window.innerHeight;
+            if (winW >= MOBILE_BREAK) {
+                document.body.classList.remove("is-mobile");
+                scaler.style.transform = "none";
+                return;
+            }
+            document.body.classList.add("is-mobile");
+            scaler.style.transform = `scale(${Math.min(winW / 1120, winH / 650) * 0.92})`;
+        }
+
+        // kde je hotbar (ikony) → karty jsou nad ním, LIVE a stránky vedle něj
+        function hotbarBox() {
+            const btns = document.querySelectorAll(".hb-ghost .ps-hb-btn");
+            if (!btns.length) return null;
+            let top = Infinity, bottom = -Infinity;
+            btns.forEach(b => { const r = b.getBoundingClientRect(); top = Math.min(top, r.top); bottom = Math.max(bottom, r.bottom); });
+            const m = /scale\(([\d.]+)\)/.exec(document.getElementById("appScaler").style.transform || "");
+            return { top, bottom, s: m ? parseFloat(m[1]) : 1 };
+        }
+
+        function placeSides(box) {
+            const left = document.getElementById("sideLeft"), right = document.getElementById("sideRight");
+            const s = box ? box.s : 1;
+            const cy = box ? (box.top + box.bottom) / 2 : window.innerHeight - 60;
+            const pad = 22 * s;
+            left.style.transform = `translate(${pad}px, ${cy}px) translateY(-50%) scale(${s})`;
+            right.style.transform = `translate(${-pad}px, ${cy}px) translateY(-50%) scale(${s})`;
+            left.classList.add("is-ready");
+            right.classList.add("is-ready");
+        }
+
         // ---------- ROZMĚRY ----------
         function computeLayout() {
             const winW = window.innerWidth, winH = window.innerHeight;
+            const box = hotbarBox();
+            placeSides(box);
+            const availH = Math.max(200, (box ? box.top : winH - 140) - BAR_MARGIN * (box ? box.s : 1));
             const mobile = winW < MOBILE_BREAK;
             const SW = mobile ? VIRTUAL_W : winW;
-            const SH = mobile ? VIRTUAL_H : winH;
-            const scale = mobile ? Math.min(winW / SW, winH / SH) : 1;
+            const SH = mobile ? VIRTUAL_H : availH;
+            const scale = mobile ? Math.min(winW / SW, availH / SH) : 1;
 
             stage.style.width = SW + "px";
             stage.style.height = SH + "px";
             stage.style.transform = mobile
-                ? `translate(${(winW - SW * scale) / 2}px, ${(winH - SH * scale) / 2}px) scale(${scale})`
+                ? `translate(${(winW - SW * scale) / 2}px, ${(availH - SH * scale) / 2}px) scale(${scale})`
                 : "none";
-            document.body.classList.toggle("is-mobile", mobile);
 
-            const gridH = SH - BOTTOM_H - PAD_TOP;
+            const gridH = SH - PAD_TOP - 6;
             CW = (SW - PAD_X * 2 - GAP_X * (COLS - 1)) / COLS;
             CH = gridH / (ROWS + GAP_Y_RATIO * (ROWS - 1));
             GAP_Y = CH * GAP_Y_RATIO;
@@ -442,9 +493,15 @@
         }
 
         let resizeRaf = 0;
+        let layoutKey = "";
         function onResize() {
             cancelAnimationFrame(resizeRaf);
             resizeRaf = requestAnimationFrame(() => {
+                window.autoFitScreen();   // hotbar.js ho obaluje a hned posune lištu
+                const box = hotbarBox();
+                const key = [window.innerWidth, window.innerHeight, box && Math.round(box.top)].join("x");
+                if (key === layoutKey) { placeSides(box); return; }
+                layoutKey = key;
                 computeLayout();
                 widthCache.clear();
                 rendered.forEach(c => {
@@ -516,7 +573,7 @@
         // ---------- KARTA (jen pro viditelnou stránku) ----------
         function createCard(c) {
             const el = document.createElement("div");
-            el.className = "lp-card";
+            el.className = "lp-card" + (FOLLOW && c.name.toLowerCase() === FOLLOW ? " is-followed" : "");
             el.innerHTML = `
                 <div class="lp-inner">
                     <div class="lp-glow"></div>
@@ -912,7 +969,18 @@
 
             // pořadí i u klanů mimo stránku
             order.forEach((c, i) => { c.rank = i; });
+            followPage();
             clans.forEach(c => { if (c.removed && !c.el) clans.delete(c.name); });
+        }
+
+        // ---------- SLEDOVANÝ KLAN ----------
+        let manualPageAt = 0;
+        function followPage() {
+            if (!FOLLOW || Date.now() - manualPageAt < 30000) return;   // po ručním přepnutí 30 s nechat být
+            const c = clans.get([...clans.keys()].find(n => n.toLowerCase() === FOLLOW));
+            if (!c || c.removed || !isFinite(c.rank)) return;
+            const p = pageOf(c.rank);
+            if (p !== page) showPage(p);
         }
 
         // ---------- STRÁNKY (#1-50 … #451-500) ----------
@@ -943,12 +1011,19 @@
             }, 230);
         }
 
-        document.getElementById("prevPageBtn").onclick = () => showPage(page - 1);
-        document.getElementById("nextPageBtn").onclick = () => showPage(page + 1);
+        function userPage(p) { manualPageAt = Date.now(); showPage(p); }
+        document.getElementById("prevPageBtn").onclick = () => userPage(page - 1);
+        document.getElementById("nextPageBtn").onclick = () => userPage(page + 1);
         window.addEventListener("keydown", e => {
-            if (e.key === "ArrowLeft") showPage(page - 1);
-            if (e.key === "ArrowRight") showPage(page + 1);
+            if (e.key === "ArrowLeft") userPage(page - 1);
+            if (e.key === "ArrowRight") userPage(page + 1);
+            // F = celá obrazovka (třeba na stream)
+            if ((e.key === "f" || e.key === "F") && !e.ctrlKey && !e.metaKey && !e.altKey) {
+                if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
+                else document.documentElement.requestFullscreen().catch(() => {});
+            }
         });
+        document.addEventListener("fullscreenchange", onResize);
 
         // ---------- PLYNULÉ PŘIČÍTÁNÍ (stejný princip jako live.html) ----------
         // Nová hodnota z API se rozdělí na 4 kusy; každých 15 s se přičte jeden.
@@ -1059,6 +1134,10 @@
                     firstLoad = false;
                     sortOrder();
                     order.forEach((c, i) => { c.rank = i; });
+                    if (FOLLOW) {
+                        const f = order.find(c => c.name.toLowerCase() === FOLLOW);
+                        if (f) { page = pageOf(f.rank); updatePager(); }
+                    }
                     // první načtení: kaskádový nástup karet
                     const start = (page - 1) * PER_PAGE;
                     for (let rank = start; rank < Math.min(start + PER_PAGE, order.length); rank++) {
@@ -1102,9 +1181,13 @@
             if (Date.now() - lastOkAt > TICK_MS) tick();
         });
 
+        autoFitScreen();
         computeLayout();
         updatePager();
         loop();
+        // jakmile hotbar.js postaví a umístí lištu, karty se přizpůsobí místu nad ní
+        document.addEventListener("DOMContentLoaded", () => setTimeout(onResize, 0));
+        window.addEventListener("load", () => setTimeout(onResize, 0));
         setInterval(updateBadge, 1000);
 
         if (document.fonts && document.fonts.ready) {
