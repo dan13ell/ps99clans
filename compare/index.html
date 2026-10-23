@@ -17,13 +17,11 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>PS99 Clans - Clan Compare</title>
-    <meta name="description" content="Compare two Pet Simulator 99 clans live: battle points, point difference, place, members and diamonds.">
-    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <meta name="description" content="Compare two Pet Simulator 99 clans live: total points, point difference, diamonds, average per member and a live difference chart.">
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@300;400;500;600;700;800&family=Roboto:wght@600&display=swap" rel="stylesheet">
 
     <link rel="preload" as="image" href="/images/compare-bg.png">
-    <link rel="preload" as="image" href="/images/topclans-leaderboard-search.png">
-    <link rel="preload" as="image" href="/images/stars.png">
-    <link rel="preload" as="image" href="/images/gems.png">
+    <link rel="preload" as="image" href="/images/compare-logo.png">
 
     <style>
         * {
@@ -78,15 +76,17 @@
             filter: drop-shadow(0px 10px 20px rgba(0, 0, 0, 0.35));
         }
 
-        .clans-logo {
+        /* logo "Compare!" místo "Clans!" */
+        .compare-logo {
             position: absolute;
             left: -36px;
             top: -69px;
-            width: 315px;
+            width: 359px;
             height: 117px;
-            background: url("/images/clans-logo.png") no-repeat center center;
+            background: url("/images/compare-logo.png") no-repeat center center;
             background-size: 100% 100%;
             z-index: 998;
+            pointer-events: none;
         }
 
         .close-btn {
@@ -105,299 +105,196 @@
         .close-btn:hover:not(:active) { left: 1042px; top: -34px; width: 76px; height: 77px; }
         .close-btn:active { background-image: url("/images/X-clicked.png"); left: 1047px; top: -29px; width: 66px; height: 67px; }
 
-        /* ---------- text ---------- */
-        .stroke {
-            color: #FEFEFE;
-            -webkit-text-stroke: 6px #000000;
-            stroke-linejoin: round;
-            -webkit-stroke-linejoin: round;
-            paint-order: stroke fill;
-            font-weight: 800 !important;
+        .stage { position: absolute; left: 0; top: 0; width: 1100px; height: 570px; z-index: 900; }
+
+        /* společné */
+        .num {
+            font-family: 'Roboto', sans-serif !important;
+            font-weight: 600 !important;
+            color: #1C2130;
             white-space: nowrap;
         }
-        .grad {
-            position: relative;
-            color: #000000;
-            -webkit-text-stroke: 6px #000000;
-            stroke-linejoin: round;
-            -webkit-stroke-linejoin: round;
-            paint-order: stroke fill;
-            font-weight: 800 !important;
+        .card {
+            position: absolute;
+            background: #FFFFFF;
+            border: 7px solid #2F3036;
+            border-radius: 26px;
+        }
+        .label {
+            font-size: 17px;
+            font-weight: 700 !important;
+            color: #1C2130;
+            letter-spacing: 0.4px;
             white-space: nowrap;
         }
-        .grad::after {
-            content: attr(data-text);
-            position: absolute;
-            left: 0;
-            top: 0;
-            -webkit-text-stroke: 0px transparent;
-            -webkit-background-clip: text;
-            background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-        .grad-a::after  { background-image: linear-gradient(to bottom, #7CF6FA, #48D2F7); }
-        .grad-b::after  { background-image: linear-gradient(to bottom, #FFA3C1, #FF4F86); }
-        .grad-vs::after { background-image: linear-gradient(to bottom, #FFE873, #FFB21E); }
-
-        .stage {
-            position: absolute;
-            left: 0;
-            top: 0;
-            width: 1100px;
-            height: 570px;
-            z-index: 900;
-        }
-
-        /* ---------- hledání ---------- */
-        .search {
-            position: absolute;
-            top: 58px;
-            width: 330px;
-            height: 52px;
-            background: url("/images/topclans-leaderboard-search.png") no-repeat center center;
-            background-size: 100% 100%;
-        }
-        .search.a { left: 72px; }
-        .search.b { left: 698px; }
-        .search::before {
-            content: "";
-            position: absolute;
-            left: 14px;
-            top: 50%;
-            width: 20px;
-            height: 20px;
-            margin-top: -10px;
-            border-radius: 50%;
-            border: 3px solid #000;
-        }
-        .search.a::before { background: #48D2F7; }
-        .search.b::before { background: #FF4F86; }
-        .search input {
-            width: 100%;
-            height: 100%;
-            background: transparent;
-            border: none;
-            outline: none;
-            padding: 0 20px 0 46px;
-            color: #000;
-            font-size: 30px;
-            font-weight: 800 !important;
-            text-align: center;
-            text-transform: uppercase;
-            user-select: text;
-        }
-        .search input::placeholder { color: #B1B1B1; font-weight: 600; text-transform: none; }
-
-        .vs {
-            position: absolute;
-            left: 0;
-            width: 1100px;
-            top: 50px;
-            text-align: center;
-            font-size: 54px;
-            line-height: 1;
-            pointer-events: none;
-        }
-
-        /* ---------- prázdný stav ---------- */
-        .empty {
-            position: absolute;
-            left: 0;
-            top: 130px;
-            width: 1100px;
-            height: 420px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            text-align: center;
-        }
-        .empty img { width: 140px; height: auto; }
-        .empty .e-title { font-size: 46px; }
-        .empty .e-sub { font-size: 22px; color: #9E9E9E; font-weight: 700 !important; }
-        .empty .e-sub.err { color: #FF5555; }
-
-        .result { display: none; }
+        .muted { color: #8E9099; }
 
         /* ---------- karty klanů ---------- */
         .clan-card {
-            position: absolute;
-            top: 128px;
-            width: 506px;
-            height: 186px;
-            background: #FFFFFF;
-            border: 4px solid #000;
-            border-radius: 22px;
+            top: 44px;
+            width: 520px;
+            height: 278px;
             display: flex;
+            flex-direction: column;
             align-items: center;
-            gap: 18px;
-            padding: 0 22px;
-            cursor: pointer;
-            transition: transform 0.044s cubic-bezier(0.1, 0.9, 0.2, 1);
+            padding-top: 12px;
         }
-        .clan-card:hover:not(:active) { transform: scale(1.01); }
-        .clan-card:active { transform: scale(0.99); }
-        .clan-card.a { left: 30px; box-shadow: inset 0 -6px 0 #48D2F7; }
-        .clan-card.b { left: 564px; flex-direction: row-reverse; text-align: right; box-shadow: inset 0 -6px 0 #FF4F86; }
+        .clan-card.a { left: 24px; }
+        .clan-card.b { left: 556px; }
 
+        .clan-card > * { flex: 0 0 auto; }
+        .icon-wrap { position: relative; width: 104px; height: 104px; flex: 0 0 auto; }
         .c-icon {
-            width: 110px;
-            height: 110px;
-            border-radius: 18px;
-            border: 4px solid #000;
-            background: #FFF;
-            object-fit: contain;
-            flex: 0 0 auto;
+            width: 104px;
+            height: 104px;
+            border-radius: 50%;
+            border: 6px solid #2F3036;
+            background: #FFFFFF;
+            object-fit: cover;
+            display: block;
         }
-        .c-info { display: flex; flex-direction: column; min-width: 0; flex: 1 1 auto; }
-        .clan-card.b .c-info { align-items: flex-end; }
-        .c-name { font-size: 44px; line-height: 1.05; }
-        .c-meta { display: flex; align-items: center; gap: 7px; margin-top: 4px; }
-        .clan-card.b .c-meta { flex-direction: row-reverse; }
-        .c-flag { width: 29px; height: 22px; border-radius: 3px; object-fit: cover; }
-        .c-members { display: inline-flex; align-items: center; gap: 4px; font-size: 17px; color: #696A6E; font-weight: 700 !important; white-space: nowrap; }
-        .c-members::before { content: ""; width: 19px; height: 19px; background: url("/images/people.png") no-repeat center / contain; }
+        .c-icon.placeholder { object-fit: contain; padding: 18px; opacity: 0.35; }
+        .c-flag {
+            position: absolute;
+            right: -4px;
+            bottom: -4px;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border: 4px solid #2F3036;
+            background: #FFFFFF;
+            object-fit: cover;
+        }
+        .c-flag.empty { background: #FFFFFF; }
+
         .rank-pill {
-            display: inline-flex;
-            align-items: center;
-            gap: 3px;
-            padding: 1px 11px;
-            border-radius: 13px;
-            border: 3px solid #000;
-            background: #FFF;
+            position: absolute;
+            top: 14px;
+            padding: 1px 12px;
+            border-radius: 14px;
+            border: 3px solid #2F3036;
+            background: #FFFFFF;
             font-size: 18px;
             font-weight: 800 !important;
-            color: #262C2D;
+            color: #1C2130;
             white-space: nowrap;
         }
+        .clan-card.a .rank-pill { left: 16px; }
+        .clan-card.b .rank-pill { right: 16px; }
         .rank-pill.gold   { background: linear-gradient(#FFE873, #FFB21E); }
         .rank-pill.silver { background: linear-gradient(#F4F6FA, #BFC6D4); }
         .rank-pill.bronze { background: linear-gradient(#FFC48A, #E4893A); }
+        .rank-pill.hidden { display: none; }
 
-        .c-points-row { position: relative; display: flex; align-items: center; gap: 8px; margin-top: 8px; }
-        .clan-card.b .c-points-row { flex-direction: row-reverse; }
-        .c-points-row img { width: 40px; height: 33px; object-fit: contain; }
-        .c-points { font-size: 34px; }
-
-        .gain {
-            position: absolute;
-            top: -6px;
-            padding: 1px 10px;
-            border-radius: 20px;
-            border: 3px solid #000;
-            background: #6BF06B;
-            font-size: 17px;
-            font-weight: 800 !important;
-            color: #FEFEFE;
-            -webkit-text-stroke: 4px #000;
-            paint-order: stroke fill;
-            white-space: nowrap;
-            pointer-events: none;
-            opacity: 0;
-        }
-        .clan-card.a .gain { right: 0; }
-        .clan-card.b .gain { left: 0; }
-        .gain.go { animation: gain 2.4s ease-out forwards; }
-        @keyframes gain {
-            0%   { opacity: 0; transform: translateY(6px) scale(0.6); }
-            12%  { opacity: 1; transform: translateY(-4px) scale(1.06); }
-            22%  { transform: translateY(-6px) scale(1); }
-            80%  { opacity: 1; transform: translateY(-22px); }
-            100% { opacity: 0; transform: translateY(-30px); }
-        }
-
-        /* ---------- poměr bodů ---------- */
-        .tug {
-            position: absolute;
-            left: 30px;
-            top: 330px;
-            width: 1040px;
-            height: 46px;
-            border: 4px solid #000;
-            border-radius: 23px;
-            overflow: hidden;
-            background: linear-gradient(to bottom, #FFA3C1, #FF4F86);
-        }
-        .tug-a {
-            position: absolute;
-            left: 0;
-            top: 0;
-            height: 100%;
-            width: 50%;
-            background: linear-gradient(to bottom, #8FF8FB, #48D2F7);
-            border-right: 4px solid #000;
-            transition: width 1.2s cubic-bezier(0.2, 0.9, 0.2, 1);
-        }
-        .tug-shine { position: absolute; left: 12px; right: 12px; top: 4px; height: 9px; border-radius: 6px; background: rgba(255,255,255,0.35); }
-        .tug-label { position: absolute; top: 50%; transform: translateY(-50%); font-size: 22px; -webkit-text-stroke: 5px #000; }
-        .tug-label.a { left: 16px; }
-        .tug-label.b { right: 16px; }
-
-        /* ---------- spodní řada ---------- */
-        .mini {
-            position: absolute;
-            top: 392px;
-            width: 280px;
-            height: 156px;
-            background: #FFFFFF;
-            border: 4px solid #000;
-            border-radius: 20px;
-            padding: 10px 18px;
+        /* název klanu = políčko na psaní */
+        .name-row {
             display: flex;
-            flex-direction: column;
-            justify-content: space-around;
+            align-items: center;
+            justify-content: center;
+            margin-top: 4px;
+            height: 44px;
+            font-size: 38px;
+            line-height: 1;
+            color: #1C2130;
+            font-weight: 700 !important;
         }
-        .mini.a { left: 30px; }
-        .mini.b { left: 790px; }
-        .mini-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
-        .mini-label { font-size: 15px; color: #9E9E9E; font-weight: 700 !important; letter-spacing: 0.4px; white-space: nowrap; }
-        .mini-val { display: flex; align-items: center; gap: 5px; font-size: 25px; }
-        .mini-val img { width: 28px; height: 24px; object-fit: contain; }
-        .mini-val.win { color: #7CFF5B; }
+        .name-row .br { font-weight: 700 !important; }
+        .clan-input {
+            width: 2.9em;
+            padding: 0 2px;
+            border: none;
+            outline: none;
+            background: transparent;
+            font-size: 38px;
+            font-weight: 700 !important;
+            color: #1C2130;
+            text-align: center;
+            text-transform: uppercase;
+            user-select: text;
+            caret-color: #48D2F7;
+            border-radius: 8px;
+            transition: background 0.15s;
+        }
+        .clan-input::placeholder { color: #B6B8BF; text-transform: uppercase; }
+        .clan-input:hover { background: #F1F4FA; }
+        .clan-input:focus { background: #EAF6FF; }
+        .clan-card.b .clan-input { caret-color: #FF4F86; }
+        .clan-card.a .name-row { border-bottom: 4px solid transparent; }
+
+        .c-points { font-size: 58px; margin-top: 0; }
+        .c-points-label { display: flex; align-items: center; gap: 6px; margin-top: 2px; }
+        .c-points-label img { width: 22px; height: 22px; }
+
+        .side-dot {
+            position: absolute;
+            top: 20px;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            border: 3px solid #2F3036;
+        }
+        .clan-card.a .side-dot { right: 18px; background: #48D2F7; }
+        .clan-card.b .side-dot { left: 18px; background: #FF4F86; }
+        .c-hint { position: absolute; top: 18px; max-width: 170px; font-size: 13px; line-height: 1.2; color: #A3A6AE; font-weight: 600 !important; }
+        .clan-card.a .c-hint { right: 42px; text-align: right; }
+        .clan-card.b .c-hint { left: 42px; }
+        .c-hint.err { color: #FF4A4A; }
+
+        /* ---------- rozdíl + statistiky ---------- */
+        .stats {
+            top: 330px;
+            width: 300px;
+            height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: space-around;
+            padding: 0 6px;
+        }
+        .stats.a { left: 24px; }
+        .stats.b { left: 776px; }
+        .stat { display: flex; flex-direction: column; align-items: center; gap: 1px; min-width: 0; }
+        .stat img { width: 26px; height: 26px; object-fit: contain; }
+        .stat .num { font-size: 23px; line-height: 1.15; }
+        .stat .label { font-size: 12px; color: #8E9099; }
 
         .diff {
-            position: absolute;
-            left: 326px;
-            top: 392px;
-            width: 448px;
-            height: 156px;
-            background: #FFFFFF;
-            border: 4px solid #000;
-            border-radius: 20px;
+            top: 330px;
+            left: 332px;
+            width: 436px;
+            height: 100px;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            transition: box-shadow 0.4s;
         }
-        .diff.lead-a { box-shadow: inset 0 -6px 0 #48D2F7; }
-        .diff.lead-b { box-shadow: inset 0 -6px 0 #FF4F86; }
-        .diff-label { font-size: 15px; color: #9E9E9E; font-weight: 700 !important; letter-spacing: 0.6px; }
-        .diff-value { font-size: 50px; }
-        .diff-lead { font-size: 22px; -webkit-text-stroke: 5px #000; }
-        .diff-sub { font-size: 15px; color: #696A6E; font-weight: 700 !important; margin-top: 1px; }
+        .diff .num { font-size: 44px; line-height: 1.1; height: 49px; display: flex; align-items: center; }
+        .diff-lead { font-size: 15px; font-weight: 700 !important; color: #8E9099; white-space: nowrap; }
+        .diff-lead b { font-weight: 800 !important; }
 
-        /* ---------- odometer (rolující číslice) ---------- */
-        .odo { display: inline-flex; align-items: flex-start; line-height: 1.1; height: 1.1em; }
-        .odo-col {
-            position: relative;
-            display: inline-block;
-            width: 0.6em;
-            height: 1.1em;
-            overflow: hidden;
-            clip-path: inset(0 -0.1em);
-            text-align: center;
-            /* prolnutí nahoře a dole jako na počítadle */
-            -webkit-mask-image: linear-gradient(to bottom, transparent 0%, #000 16%, #000 84%, transparent 100%);
-            mask-image: linear-gradient(to bottom, transparent 0%, #000 16%, #000 84%, transparent 100%);
+        /* ---------- graf ---------- */
+        .chart {
+            top: 438px;
+            left: 24px;
+            width: 1052px;
+            height: 118px;
+            padding: 6px 14px 4px 10px;
         }
-        .odo-sep { display: inline-block; width: 0.26em; text-align: center; }
-        .odo-ribbon { position: absolute; left: 0; right: 0; top: 0; will-change: transform; }
-        .odo-ribbon span { display: block; height: 1.1em; }
-        .flash-up   { color: #7CFF5B !important; }
-        .flash-down { color: #FF5C5C !important; }
-        .fade { transition: color 1.6s ease-out; }
+        .chart-title { position: absolute; left: 16px; top: 4px; font-size: 13px; color: #8E9099; font-weight: 700 !important; letter-spacing: 0.4px; }
+        .chart svg { position: absolute; left: 6px; top: 4px; width: 1026px; height: 98px; overflow: visible; }
+        .chart-empty {
+            position: absolute;
+            left: 0; top: 0; right: 0; bottom: 0;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 16px; color: #A3A6AE; font-weight: 600 !important;
+        }
+
+        /* ---------- odometer ---------- */
+        .odo { display: inline-flex; align-items: flex-start; line-height: 1.15; height: 1.15em; overflow: hidden; }
+        .odo-col { position: relative; display: inline-block; width: 0.56em; height: 1.15em; overflow: hidden; text-align: center; }
+        .odo-sep { display: inline-block; width: 0.25em; text-align: center; }
+        .odo-ribbon { position: absolute; left: 0; right: 0; top: 0; }
+        .odo-ribbon > span { display: block; height: 1.15em; }
+        .odo-col.rolling { -webkit-mask-image: linear-gradient(to bottom, transparent 0%, #000 22%, #000 78%, transparent 100%); mask-image: linear-gradient(to bottom, transparent 0%, #000 22%, #000 78%, transparent 100%); }
 
         /* ---------- FEEDBACK / Privacy ---------- */
         .ps99-feedback-btn {
@@ -463,52 +360,47 @@
     <div class="app-scaler" id="appScaler">
         <div class="game-window">
             <img class="menu-bg" src="/images/compare-bg.png" draggable="false">
-            <div class="clans-logo"></div>
+            <div class="compare-logo"></div>
 
             <div class="stage">
-                <div class="search a"><input id="inputA" type="text" maxlength="4" placeholder="Clan 1" autocomplete="off" spellcheck="false"></div>
-                <div class="vs"><span class="grad grad-vs" data-text="VS">VS</span></div>
-                <div class="search b"><input id="inputB" type="text" maxlength="4" placeholder="Clan 2" autocomplete="off" spellcheck="false"></div>
-
-                <div class="empty" id="empty">
-                    <img src="/images/hotbar/arrows.png" alt="" draggable="false">
-                    <div class="e-title"><span class="grad grad-a" data-text="Clan Compare">Clan Compare</span></div>
-                    <div class="e-sub" id="emptySub">Type two clan tags above and press Enter!</div>
+                <!-- dvě karty klanů -->
+                <div class="card clan-card a" id="cardA">
+                    <span class="rank-pill hidden" id="rankA"></span>
+                    <div class="icon-wrap">
+                        <img class="c-icon placeholder" id="iconA" src="/images/hotbar/clans.png" alt="" draggable="false">
+                        <img class="c-flag empty" id="flagA" src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" alt="" draggable="false">
+                    </div>
+                    <div class="name-row"><span class="br">[</span><input class="clan-input" id="inputA" maxlength="4" placeholder="CLAN" autocomplete="off" spellcheck="false"><span class="br">]</span></div>
+                    <div class="c-points num" id="pointsA"></div>
+                    <div class="c-points-label label"><img src="/images/hvezda.png" alt="">TOTAL POINTS</div>
+                    <span class="side-dot"></span><span class="c-hint" id="hintA">Click the name to type a clan</span>
                 </div>
 
-                <div class="result" id="result">
-                    <div class="clan-card a" id="cardA">
-                        <img class="c-icon" id="iconA" src="" alt="">
-                        <div class="c-info">
-                            <div class="c-name grad grad-a" id="nameA" data-text=""></div>
-                            <div class="c-meta"><span class="rank-pill" id="rankA">#?</span><img class="c-flag" id="flagA" src="" alt=""><span class="c-members" id="membersA"></span></div>
-                            <div class="c-points-row"><img src="/images/stars.png" alt=""><span class="c-points stroke" id="pointsA"></span><span class="gain" id="gainA"></span></div>
-                        </div>
+                <div class="card clan-card b" id="cardB">
+                    <span class="rank-pill hidden" id="rankB"></span>
+                    <div class="icon-wrap">
+                        <img class="c-icon placeholder" id="iconB" src="/images/hotbar/clans.png" alt="" draggable="false">
+                        <img class="c-flag empty" id="flagB" src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" alt="" draggable="false">
                     </div>
-                    <div class="clan-card b" id="cardB">
-                        <img class="c-icon" id="iconB" src="" alt="">
-                        <div class="c-info">
-                            <div class="c-name grad grad-b" id="nameB" data-text=""></div>
-                            <div class="c-meta"><span class="rank-pill" id="rankB">#?</span><img class="c-flag" id="flagB" src="" alt=""><span class="c-members" id="membersB"></span></div>
-                            <div class="c-points-row"><img src="/images/stars.png" alt=""><span class="c-points stroke" id="pointsB"></span><span class="gain" id="gainB"></span></div>
-                        </div>
-                    </div>
+                    <div class="name-row"><span class="br">[</span><input class="clan-input" id="inputB" maxlength="4" placeholder="CLAN" autocomplete="off" spellcheck="false"><span class="br">]</span></div>
+                    <div class="c-points num" id="pointsB"></div>
+                    <div class="c-points-label label"><img src="/images/hvezda.png" alt="">TOTAL POINTS</div>
+                    <span class="side-dot"></span><span class="c-hint" id="hintB">Click the name to type a clan</span>
+                </div>
 
-                    <div class="tug">
-                        <div class="tug-a" id="tugA"></div>
-                        <div class="tug-shine"></div>
-                        <span class="tug-label a stroke" id="tugLabelA">50%</span>
-                        <span class="tug-label b stroke" id="tugLabelB">50%</span>
-                    </div>
+                <!-- statistiky + rozdíl -->
+                <div class="card stats a" id="statsA"></div>
+                <div class="card diff">
+                    <div class="label muted">POINT DIFFERENCE</div>
+                    <div class="num" id="diffValue"></div>
+                    <div class="diff-lead" id="diffLead">&nbsp;</div>
+                </div>
+                <div class="card stats b" id="statsB"></div>
 
-                    <div class="mini a" id="miniA"></div>
-                    <div class="diff" id="diffBox">
-                        <div class="diff-label">POINT DIFFERENCE</div>
-                        <div class="diff-value stroke" id="diffValue"></div>
-                        <div class="diff-lead stroke" id="diffLead"></div>
-                        <div class="diff-sub" id="diffSub"></div>
-                    </div>
-                    <div class="mini b" id="miniB"></div>
+                <!-- graf rozdílu -->
+                <div class="card chart">
+                    <svg id="chartSvg" viewBox="0 0 1026 98" preserveAspectRatio="none"></svg>
+                    <div class="chart-empty" id="chartEmpty">Enter two clans to see the difference over time</div>
                 </div>
             </div>
 
@@ -518,9 +410,18 @@
 
     <script>
         const WORKER_URL = "https://rough-pine-d90f.ps99clans.workers.dev";
-        const UPDATE_MS = 10000;   // jak často se obnovují body
-        const ODO_MS = 3500;       // délka rolování čísel
+
+        // ---------- NASTAVENÍ (stejný princip jako live stránka) ----------
+        const POLL_MS = 10000;          // jak často se stahují klany
+        const SMOOTH_MS = 15000;        // nový přírůstek bodů se rozdělí na 4 kroky po 15 s
+        const SMOOTH_STEPS = 4;
+        const ODO_MS = 2500;            // délka rolování čísel
+        const BATTLE_MS = 300000;       // aktivní bitva se obnovuje jednou za 5 minut
+        const CHART_MAX = 240;          // kolik bodů drží graf
+        const CHART_HEARTBEAT = 15000;  // i bez změny se do grafu přidá bod jednou za 15 s
+
         const $ = (id) => document.getElementById(id);
+        const BLANK = "data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==";
 
         function autoFitScreen() {
             const scaler = $("appScaler");
@@ -534,14 +435,13 @@
         window.addEventListener("orientationchange", autoFitScreen);
 
         // ---------- pomocné ----------
-        function short(num) {
-            if (!num) return "0";
-            const suf = ["", "k", "m", "b", "t"];
-            let i = 0, v = Math.abs(num);
-            while (v >= 1000 && i < suf.length - 1) { v /= 1000; i++; }
-            let f = v >= 100 ? v.toFixed(0) : v >= 10 ? v.toFixed(1) : v.toFixed(2);
-            if (f.includes(".")) f = f.replace(/\.?0+$/, "");
-            return (num < 0 ? "-" : "") + f + suf[i];
+        function short(v) {
+            const a = Math.abs(v), f = (x, s) => parseFloat(x.toFixed(2)) + s;
+            if (a >= 1e12) return f(v / 1e12, "t");
+            if (a >= 1e9) return f(v / 1e9, "b");
+            if (a >= 1e6) return f(v / 1e6, "m");
+            if (a >= 1e3) return f(v / 1e3, "k");
+            return String(Math.round(v));
         }
         function flagUrl(cc) {
             if (!cc || cc.length !== 2) return "";
@@ -550,26 +450,27 @@
         }
         function iconUrl(icon) {
             const id = (icon || "").replace("rbxassetid://", "").trim();
-            return id ? `https://ps99.biggamesapi.io/image/${id}` : "https://placehold.co/175x175/ffffff/000000?text=Clan";
+            return id ? `https://ps99.biggamesapi.io/image/${id}` : "";
         }
-        function setGrad(el, t) { el.textContent = t; el.setAttribute("data-text", t); }
-        function flash(el, up) {
-            el.classList.remove("fade", "flash-up", "flash-down");
-            el.classList.add(up ? "flash-up" : "flash-down");
-            setTimeout(() => { el.classList.add("fade"); el.classList.remove("flash-up", "flash-down"); }, 60);
+        function agoLabel(t) {
+            const s = Math.max(0, Math.round((Date.now() - t) / 1000));
+            if (s < 5) return "now";
+            if (s < 60) return `${Math.round(s / 5) * 5}s ago`;
+            const m = Math.floor(s / 60);
+            return m < 60 ? `${m}m ago` : `${Math.floor(m / 60)}h ago`;
         }
 
-        // ---------- odometer: každá číslice je páska, která se odroluje na nové číslo ----------
+        // ---------- ODOMETER: číslice jsou pásky, které se plynule odrolují ----------
         class Odometer {
-            constructor(el, ms) { this.el = el; this.ms = ms; this.value = null; this.token = 0; el.classList.add("odo"); }
+            constructor(el) { this.el = el; this.value = null; this.timer = null; el.classList.add("odo"); }
             set(v, animate = true) {
                 v = Math.max(0, Math.round(v || 0));
                 const old = this.value;
                 this.value = v;
-                const t = ++this.token;
+                clearTimeout(this.timer);
                 if (old === null || !animate || old === v) return this.draw(v);
                 this.roll(old, v);
-                setTimeout(() => { if (t === this.token) this.draw(v); }, this.ms + 80);
+                this.timer = setTimeout(() => this.draw(v), ODO_MS + 60);
             }
             put(cols) {
                 const out = [];
@@ -582,35 +483,45 @@
                 this.put(cols);
             }
             roll(old, v) {
-                const len = String(Math.max(old, v)).length, up = v > old, cols = [];
+                const len = String(v).length, up = v > old, cols = [];
                 for (let i = 0; i < len; i++) {
                     const p = 10 ** i, t0 = Math.floor(old / p), t1 = Math.floor(v / p);
                     if (t0 === t1) { cols.push(`<span class="odo-col"><span class="odo-ribbon"><span>${t1 % 10}</span></span></span>`); continue; }
+                    // páska číslic od staré k nové hodnotě; u velkých skoků jen začátek + konec (max 12 číslic)
                     const steps = Math.abs(t1 - t0), seq = [];
-                    if (steps <= 20) for (let k = 0; k <= steps; k++) seq.push(up ? t0 + k : t0 - k);
-                    else { for (let k = 0; k < 6; k++) seq.push(up ? t0 + k : t0 - k); for (let k = 13; k >= 0; k--) seq.push(up ? t1 - k : t1 + k); }
-                    const d = seq.map((t) => ((t % 10) + 10) % 10);
-                    if (!up) d.reverse();
+                    if (steps <= 11) for (let k = 0; k <= steps; k++) seq.push(up ? t0 + k : t0 - k);
+                    else { for (let k = 0; k < 3; k++) seq.push(up ? t0 + k : t0 - k); for (let k = 8; k >= 0; k--) seq.push(up ? t1 - k : t1 + k); }
+                    let d = seq.map((t) => ((t % 10) + 10) % 10);
+                    if (!up) d = d.reverse();
                     const n = d.length - 1;
-                    cols.push(`<span class="odo-col"><span class="odo-ribbon" data-n="${n}" style="transform:translateY(${up ? 0 : -n * 1.1}em)">${d.map((x) => `<span>${x}</span>`).join("")}</span></span>`);
+                    cols.push(`<span class="odo-col rolling"><span class="odo-ribbon" data-n="${n}" style="transform:translate3d(0,${up ? 0 : -n * 1.15}em,0)">${d.map((x) => `<span>${x}</span>`).join("")}</span></span>`);
                 }
-                // u čísla, které se zkrátilo, zmizí přebytečné nuly vlevo až po dorolování
                 this.put(cols);
                 void this.el.offsetWidth;
-                this.el.querySelectorAll(".odo-ribbon[data-n]").forEach((r) => {
-                    const n = +r.dataset.n;
-                    r.style.transition = `transform ${this.ms}ms cubic-bezier(0.15, 0.75, 0.15, 1)`;
-                    r.style.transform = `translateY(${up ? -n * 1.1 : 0}em)`;
+                requestAnimationFrame(() => {
+                    this.el.querySelectorAll(".odo-ribbon[data-n]").forEach((r) => {
+                        const n = +r.dataset.n;
+                        r.style.transition = `transform ${ODO_MS}ms cubic-bezier(0.22, 0.61, 0.36, 1)`;
+                        r.style.transform = `translate3d(0,${up ? -n * 1.15 : 0}em,0)`;
+                    });
                 });
             }
         }
 
-        // ---------- data ----------
-        let battleId = null;
+        // ---------- stav ----------
+        const side = {
+            a: { key: "A", tag: "", data: null, current: 0, lastApi: null, smooth: null, loading: false },
+            b: { key: "B", tag: "", data: null, current: 0, lastApi: null, smooth: null, loading: false }
+        };
+        const odo = {};
+        let battleId = "", battleAt = 0;
+        let history = [], lastChartAt = 0;
+
         async function loadBattle() {
+            if (battleId && Date.now() - battleAt < BATTLE_MS) return;
             try {
                 const j = await (await fetch(`${WORKER_URL}/activeClanBattle`)).json();
-                if (j && j.status === "ok" && j.data) battleId = j.data.configName || null;
+                if (j && j.status === "ok" && j.data) { battleId = j.data.configName || battleId; battleAt = Date.now(); }
             } catch (e) {}
         }
 
@@ -621,171 +532,244 @@
             const battles = c.Battles || {};
             const list = Array.isArray(battles) ? battles : Object.values(battles);
             const active = battleId ? ((!Array.isArray(battles) && battles[battleId]) || list.find((b) => b.BattleID === battleId) || null) : null;
-            const members = (c.Members || []).length + ((c.Members || []).some((m) => m.UserID === c.Owner) ? 0 : 1);
-            const points = active ? (active.Points || 0) : 0;
-            const contributors = active && Array.isArray(active.PointContributions) ? active.PointContributions.filter((x) => (x.Points || 0) > 0).length : 0;
+            const raw = Array.isArray(c.Members) ? c.Members.length : 0;
             return {
                 name: c.Name,
                 icon: iconUrl(c.Icon),
                 flag: flagUrl(c.CountryCode),
-                members,
-                capacity: c.MemberCapacity || 75,
-                diamonds: c.DepositedDiamonds || 0,
-                points,
-                place: active && active.Place ? active.Place : null,
-                contributors,
-                avg: members ? points / members : 0
+                members: raw > 0 ? raw + 1 : 0,            // + vlastník (jako live stránka)
+                gems: c.DepositedDiamonds || 0,
+                points: active ? (active.Points || 0) : (c.Points || 0),
+                place: active && active.Place ? active.Place : null
             };
+        }
+
+        // ---------- plynulé dopočítávání (4 kroky po 15 s) ----------
+        function stopSmoothing(s) { if (s.smooth) { clearInterval(s.smooth.id); s.smooth = null; } }
+        function startSmoothing(s, target) {
+            stopSmoothing(s);
+            const sm = { target, chunk: (target - s.current) / SMOOTH_STEPS, step: 0, id: null };
+            s.smooth = sm;
+            const step = () => {
+                sm.step++;
+                if (sm.step >= SMOOTH_STEPS) { s.current = sm.target; stopSmoothing(s); }
+                else s.current = Math.round(s.current + sm.chunk);
+                render();
+            };
+            step();
+            if (s.smooth) sm.id = setInterval(step, SMOOTH_MS);
         }
 
         // ---------- vykreslení ----------
-        const odo = {};
-        let tags = { a: "", b: "" }, prev = null, timer = null, token = 0;
-
-        function showEmpty(text, isErr) {
-            $("result").style.display = "none";
-            $("empty").style.display = "flex";
-            const s = $("emptySub");
-            s.textContent = text;
-            s.classList.toggle("err", !!isErr);
-        }
-
-        function gain(side, delta) {
-            const el = $("gain" + side);
-            el.classList.remove("go");
-            void el.offsetWidth;
-            el.textContent = (delta > 0 ? "+" : "-") + short(Math.abs(delta));
-            el.style.background = delta > 0 ? "#6BF06B" : "#FF5C5C";
-            el.classList.add("go");
-        }
-
-        function miniHtml(me, other) {
-            const row = (label, a, b, text, icon) => {
-                const win = a > b ? " win" : "";
-                return `<div class="mini-row"><span class="mini-label">${label}</span><span class="mini-val stroke${win}">${icon ? `<img src="${icon}" alt="">` : ""}${text}</span></div>`;
-            };
-            return row("ACTIVE", me.contributors, other.contributors, `${me.contributors}/${me.members}`)
-                 + row("AVG / MEMBER", me.avg, other.avg, short(me.avg), "/images/stars.png")
-                 + row("DIAMONDS", me.diamonds, other.diamonds, short(me.diamonds), "/images/gems.png");
-        }
-
-        function render(A, B) {
-            const animate = !!prev;
-            $("empty").style.display = "none";
-            $("result").style.display = "block";
-
-            for (const [s, d, k] of [["A", A, "a"], ["B", B, "b"]]) {
-                if (!animate) {
-                    $("icon" + s).src = d.icon;
-                    $("icon" + s).onerror = function () { this.src = "https://placehold.co/175x175/ffffff/000000?text=Clan"; };
-                    const f = $("flag" + s);
-                    f.style.display = d.flag ? "" : "none";
-                    if (d.flag) f.src = d.flag;
-                    f.onerror = function () { this.style.display = "none"; };
-                    setGrad($("name" + s), `[${d.name}]`);
-                    $("card" + s).onclick = () => { location.href = `/clan-detail/?name=${encodeURIComponent(d.name)}`; };
-                }
-                $("members" + s).textContent = `${d.members}/${d.capacity}`;
-                const r = $("rank" + s);
-                r.textContent = d.place ? `#${d.place}` : "#?";
-                r.className = "rank-pill " + (d.place === 1 ? "gold" : d.place === 2 ? "silver" : d.place === 3 ? "bronze" : "");
-
-                const before = prev ? prev[k] : null;
-                odo[s].set(d.points, animate);
-                if (animate && before !== d.points) { flash($("points" + s), d.points > before); gain(s, d.points - before); }
-            }
-
-            // poměr
-            const total = A.points + B.points, pa = total ? A.points / total : 0.5;
-            $("tugA").style.width = `${Math.max(2, Math.min(98, pa * 100)).toFixed(2)}%`;
-            $("tugLabelA").textContent = `${(pa * 100).toFixed(1)}%`;
-            $("tugLabelB").textContent = `${((1 - pa) * 100).toFixed(1)}%`;
-
-            // rozdíl
-            const diff = A.points - B.points, abs = Math.abs(diff);
-            const prevAbs = prev ? Math.abs(prev.a - prev.b) : null;
-            odo.D.set(abs, animate);
-            if (animate && prevAbs !== abs) flash($("diffValue"), abs > prevAbs);
-            const box = $("diffBox"), lead = $("diffLead"), sub = $("diffSub");
-            box.className = "diff " + (diff > 0 ? "lead-a" : diff < 0 ? "lead-b" : "");
-            if (!total) { lead.textContent = "No battle points yet"; lead.style.color = "#FEFEFE"; sub.textContent = ""; }
-            else if (!diff) { lead.textContent = "It's a tie!"; lead.style.color = "#FFD34A"; sub.textContent = ""; }
-            else {
-                const L = diff > 0 ? A : B, T = diff > 0 ? B : A;
-                lead.textContent = `[${L.name}] leads`;
-                lead.style.color = diff > 0 ? "#48D2F7" : "#FF4F86";
-                const ratio = T.points ? L.points / T.points : 0;
-                sub.textContent = !T.points ? `[${T.name}] has 0 points`
-                    : ratio < 1.1 ? `+${((ratio - 1) * 100).toFixed(2)}% ahead`
-                    : `${ratio.toFixed(2)}× more points`;
-            }
-
-            $("miniA").innerHTML = miniHtml(A, B);
-            $("miniB").innerHTML = miniHtml(B, A);
-
-            prev = { a: A.points, b: B.points };
-        }
-
-        async function update(first) {
-            const t = token;
-            const [A, B] = await Promise.all([fetchClan(tags.a).catch(() => undefined), fetchClan(tags.b).catch(() => undefined)]);
-            if (t !== token) return;
-            if (!A || !B) {
-                if (!first) return;             // výpadek při obnovení – zkusí se příště
-                const bad = !A ? tags.a : tags.b;
-                const missing = (!A ? A : B) === null;
-                showEmpty(missing ? `Clan [${bad}] was not found!` : "Error loading clans, try again.", true);
-                stop();
+        function renderCard(s) {
+            const K = s.key, d = s.data;
+            const icon = $("icon" + K), flag = $("flag" + K), rank = $("rank" + K);
+            if (!d) {
+                icon.src = "/images/hotbar/clans.png"; icon.classList.add("placeholder"); icon.onclick = null; icon.style.cursor = "";
+                flag.src = BLANK; flag.classList.add("empty");
+                rank.className = "rank-pill hidden";
                 return;
             }
-            render(A, B);
+            if (icon.dataset.src !== d.icon) {
+                icon.dataset.src = d.icon;
+                icon.classList.remove("placeholder");
+                icon.src = d.icon || "https://placehold.co/150x150/ffffff/000000?text=Clan";
+                icon.onerror = function () { this.onerror = null; this.src = "https://placehold.co/150x150/ffffff/000000?text=Clan"; };
+            }
+            icon.style.cursor = "pointer";
+            icon.onclick = () => { location.href = `/clan-detail/?name=${encodeURIComponent(d.name)}`; };
+            if (d.flag) { if (flag.dataset.src !== d.flag) { flag.dataset.src = d.flag; flag.src = d.flag; } flag.classList.remove("empty"); }
+            else { flag.src = BLANK; flag.classList.add("empty"); }
+            flag.onerror = function () { this.src = BLANK; this.classList.add("empty"); };
+            rank.textContent = d.place ? `#${d.place}` : "";
+            rank.className = "rank-pill " + (!d.place ? "hidden" : d.place === 1 ? "gold" : d.place === 2 ? "silver" : d.place === 3 ? "bronze" : "");
         }
 
-        function stop() { if (timer) clearInterval(timer); timer = null; }
+        function renderStats(s) {
+            const d = s.data, el = $("stats" + s.key);
+            const avg = d && d.members ? Math.round(s.current / d.members) : 0;
+            const item = (img, val, label) => `<div class="stat"><img src="${img}" alt=""><span class="num">${val}</span><span class="label">${label}</span></div>`;
+            el.innerHTML = item("/images/gems.png", d ? short(d.gems) : "-", "DIAMONDS")
+                         + item("/images/stars.png", d ? short(avg) : "-", "AVG / PERSON")
+                         + item("/images/people.png", d ? String(d.members) : "-", "MEMBERS");
+        }
 
-        let lastKey = "";
-        async function start() {
-            const a = $("inputA").value.trim().toUpperCase(), b = $("inputB").value.trim().toUpperCase();
-            const key = a + "|" + b;
-            if (key === lastKey) return;
-            lastKey = key;
+        // velikost písma tak, aby se číslo vždy vešlo (0.56em číslice, 0.25em čárka)
+        function fit(el, v, maxPx, maxW) {
+            const n = String(Math.max(0, Math.round(v))).length, seps = Math.floor((n - 1) / 3);
+            el.style.fontSize = Math.min(maxPx, maxW / (n * 0.56 + seps * 0.25)).toFixed(1) + "px";
+        }
+
+        let rendered = false;
+        function render() {
+            const A = side.a, B = side.b;
+            fit($("pointsA"), A.current, 58, 470);
+            fit($("pointsB"), B.current, 58, 470);
+            odo.A.set(A.data ? A.current : 0, rendered);
+            odo.B.set(B.data ? B.current : 0, rendered);
+            renderCard(A); renderCard(B);
+            renderStats(A); renderStats(B);
+
+            const both = A.data && B.data;
+            const diff = both ? A.current - B.current : 0;
+            fit($("diffValue"), Math.abs(diff), 44, 400);
+            odo.D.set(Math.abs(diff), rendered);
+            const lead = $("diffLead");
+            if (!both) lead.innerHTML = "&nbsp;";
+            else if (!diff) lead.textContent = "It's a tie!";
+            else {
+                const L = diff > 0 ? A : B, T = diff > 0 ? B : A;
+                const pct = T.current ? ((L.current / T.current - 1) * 100) : null;
+                const extra = pct === null ? "" : pct >= 100 ? ` · ${(L.current / T.current).toFixed(2)}× more` : ` · +${pct.toFixed(2)}% ahead`;
+                lead.innerHTML = `<b style="color:${diff > 0 ? "#2DB9E5" : "#FF4F86"}">[${L.data.name}]</b> leads${extra}`;
+            }
+            rendered = true;
+            if (both) pushChart(diff, false);
+        }
+
+        // ---------- graf rozdílu (vlastní SVG, bez knihovny) ----------
+        function pushChart(diff, heartbeat) {
+            const now = Date.now(), last = history[history.length - 1];
+            if (last && last.v === diff && (!heartbeat || now - lastChartAt < CHART_HEARTBEAT)) return;
+            history.push({ t: now, v: diff });
+            if (history.length > CHART_MAX) history.shift();
+            lastChartAt = now;
+            drawChart();
+        }
+
+        function drawChart() {
+            const svg = $("chartSvg"), empty = $("chartEmpty");
+            if (!history.length) { svg.innerHTML = ""; empty.style.display = "flex"; return; }
+            empty.style.display = "none";
+            const W = 1026, H = 98, L = 70, R = 12, T = 18, B = 16;
+            const vals = history.map((h) => h.v);
+            let min = Math.min(...vals), max = Math.max(...vals);
+            if (min === max) { const pad = Math.max(1, Math.abs(min) * 0.02); min -= pad; max += pad; }
+            const padY = (max - min) * 0.12; min -= padY; max += padY;
+            const n = history.length;
+            const x = (i) => n === 1 ? L + (W - L - R) / 2 : L + (i / (n - 1)) * (W - L - R);
+            const y = (v) => T + (1 - (v - min) / (max - min)) * (H - T - B);
+            const lastV = vals[n - 1];
+            const col = lastV >= 0 ? "#2DB9E5" : "#FF4F86";
+
+            let pts = history.map((h, i) => [x(i), y(h.v)]);
+            if (n === 1) pts = [[L, pts[0][1]], [W - R, pts[0][1]]];
+            const line = pts.map((p, i) => (i ? "L" : "M") + p[0].toFixed(1) + " " + p[1].toFixed(1)).join(" ");
+            const area = `${line} L ${pts[pts.length - 1][0].toFixed(1)} ${H - B} L ${pts[0][0].toFixed(1)} ${H - B} Z`;
+            const zero = min < 0 && max > 0 ? `<line x1="${L}" x2="${W - R}" y1="${y(0).toFixed(1)}" y2="${y(0).toFixed(1)}" stroke="#2F3036" stroke-width="1.5" stroke-dasharray="5 5" opacity="0.5"/>` : "";
+            const grid = [0, 0.5, 1].map((f) => {
+                const v = max - f * (max - min), yy = y(v);
+                return `<line x1="${L}" x2="${W - R}" y1="${yy.toFixed(1)}" y2="${yy.toFixed(1)}" stroke="#000" stroke-opacity="0.07"/>`
+                     + `<text x="${L - 8}" y="${(yy + 4).toFixed(1)}" text-anchor="end" font-family="Roboto" font-weight="600" font-size="11" fill="#5A5D66">${v < 0 ? "-" : ""}${short(Math.abs(v))}</text>`;
+            }).join("");
+            const last = pts[pts.length - 1];
+            const first = history[0];
+            svg.innerHTML = `
+                <defs><linearGradient id="g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${col}" stop-opacity="0.45"/><stop offset="1" stop-color="${col}" stop-opacity="0"/></linearGradient></defs>
+                <text x="10" y="11" font-family="Fredoka" font-weight="700" font-size="12" fill="#8E9099">DIFFERENCE HISTORY</text>
+                ${grid}${zero}
+                <path d="${area}" fill="url(#g)"/>
+                <path d="${line}" fill="none" stroke="${col}" stroke-width="3.5" stroke-linejoin="round" stroke-linecap="round"/>
+                <circle cx="${last[0].toFixed(1)}" cy="${last[1].toFixed(1)}" r="5" fill="#fff" stroke="#2F3036" stroke-width="2.5"/>
+                <text x="${L}" y="${H - 2}" font-family="Fredoka" font-weight="600" font-size="11" fill="#8E9099">${n > 1 ? agoLabel(first.t) : ""}</text>
+                <text x="${W - R}" y="${H - 2}" text-anchor="end" font-family="Fredoka" font-weight="600" font-size="11" fill="#8E9099">now</text>`;
+        }
+        setInterval(() => { if (history.length && !document.hidden) drawChart(); }, 5000);
+
+        // ---------- načítání ----------
+        function setHint(s, text, err) {
+            const h = $("hint" + s.key);
+            h.textContent = text;
+            h.classList.toggle("err", !!err);
+        }
+
+        async function loadSide(s, first) {
+            if (!s.tag || s.loading) return;
+            s.loading = true;
+            const tag = s.tag;
+            try {
+                const d = await fetchClan(tag);
+                if (tag !== s.tag) return;                       // mezitím se změnil klan
+                if (!d) { if (first) { s.data = null; setHint(s, `Clan [${tag}] not found!`, true); render(); } return; }
+                s.data = d;
+                setHint(s, "");
+                if (s.lastApi === null) { s.current = s.lastApi = d.points; rendered = false; render(); return; }   // první načtení bez rolování
+                if (d.points !== s.lastApi) {
+                    s.lastApi = d.points;
+                    if (d.points > s.current) startSmoothing(s, d.points);
+                    else { stopSmoothing(s); s.current = d.points; render(); }
+                } else {
+                    renderCard(s); renderStats(s);
+                }
+            } catch (e) {
+                if (first && tag === s.tag) setHint(s, "Error loading clan, retrying...", true);
+            } finally {
+                s.loading = false;
+            }
+        }
+
+        async function setTag(s, tag) {
+            tag = (tag || "").trim().toUpperCase();
+            if (tag === s.tag) return;
+            s.tag = tag;
+            stopSmoothing(s);
+            s.data = null; s.current = 0; s.lastApi = null;
+            history = []; lastChartAt = 0; drawChart();
+            rendered = false;                                    // nový klan se ukáže hned, bez rolování
+            setHint(s, tag ? "Loading..." : "Click the name to type a clan");
+            updateUrl();
+            render();
+            if (!tag) return;
+            await loadBattle();
+            await loadSide(s, true);
+        }
+
+        function updateUrl() {
             const q = new URLSearchParams();
-            if (a) q.set("a", a);
-            if (b) q.set("b", b);
-            history.replaceState(null, "", location.pathname + (q.toString() ? "?" + q : ""));
-            stop();
-            token++;
-            prev = null;
-            if (!a || !b) { showEmpty("Type two clan tags above and press Enter!"); return; }
-            tags = { a, b };
-            showEmpty("Loading...");
-            if (!battleId) await loadBattle();
-            await update(true);
-            if (prev) timer = setInterval(() => update(false), UPDATE_MS);
+            if (side.a.tag) q.set("a", side.a.tag);
+            if (side.b.tag) q.set("b", side.b.tag);
+            history_replace(q.toString());
+        }
+        function history_replace(q) { window.history.replaceState(null, "", location.pathname + (q ? "?" + q : "")); }
+
+        async function poll() {
+            if (!document.hidden && (side.a.tag || side.b.tag)) {
+                await loadBattle();
+                await Promise.all([loadSide(side.a, false), loadSide(side.b, false)]);
+                if (side.a.data && side.b.data) pushChart(side.a.current - side.b.current, true);
+            }
+            setTimeout(poll, POLL_MS);
         }
 
-        ["inputA", "inputB"].forEach((id) => {
+        [["inputA", side.a], ["inputB", side.b]].forEach(([id, s]) => {
             const el = $(id);
-            el.addEventListener("input", () => { el.value = el.value.replace(/\s+/g, ""); });
-            el.addEventListener("keydown", (e) => {
-                if (e.key !== "Enter") return;
-                e.preventDefault();
-                if (id === "inputA" && !$("inputB").value.trim()) { $("inputB").focus(); return; }
-                el.blur();
-                start();
-            });
-            el.addEventListener("change", () => { if ($("inputA").value.trim() && $("inputB").value.trim()) start(); });
+            el.addEventListener("input", () => { el.value = el.value.replace(/[^A-Za-z0-9]/g, "").toUpperCase(); sizeInput(el); });
+            el.addEventListener("keydown", (e) => { if (e.key === "Enter") { e.preventDefault(); el.blur(); } });
+            el.addEventListener("change", () => setTag(s, el.value));
+            el.addEventListener("blur", () => setTag(s, el.value));
         });
+
+        // šířka políčka podle textu, aby závorky seděly těsně kolem jména
+        const measureCtx = document.createElement("canvas").getContext("2d");
+        function sizeInput(el) {
+            measureCtx.font = "700 38px Fredoka";
+            const w = measureCtx.measureText(el.value || el.placeholder).width;
+            el.style.width = Math.ceil(w + 8) + "px";
+        }
+        if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { sizeInput($("inputA")); sizeInput($("inputB")); });
 
         window.addEventListener("DOMContentLoaded", () => {
             autoFitScreen();
-            odo.A = new Odometer($("pointsA"), ODO_MS);
-            odo.B = new Odometer($("pointsB"), ODO_MS);
-            odo.D = new Odometer($("diffValue"), ODO_MS);
+            odo.A = new Odometer($("pointsA"));
+            odo.B = new Odometer($("pointsB"));
+            odo.D = new Odometer($("diffValue"));
+            render();
+            drawChart();
             const p = new URLSearchParams(location.search);
-            $("inputA").value = (p.get("a") || "").toUpperCase().slice(0, 4);
-            $("inputB").value = (p.get("b") || "").toUpperCase().slice(0, 4);
-            if ($("inputA").value && $("inputB").value) start();
+            const a = (p.get("a") || "").toUpperCase().slice(0, 4), b = (p.get("b") || "").toUpperCase().slice(0, 4);
+            $("inputA").value = a; $("inputB").value = b;
+            sizeInput($("inputA")); sizeInput($("inputB"));
+            Promise.all([setTag(side.a, a), setTag(side.b, b)]).then(() => setTimeout(poll, POLL_MS));
         });
     </script>
 

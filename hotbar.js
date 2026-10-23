@@ -11,7 +11,7 @@
     // activeOn – na kterých stránkách je tlačítko "aktivní" (zvětšené, klik nic nedělá)
     { id: "clans",   label: "Clans",   icon: "/images/hotbar/clans.png",  href: "/",
       activeOn: (p) => !p.startsWith("/compare/") },                    // všechny stránky klanů
-    { id: "compare", label: "Compare", icon: "/images/hotbar/arrows.png", href: "/compare/",
+    { id: "compare", label: "Compare", icon: "/images/hotbar/compare.png", href: "/compare/",
       activeOn: (p) => p.startsWith("/compare/") },
     { id: "live",    label: "Live Placement", icon: "/images/hotbar/live.png" }, // zatím nikam nevede
     // { id: "discord", label: "Discord", icon: "/images/hotbar/discord.png", badge: "NEW", href: "https://discord.gg/...", newTab: true },
