@@ -510,6 +510,7 @@
 
         // Animace předběhnutí: zvednout → přesunout → položit
         const MOVE_MS = 1500;
+        const REORDER_DELAY_MS = 2300;   // čekání na dotočení odometru před předběhnutím
         const SHADOW_REST = "0 3px 0 rgba(0,0,0,0.18)";
         const SHADOW_LIFT = "0 22px 30px rgba(0,0,0,0.30)";
 
@@ -883,7 +884,8 @@
             const delta = c.shown - before;
             renderPoints(c);
             if (delta > 0) flashGain(c, delta);
-            relayout(true);
+            // nejdřív se dotočí číslo (odometer 2,5 s), pak teprve karta předběhne
+            setTimeout(() => relayout(true), REORDER_DELAY_MS);
         }
 
         function scheduleSteps() {
