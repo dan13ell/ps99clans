@@ -247,6 +247,13 @@
     const bg = win && win.querySelector(".menu-bg");
     const bar = win && win.querySelector(".ps-hotbar");
     if (!bg || !bar) return;
+    // Stránka, která se scrolluje (např. Compare): lišta je prostě pod celým obsahem okna
+    if (document.body.dataset.hotbar === "flow") {
+      const tall0 = items.some((it) => it.active) ? ACTIVE_SCALE : 1;
+      win.style.setProperty("--hb-lift", "0");
+      bar.style.marginTop = (20 - PAD_TOP + SIZE * (tall0 - 1)).toFixed(1) + "px";
+      return;
+    }
     const scaler = document.getElementById("appScaler");
     const m = scaler && /scale\(([\d.]+)\)/.exec(scaler.style.transform || "");
     const s = m ? parseFloat(m[1]) : 1;
