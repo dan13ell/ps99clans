@@ -58,7 +58,8 @@
             --cw: 372px;
             --ch: 72px;
         }
-        .lp-grid.is-animating { transition: transform 0.6s cubic-bezier(0.22, 0.8, 0.25, 1); }
+        .lp-grid.is-animating,
+        .lp-grid.is-animating .lp-card { transition: transform 0.6s cubic-bezier(0.22, 0.8, 0.25, 1); }
 
         .lp-card {
             position: absolute;
@@ -129,23 +130,25 @@
             left: 0;
             top: 0;
             bottom: 0;
-            width: 62px;
+            width: 50px;
             display: flex;
             align-items: center;
             justify-content: center;
-            border-right: 2px solid rgba(0, 0, 0, 0.1);
             pointer-events: none;
         }
         .lp-rank-num {
-            font-size: 28px;
+            font-size: 22px;
             line-height: 1;
             color: #FFFFFF;
-            -webkit-text-stroke: 6px #000000;
+            -webkit-text-stroke: 5px #000000;
             paint-order: stroke fill;
             font-weight: 800 !important;
             white-space: nowrap;
         }
-        .lp-rank.is-first .lp-rank-num { color: #8AFCED; }
+        /* top 3 – zlatá, stříbrná, bronzová */
+        .lp-rank.is-gold .lp-rank-num   { color: #FFD43B; }
+        .lp-rank.is-silver .lp-rank-num { color: #DCE3EC; }
+        .lp-rank.is-bronze .lp-rank-num { color: #F29A4A; }
 
         /* zelená šipka nahoru po předběhnutí (nad číslem pořadí) */
         .lp-up {
@@ -163,11 +166,11 @@
 
         .lp-icon {
             position: absolute;
-            left: 69px;
-            top: 7.5px;
-            width: 50px;
-            height: 50px;
-            border-radius: calc(8 * var(--u));
+            left: 49px;
+            top: 4.5px;
+            width: 56px;
+            height: 56px;
+            border-radius: 10px;
             background-color: #FFFFFF;
             object-fit: contain;
             box-shadow: 0 0 0 calc(2 * var(--u)) rgba(0, 0, 0, 0.12);
@@ -175,20 +178,20 @@
 
         .lp-flag {
             position: absolute;
-            left: 128px;
-            top: calc(4 * var(--u));
-            width: calc(24 * var(--u));
-            height: calc(24 * var(--u));
+            left: 114px;
+            top: 3px;
+            width: 18px;
+            height: 18px;
         }
 
         .lp-name {
             position: absolute;
-            left: 157px;
-            top: calc(1 * var(--u));
-            font-size: calc(23 * var(--u));
-            line-height: 1.1;
+            left: 137px;
+            top: 1px;
+            font-size: 17px;
+            line-height: 1.2;
             color: #FEFEFE;
-            -webkit-text-stroke: calc(6 * var(--u)) #000000;
+            -webkit-text-stroke: 5px #000000;
             paint-order: stroke fill;
             font-weight: 800 !important;
             white-space: nowrap;
@@ -198,9 +201,9 @@
            při přičtení se filtr plynule uvolní → zezelená (filtr běží na GPU) */
         .lp-pts {
             position: absolute;
-            left: 127px;
-            top: 28px;
-            height: calc(36 * var(--u));
+            left: 113px;
+            top: 20px;
+            height: 44px;
             display: flex;
             align-items: center;
             color: #17A63E;
@@ -236,9 +239,9 @@
 
         .lp-delta {
             position: absolute;
-            right: 10px;
-            top: 14px;
-            font-size: 20px;
+            right: 9px;
+            top: 11px;
+            font-size: 17px;
             line-height: 1;
             color: #3BE15C;
             -webkit-text-stroke: calc(5 * var(--u)) #000000;
@@ -448,9 +451,9 @@
         const MAX_CLANS = 500;
         const COLS = 5, ROWS = 10, PER_PAGE = COLS * ROWS, PAGES = MAX_CLANS / PER_PAGE;
         // karta 372×72, mřížka 5×10 – navržená v pevných rozměrech, zvětšuje se jako celek
-        const CW = 372, CH = 72, GAP_X = 14, GAP_Y = 11, PAD = 8;
-        const GRID_W = PAD * 2 + COLS * CW + (COLS - 1) * GAP_X;
-        const GRID_H = PAD * 2 + ROWS * CH + (ROWS - 1) * GAP_Y;
+        const CW = 372, CH = 72;
+        const GAP_PX_X = 8, GAP_PX_Y = 6;   // mezery mezi kartami na obrazovce (px) – nezávisle na zvětšení
+        let GAP_X = 8, GAP_Y = 6;            // tytéž mezery v jednotkách mřížky (dopočítá se)
         const BAR_MARGIN = 10;           // mezera mezi kartami a spodními ovládacími prvky
         const MOBILE_BREAK = 1150;       // stejná hranice jako na ostatních stránkách
 
@@ -468,7 +471,7 @@
         let nextTickAt = 0;
         let firstLoad = true;
 
-        const U = 1, PTS_W = 372 - 7 - 127 - 10;   // šířka pro číslo bodů
+        const U = 1, PTS_W = 365 - 113 - 8;   // šířka pro číslo bodů
         let hbHidden = false;
         try { hbHidden = localStorage.getItem("lpHotbarHidden") === "1"; } catch (e) {}
         document.body.classList.toggle("hb-hidden", hbHidden);
@@ -528,15 +531,33 @@
             tog.style.transform = `translate(${tx - 23}px, ${cy - 23}px) scale(${s})`;
             [left, right, tog].forEach(el => el.classList.add("is-ready"));
 
-            // mřížka – největší, jaká se vejde, se zachovaným poměrem karet
+            // mřížka – největší, jaká se vejde, se zachovaným poměrem karet 372×72
+            // a s mezerami přesně 8 px (vedle sebe) a 6 px (pod sebou)
             const top = 8 * s;
-            const availW = winW - 12 * s;
+            const availW = winW - 16 * s;
             const availH = Math.max(100, bottomLimit - BAR_MARGIN * s - top);
-            const S = Math.min(availW / GRID_W, availH / GRID_H);
-            const gx = (winW - GRID_W * S) / 2;
-            const gy = top + (availH - GRID_H * S) / 2;
+            const S = Math.max(0.05, Math.min(
+                (availW - (COLS - 1) * GAP_PX_X) / (COLS * CW),
+                (availH - (ROWS - 1) * GAP_PX_Y) / (ROWS * CH)
+            ));
+            const newGapX = GAP_PX_X / S, newGapY = GAP_PX_Y / S;
+            const gridW = COLS * CW + (COLS - 1) * newGapX;
+            const gridH = ROWS * CH + (ROWS - 1) * newGapY;
+            const gx = (winW - gridW * S) / 2;
+            const gy = top + (availH - gridH * S) / 2;
             grid.classList.toggle("is-animating", !!animate);
+            clearTimeout(computeLayout.t);
+            if (animate) computeLayout.t = setTimeout(() => grid.classList.remove("is-animating"), 700);
             grid.style.transform = `translate(${gx.toFixed(1)}px, ${gy.toFixed(1)}px) scale(${S.toFixed(4)})`;
+            if (Math.abs(newGapX - GAP_X) > 0.01 || Math.abs(newGapY - GAP_Y) > 0.01) {
+                GAP_X = newGapX; GAP_Y = newGapY;
+                rendered.forEach(c => {
+                    if (c.leaving || !isFinite(c.rank)) return;
+                    stopAnim(c);
+                    placeAt(c, slotOf(c.rank));
+                    c.el.style.zIndex = baseZ(c.rank);
+                });
+            }
         }
 
         function toggleHotbar() {
@@ -602,7 +623,7 @@
                 w = measurer.offsetWidth || 1;
                 widthCache.set(key, w);
             }
-            const size = Math.max(14 * U, Math.min(34 * U, (100 * PTS_W * 0.97) / w));
+            const size = Math.max(16, Math.min(44, (100 * PTS_W * 0.98) / w));
             c.numEl.style.fontSize = size.toFixed(2) + "px";
         }
 
@@ -610,7 +631,7 @@
             const i = rank % PER_PAGE;
             const col = Math.floor(i / ROWS);
             const row = i % ROWS;
-            return { x: PAD + col * (CW + GAP_X), y: PAD + row * (CH + GAP_Y) };
+            return { x: col * (CW + GAP_X), y: row * (CH + GAP_Y) };
         }
 
         function pageOf(rank) { return Math.floor(rank / PER_PAGE) + 1; }
@@ -802,8 +823,10 @@
                 c.shownRank = rank;
                 const txt = `#${rank + 1}`;
                 c.rankEl.textContent = txt;
-                c.rankEl.style.fontSize = (txt.length <= 2 ? 30 : txt.length === 3 ? 27 : 21) + "px";
-                c.rankWrap.classList.toggle("is-first", rank === 0);
+                c.rankEl.style.fontSize = (txt.length <= 2 ? 24 : txt.length === 3 ? 21 : 17) + "px";
+                c.rankWrap.classList.toggle("is-gold", rank === 0);
+                c.rankWrap.classList.toggle("is-silver", rank === 1);
+                c.rankWrap.classList.toggle("is-bronze", rank === 2);
             }
             if (pop) {
                 c.rankEl.animate([{ transform: "scale(1)" }, { transform: "scale(1.45)", offset: 0.4 }, { transform: "scale(1)" }],
