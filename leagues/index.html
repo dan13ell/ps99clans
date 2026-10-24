@@ -601,7 +601,9 @@
             }
 
             isDataLoaded = true;
-            renderLeaderboard(isSilent);
+            // tichá obnova počká, až uživatel dorolluje (jinak by seznam poskočil)
+            if (isSilent && window.whenScrollIdle) whenScrollIdle(() => renderLeaderboard(true));
+            else renderLeaderboard(isSilent);
         }
 
         function escapeHtml(s) {
@@ -653,7 +655,7 @@
                 html += `
                     <div class="clan-row" data-name="${encodeURIComponent(clan.Name)}">
                         <div class="clan-rank" style="color: ${rankColor};">#${absoluteRank}</div>
-                        <img class="clan-icon" src="${getClanIconUrl(clan.Icon)}" onerror="this.onerror=null; this.src='https://placehold.co/90x90/ffffff/000000?text=Clan';" draggable="false">
+                        <img class="clan-icon" loading="lazy" decoding="async" src="${getClanIconUrl(clan.Icon)}" onerror="this.onerror=null; this.src='https://placehold.co/90x90/ffffff/000000?text=Clan';" draggable="false">
                         <div class="clan-name">[${safeName}]</div>
                         <div class="clan-members" data-text="${mCount}/${mCap}">${mCount}/${mCap}</div>
                         <div class="clan-points-wrapper">
@@ -663,6 +665,9 @@
                     </div>
                 `;
             });
+            if (keepScroll && list.dataset.sig === String(html.length) && list.__html === html) return; // nic se nezměnilo
+            list.__html = html;
+            list.dataset.sig = String(html.length);
             list.innerHTML = html;
 
             if (pageText) pageText.textContent = currentPage;
@@ -739,7 +744,7 @@
     </a>
 
     <a href="/privacy/" class="privacy-link">Privacy Policy</a>
-    <script src="/scrollbar.js"></script>
+    <script src="/scrollbar.js?v=2"></script>
     <script src="/hotbar.js?v=5"></script>
 </body>
 </html>

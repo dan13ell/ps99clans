@@ -926,7 +926,8 @@
             loadClanProfile(false);
             
             setInterval(() => {
-                loadClanProfile(true);
+                // tichá obnova počká, až uživatel dorolluje
+                (window.whenScrollIdle || (f => f()))(() => loadClanProfile(true));
             }, 60000);
         });
     </script>
@@ -936,7 +937,7 @@
     </a>
 
     <a href="/privacy/" class="privacy-link">Privacy Policy</a>
-    <script src="/scrollbar.js"></script>
+    <script src="/scrollbar.js?v=2"></script>
     <script src="/hotbar.js?v=5"></script>
 </body>
 </html>

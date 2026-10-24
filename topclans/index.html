@@ -1134,7 +1134,9 @@
                     gemsClanData = generateFallbackData();
                 }
             }
-            renderLeaderboard();
+            // tichá obnova počká, až uživatel dorolluje (jinak by seznam poskočil)
+            if (isSilent && window.whenScrollIdle) whenScrollIdle(renderLeaderboard);
+            else renderLeaderboard();
             if (typeof fetchActiveClanBattle === "function") { fetchActiveClanBattle(); }
         }
 
@@ -1200,7 +1202,7 @@
 
                 row.innerHTML = `
                     <div class="clan-rank" style="color: ${rankColor};">#${absoluteRank}</div>
-                    <img class="clan-icon" src="${clanIconUrl}" onerror="this.onerror=null; this.src='https://placehold.co/90x90/ffffff/000000?text=Clan';" draggable="false">
+                    <img class="clan-icon" loading="lazy" decoding="async" src="${clanIconUrl}" onerror="this.onerror=null; this.src='https://placehold.co/90x90/ffffff/000000?text=Clan';" draggable="false">
                     <img class="clan-flag" src="${flagUrl}" draggable="false">
                     <div class="clan-name">[${clan.Name}]</div>
                     <div class="clan-desc" id="${descElementId}">...</div>
@@ -1356,7 +1358,7 @@
     </a>
 
     <a href="/privacy/" class="privacy-link">Privacy Policy</a>
-    <script src="/scrollbar.js"></script>
+    <script src="/scrollbar.js?v=2"></script>
     <script src="/hotbar.js?v=5"></script>
 </body>
 </html>

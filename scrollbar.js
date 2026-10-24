@@ -14,8 +14,35 @@
       background: url("/images/scroller.png") no-repeat center / ${W}px ${H}px;
       image-rendering: pixelated;
     }
+    /* Dotykové displeje: řádky se při scrollování nemačkají ani nezvětšují
+       (položený prst = :active, zvednutý = :hover zůstane → karty poskakovaly) */
+    @media (hover: none) {
+      .clan-row:hover, .clan-row:active,
+      .player-card:hover, .player-card:active,
+      .member-card:hover .member-card-inner, .member-card:active .member-card-inner {
+        transform: none !important;
+      }
+    }
   `;
   document.head.appendChild(css);
+
+  // ---- Tichá obnova dat až po dokončení scrollování ----
+  // Stránky každou minutu znovu postaví seznam; kdyby se to stalo během scrollu prstem,
+  // zastaví se setrvačnost a seznam poskočí. whenScrollIdle(fn) počká, až je klid.
+  let touching = false, lastScrollAt = 0;
+  const IDLE_MS = 900;
+  window.addEventListener("touchstart", () => { touching = true; }, { passive: true, capture: true });
+  window.addEventListener("touchend", () => { touching = false; lastScrollAt = Date.now(); }, { passive: true, capture: true });
+  window.addEventListener("touchcancel", () => { touching = false; lastScrollAt = Date.now(); }, { passive: true, capture: true });
+  document.addEventListener("scroll", () => { lastScrollAt = Date.now(); }, { passive: true, capture: true });
+  window.whenScrollIdle = function (fn) {
+    const wait = () => {
+      const quietFor = Date.now() - lastScrollAt;
+      if (touching || quietFor < IDLE_MS) setTimeout(wait, touching ? 300 : IDLE_MS - quietFor + 20);
+      else fn();
+    };
+    wait();
+  };
 
   function attach(box) {
     if (box.dataset.sb) return;
