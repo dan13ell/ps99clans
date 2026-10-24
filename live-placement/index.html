@@ -567,7 +567,8 @@
             const gridH = ROWS * ch + (ROWS - 1) * GAP_PX_Y;
             const M = mobile ? Math.min(availW / gridW, availH / gridH) : 1;   // zmenšení celé mřížky
             const gx = (winW - gridW * M) / 2;
-            const gy = top + (availH - gridH * M) / 2;
+            // na mobilu s lištou sedí mřížka hned nad ní (jako hlavní okno na ostatních stránkách)
+            const gy = mobile && !hbHidden ? top + availH - gridH * M : top + (availH - gridH * M) / 2;
 
             // plynulý přechod: karty se hned přestaví na novou velikost a celá mřížka
             // (jedna vrstva na grafické kartě) se dopočítá ze staré polohy/velikosti → žádné sekání
