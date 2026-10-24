@@ -1137,11 +1137,14 @@
         //    rozprostřou v čase → pořád se něco přičítá, ale každý klan max. 1× za 15 s.
         //  • Jedny hodiny pro všechny klany (žádné stovky časovačů).
         //  • Když je záložka na pozadí, nic neběží; po návratu se čísla tiše srovnají.
-        function phaseOf(name) {
-            let h = 2166136261;
-            for (let i = 0; i < name.length; i++) { h ^= name.charCodeAt(i); h = Math.imul(h, 16777619); }
-            return ((h >>> 0) % 1000) / 1000 * STEP_MS * 0.92;
+        // místo v cyklu: n-tý klan dostane (n × zlatý řez) mod 1 → místa jsou rovnoměrně
+        // rozházená a i sousední klany v žebříčku přičítají daleko od sebe
+        let phaseCounter = 0;
+        function phaseOf() {
+            const f = (phaseCounter++ * 0.6180339887498949) % 1;
+            return f * STEP_MS * 0.97;
         }
+        const MIN_GAP_MS = 150;          // na viditelné stránce nikdy dva klany ve stejný okamžik
 
         function nextSlot(c, now) {
             const t = Math.floor(now / STEP_MS) * STEP_MS + c.phase;
@@ -1154,12 +1157,19 @@
             reorderTimer = setTimeout(() => { reorderTimer = null; queueRelayout(); }, delay);
         }
 
+        let lastVisibleStepAt = 0;
         function engineTick() {
             if (firstLoad || document.hidden) return;
             const now = Date.now();
             let visibleChange = false, anyChange = false;
-            clans.forEach(c => {
-                if (c.removed || c.steps <= 0 || now < c.nextAt) return;
+            // nejdřív ty, co čekají nejdéle
+            const due = [];
+            clans.forEach(c => { if (!c.removed && c.steps > 0 && now >= c.nextAt) due.push(c); });
+            due.sort((a, b) => a.nextAt - b.nextAt);
+            due.forEach(c => {
+                const onScreen = c.el && !c.leaving;
+                // viditelné karty po jedné: když už teď jedna přičítala, další počká na příští tik
+                if (onScreen && now - lastVisibleStepAt < MIN_GAP_MS) return;
                 const before = c.shown;
                 c.steps--;
                 c.shown = c.steps === 0 ? c.target : Math.min(c.target, Math.round(c.shown + c.chunk));
@@ -1168,16 +1178,17 @@
                 const delta = c.shown - before;
                 if (delta <= 0) return;
                 anyChange = true;
-                if (c.el && !c.leaving) {
+                if (onScreen) {
                     renderPoints(c);
                     flashGain(c, delta);
                     visibleChange = true;
+                    lastVisibleStepAt = now;
                 }
             });
             // nejdřív se dotočí číslo, pak teprve karty předběhnou
             if (anyChange) scheduleReorder(visibleChange ? REORDER_DELAY_MS : 0);
         }
-        setInterval(engineTick, 200);
+        setInterval(engineTick, 50);
 
         // tiché srovnání: všechno hned na poslední známou hodnotu, bez animací
         function settleAll() {
@@ -1205,7 +1216,7 @@
 
                 if (!c) {
                     c = { name: d.Name, data: d, shown: pts, target: pts, lastApi: pts, chunk: 0, steps: 0,
-                          rank: Infinity, el: null, phase: phaseOf(d.Name), nextAt: 0, missing: 0 };
+                          rank: Infinity, el: null, phase: phaseOf(), nextAt: 0, missing: 0 };
                     c.staticKey = [d.Icon, d.CountryCode].join("|");
                     clans.set(d.Name, c);
                     return;
