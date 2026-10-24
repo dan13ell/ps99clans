@@ -451,9 +451,11 @@
         const DEMO = params.has("demo");   // ?demo=1 → vymyšlená data, ?tick=4 → rychlejší aktualizace
 
         // ---------- NASTAVENÍ ----------
-        const TICK_MS = DEMO ? Math.max(2, Number(params.get("tick")) || 15) * 1000 : 15000; // aktualizace každých 15 s
-        const SMOOTH_STEPS = 4;          // jako live.html: rozdíl se přičte ve 4 krocích
-        const STEP_SPREAD = 0.85;        // kroky klanů se rozprostřou do 85 % intervalu → pořád se něco přičítá
+        const TICK_MS = DEMO ? Math.max(2, Number(params.get("tick")) || 15) * 1000 : 15000; // stažení dat každých 15 s
+        const STEP_MS = TICK_MS;         // jeden krok přičtení každých 15 s
+        const SMOOTH_STEPS = 4;          // nový přírůstek = 4 kroky → rozloží se na 1 minutu
+        const FETCH_TIMEOUT_MS = 10000;  // déle čekat na odpověď nemá smysl
+        const RESET_DROP = 0.5;          // pokles pod 50 % = nová bitva → srovnat hned; menší pokles = starší data → ignorovat
         const ODO_MS = 2500;             // odometer jako v live.html
         const REORDER_DELAY_MS = 2300;   // předběhnutí až po dotočení čísla
         const MOVE_MS = 1700;            // zvednout → přesunout → položit
@@ -1128,33 +1130,72 @@
             if (e.key === "ArrowRight") showPage(page + 1);
         });
 
-        // ---------- PLYNULÉ PŘIČÍTÁNÍ (stejný princip jako live.html) ----------
-        // Nová hodnota z API se rozdělí na 4 kusy; každých 15 s se přičte jeden.
-        // Kroky jednotlivých klanů jsou rozházené v rámci intervalu, takže se pořád něco děje.
-        function applyStep(c) {
-            c.stepTimer = null;
-            if (c.removed || c.steps <= 0) return;
-            const before = c.shown;
-            c.steps--;
-            c.shown = c.steps === 0 ? c.target : Math.min(c.target, Math.round(c.shown + c.chunk));
-            const delta = c.shown - before;
-            if (c.el) {
-                renderPoints(c);
-                if (delta > 0) flashGain(c, delta);
-                setTimeout(queueRelayout, REORDER_DELAY_MS);   // nejdřív se dotočí číslo
-            } else {
-                queueRelayout();
-            }
+        // ---------- PŘIČÍTÁNÍ BODŮ ----------
+        // Jednoduchý a předvídatelný model:
+        //  • Když API vrátí víc bodů, rozdíl se rozdělí na 4 stejné kroky po 15 s (= 1 minuta).
+        //  • Každý klan má pevné "místo" v 15s cyklu (podle jména), takže se kroky klanů
+        //    rozprostřou v čase → pořád se něco přičítá, ale každý klan max. 1× za 15 s.
+        //  • Jedny hodiny pro všechny klany (žádné stovky časovačů).
+        //  • Když je záložka na pozadí, nic neběží; po návratu se čísla tiše srovnají.
+        function phaseOf(name) {
+            let h = 2166136261;
+            for (let i = 0; i < name.length; i++) { h ^= name.charCodeAt(i); h = Math.imul(h, 16777619); }
+            return ((h >>> 0) % 1000) / 1000 * STEP_MS * 0.92;
         }
 
-        function scheduleSteps() {
+        function nextSlot(c, now) {
+            const t = Math.floor(now / STEP_MS) * STEP_MS + c.phase;
+            return t > now + 150 ? t : t + STEP_MS;
+        }
+
+        let reorderTimer = null;
+        function scheduleReorder(delay) {
+            if (reorderTimer) return;
+            reorderTimer = setTimeout(() => { reorderTimer = null; queueRelayout(); }, delay);
+        }
+
+        function engineTick() {
+            if (firstLoad || document.hidden) return;
+            const now = Date.now();
+            let visibleChange = false, anyChange = false;
             clans.forEach(c => {
-                if (c.removed || c.steps <= 0 || c.stepTimer) return;
-                c.stepTimer = setTimeout(() => applyStep(c), Math.random() * TICK_MS * STEP_SPREAD);
+                if (c.removed || c.steps <= 0 || now < c.nextAt) return;
+                const before = c.shown;
+                c.steps--;
+                c.shown = c.steps === 0 ? c.target : Math.min(c.target, Math.round(c.shown + c.chunk));
+                c.nextAt += STEP_MS;
+                if (c.nextAt <= now) c.nextAt = nextSlot(c, now);
+                const delta = c.shown - before;
+                if (delta <= 0) return;
+                anyChange = true;
+                if (c.el && !c.leaving) {
+                    renderPoints(c);
+                    flashGain(c, delta);
+                    visibleChange = true;
+                }
             });
+            // nejdřív se dotočí číslo, pak teprve karty předběhnou
+            if (anyChange) scheduleReorder(visibleChange ? REORDER_DELAY_MS : 0);
+        }
+        setInterval(engineTick, 200);
+
+        // tiché srovnání: všechno hned na poslední známou hodnotu, bez animací
+        function settleAll() {
+            clans.forEach(c => {
+                c.shown = c.target;
+                c.steps = 0;
+                if (c.el && c.renderedPts !== c.shown) {
+                    c.renderedPts = c.shown;
+                    setNumberStatic(c, c.shown);
+                    fitNumber(c, false);
+                }
+            });
+            if (reorderTimer) { clearTimeout(reorderTimer); reorderTimer = null; }
+            relayout(false);
         }
 
         function ingest(list) {
+            const now = Date.now();
             const seen = new Set();
             list.slice(0, MAX_CLANS).forEach(d => {
                 if (!d || !d.Name) return;
@@ -1163,30 +1204,40 @@
                 let c = clans.get(d.Name);
 
                 if (!c) {
-                    c = { name: d.Name, data: d, shown: pts, target: pts, lastApi: pts, chunk: 0, steps: 0, rank: Infinity, el: null };
+                    c = { name: d.Name, data: d, shown: pts, target: pts, lastApi: pts, chunk: 0, steps: 0,
+                          rank: Infinity, el: null, phase: phaseOf(d.Name), nextAt: 0, missing: 0 };
                     c.staticKey = [d.Icon, d.CountryCode].join("|");
                     clans.set(d.Name, c);
                     return;
                 }
 
                 c.removed = false;
+                c.missing = 0;
                 refreshStatic(c, d);
-                if (pts !== c.lastApi) {
+                if (pts === c.lastApi) return;
+
+                if (pts > c.lastApi) {
+                    // víc bodů → zbytek do nové hodnoty rozložit na 4 kroky (zachová se místo v cyklu)
                     c.lastApi = pts;
-                    if (pts > c.shown) {
-                        c.target = pts;
-                        c.steps = SMOOTH_STEPS;
-                        c.chunk = (pts - c.shown) / SMOOTH_STEPS;
-                    } else {
-                        // body klesly (nová bitva apod.) → hned bez animace
-                        c.steps = 0;
-                        c.target = c.shown = pts;
-                        if (c.el) { c.renderedPts = pts; setNumberStatic(c, pts); fitNumber(c, false); }
-                    }
+                    c.target = pts;
+                    c.chunk = (pts - c.shown) / SMOOTH_STEPS;
+                    if (c.steps <= 0 || c.nextAt <= now) c.nextAt = nextSlot(c, now);
+                    c.steps = SMOOTH_STEPS;
+                } else if (pts < c.lastApi * RESET_DROP) {
+                    // velký propad = nová bitva → hned a bez animace
+                    c.lastApi = c.target = c.shown = pts;
+                    c.steps = 0;
+                    if (c.el) { c.renderedPts = pts; setNumberStatic(c, pts); fitNumber(c, false); }
                 }
+                // menší pokles = API vrátilo starší data → ignorovat (čísla nikdy necukají dolů)
             });
 
-            clans.forEach(c => { if (!seen.has(c.name)) { c.removed = true; c.steps = 0; } });
+            // klan zmizí z žebříčku až když chybí ve 2 staženích po sobě (ne kvůli jedné vadné odpovědi)
+            clans.forEach(c => {
+                if (seen.has(c.name)) return;
+                c.missing = (c.missing || 0) + 1;
+                if (c.missing >= 2) { c.removed = true; c.steps = 0; }
+            });
         }
 
         // ---------- DATA ----------
@@ -1215,9 +1266,14 @@
 
         async function fetchTop() {
             if (DEMO) return demoFetch();
-            const res = await fetch(`${WORKER_URL}/clans?page=1&pageSize=${MAX_CLANS}&sort=Points&sortOrder=desc`);
-            const json = await res.json();
-            if (!json || json.status !== "ok" || !Array.isArray(json.data)) throw new Error("bad data");
+            const ctrl = new AbortController();
+            const to = setTimeout(() => ctrl.abort(), FETCH_TIMEOUT_MS);
+            let json;
+            try {
+                const res = await fetch(`${WORKER_URL}/clans?page=1&pageSize=${MAX_CLANS}&sort=Points&sortOrder=desc`, { signal: ctrl.signal, cache: "no-store" });
+                json = await res.json();
+            } finally { clearTimeout(to); }
+            if (!json || json.status !== "ok" || !Array.isArray(json.data) || json.data.length < 10) throw new Error("bad data");
             return json.data;
         }
 
@@ -1227,11 +1283,17 @@
             el.style.opacity = text ? "1" : "0";
         }
 
+        let fetching = false, fetchSeq = 0, appliedSeq = 0;
         async function tick() {
             nextTickAt = Date.now() + TICK_MS;
-            if (document.hidden && !firstLoad) return;
+            if ((document.hidden && !firstLoad) || fetching) return;
+            fetching = true;
+            const seq = ++fetchSeq;
             try {
                 const list = await fetchTop();
+                if (seq < appliedSeq) return;          // starší odpověď, která dorazila pozdě
+                appliedSeq = seq;
+                if (document.hidden && !firstLoad) { ingest(list); settleAll(); lastOkAt = Date.now(); return; }
                 ingest(list);
                 if (firstLoad) {
                     firstLoad = false;
@@ -1248,12 +1310,13 @@
                 } else {
                     queueRelayout();
                 }
-                scheduleSteps();
                 lastOkAt = Date.now();
                 showStatus("");
             } catch (e) {
                 console.warn(e);
                 if (firstLoad) showStatus("Could not load data. Retrying...");
+            } finally {
+                fetching = false;
             }
         }
 
@@ -1270,14 +1333,12 @@
             document.getElementById("liveBadge").classList.toggle("is-stale", s > 60);
         }
 
-        // po návratu na záložku: srovnat čísla a pozice bez animací
+        // záložka na pozadí: nic neběží. Po návratu se všechno tiše srovná na poslední
+        // hodnoty (žádná lavina přičítání a přeskupování) a hned se stáhnou čerstvá data.
         document.addEventListener("visibilitychange", () => {
-            if (document.hidden) return;
-            rendered.forEach(c => {
-                if (c.renderedPts !== c.shown) { c.renderedPts = c.shown; setNumberStatic(c, c.shown); fitNumber(c, false); }
-            });
-            relayout(false);
-            if (Date.now() - lastOkAt > TICK_MS) tick();
+            if (document.hidden || firstLoad) return;
+            settleAll();
+            if (Date.now() - lastOkAt > 3000) tick();
         });
 
         autoFitScreen();
