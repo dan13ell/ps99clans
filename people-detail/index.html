@@ -41,7 +41,7 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            min-height: 100vh;
+            min-height: 100dvh;
         }
 
         .app-scaler {
@@ -593,15 +593,12 @@
             svg.style.display = "block";
 
             const n = history.length;
-            // Osa X má u aktivní války vždy 24 míst; hodiny, které teprve přijdou, zůstanou prázdné
-            const slots = ended ? n : Math.max(n, 24);
-            const padded = slots > n;
             const plotW = SVG_W - PAD_L - PAD_R, plotH = SVG_H - PAD_T - PAD_B;
             const gains = history.map(h => h.gain);
             const total = gains.reduce((a, b) => a + b, 0), avg = total / n;
             const max = niceMax(Math.max(...gains, 1));
             const baseY = PAD_T + plotH;
-            const xAt = i => slots === 1 ? PAD_L + plotW / 2 : PAD_L + (i * plotW) / (slots - 1);
+            const xAt = i => n === 1 ? PAD_L + plotW / 2 : PAD_L + (i * plotW) / (n - 1);
             const yAt = v => baseY - (v / max) * plotH;
             const pts = gains.map((g, i) => ({ x: xAt(i), y: yAt(g) }));
             const nowHour = Math.floor(Date.now() / 3600000) * 3600;
@@ -617,25 +614,12 @@
             });
 
             // popisky osy X
-            if (padded) {
-                // 24 míst: hodiny od začátku okna, "NOW" na poslední zaznamenané hodině
-                const shown = new Set();
-                for (let i = 0; i < slots; i += 6) if (Math.abs(i - (n - 1)) > 2) shown.add(i);
-                shown.add(n - 1);
-                const t0 = history[0].hour;
-                shown.forEach(i => {
-                    const isNow = i === n - 1;
-                    const label = isNow ? "NOW" : `${hh(t0 + i * 3600)}:00`;
-                    out += `<text x="${xAt(i)}" y="${SVG_H - 8}" text-anchor="middle" style="${isNow ? "font-weight:800" : ""}">${label}</text>`;
-                });
-            } else {
-                const step = n > 12 ? 6 : n > 6 ? 3 : 1;
-                for (let i = n - 1; i >= 0; i -= step) {
-                    const ago = n - 1 - i;
-                    const label = ago === 0 ? (ended ? "END" : "NOW") : (ended ? `${hh(history[i].hour)}:00` : `${ago}h ago`);
-                    const anchor = i === n - 1 && n > 1 ? "end" : "middle";
-                    out += `<text x="${xAt(i) + (anchor === "end" ? 6 : 0)}" y="${SVG_H - 8}" text-anchor="${anchor}" style="${ago === 0 ? "font-weight:800" : ""}">${label}</text>`;
-                }
+            const step = n > 12 ? 6 : n > 6 ? 3 : 1;
+            for (let i = n - 1; i >= 0; i -= step) {
+                const ago = n - 1 - i;
+                const label = ago === 0 ? (ended ? "END" : "NOW") : (ended ? `${hh(history[i].hour)}:00` : `${ago}h ago`);
+                const anchor = i === n - 1 && n > 1 ? "end" : "middle";
+                out += `<text x="${xAt(i) + (anchor === "end" ? 6 : 0)}" y="${SVG_H - 8}" text-anchor="${anchor}" style="${ago === 0 ? "font-weight:800" : ""}">${label}</text>`;
             }
 
             // průměr (čárkovaně)
@@ -661,7 +645,7 @@
                     <text x="${bx + bw / 2}" y="${by + 15.5}" text-anchor="middle" style="font-size:13px;font-weight:800">${txt}</text></g>`;
 
             // neviditelné plochy pro hover/klepnutí
-            const hw = slots === 1 ? plotW : plotW / (slots - 1);
+            const hw = n === 1 ? plotW : plotW / (n - 1);
             pts.forEach((p, i) => { out += `<rect class="pd-hit" data-i="${i}" x="${p.x - hw / 2}" y="0" width="${hw}" height="${baseY}"/>`; });
             svg.innerHTML = out;
 
@@ -758,7 +742,7 @@
             const winW = window.innerWidth, winH = window.innerHeight;
             if (winW >= 1150) { document.body.classList.remove("is-mobile"); scaler.style.transform = "none"; return; }
             document.body.classList.add("is-mobile");
-            scaler.style.transform = `scale(${Math.min(winW / 1120, winH / 650) * 0.92})`;
+            scaler.style.transform = `scale(${Math.min(winW / 1120, winH / 960) * 0.92})`;
         }
 
         window.addEventListener("resize", autoFitScreen);
@@ -773,6 +757,7 @@
     </a>
 
     <a href="/privacy/" class="privacy-link">Privacy Policy</a>
-    <script src="/scrollbar.js"></script>
+    <script src="/scrollbar.js?v=2"></script>
+    <script src="/hotbar.js?v=5"></script>
 </body>
 </html>
