@@ -41,22 +41,24 @@
             background-color: #89b3f9;
         }
 
-        /* ---------- SCÉNA ----------
-           PC: přes celé okno. Mobil: stejné rozhraní jako na PC (1600×900), jen zmenšené. */
+        /* ---------- SCÉNA ---------- */
         .stage {
+            position: fixed;
+            inset: 0;
+        }
+
+        /* Mřížka je navržená v pevných rozměrech (karta 372×72) a celá se zvětší/zmenší
+           podle místa → karty mají vždy stejný poměr stran a nikdy se nezplácnou. */
+        .lp-grid {
             position: absolute;
             left: 0;
             top: 0;
             transform-origin: 0 0;
-        }
-
-        /* --u = 1 "designový pixel" (karta je navržená na výšku 72 u), dopočítává se v JS */
-        .lp-grid {
-            position: absolute;
-            left: 0;
-            right: 0;
             --u: 1px;
+            --cw: 372px;
+            --ch: 72px;
         }
+        .lp-grid.is-animating { transition: transform 0.6s cubic-bezier(0.22, 0.8, 0.25, 1); }
 
         .lp-card {
             position: absolute;
@@ -115,55 +117,56 @@
         }
         .lp-inner.is-gain .lp-glow { opacity: 1; transition: opacity 0.3s ease-out; }
 
-        /* obsah karty (72 u vysoký) – svisle na střed, když je karta vyšší */
         .lp-content {
             position: absolute;
-            left: 0;
-            right: 0;
-            top: var(--oy, 0px);
-            height: calc(72 * var(--u));
+            inset: 0;
             pointer-events: none;
         }
 
+        /* pořadí – uvnitř karty úplně vlevo, oddělené jemnou čárou */
         .lp-rank {
             position: absolute;
-            left: calc(-8 * var(--u));
-            top: calc(-13 * var(--u));
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 62px;
             display: flex;
             align-items: center;
-            gap: calc(3 * var(--u));
-            font-size: calc(25 * var(--u));
-            line-height: 1;
+            justify-content: center;
+            border-right: 2px solid rgba(0, 0, 0, 0.1);
             pointer-events: none;
-            z-index: 5;
         }
         .lp-rank-num {
+            font-size: 28px;
+            line-height: 1;
             color: #FFFFFF;
-            -webkit-text-stroke: calc(6 * var(--u)) #000000;
+            -webkit-text-stroke: 6px #000000;
             paint-order: stroke fill;
             font-weight: 800 !important;
-            transform-origin: 30% 60%;
+            white-space: nowrap;
         }
         .lp-rank.is-first .lp-rank-num { color: #8AFCED; }
 
-
-        /* zelená šipka nahoru po předběhnutí */
+        /* zelená šipka nahoru po předběhnutí (nad číslem pořadí) */
         .lp-up {
-            font-size: calc(17 * var(--u));
+            position: absolute;
+            left: calc(50% - 8px);
+            top: 1px;
+            font-size: 16px;
+            line-height: 1;
             color: #3BE15C;
-            -webkit-text-stroke: calc(5 * var(--u)) #000000;
+            -webkit-text-stroke: 5px #000000;
             paint-order: stroke fill;
             font-weight: 800 !important;
             opacity: 0;
         }
 
-
         .lp-icon {
             position: absolute;
-            left: calc(7 * var(--u));
-            top: calc(6.5 * var(--u));
-            width: calc(52 * var(--u));
-            height: calc(52 * var(--u));
+            left: 69px;
+            top: 7.5px;
+            width: 50px;
+            height: 50px;
             border-radius: calc(8 * var(--u));
             background-color: #FFFFFF;
             object-fit: contain;
@@ -172,7 +175,7 @@
 
         .lp-flag {
             position: absolute;
-            left: calc(68 * var(--u));
+            left: 128px;
             top: calc(4 * var(--u));
             width: calc(24 * var(--u));
             height: calc(24 * var(--u));
@@ -180,7 +183,7 @@
 
         .lp-name {
             position: absolute;
-            left: calc(97 * var(--u));
+            left: 157px;
             top: calc(1 * var(--u));
             font-size: calc(23 * var(--u));
             line-height: 1.1;
@@ -195,8 +198,8 @@
            při přičtení se filtr plynule uvolní → zezelená (filtr běží na GPU) */
         .lp-pts {
             position: absolute;
-            left: calc(67 * var(--u));
-            top: calc(29 * var(--u));
+            left: 127px;
+            top: 28px;
             height: calc(36 * var(--u));
             display: flex;
             align-items: center;
@@ -233,9 +236,9 @@
 
         .lp-delta {
             position: absolute;
-            right: calc(10 * var(--u));
-            top: calc(36 * var(--u));
-            font-size: calc(22 * var(--u));
+            right: 10px;
+            top: 14px;
+            font-size: 20px;
             line-height: 1;
             color: #3BE15C;
             -webkit-text-stroke: calc(5 * var(--u)) #000000;
@@ -263,6 +266,46 @@
         .hb-ghost .game-window { position: relative; width: 1100px; height: 570px; }
         .hb-ghost .menu-bg { width: 1100px; height: 570px; visibility: hidden; }
         .hb-ghost .ps-hotbar { pointer-events: auto; }
+        .hb-ghost { transition: transform 0.6s cubic-bezier(0.22, 0.8, 0.25, 1), opacity 0.4s ease; }
+        body.hb-hidden .hb-ghost { opacity: 0; }
+        body.hb-hidden .hb-ghost .ps-hotbar { pointer-events: none; }
+
+        /* šipka, která schová / ukáže navigační tlačítka */
+        .lp-toggle {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 46px;
+            height: 46px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #FFFFFF;
+            border: 3px solid #000000;
+            border-radius: 12px;
+            box-shadow: 0 3px 0 #000000;
+            cursor: pointer;
+            z-index: 720;
+            visibility: hidden;
+            transform-origin: center center;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .lp-toggle.is-ready { visibility: visible; }
+        .lp-toggle-arrow {
+            width: 17px;
+            height: 25px;
+            background: url("/images/sipka-prava.png") no-repeat center center;
+            background-size: 100% 100%;
+            transform: rotate(90deg);
+            transition: transform 0.45s cubic-bezier(0.22, 0.8, 0.25, 1);
+            pointer-events: none;
+        }
+        body.hb-hidden .lp-toggle-arrow { transform: rotate(-90deg); }
+        .lp-toggle-inner { display: flex; transition: transform 0.044s cubic-bezier(0.1, 0.9, 0.2, 1); }
+        .lp-toggle:hover .lp-toggle-inner { transform: scale(1.1); }
+        .lp-toggle:active .lp-toggle-inner { transform: scale(0.9); }
+
+        .lp-side.is-moving, .lp-toggle.is-moving { transition: transform 0.6s cubic-bezier(0.22, 0.8, 0.25, 1); }
 
         /* LIVE odznak a přepínač stránek – vlevo a vpravo ve výšce hotbaru */
         .lp-side {
@@ -378,6 +421,10 @@
         </div>
     </div>
 
+    <div class="lp-toggle" id="hbToggle" role="button" aria-label="Hide navigation">
+        <div class="lp-toggle-inner"><div class="lp-toggle-arrow"></div></div>
+    </div>
+
     <!-- neviditelné okno jen kvůli umístění hotbaru (stejně jako na ostatních stránkách) -->
     <div class="hb-ghost">
         <div class="app-scaler" id="appScaler">
@@ -400,10 +447,12 @@
 
         const MAX_CLANS = 500;
         const COLS = 5, ROWS = 10, PER_PAGE = COLS * ROWS, PAGES = MAX_CLANS / PER_PAGE;
-        const PAD_X = 14, PAD_TOP = 16, GAP_X = 12, GAP_Y_RATIO = 0.125;
-        const BAR_MARGIN = 14;           // mezera mezi kartami a hotbarem
+        // karta 372×72, mřížka 5×10 – navržená v pevných rozměrech, zvětšuje se jako celek
+        const CW = 372, CH = 72, GAP_X = 14, GAP_Y = 11, PAD = 8;
+        const GRID_W = PAD * 2 + COLS * CW + (COLS - 1) * GAP_X;
+        const GRID_H = PAD * 2 + ROWS * CH + (ROWS - 1) * GAP_Y;
+        const BAR_MARGIN = 10;           // mezera mezi kartami a spodními ovládacími prvky
         const MOBILE_BREAK = 1150;       // stejná hranice jako na ostatních stránkách
-        const VIRTUAL_W = 1600, VIRTUAL_H = 900; // rozhraní na mobilu (zmenšené jako celek)
 
         const ICON_FALLBACK = "data:image/svg+xml;utf8," + encodeURIComponent(
             '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52"><rect width="52" height="52" fill="#fff"/><text x="26" y="34" font-family="Arial" font-weight="bold" font-size="22" text-anchor="middle" fill="#B1B1B1">?</text></svg>'
@@ -419,7 +468,10 @@
         let nextTickAt = 0;
         let firstLoad = true;
 
-        let CW = 352, CH = 72, U = 1, GAP_Y = 9, PTS_W = 200;
+        const U = 1, PTS_W = 372 - 7 - 127 - 10;   // šířka pro číslo bodů
+        let hbHidden = false;
+        try { hbHidden = localStorage.getItem("lpHotbarHidden") === "1"; } catch (e) {}
+        document.body.classList.toggle("hb-hidden", hbHidden);
 
         // ---------- HOTBAR (stejné škálování okna jako hlavní menu) ----------
         function autoFitScreen() {
@@ -434,58 +486,66 @@
             scaler.style.transform = `scale(${Math.min(winW / 1120, winH / 650) * 0.92})`;
         }
 
-        // kde je hotbar (ikony) → karty jsou nad ním, LIVE a stránky vedle něj
+        // kde je hotbar (ikony) – bez ohledu na to, jestli je zrovna odsunutý dolů
         function hotbarBox() {
             const btns = document.querySelectorAll(".hb-ghost .ps-hb-btn");
             if (!btns.length) return null;
-            let top = Infinity, bottom = -Infinity;
-            btns.forEach(b => { const r = b.getBoundingClientRect(); top = Math.min(top, r.top); bottom = Math.max(bottom, r.bottom); });
+            const ghost = document.querySelector(".hb-ghost");
+            const shift = new DOMMatrix(getComputedStyle(ghost).transform).m42 || 0;
+            let top = Infinity, bottom = -Infinity, right = -Infinity;
+            btns.forEach(b => {
+                const r = b.getBoundingClientRect();
+                top = Math.min(top, r.top - shift); bottom = Math.max(bottom, r.bottom - shift); right = Math.max(right, r.right);
+            });
             const m = /scale\(([\d.]+)\)/.exec(document.getElementById("appScaler").style.transform || "");
-            return { top, bottom, s: m ? parseFloat(m[1]) : 1 };
-        }
-
-        function placeSides(box) {
-            const left = document.getElementById("sideLeft"), right = document.getElementById("sideRight");
-            const s = box ? box.s : 1;
-            const cy = box ? (box.top + box.bottom) / 2 : window.innerHeight - 60;
-            const pad = 22 * s;
-            left.style.transform = `translate(${pad}px, ${cy}px) translateY(-50%) scale(${s})`;
-            right.style.transform = `translate(${-pad}px, ${cy}px) translateY(-50%) scale(${s})`;
-            left.classList.add("is-ready");
-            right.classList.add("is-ready");
+            return { top, bottom, right, s: m ? parseFloat(m[1]) : 1 };
         }
 
         // ---------- ROZMĚRY ----------
-        function computeLayout() {
+        // Spodní řada: buď hotbar (LIVE vlevo, stránky vpravo, šipka vedle hotbaru),
+        // nebo po schování jen tenký pruh s LIVE, šipkou a stránkami.
+        function computeLayout(animate) {
             const winW = window.innerWidth, winH = window.innerHeight;
             const box = hotbarBox();
-            placeSides(box);
-            const availH = Math.max(200, (box ? box.top : winH - 140) - BAR_MARGIN * (box ? box.s : 1));
-            const mobile = winW < MOBILE_BREAK;
-            const SW = mobile ? VIRTUAL_W : winW;
-            const SH = mobile ? VIRTUAL_H : availH;
-            const scale = mobile ? Math.min(winW / SW, availH / SH) : 1;
+            const s = box ? box.s : (winW < MOBILE_BREAK ? Math.min(winW / 1120, winH / 650) * 0.92 : 1);
+            const stripCy = winH - 40 * s;                      // střed tenkého pruhu
+            const barCy = box ? (box.top + box.bottom) / 2 : stripCy;
+            const cy = hbHidden ? stripCy : barCy;
+            const bottomLimit = hbHidden ? winH - 80 * s : (box ? box.top : winH - 140 * s);
 
-            stage.style.width = SW + "px";
-            stage.style.height = SH + "px";
-            stage.style.transform = mobile
-                ? `translate(${(winW - SW * scale) / 2}px, ${(availH - SH * scale) / 2}px) scale(${scale})`
-                : "none";
+            // hotbar odjede dolů pod okraj
+            const ghost = document.querySelector(".hb-ghost");
+            ghost.style.transform = hbHidden && box ? `translateY(${Math.ceil(winH - box.top + 40)}px)` : "";
 
-            const gridH = SH - PAD_TOP - 6;
-            CW = (SW - PAD_X * 2 - GAP_X * (COLS - 1)) / COLS;
-            CH = gridH / (ROWS + GAP_Y_RATIO * (ROWS - 1));
-            GAP_Y = CH * GAP_Y_RATIO;
-            U = Math.min(CH / 72, CW / 300);
-            PTS_W = CW - 67 * U - 80 * U;
+            // LIVE, stránky a šipka
+            const left = document.getElementById("sideLeft"), right = document.getElementById("sideRight");
+            const tog = document.getElementById("hbToggle");
+            [left, right, tog].forEach(el => el.classList.toggle("is-moving", !!animate));
+            const pad = 22 * s;
+            left.style.transform = `translate(${pad}px, ${cy}px) translateY(-50%) scale(${s})`;
+            right.style.transform = `translate(${-pad}px, ${cy}px) translateY(-50%) scale(${s})`;
+            const tx = hbHidden || !box ? winW / 2 : box.right + 26 * s + 23 * s;
+            tog.style.transform = `translate(${tx - 23}px, ${cy - 23}px) scale(${s})`;
+            [left, right, tog].forEach(el => el.classList.add("is-ready"));
 
-            grid.style.top = PAD_TOP + "px";
-            grid.style.height = gridH + "px";
-            grid.style.setProperty("--u", U + "px");
-            grid.style.setProperty("--cw", CW + "px");
-            grid.style.setProperty("--ch", CH + "px");
-            grid.style.setProperty("--oy", Math.max(0, (CH - 72 * U) / 2 - 3.5 * U) + "px");
+            // mřížka – největší, jaká se vejde, se zachovaným poměrem karet
+            const top = 8 * s;
+            const availW = winW - 12 * s;
+            const availH = Math.max(100, bottomLimit - BAR_MARGIN * s - top);
+            const S = Math.min(availW / GRID_W, availH / GRID_H);
+            const gx = (winW - GRID_W * S) / 2;
+            const gy = top + (availH - GRID_H * S) / 2;
+            grid.classList.toggle("is-animating", !!animate);
+            grid.style.transform = `translate(${gx.toFixed(1)}px, ${gy.toFixed(1)}px) scale(${S.toFixed(4)})`;
         }
+
+        function toggleHotbar() {
+            hbHidden = !hbHidden;
+            document.body.classList.toggle("hb-hidden", hbHidden);
+            try { localStorage.setItem("lpHotbarHidden", hbHidden ? "1" : "0"); } catch (e) {}
+            computeLayout(true);
+        }
+        document.getElementById("hbToggle").addEventListener("click", toggleHotbar);
 
         let resizeRaf = 0;
         let layoutKey = "";
@@ -495,15 +555,9 @@
                 window.autoFitScreen();   // hotbar.js ho obaluje a hned posune lištu
                 const box = hotbarBox();
                 const key = [window.innerWidth, window.innerHeight, box && Math.round(box.top)].join("x");
-                if (key === layoutKey) { placeSides(box); return; }
+                if (key === layoutKey) return;
                 layoutKey = key;
-                computeLayout();
-                widthCache.clear();
-                rendered.forEach(c => {
-                    stopAnim(c);
-                    placeAt(c, slotOf(c.rank));
-                    fitNumber(c, true);
-                });
+                computeLayout(false);
             });
         }
         window.addEventListener("resize", onResize);
@@ -556,7 +610,7 @@
             const i = rank % PER_PAGE;
             const col = Math.floor(i / ROWS);
             const row = i % ROWS;
-            return { x: PAD_X + col * (CW + GAP_X), y: row * (CH + GAP_Y) };
+            return { x: PAD + col * (CW + GAP_X), y: PAD + row * (CH + GAP_Y) };
         }
 
         function pageOf(rank) { return Math.floor(rank / PER_PAGE) + 1; }
@@ -746,7 +800,9 @@
             if (!c.el) return;
             if (c.shownRank !== rank) {
                 c.shownRank = rank;
-                c.rankEl.textContent = `#${rank + 1}`;
+                const txt = `#${rank + 1}`;
+                c.rankEl.textContent = txt;
+                c.rankEl.style.fontSize = (txt.length <= 2 ? 30 : txt.length === 3 ? 27 : 21) + "px";
                 c.rankWrap.classList.toggle("is-first", rank === 0);
             }
             if (pop) {
