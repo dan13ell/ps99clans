@@ -229,9 +229,10 @@
         .lp-follow {
             position: absolute;
             right: 6px;
-            top: 3px;
-            width: 22px;
-            height: 22px;
+            top: 2px;
+            /* na obrazovce vždy aspoň 22 px, i když je karta zmenšená */
+            width: max(24px, calc(22px / var(--k)));
+            height: max(24px, calc(22px / var(--k)));
             display: flex;
             align-items: center;
             justify-content: center;
@@ -248,10 +249,10 @@
             z-index: 6;
         }
         /* větší neviditelná plocha pro kliknutí */
-        .lp-follow::before { content: ""; position: absolute; inset: -9px; border-radius: 50%; }
+        .lp-follow::before { content: ""; position: absolute; inset: -55%; border-radius: 50%; }
         .lp-follow svg {
-            width: 14px;
-            height: 14px;
+            width: 62%;
+            height: 62%;
             fill: none;
             stroke: #262C2D;
             stroke-width: 2.6;
