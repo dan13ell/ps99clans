@@ -498,7 +498,7 @@
                 return;
             }
             document.body.classList.add("is-mobile");
-            scaler.style.transform = `scale(${Math.min(winW / 1120, winH / 650) * 0.92})`;
+            scaler.style.transform = `scale(${Math.min(winW / 1120, winH / 960) * 0.92})`;
         }
 
         // kde je hotbar (ikony) – bez ohledu na to, jestli je zrovna odsunutý dolů
@@ -524,7 +524,7 @@
         function computeLayout(animate) {
             const winW = window.innerWidth, winH = window.innerHeight;
             const box = hotbarBox();
-            const s = box ? box.s : (winW < MOBILE_BREAK ? Math.min(winW / 1120, winH / 650) * 0.92 : 1);
+            const s = box ? box.s : (winW < MOBILE_BREAK ? Math.min(winW / 1120, winH / 960) * 0.92 : 1);
             const stripCy = winH - 40 * s;                      // střed tenkého pruhu
             const barCy = box ? (box.top + box.bottom) / 2 : stripCy;
             const cy = stripCy;                                 // LIVE a stránky vždy úplně dole
