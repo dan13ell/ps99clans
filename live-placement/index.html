@@ -59,17 +59,7 @@
             --cw: 372px;                     /* šířka karty na obrazovce */
             --ch: 72px;                      /* výška karty na obrazovce */
         }
-        /* registrované proměnné → velikost karet se při schování/ukázání lišty plynule animuje */
-        @property --cw { syntax: "<length>"; inherits: true; initial-value: 372px; }
-        @property --ch { syntax: "<length>"; inherits: true; initial-value: 72px; }
-        @property --k  { syntax: "<number>"; inherits: true; initial-value: 1; }
-        .lp-grid.is-animating {
-            transition: transform 0.6s cubic-bezier(0.22, 0.8, 0.25, 1),
-                        --cw 0.6s cubic-bezier(0.22, 0.8, 0.25, 1),
-                        --ch 0.6s cubic-bezier(0.22, 0.8, 0.25, 1),
-                        --k 0.6s cubic-bezier(0.22, 0.8, 0.25, 1);
-        }
-        .lp-grid.is-animating .lp-card { transition: transform 0.6s cubic-bezier(0.22, 0.8, 0.25, 1); }
+
 
         .lp-card {
             position: absolute;
@@ -537,7 +527,8 @@
             const s = box ? box.s : (winW < MOBILE_BREAK ? Math.min(winW / 1120, winH / 650) * 0.92 : 1);
             const stripCy = winH - 40 * s;                      // střed tenkého pruhu
             const barCy = box ? (box.top + box.bottom) / 2 : stripCy;
-            const cy = hbHidden ? stripCy : barCy;
+            const cy = stripCy;                                 // LIVE a stránky vždy úplně dole
+            const togCy = hbHidden ? stripCy : barCy;           // šipka vedle lišty / dole
             const bottomLimit = hbHidden ? winH - 80 * s : (box ? box.top - LABEL_SPACE * s : winH - 160 * s);
 
             // lišta odjede dolů pod okraj (posun je uvnitř zmenšeného okna → děleno s)
@@ -552,29 +543,47 @@
             left.style.transform = `translate(${pad}px, ${cy}px) translateY(-50%) scale(${s})`;
             right.style.transform = `translate(${-pad}px, ${cy}px) translateY(-50%) scale(${s})`;
             const tx = hbHidden || !box ? winW / 2 : box.right + 26 * s + 23 * s;
-            tog.style.transform = `translate(${tx - 23}px, ${cy - 23}px) scale(${s})`;
+            tog.style.transform = `translate(${tx - 23}px, ${togCy - 23}px) scale(${s})`;
             [left, right, tog].forEach(el => el.classList.add("is-ready"));
 
-            // karty přes celou šířku a celou volnou výšku (mezery přesně 8 px a 6 px);
-            // obsah karty se zvětší, kolik dovolí šířka i výška, a nikdy nepřeteče
+            // PC: karty přes celou šířku a celou volnou výšku (mezery přesně 8 px a 6 px).
+            // Mobil: stejné karty jako na PC (rozlišení 1920 px), jen celá mřížka zmenšená.
+            const mobile = winW < MOBILE_BREAK;
             const top = 8 * s;
             const availW = winW - 16 * s;
-            const availH = Math.max(100, bottomLimit - BAR_MARGIN * s - top);
-            let cw = (availW - (COLS - 1) * GAP_PX_X) / COLS;
-            let ch = (availH - (ROWS - 1) * GAP_PX_Y) / ROWS;
-            const minH = cw * 0.16;                       // spodní mez, aby karta nebyla placka
-            if (ch < minH) cw = ch / 0.16;                // pak raději užší karty
-            if (ch > cw * 0.28) ch = cw * 0.28;           // a ne zbytečně vysoké (na úzkých obrazovkách)
+            const availH = Math.max(60, bottomLimit - BAR_MARGIN * s - top);
+            let cw, ch;
+            if (mobile) {
+                cw = (1920 - 16 - (COLS - 1) * GAP_PX_X) / COLS;
+                ch = cw * 0.2;
+            } else {
+                cw = (availW - (COLS - 1) * GAP_PX_X) / COLS;
+                ch = (availH - (ROWS - 1) * GAP_PX_Y) / ROWS;
+                if (ch < cw * 0.16) cw = ch / 0.16;       // aby karta nebyla placka → raději užší
+                if (ch > cw * 0.28) ch = cw * 0.28;       // a ne zbytečně vysoká
+            }
             const k = Math.max(0.05, Math.min(cw / 372, ch / 72));
             const gridW = COLS * cw + (COLS - 1) * GAP_PX_X;
             const gridH = ROWS * ch + (ROWS - 1) * GAP_PX_Y;
-            const gx = (winW - gridW) / 2;
-            const gy = top + (availH - gridH) / 2;
+            const M = mobile ? Math.min(availW / gridW, availH / gridH) : 1;   // zmenšení celé mřížky
+            const gx = (winW - gridW * M) / 2;
+            const gy = top + (availH - gridH * M) / 2;
 
-            grid.classList.toggle("is-animating", !!animate);
-            clearTimeout(computeLayout.t);
-            if (animate) computeLayout.t = setTimeout(() => grid.classList.remove("is-animating"), 700);
-            grid.style.transform = `translate(${gx.toFixed(1)}px, ${gy.toFixed(1)}px)`;
+            // plynulý přechod: karty se hned přestaví na novou velikost a celá mřížka
+            // (jedna vrstva na grafické kartě) se dopočítá ze staré polohy/velikosti → žádné sekání
+            const old = gridBox;
+            gridBox = { x: gx, y: gy, w: gridW * M, h: gridH * M };
+            if (gridAnim) { gridAnim.cancel(); gridAnim = null; }
+            const finalT = `translate(${gx.toFixed(1)}px, ${gy.toFixed(1)}px) scale(${M.toFixed(4)})`;
+            grid.style.transform = finalT;
+            if (animate && old && !document.hidden) {
+                const sx = old.w / gridBox.w, sy = old.h / gridBox.h;
+                gridAnim = grid.animate([
+                    { transform: `translate(${old.x.toFixed(1)}px, ${old.y.toFixed(1)}px) scale(${(M * sx).toFixed(4)}, ${(M * sy).toFixed(4)})` },
+                    { transform: finalT }
+                ], { duration: 600, easing: "cubic-bezier(0.22, 0.8, 0.25, 1)" });
+                gridAnim.onfinish = () => { gridAnim = null; };
+            }
             grid.style.setProperty("--cw", cw.toFixed(2) + "px");
             grid.style.setProperty("--ch", ch.toFixed(2) + "px");
             grid.style.setProperty("--k", k.toFixed(4));
@@ -593,6 +602,8 @@
                 });
             }
         }
+
+        let gridBox = null, gridAnim = null;
 
         function toggleHotbar() {
             hbHidden = !hbHidden;
