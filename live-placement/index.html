@@ -137,10 +137,10 @@
             pointer-events: none;
         }
         .lp-rank-num {
-            font-size: 22px;
+            font-size: 19px;
             line-height: 1;
             color: #FFFFFF;
-            -webkit-text-stroke: 5px #000000;
+            -webkit-text-stroke: 4.5px #000000;
             paint-order: stroke fill;
             font-weight: 800 !important;
             white-space: nowrap;
@@ -153,9 +153,9 @@
         /* zelená šipka nahoru po předběhnutí (nad číslem pořadí) */
         .lp-up {
             position: absolute;
-            left: calc(50% - 8px);
-            top: 1px;
-            font-size: 16px;
+            left: calc(50% - 6.5px);
+            top: 6px;
+            font-size: 13px;
             line-height: 1;
             color: #3BE15C;
             -webkit-text-stroke: 5px #000000;
@@ -166,11 +166,11 @@
 
         .lp-icon {
             position: absolute;
-            left: 49px;
-            top: 4.5px;
-            width: 56px;
-            height: 56px;
-            border-radius: 10px;
+            left: 50px;
+            top: 9.5px;
+            width: 46px;
+            height: 46px;
+            border-radius: 9px;
             background-color: #FFFFFF;
             object-fit: contain;
             box-shadow: 0 0 0 calc(2 * var(--u)) rgba(0, 0, 0, 0.12);
@@ -178,20 +178,20 @@
 
         .lp-flag {
             position: absolute;
-            left: 114px;
-            top: 3px;
-            width: 18px;
-            height: 18px;
+            left: 107px;
+            top: 7px;
+            width: 16px;
+            height: 16px;
         }
 
         .lp-name {
             position: absolute;
-            left: 137px;
-            top: 1px;
-            font-size: 17px;
+            left: 128px;
+            top: 5.5px;
+            font-size: 15px;
             line-height: 1.2;
             color: #FEFEFE;
-            -webkit-text-stroke: 5px #000000;
+            -webkit-text-stroke: 4px #000000;
             paint-order: stroke fill;
             font-weight: 800 !important;
             white-space: nowrap;
@@ -201,9 +201,9 @@
            při přičtení se filtr plynule uvolní → zezelená (filtr běží na GPU) */
         .lp-pts {
             position: absolute;
-            left: 113px;
-            top: 20px;
-            height: 44px;
+            left: 106px;
+            top: 25px;
+            height: 34px;
             display: flex;
             align-items: center;
             color: #17A63E;
@@ -239,12 +239,12 @@
 
         .lp-delta {
             position: absolute;
-            right: 9px;
-            top: 11px;
-            font-size: 17px;
+            right: 12px;
+            top: 14.5px;
+            font-size: 15px;
             line-height: 1;
             color: #3BE15C;
-            -webkit-text-stroke: calc(5 * var(--u)) #000000;
+            -webkit-text-stroke: 4px #000000;
             paint-order: stroke fill;
             font-weight: 800 !important;
             white-space: nowrap;
@@ -269,9 +269,12 @@
         .hb-ghost .game-window { position: relative; width: 1100px; height: 570px; }
         .hb-ghost .menu-bg { width: 1100px; height: 570px; visibility: hidden; }
         .hb-ghost .ps-hotbar { pointer-events: auto; }
-        .hb-ghost { transition: transform 0.6s cubic-bezier(0.22, 0.8, 0.25, 1), opacity 0.4s ease; }
-        body.hb-hidden .hb-ghost { opacity: 0; }
-        body.hb-hidden .hb-ghost .ps-hotbar { pointer-events: none; }
+        /* schování: odjede jen samotná lišta (hotbar.js měří okno, ne lištu → nic se nerozhodí) */
+        .hb-ghost .ps-hotbar {
+            transform: translateX(-50%) translateY(var(--hb-hide, 0px));
+            transition: transform 0.6s cubic-bezier(0.22, 0.8, 0.25, 1), opacity 0.4s ease;
+        }
+        body.hb-hidden .hb-ghost .ps-hotbar { opacity: 0; pointer-events: none; }
 
         /* šipka, která schová / ukáže navigační tlačítka */
         .lp-toggle {
@@ -471,7 +474,7 @@
         let nextTickAt = 0;
         let firstLoad = true;
 
-        const U = 1, PTS_W = 365 - 113 - 8;   // šířka pro číslo bodů
+        const U = 1, PTS_W = 365 - 106 - 14;   // šířka pro číslo bodů
         let hbHidden = false;
         try { hbHidden = localStorage.getItem("lpHotbarHidden") === "1"; } catch (e) {}
         document.body.classList.toggle("hb-hidden", hbHidden);
@@ -493,8 +496,10 @@
         function hotbarBox() {
             const btns = document.querySelectorAll(".hb-ghost .ps-hb-btn");
             if (!btns.length) return null;
-            const ghost = document.querySelector(".hb-ghost");
-            const shift = new DOMMatrix(getComputedStyle(ghost).transform).m42 || 0;
+            const bar = document.querySelector(".hb-ghost .ps-hotbar");
+            const m0 = /scale\(([\d.]+)\)/.exec(document.getElementById("appScaler").style.transform || "");
+            const sc = m0 ? parseFloat(m0[1]) : 1;
+            const shift = bar ? (new DOMMatrix(getComputedStyle(bar).transform).m42 || 0) * sc : 0;
             let top = Infinity, bottom = -Infinity, right = -Infinity;
             btns.forEach(b => {
                 const r = b.getBoundingClientRect();
@@ -516,9 +521,9 @@
             const cy = hbHidden ? stripCy : barCy;
             const bottomLimit = hbHidden ? winH - 80 * s : (box ? box.top : winH - 140 * s);
 
-            // hotbar odjede dolů pod okraj
-            const ghost = document.querySelector(".hb-ghost");
-            ghost.style.transform = hbHidden && box ? `translateY(${Math.ceil(winH - box.top + 40)}px)` : "";
+            // lišta odjede dolů pod okraj (posun je uvnitř zmenšeného okna → děleno s)
+            const bar = document.querySelector(".hb-ghost .ps-hotbar");
+            if (bar) bar.style.setProperty("--hb-hide", hbHidden && box ? Math.ceil((winH - box.top + 40) / s) + "px" : "0px");
 
             // LIVE, stránky a šipka
             const left = document.getElementById("sideLeft"), right = document.getElementById("sideRight");
@@ -623,7 +628,7 @@
                 w = measurer.offsetWidth || 1;
                 widthCache.set(key, w);
             }
-            const size = Math.max(16, Math.min(44, (100 * PTS_W * 0.98) / w));
+            const size = Math.max(16, Math.min(36, (100 * PTS_W * 0.98) / w));
             c.numEl.style.fontSize = size.toFixed(2) + "px";
         }
 
@@ -823,7 +828,7 @@
                 c.shownRank = rank;
                 const txt = `#${rank + 1}`;
                 c.rankEl.textContent = txt;
-                c.rankEl.style.fontSize = (txt.length <= 2 ? 24 : txt.length === 3 ? 21 : 17) + "px";
+                c.rankEl.style.fontSize = (txt.length <= 2 ? 20 : txt.length === 3 ? 18 : 14.5) + "px";
                 c.rankWrap.classList.toggle("is-gold", rank === 0);
                 c.rankWrap.classList.toggle("is-silver", rank === 1);
                 c.rankWrap.classList.toggle("is-bronze", rank === 2);
