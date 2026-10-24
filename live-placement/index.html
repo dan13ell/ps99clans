@@ -218,6 +218,49 @@
             transition: filter 2s cubic-bezier(0.25, 0.1, 0.25, 1);
         }
         .lp-inner.is-gain .lp-pts { filter: saturate(1) brightness(1); transition: filter 0.3s ease-out; }
+
+        /* ---------- SLEDOVANÝ KLAN: černá karta, bílé body ---------- */
+        .lp-inner { transition: transform 0.044s cubic-bezier(0.1, 0.9, 0.2, 1), background-color 0.35s ease; }
+        .lp-card.is-followed .lp-inner { background-color: #15171C; }
+        .lp-card.is-followed .lp-pts { filter: saturate(0) brightness(2.4); }
+        .lp-card.is-followed .lp-inner.is-gain .lp-pts { filter: saturate(1.1) brightness(1.4); }
+
+        /* tlačítko FOLLOW – ukáže se při najetí myší (na mobilu po prvním ťuknutí) */
+        .lp-follow {
+            position: absolute;
+            right: 7px;
+            top: 4px;
+            height: 19px;
+            padding: 0 8px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            background: #FFFFFF;
+            border: 2px solid #000000;
+            border-radius: 7px;
+            box-shadow: 0 2px 0 #000000;
+            font-size: 11px;
+            line-height: 1;
+            font-weight: 700 !important;
+            color: #262C2D;
+            white-space: nowrap;
+            cursor: pointer;
+            opacity: 0;
+            transform: scale(0.85);
+            transform-origin: right center;
+            pointer-events: none;
+            transition: opacity 0.15s ease, transform 0.15s cubic-bezier(0.2, 0.8, 0.2, 1);
+            z-index: 6;
+        }
+        .lp-follow::before { content: "☆"; font-size: 12px; }
+        .lp-card.is-followed .lp-follow { background: #FFD43B; }
+        .lp-card.is-followed .lp-follow::before { content: "★"; }
+        .lp-card.show-follow .lp-follow { opacity: 1; transform: scale(1); pointer-events: auto; }
+        @media (hover: hover) {
+            .lp-card:hover .lp-follow { opacity: 1; transform: scale(1); pointer-events: auto; }
+        }
+        .lp-follow:hover { filter: brightness(0.95); }
+        .lp-follow:active { transform: scale(0.92) !important; }
         /* ODOMETR – stejné chování jako odometer.js (theme minimal, "slide"):
            každá číslice má pás hodnot, nižší řády jich mají víc (točí se rychleji),
            celý pás odjede za 2 s s "ease". Rozdíl: pás je jeden textový uzel místo
@@ -645,6 +688,31 @@
             return m ? `https://ps99.biggamesapi.io/image/${m[0]}` : ICON_FALLBACK;
         }
 
+        // ---------- SLEDOVANÉ KLANY (pamatují se v prohlížeči) ----------
+        const IS_TOUCH = window.matchMedia && matchMedia("(hover: none)").matches;
+        let followed = new Set();
+        try { followed = new Set(JSON.parse(localStorage.getItem("lpFollowed") || "[]")); } catch (e) {}
+
+        function applyFollow(c) {
+            if (!c.el) return;
+            const on = followed.has(c.name);
+            c.el.classList.toggle("is-followed", on);
+            c.el.querySelector(".lp-follow").textContent = on ? "FOLLOWING" : "FOLLOW";
+        }
+
+        function toggleFollow(c) {
+            if (followed.has(c.name)) followed.delete(c.name); else followed.add(c.name);
+            try { localStorage.setItem("lpFollowed", JSON.stringify([...followed])); } catch (e) {}
+            applyFollow(c);
+        }
+
+        // ťuknutí mimo kartu schová tlačítko FOLLOW
+        document.addEventListener("click", (e) => {
+            if (!e.target.closest || !e.target.closest(".lp-card")) {
+                document.querySelectorAll(".lp-card.show-follow").forEach(x => x.classList.remove("show-follow"));
+            }
+        });
+
         function formatDelta(n) {
             if (n < 10000) return "+" + n.toLocaleString("en-US");
             const f = (v, s) => "+" + (v < 10 ? parseFloat(v.toFixed(2)) : v < 100 ? parseFloat(v.toFixed(1)) : Math.floor(v)) + s;
@@ -702,6 +770,7 @@
                         <div class="lp-name"></div>
                         <div class="lp-pts"><span class="num"></span></div>
                         <div class="lp-delta"></div>
+                        <div class="lp-follow" role="button"></div>
                     </div>
 
                 </div>`;
@@ -720,7 +789,18 @@
             icon.src = getClanIconUrl(c.data.Icon);
             el.querySelector(".lp-flag").src = getTwemojiUrl(c.data.CountryCode);
             el.querySelector(".lp-name").textContent = `[${c.name}]`;
-            el.onclick = () => { location.href = `/clan-detail/?name=${encodeURIComponent(c.name)}`; };
+            el.onclick = () => {
+                // na dotykovém displeji první ťuknutí jen ukáže tlačítko FOLLOW
+                if (IS_TOUCH && !el.classList.contains("show-follow")) {
+                    document.querySelectorAll(".lp-card.show-follow").forEach(x => x.classList.remove("show-follow"));
+                    el.classList.add("show-follow");
+                    return;
+                }
+                location.href = `/clan-detail/?name=${encodeURIComponent(c.name)}`;
+            };
+            const fb = el.querySelector(".lp-follow");
+            fb.onclick = (e) => { e.stopPropagation(); toggleFollow(c); };
+            applyFollow(c);
 
             setNumberStatic(c, c.shown);
             c.renderedPts = c.shown;
