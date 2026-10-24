@@ -564,6 +564,7 @@
             let ch = (availH - (ROWS - 1) * GAP_PX_Y) / ROWS;
             const minH = cw * 0.16;                       // spodní mez, aby karta nebyla placka
             if (ch < minH) cw = ch / 0.16;                // pak raději užší karty
+            if (ch > cw * 0.28) ch = cw * 0.28;           // a ne zbytečně vysoké (na úzkých obrazovkách)
             const k = Math.max(0.05, Math.min(cw / 372, ch / 72));
             const gridW = COLS * cw + (COLS - 1) * GAP_PX_X;
             const gridH = ROWS * ch + (ROWS - 1) * GAP_PX_Y;
