@@ -17,7 +17,7 @@
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@600;700;800&family=Roboto:wght@800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@600;700;800&family=Roboto:wght@800;900&display=swap" rel="stylesheet">
     <link rel="preload" as="image" href="/images/page-select.png">
 
     <style>
@@ -54,11 +54,21 @@
             left: 0;
             top: 0;
             transform-origin: 0 0;
-            --u: 1px;
-            --cw: 372px;
-            --ch: 72px;
+            --k: 1;                          /* zvětšení obsahu karty */
+            --u: calc(var(--k) * 1px);       /* 1 designový pixel */
+            --cw: 372px;                     /* šířka karty na obrazovce */
+            --ch: 72px;                      /* výška karty na obrazovce */
         }
-        .lp-grid.is-animating,
+        /* registrované proměnné → velikost karet se při schování/ukázání lišty plynule animuje */
+        @property --cw { syntax: "<length>"; inherits: true; initial-value: 372px; }
+        @property --ch { syntax: "<length>"; inherits: true; initial-value: 72px; }
+        @property --k  { syntax: "<number>"; inherits: true; initial-value: 1; }
+        .lp-grid.is-animating {
+            transition: transform 0.6s cubic-bezier(0.22, 0.8, 0.25, 1),
+                        --cw 0.6s cubic-bezier(0.22, 0.8, 0.25, 1),
+                        --ch 0.6s cubic-bezier(0.22, 0.8, 0.25, 1),
+                        --k 0.6s cubic-bezier(0.22, 0.8, 0.25, 1);
+        }
         .lp-grid.is-animating .lp-card { transition: transform 0.6s cubic-bezier(0.22, 0.8, 0.25, 1); }
 
         .lp-card {
@@ -118,9 +128,16 @@
         }
         .lp-inner.is-gain .lp-glow { opacity: 1; transition: opacity 0.3s ease-out; }
 
+        /* obsah karty je navržený v jednotkách 365×65 (vnitřek karty 372×72) a zvětšuje se
+           o --k; když je karta vyšší, zůstane obsah svisle uprostřed */
         .lp-content {
             position: absolute;
-            inset: 0;
+            left: 0;
+            top: 50%;
+            width: calc((var(--cw) - 7 * var(--u)) / var(--k));
+            height: 65px;
+            transform-origin: 0 0;
+            transform: scale(var(--k)) translateY(-50%);
             pointer-events: none;
         }
 
@@ -130,7 +147,7 @@
             left: 0;
             top: 0;
             bottom: 0;
-            width: 50px;
+            width: 46px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -166,28 +183,28 @@
 
         .lp-icon {
             position: absolute;
-            left: 50px;
+            left: 46px;
             top: 9.5px;
             width: 46px;
             height: 46px;
             border-radius: 9px;
             background-color: #FFFFFF;
             object-fit: contain;
-            box-shadow: 0 0 0 calc(2 * var(--u)) rgba(0, 0, 0, 0.12);
+            box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.12);
         }
 
         .lp-flag {
             position: absolute;
-            left: 107px;
-            top: 7px;
+            left: 101px;
+            top: 6px;
             width: 16px;
             height: 16px;
         }
 
         .lp-name {
             position: absolute;
-            left: 128px;
-            top: 5.5px;
+            left: 122px;
+            top: 4.5px;
             font-size: 15px;
             line-height: 1.2;
             color: #FEFEFE;
@@ -201,13 +218,13 @@
            při přičtení se filtr plynule uvolní → zezelená (filtr běží na GPU) */
         .lp-pts {
             position: absolute;
-            left: 106px;
-            top: 25px;
-            height: 34px;
+            left: 100px;
+            top: 22px;
+            height: 40px;
             display: flex;
             align-items: center;
             color: #17A63E;
-            filter: saturate(0) brightness(0.3);
+            filter: saturate(0) brightness(0.12);
             transition: filter 2s cubic-bezier(0.25, 0.1, 0.25, 1);
         }
         .lp-inner.is-gain .lp-pts { filter: saturate(1) brightness(1); transition: filter 0.3s ease-out; }
@@ -218,7 +235,7 @@
         .num {
             display: inline-flex;
             font-family: 'Roboto', sans-serif !important;
-            font-weight: 800 !important;
+            font-weight: 900 !important;
             font-variant-numeric: tabular-nums;
             line-height: 1.1;
             white-space: nowrap;
@@ -239,8 +256,8 @@
 
         .lp-delta {
             position: absolute;
-            right: 12px;
-            top: 14.5px;
+            right: 10px;
+            top: 13.5px;
             font-size: 15px;
             line-height: 1;
             color: #3BE15C;
@@ -456,8 +473,9 @@
         // karta 372×72, mřížka 5×10 – navržená v pevných rozměrech, zvětšuje se jako celek
         const CW = 372, CH = 72;
         const GAP_PX_X = 8, GAP_PX_Y = 6;   // mezery mezi kartami na obrazovce (px) – nezávisle na zvětšení
-        let GAP_X = 8, GAP_Y = 6;            // tytéž mezery v jednotkách mřížky (dopočítá se)
+        let CARD_W = 372, CARD_H = 72;       // skutečná velikost karty na obrazovce (dopočítá se)
         const BAR_MARGIN = 10;           // mezera mezi kartami a spodními ovládacími prvky
+        const LABEL_SPACE = 26;          // místo na popisek tlačítka (zobrazí se nad ikonou při najetí myší)
         const MOBILE_BREAK = 1150;       // stejná hranice jako na ostatních stránkách
 
         const ICON_FALLBACK = "data:image/svg+xml;utf8," + encodeURIComponent(
@@ -474,7 +492,8 @@
         let nextTickAt = 0;
         let firstLoad = true;
 
-        const U = 1, PTS_W = 365 - 106 - 14;   // šířka pro číslo bodů
+        let U = 1;                       // zvětšení obsahu karty (k)
+        let PTS_W = 365 - 100 - 10;      // šířka pro číslo bodů (v jednotkách obsahu)
         let hbHidden = false;
         try { hbHidden = localStorage.getItem("lpHotbarHidden") === "1"; } catch (e) {}
         document.body.classList.toggle("hb-hidden", hbHidden);
@@ -519,7 +538,7 @@
             const stripCy = winH - 40 * s;                      // střed tenkého pruhu
             const barCy = box ? (box.top + box.bottom) / 2 : stripCy;
             const cy = hbHidden ? stripCy : barCy;
-            const bottomLimit = hbHidden ? winH - 80 * s : (box ? box.top : winH - 140 * s);
+            const bottomLimit = hbHidden ? winH - 80 * s : (box ? box.top - LABEL_SPACE * s : winH - 160 * s);
 
             // lišta odjede dolů pod okraj (posun je uvnitř zmenšeného okna → děleno s)
             const bar = document.querySelector(".hb-ghost .ps-hotbar");
@@ -536,27 +555,36 @@
             tog.style.transform = `translate(${tx - 23}px, ${cy - 23}px) scale(${s})`;
             [left, right, tog].forEach(el => el.classList.add("is-ready"));
 
-            // mřížka – největší, jaká se vejde, se zachovaným poměrem karet 372×72
-            // a s mezerami přesně 8 px (vedle sebe) a 6 px (pod sebou)
+            // karty přes celou šířku a celou volnou výšku (mezery přesně 8 px a 6 px);
+            // obsah karty se zvětší, kolik dovolí šířka i výška, a nikdy nepřeteče
             const top = 8 * s;
             const availW = winW - 16 * s;
             const availH = Math.max(100, bottomLimit - BAR_MARGIN * s - top);
-            const S = Math.max(0.05, Math.min(
-                (availW - (COLS - 1) * GAP_PX_X) / (COLS * CW),
-                (availH - (ROWS - 1) * GAP_PX_Y) / (ROWS * CH)
-            ));
-            const newGapX = GAP_PX_X / S, newGapY = GAP_PX_Y / S;
-            const gridW = COLS * CW + (COLS - 1) * newGapX;
-            const gridH = ROWS * CH + (ROWS - 1) * newGapY;
-            const gx = (winW - gridW * S) / 2;
-            const gy = top + (availH - gridH * S) / 2;
+            let cw = (availW - (COLS - 1) * GAP_PX_X) / COLS;
+            let ch = (availH - (ROWS - 1) * GAP_PX_Y) / ROWS;
+            const minH = cw * 0.16;                       // spodní mez, aby karta nebyla placka
+            if (ch < minH) cw = ch / 0.16;                // pak raději užší karty
+            const k = Math.max(0.05, Math.min(cw / 372, ch / 72));
+            const gridW = COLS * cw + (COLS - 1) * GAP_PX_X;
+            const gridH = ROWS * ch + (ROWS - 1) * GAP_PX_Y;
+            const gx = (winW - gridW) / 2;
+            const gy = top + (availH - gridH) / 2;
+
             grid.classList.toggle("is-animating", !!animate);
             clearTimeout(computeLayout.t);
             if (animate) computeLayout.t = setTimeout(() => grid.classList.remove("is-animating"), 700);
-            grid.style.transform = `translate(${gx.toFixed(1)}px, ${gy.toFixed(1)}px) scale(${S.toFixed(4)})`;
-            if (Math.abs(newGapX - GAP_X) > 0.01 || Math.abs(newGapY - GAP_Y) > 0.01) {
-                GAP_X = newGapX; GAP_Y = newGapY;
+            grid.style.transform = `translate(${gx.toFixed(1)}px, ${gy.toFixed(1)}px)`;
+            grid.style.setProperty("--cw", cw.toFixed(2) + "px");
+            grid.style.setProperty("--ch", ch.toFixed(2) + "px");
+            grid.style.setProperty("--k", k.toFixed(4));
+
+            const changed = Math.abs(cw - CARD_W) > 0.01 || Math.abs(ch - CARD_H) > 0.01;
+            CARD_W = cw; CARD_H = ch; U = k;
+            PTS_W = (cw - 7 * k) / k - 100 - 10;
+            if (changed) {
+                widthCache.clear();
                 rendered.forEach(c => {
+                    fitNumber(c, true);
                     if (c.leaving || !isFinite(c.rank)) return;
                     stopAnim(c);
                     placeAt(c, slotOf(c.rank));
@@ -612,7 +640,7 @@
 
         // velikost písma čísla podle šířky (měří se jednou pro každý počet číslic)
         const measurer = document.createElement("span");
-        measurer.style.cssText = "position:absolute;left:-9999px;top:-9999px;visibility:hidden;white-space:nowrap;font-size:100px;font-family:'Roboto',sans-serif !important;font-weight:800 !important;font-variant-numeric:tabular-nums;";
+        measurer.style.cssText = "position:absolute;left:-9999px;top:-9999px;visibility:hidden;white-space:nowrap;font-size:100px;font-family:'Roboto',sans-serif !important;font-weight:900 !important;font-variant-numeric:tabular-nums;";
         document.body.appendChild(measurer);
         const widthCache = new Map();
 
@@ -628,7 +656,7 @@
                 w = measurer.offsetWidth || 1;
                 widthCache.set(key, w);
             }
-            const size = Math.max(16, Math.min(36, (100 * PTS_W * 0.98) / w));
+            const size = Math.max(16, Math.min(40, (100 * PTS_W * 0.98) / w));
             c.numEl.style.fontSize = size.toFixed(2) + "px";
         }
 
@@ -636,7 +664,7 @@
             const i = rank % PER_PAGE;
             const col = Math.floor(i / ROWS);
             const row = i % ROWS;
-            return { x: col * (CW + GAP_X), y: row * (CH + GAP_Y) };
+            return { x: col * (CARD_W + GAP_PX_X), y: row * (CARD_H + GAP_PX_Y) };
         }
 
         function pageOf(rank) { return Math.floor(rank / PER_PAGE) + 1; }
@@ -653,13 +681,14 @@
                 <div class="lp-inner">
                     <div class="lp-glow"></div>
                     <div class="lp-content">
+                        <div class="lp-rank"><span class="lp-rank-num"></span><span class="lp-up">▲</span></div>
                         <img class="lp-icon" draggable="false" decoding="async">
                         <img class="lp-flag" draggable="false" decoding="async">
                         <div class="lp-name"></div>
                         <div class="lp-pts"><span class="num"></span></div>
                         <div class="lp-delta"></div>
                     </div>
-                    <div class="lp-rank"><span class="lp-rank-num"></span><span class="lp-up">▲</span></div>
+
                 </div>`;
             c.el = el;
             c.inner = el.querySelector(".lp-inner");
