@@ -17,7 +17,7 @@
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@600;700;800&family=Roboto:wght@800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@600;700;800&family=Roboto:wght@800&display=swap" rel="stylesheet">
     <link rel="preload" as="image" href="/images/page-select.png">
 
     <style>
@@ -224,7 +224,7 @@
             display: flex;
             align-items: center;
             color: #17A63E;
-            filter: saturate(0) brightness(0.12);
+            filter: saturate(0) brightness(0.3);
             transition: filter 2s cubic-bezier(0.25, 0.1, 0.25, 1);
         }
         .lp-inner.is-gain .lp-pts { filter: saturate(1) brightness(1); transition: filter 0.3s ease-out; }
@@ -235,7 +235,7 @@
         .num {
             display: inline-flex;
             font-family: 'Roboto', sans-serif !important;
-            font-weight: 900 !important;
+            font-weight: 800 !important;
             font-variant-numeric: tabular-nums;
             line-height: 1.1;
             white-space: nowrap;
@@ -641,7 +641,7 @@
 
         // velikost písma čísla podle šířky (měří se jednou pro každý počet číslic)
         const measurer = document.createElement("span");
-        measurer.style.cssText = "position:absolute;left:-9999px;top:-9999px;visibility:hidden;white-space:nowrap;font-size:100px;font-family:'Roboto',sans-serif !important;font-weight:900 !important;font-variant-numeric:tabular-nums;";
+        measurer.style.cssText = "position:absolute;left:-9999px;top:-9999px;visibility:hidden;white-space:nowrap;font-size:100px;font-family:'Roboto',sans-serif !important;font-weight:800 !important;font-variant-numeric:tabular-nums;";
         document.body.appendChild(measurer);
         const widthCache = new Map();
 
