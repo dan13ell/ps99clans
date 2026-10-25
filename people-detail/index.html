@@ -212,6 +212,10 @@
         }
         .pd-clan:hover:not(:active) { transform: scale(1.05); }
         .pd-clan:active { transform: scale(0.95); }
+        .pd-clan.is-none { cursor: default; }
+        .pd-clan.is-none:hover:not(:active), .pd-clan.is-none:active { transform: none; }
+        .pd-clan.is-none .pd-clan-tag { font-size: 20px; color: #8A9099; -webkit-text-stroke: 0; paint-order: normal; }
+        .pd-clan.is-none .pd-clan-tag::after { display: none; }
         .pd-clan-label { font-size: 16px; font-weight: 700 !important; color: #696A6E; }
         .pd-clan-tag { font-size: 24px; -webkit-text-stroke: 6px #000000; }
         .pd-points { position: absolute; left: 124px; top: 96px; height: 34px; display: flex; align-items: center; gap: 6px; }
@@ -702,8 +706,12 @@
                 $("pdContent").classList.add("is-visible");
 
                 setName(p.username || `User ${p.userId}`);
-                $("pdClanTag").textContent = p.clan || "-";
-                $("pdClan").onclick = () => { if (p.clan) location.href = `/clan-detail/?name=${encodeURIComponent(p.clan)}`; };
+                // inClan === false: hráče už nikdo neviděl v žádném klanu; body zůstávají, klan je jen poslední známý
+                const noClan = p.inClan === false;
+                $("pdClan").classList.toggle("is-none", noClan);
+                $("pdClan").title = noClan && p.clan ? `Not in a clan right now. Last clan: ${p.clan}` : "";
+                $("pdClanTag").textContent = noClan ? "No clan" : (p.clan || "-");
+                $("pdClan").onclick = () => { if (!noClan && p.clan) location.href = `/clan-detail/?name=${encodeURIComponent(p.clan)}`; };
                 $("pdPoints").textContent = fullNumber(p.points);
                 fillRank(p, json.neighbors);
 

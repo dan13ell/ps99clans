@@ -305,6 +305,7 @@
             pointer-events: none;
         }
 
+        .player-clan-badge.no-clan { background-color: #3B3F45; color: #B9C0C8; text-transform: none; font-weight: 700 !important; }
         .player-clan-badge {
             position: absolute;
             left: 50%;
@@ -680,7 +681,7 @@
                 const json = await res.json();
                 if (json && json.status === "ok" && json.found && json.player) {
                     const p = json.player;
-                    return { UserID: p.userId, Username: p.username, Clan: p.clan, Points: p.points, Rank: p.rank };
+                    return { UserID: p.userId, Username: p.username, Clan: p.clan, InClan: p.inClan, Points: p.points, Rank: p.rank };
                 }
             } catch (e) {
                 console.warn("Search fallback failed:", e.message);
@@ -717,7 +718,9 @@
                     <div class="${rankClass}" style="color: ${rankColor};">#${absoluteRank}</div>
                     <img class="player-avatar" id="${imgId}" src="data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==" alt="" draggable="false">
                     <div class="player-userid" id="name-${player.UserID}-${index}" title="${escapeHtml(displayName)}">${escapeHtml(displayName)}</div>
-                    <div class="player-clan-badge">${escapeHtml(player.Clan)}</div>
+                    ${player.InClan === false
+                        ? `<div class="player-clan-badge no-clan" title="Last clan: ${escapeHtml(player.Clan)}">No clan</div>`
+                        : `<div class="player-clan-badge">${escapeHtml(player.Clan)}</div>`}
                     <div class="player-points-box">
                         <div class="points-icon"></div>
                         <div class="player-points">${formattedPoints}</div>
