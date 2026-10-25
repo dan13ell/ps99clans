@@ -219,55 +219,6 @@
         }
         .lp-inner.is-gain .lp-pts { filter: saturate(1) brightness(1); transition: filter 0.3s ease-out; }
 
-        /* ---------- SLEDOVANÝ KLAN: černá karta, bílé body ---------- */
-        .lp-inner { transition: transform 0.044s cubic-bezier(0.1, 0.9, 0.2, 1), background-color 0.35s ease; }
-        .lp-card.is-followed .lp-inner { background-color: #131A2C; }
-        .lp-card.is-followed .lp-pts { filter: saturate(0) brightness(2.4); }
-        .lp-card.is-followed .lp-inner.is-gain .lp-pts { filter: saturate(1.1) brightness(1.4); }
-
-        /* kulaté tlačítko s hvězdou – ukáže se při najetí myší (na mobilu po prvním ťuknutí) */
-        .lp-follow {
-            position: absolute;
-            right: 6px;
-            top: 2px;
-            /* na obrazovce vždy aspoň 22 px, i když je karta zmenšená */
-            width: max(24px, calc(22px / var(--k)));
-            height: max(24px, calc(22px / var(--k)));
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: #FFFFFF;
-            border: 2px solid #000000;
-            border-radius: 50%;
-            box-shadow: 0 2px 0 #000000;
-            cursor: pointer;
-            opacity: 0;
-            transform: scale(0.85);
-            transform-origin: right center;
-            pointer-events: none;
-            transition: opacity 0.15s ease, transform 0.15s cubic-bezier(0.2, 0.8, 0.2, 1);
-            z-index: 6;
-        }
-        /* větší neviditelná plocha pro kliknutí */
-        .lp-follow::before { content: ""; position: absolute; inset: -55%; border-radius: 50%; }
-        .lp-follow svg {
-            width: 62%;
-            height: 62%;
-            fill: none;
-            stroke: #262C2D;
-            stroke-width: 2.6;
-            stroke-linejoin: round;
-            pointer-events: none;
-            transition: fill 0.15s ease;
-        }
-        .lp-card.is-followed .lp-follow { background: #FFD43B; }
-        .lp-card.is-followed .lp-follow svg { fill: #FFFFFF; stroke: #000000; }
-        .lp-card.show-follow .lp-follow { opacity: 1; transform: scale(1); pointer-events: auto; }
-        @media (hover: hover) {
-            .lp-card:hover .lp-follow { opacity: 1; transform: scale(1); pointer-events: auto; }
-        }
-        .lp-follow:hover { transform: scale(1.12) !important; }
-        .lp-follow:active { transform: scale(0.9) !important; }
         /* ODOMETR – stejné chování jako odometer.js (theme minimal, "slide"):
            každá číslice má pás hodnot, nižší řády jich mají víc (točí se rychleji),
            celý pás odjede za 2 s s "ease". Rozdíl: pás je jeden textový uzel místo
@@ -695,33 +646,6 @@
             return m ? `https://ps99.biggamesapi.io/image/${m[0]}` : ICON_FALLBACK;
         }
 
-        // ---------- SLEDOVANÉ KLANY (pamatují se v prohlížeči) ----------
-        const IS_TOUCH = window.matchMedia && matchMedia("(hover: none)").matches;
-        let followed = new Set();
-        try { followed = new Set(JSON.parse(localStorage.getItem("lpFollowed") || "[]")); } catch (e) {}
-
-        function applyFollow(c) {
-            if (!c.el) return;
-            const on = followed.has(c.name);
-            c.el.classList.toggle("is-followed", on);
-            const fb = c.el.querySelector(".lp-follow");
-            fb.title = on ? "Unfollow" : "Follow";
-            fb.setAttribute("aria-label", fb.title);
-        }
-
-        function toggleFollow(c) {
-            if (followed.has(c.name)) followed.delete(c.name); else followed.add(c.name);
-            try { localStorage.setItem("lpFollowed", JSON.stringify([...followed])); } catch (e) {}
-            applyFollow(c);
-        }
-
-        // ťuknutí mimo kartu schová tlačítko FOLLOW
-        document.addEventListener("click", (e) => {
-            if (!e.target.closest || !e.target.closest(".lp-card")) {
-                document.querySelectorAll(".lp-card.show-follow").forEach(x => x.classList.remove("show-follow"));
-            }
-        });
-
         function formatDelta(n) {
             if (n < 10000) return "+" + n.toLocaleString("en-US");
             const f = (v, s) => "+" + (v < 10 ? parseFloat(v.toFixed(2)) : v < 100 ? parseFloat(v.toFixed(1)) : Math.floor(v)) + s;
@@ -779,7 +703,6 @@
                         <div class="lp-name"></div>
                         <div class="lp-pts"><span class="num"></span></div>
                         <div class="lp-delta"></div>
-                        <div class="lp-follow" role="button"><svg viewBox="0 0 24 24"><path d="M12 2.8l2.8 5.9 6.5.8-4.8 4.5 1.2 6.4L12 17.2l-5.7 3.2 1.2-6.4-4.8-4.5 6.5-.8z"/></svg></div>
                     </div>
 
                 </div>`;
@@ -798,18 +721,7 @@
             icon.src = getClanIconUrl(c.data.Icon);
             el.querySelector(".lp-flag").src = getTwemojiUrl(c.data.CountryCode);
             el.querySelector(".lp-name").textContent = `[${c.name}]`;
-            el.onclick = () => {
-                // na dotykovém displeji první ťuknutí jen ukáže tlačítko FOLLOW
-                if (IS_TOUCH && !el.classList.contains("show-follow")) {
-                    document.querySelectorAll(".lp-card.show-follow").forEach(x => x.classList.remove("show-follow"));
-                    el.classList.add("show-follow");
-                    return;
-                }
-                location.href = `/clan-detail/?name=${encodeURIComponent(c.name)}`;
-            };
-            const fb = el.querySelector(".lp-follow");
-            fb.onclick = (e) => { e.stopPropagation(); toggleFollow(c); };
-            applyFollow(c);
+            el.onclick = () => { location.href = `/clan-detail/?name=${encodeURIComponent(c.name)}`; };
 
             setNumberStatic(c, c.shown);
             c.renderedPts = c.shown;
