@@ -251,7 +251,7 @@
         .pd-stat-value.is-na { color: #B1B1B1; -webkit-text-stroke: 0; font-size: 24px; }
 
         /* --- graf --- */
-        .pd-chart-card { position: absolute; left: 0; top: 214px; width: 736px; height: 330px; }
+        .pd-chart-card { position: absolute; left: 0; top: 214px; width: 736px; height: 274px; }
         .pd-chart-title { position: absolute; left: 16px; top: 6px; font-size: 22px; line-height: 28px; -webkit-text-stroke: 5px #000000; }
         .pd-chart-sub { position: absolute; left: 16px; top: 36px; font-size: 13px; font-weight: 700 !important; color: #696A6E; white-space: nowrap; max-width: 440px; overflow: hidden; text-overflow: ellipsis; }
         .pd-badge { position: absolute; right: 16px; top: 9px; display: flex; align-items: center; gap: 6px; font-size: 14px; font-weight: 700 !important; color: #262C2D; pointer-events: none; }
@@ -263,7 +263,7 @@
         .pd-legend i { display: inline-block; }
         .pd-leg-dot { width: 10px; height: 10px; border-radius: 50%; background: #FFFFFF; border: 2px solid #000000; }
         .pd-leg-dash { width: 18px; height: 0; border-top: 2px dashed #262C2D; opacity: 0.6; }
-        .pd-chart-svg { position: absolute; left: 6px; top: 58px; width: 716px; height: 262px; overflow: visible; }
+        .pd-chart-svg { position: absolute; left: 6px; top: 58px; width: 716px; height: 206px; overflow: visible; }
         .pd-chart-svg text { font-family: 'Fredoka', sans-serif; font-weight: 700; font-size: 11px; fill: #262C2D; }
         .pd-hit { fill: transparent; cursor: pointer; }
         .pd-tip {
@@ -272,10 +272,23 @@
         }
         .pd-tip-title { font-size: 14px; font-weight: 800 !important; color: #262C2D; line-height: 17px; }
         .pd-tip-body { font-size: 13px; font-weight: 700 !important; color: #262C2D; line-height: 16px; }
-        .pd-chart-msg { position: absolute; left: 0; right: 0; top: 96px; text-align: center; padding: 0 60px; display: none; }
+        .pd-chart-msg { position: absolute; left: 0; right: 0; top: 70px; text-align: center; padding: 0 60px; display: none; }
         .pd-chart-msg.is-visible { display: block; }
         .pd-chart-msg-main { font-size: 30px; font-weight: 800 !important; color: #262C2D; line-height: 1.15; margin-bottom: 8px; }
         .pd-chart-msg-sub { font-size: 18px; font-weight: 700 !important; color: #9E9E9E; line-height: 1.25; }
+
+        /* --- tlačítko na historii válek pod grafem --- */
+        .pd-hist-btn {
+            position: absolute; left: 198px; top: 496px; width: 340px; height: 48px;
+            display: flex; align-items: center; justify-content: center; cursor: pointer;
+            background: linear-gradient(180deg, #5BA4FF 0%, #1F6FFF 100%);
+            border: 4px solid #000000; border-radius: 12px; box-shadow: 0 4px 0 #0B3C99;
+            transition: transform 0.044s cubic-bezier(0.1, 0.9, 0.2, 1), box-shadow 0.044s cubic-bezier(0.1, 0.9, 0.2, 1);
+            -webkit-tap-highlight-color: transparent;
+        }
+        .pd-hist-btn:hover:not(:active) { transform: translateY(-2px) scale(1.03); box-shadow: 0 6px 0 #0B3C99; }
+        .pd-hist-btn:active { transform: translateY(3px) scale(0.97); box-shadow: 0 1px 0 #0B3C99; }
+        .pd-hist-text { font-size: 22px; letter-spacing: 0.5px; -webkit-text-stroke: 5px #000000; pointer-events: none; }
 
         .pd-center-msg { position: absolute; left: 334px; top: 210px; width: 770px; text-align: center; padding: 0 40px; font-size: 34px; font-weight: 800 !important; color: #B1B1B1; z-index: 950; }
         .pd-center-msg.is-error { color: #ff4a4a; }
@@ -423,13 +436,15 @@
                         <div class="pd-chart-sub" id="pdChartSub"></div>
                         <div class="pd-badge" id="pdBadge"><span class="pd-dot"></span><span id="pdBadgeText"></span></div>
                         <div class="pd-legend"><span><i class="pd-leg-dot"></i>Hourly points</span><span><i class="pd-leg-dash"></i>Average</span></div>
-                        <svg class="pd-chart-svg" id="pdChartSvg" viewBox="0 0 716 262"></svg>
+                        <svg class="pd-chart-svg" id="pdChartSvg" viewBox="0 0 716 206"></svg>
                         <div class="pd-tip" id="pdTip"><div class="pd-tip-title" id="pdTipTitle"></div><div class="pd-tip-body" id="pdTipBody"></div></div>
                         <div class="pd-chart-msg" id="pdChartMsg">
                             <div class="pd-chart-msg-main" id="pdChartMsgMain"></div>
                             <div class="pd-chart-msg-sub" id="pdChartMsgSub"></div>
                         </div>
                     </div>
+
+                    <div class="pd-hist-btn" id="pdHistBtn" role="link" tabindex="0"><span class="pd-hist-text pd-outline">WAR HISTORY</span></div>
                 </div>
             </div>
 
@@ -569,7 +584,7 @@
         const pad2 = x => String(x).padStart(2, "0");
         const hh = ts => pad2(new Date(ts * 1000).getHours());
 
-        const SVG_W = 716, SVG_H = 262, PAD_L = 54, PAD_R = 26, PAD_T = 26, PAD_B = 28;
+        const SVG_W = 716, SVG_H = 206, PAD_L = 54, PAD_R = 26, PAD_T = 26, PAD_B = 28;
 
         function setStats(history, ended, available) {
             const vals = ["stTotal", "stAvg", "stBest", "stLatest"];
@@ -713,6 +728,7 @@
                 $("pdClanTag").textContent = noClan ? "No clan" : (p.clan || "-");
                 $("pdClan").onclick = () => { if (!noClan && p.clan) location.href = `/clan-detail/?name=${encodeURIComponent(p.clan)}`; };
                 $("pdPoints").textContent = fullNumber(p.points);
+                $("pdHistBtn").onclick = () => { location.href = `/people-history/?id=${encodeURIComponent(p.userId)}`; };
                 fillRank(p, json.neighbors);
 
                 // avatary: hlavní ve větším rozlišení, sousedé malé (dva dotazy najednou)
