@@ -20,7 +20,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     
     <link rel="preload" as="image" href="/images/main-menu.png">
-    <link rel="preload" as="image" href="/images/history-button-clicked.png">
     <link rel="preload" as="image" href="/images/X.png">
     <link rel="preload" as="image" href="/images/X-clicked.png">
     <link rel="preload" as="image" href="/images/scroller.png">
@@ -192,9 +191,10 @@
         .ph-wrap { position: absolute; left: 344px; top: 12px; width: 736px; height: 544px; z-index: 910; display: none; }
         .ph-wrap.is-visible { display: block; }
 
-        .ph-avatar { position: absolute; left: 0; top: 4px; width: 92px; height: 92px; border-radius: 50%; background-color: #FFFFFF; border: 4px solid #000000; object-fit: cover; }
+        .ph-avatar { position: absolute; left: 0; top: 2px; width: 92px; height: 92px; border-radius: 50%; background-color: #FFFFFF; border: 4px solid #000000; object-fit: cover; }
+        .ph-kicker { position: absolute; left: 108px; top: 0; font-size: 13px; font-weight: 800 !important; letter-spacing: 1px; color: #696A6E; line-height: 16px; }
         .ph-name {
-            position: absolute; left: 108px; top: 8px; font-size: 38px; line-height: 48px;
+            position: absolute; left: 108px; top: 14px; font-size: 38px; line-height: 48px;
             color: #000000; -webkit-text-stroke: 6px #000000; stroke-linejoin: round; -webkit-stroke-linejoin: round;
             paint-order: stroke fill; font-weight: 800 !important; white-space: nowrap;
         }
@@ -202,53 +202,58 @@
             content: attr(data-text); position: absolute; left: 0; top: 0; -webkit-text-stroke: 0px transparent;
             background: linear-gradient(to bottom, #7CF6FA, #60E0FE); -webkit-background-clip: text; -webkit-text-fill-color: transparent;
         }
-        .ph-sub { position: absolute; left: 108px; top: 62px; font-size: 15px; font-weight: 700 !important; color: #696A6E; white-space: nowrap; }
+        .ph-sub { position: absolute; left: 108px; top: 66px; font-size: 14px; font-weight: 700 !important; color: #696A6E; white-space: nowrap; }
         .ph-sub b { color: #262C2D; font-weight: 800 !important; }
+        .ph-count { position: absolute; right: 0; top: 6px; width: 212px; height: 72px; text-align: center; }
+        .ph-count-num { position: absolute; left: 0; right: 0; top: 2px; font-size: 34px; line-height: 40px; -webkit-text-stroke: 7px #000000; }
+        .ph-count-label { position: absolute; left: 0; right: 0; top: 44px; font-size: 13px; font-weight: 700 !important; color: #696A6E; line-height: 16px; }
 
-        /* dvě souhrnné karty vpravo od jména */
-        .ph-sum { position: absolute; top: 4px; width: 168px; height: 92px; text-align: center; }
-        .ph-sum-1 { left: 392px; }
-        .ph-sum-2 { left: 568px; }
-        .ph-sum-label { position: absolute; left: 0; right: 0; top: 6px; font-size: 12px; font-weight: 800 !important; letter-spacing: 0.8px; color: #696A6E; line-height: 15px; }
-        .ph-sum-value { position: absolute; left: 0; right: 0; top: 24px; font-size: 32px; line-height: 38px; -webkit-text-stroke: 7px #000000; }
-        .ph-sum-value.is-na { color: #B1B1B1; -webkit-text-stroke: 0; font-size: 24px; }
-        .ph-sum-sub { position: absolute; left: 6px; right: 6px; top: 66px; font-size: 12px; font-weight: 700 !important; color: #696A6E; line-height: 15px; white-space: nowrap; overflow: hidden; }
+        .ph-stats { position: absolute; left: 0; top: 104px; width: 736px; height: 74px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+        .ph-stat { position: relative; height: 74px; text-align: center; }
+        .ph-stat-label { position: absolute; left: 0; right: 0; top: 4px; font-size: 12px; font-weight: 800 !important; letter-spacing: 0.8px; color: #696A6E; line-height: 15px; }
+        .ph-stat-value { position: absolute; left: 0; right: 0; top: 19px; font-size: 26px; line-height: 32px; -webkit-text-stroke: 7px #000000; }
+        .ph-stat-value.is-na { color: #B1B1B1; -webkit-text-stroke: 0; font-size: 22px; }
+        .ph-stat-sub { position: absolute; left: 6px; right: 6px; top: 52px; font-size: 12px; font-weight: 700 !important; color: #696A6E; line-height: 14px; white-space: nowrap; overflow: hidden; }
 
-        /* posuvný seznam válek (jezdec dodává scrollbar.js) */
-        .ph-scroll {
-            position: absolute; left: 0; top: 112px; width: 736px; height: 432px; padding-right: 24px;
-            overflow-y: auto; overflow-x: hidden; touch-action: pan-y; overscroll-behavior: contain;
+        .ph-list { position: absolute; left: 0; top: 188px; width: 736px; height: 356px; }
+        .ph-cols { position: absolute; left: 14px; right: 14px; top: 6px; height: 18px; font-size: 11px; font-weight: 800 !important; letter-spacing: 0.8px; color: #696A6E; }
+        .ph-cols span { position: absolute; top: 0; line-height: 18px; white-space: nowrap; }
+        .ph-rows { position: absolute; left: 8px; right: 8px; top: 28px; }
+        .ph-row {
+            position: relative; height: 50px; margin-bottom: 6px; background: #FFFFFF; border: 3px solid #000000; border-radius: 10px;
+            -webkit-tap-highlight-color: transparent;
         }
-        .ph-war {
-            position: relative; height: 96px; margin-bottom: 10px; background-color: #F7FFFF; border: 4px solid #000000; border-radius: 12px;
-        }
-        .ph-war.is-live { background-color: #EAFBFF; }
-        .ph-war > * { position: absolute; }
-        /* odznak s pořadím: barva podle toho, jak vysoko je hráč */
-        .ph-medal {
-            left: 8px; top: 8px; width: 112px; height: 72px; border: 4px solid #000000; border-radius: 10px;
-            display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center;
-            background: linear-gradient(180deg, #E9EEF2 0%, #BFC8D0 100%);
-        }
-        .ph-medal.t1 { background: linear-gradient(180deg, #FFF0A6 0%, #FFC83D 100%); }
-        .ph-medal.t2 { background: linear-gradient(180deg, #9FFBFF 0%, #4FD6FF 100%); }
-        .ph-medal.t3 { background: linear-gradient(180deg, #D3E8FF 0%, #98C4F4 100%); }
-        .ph-medal-num { font-size: 26px; line-height: 30px; -webkit-text-stroke: 6px #000000; }
-        .ph-medal-of { font-size: 11px; font-weight: 800 !important; color: #262C2D; line-height: 13px; opacity: 0.75; }
-        .ph-battle { left: 136px; top: 6px; width: 330px; font-size: 25px; line-height: 30px; -webkit-text-stroke: 6px #000000; }
-        .ph-clan { left: 136px; top: 40px; max-width: 120px; height: 20px; padding: 0 11px; border-radius: 10px; background: #000000; color: #8AFCED; font-size: 13px; line-height: 20px; font-weight: 800 !important; letter-spacing: 0.5px; text-transform: uppercase; overflow: hidden; white-space: nowrap; }
-        .ph-flag { top: 40px; height: 20px; padding: 0 9px; border-radius: 10px; font-size: 11px; line-height: 16px; font-weight: 800 !important; letter-spacing: 0.6px; color: #FFFFFF; background: #2ECC40; border: 2px solid #000000; }
+        .ph-row.is-live { background: #EAFBFF; }
+        .ph-row > * { position: absolute; }
+        .ph-battle { left: 10px; top: 3px; width: 214px; font-size: 19px; line-height: 24px; -webkit-text-stroke: 5px #000000; }
+        .ph-clan { left: 10px; top: 27px; max-width: 150px; height: 16px; padding: 0 9px; border-radius: 8px; background: #000000; color: #8AFCED; font-size: 11px; line-height: 16px; font-weight: 800 !important; letter-spacing: 0.4px; text-transform: uppercase; overflow: hidden; white-space: nowrap; }
+        .ph-flag { left: 168px; top: 28px; height: 15px; padding: 0 7px; border-radius: 8px; font-size: 10px; line-height: 15px; font-weight: 800 !important; letter-spacing: 0.5px; color: #FFFFFF; background: #2ECC40; border: 2px solid #000000; }
         .ph-flag.is-latest { background: #9AA3AD; }
-        .ph-pts { left: 136px; top: 64px; height: 22px; display: flex; align-items: center; gap: 5px; }
+        .ph-pts { left: 232px; top: 0; width: 126px; height: 44px; display: flex; align-items: center; justify-content: flex-end; gap: 4px; }
         .ph-pts img { width: 24px; height: 20px; object-fit: contain; }
-        .ph-pts-num { font-size: 18px; -webkit-text-stroke: 5px #000000; }
-        .ph-stand { right: 14px; top: 10px; width: 190px; height: 68px; text-align: right; }
-        .ph-stand-top { position: absolute; right: 0; top: 0; font-size: 28px; line-height: 32px; -webkit-text-stroke: 6px #000000; }
-        .ph-stand-label { position: absolute; right: 0; top: 33px; font-size: 11px; font-weight: 800 !important; letter-spacing: 0.8px; color: #696A6E; line-height: 13px; }
-        .ph-stand-bar { position: absolute; left: 0; right: 0; top: 52px; height: 12px; border: 2px solid #000000; border-radius: 7px; background: #D5E3E3; }
-        .ph-stand-bar > i { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 5px; background: linear-gradient(to bottom, #7CF6FA, #60E0FE); }
-        .ph-stand-bar > b { position: absolute; top: 50%; width: 14px; height: 14px; margin: -7px 0 0 -7px; border-radius: 50%; background: #FFFFFF; border: 2px solid #000000; }
-        .ph-empty { text-align: center; padding: 40px 30px; font-size: 22px; font-weight: 800 !important; color: #9E9E9E; }
+        .ph-pts-num { font-size: 20px; -webkit-text-stroke: 5px #000000; }
+        .ph-rank { left: 370px; top: 0; width: 120px; height: 44px; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; }
+        .ph-rank-num { font-size: 20px; line-height: 22px; font-weight: 800 !important; color: #262C2D; }
+        .ph-rank-total { font-size: 11px; font-weight: 700 !important; color: #696A6E; line-height: 13px; }
+        .ph-bar { left: 502px; top: 17px; width: 112px; height: 10px; border: 2px solid #000000; border-radius: 6px; background: #D5E3E3; }
+        .ph-bar > i { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 4px; background: linear-gradient(to bottom, #7CF6FA, #60E0FE); }
+        .ph-top { right: 10px; top: 0; width: 84px; height: 44px; display: flex; flex-direction: column; justify-content: center; align-items: flex-end; text-align: right; }
+        .ph-top-num { font-size: 17px; line-height: 19px; font-weight: 800 !important; color: #262C2D; }
+        .ph-top-sub { font-size: 10px; font-weight: 700 !important; color: #696A6E; line-height: 12px; }
+
+        .ph-pager { position: absolute; left: 0; right: 0; bottom: 6px; height: 34px; display: flex; align-items: center; justify-content: center; gap: 14px; }
+        .ph-pg-btn {
+            width: 46px; height: 30px; border: 3px solid #000000; border-radius: 9px; cursor: pointer; display: flex; align-items: center; justify-content: center;
+            background: linear-gradient(180deg, #5BA4FF 0%, #1F6FFF 100%); box-shadow: 0 3px 0 #0B3C99; -webkit-tap-highlight-color: transparent;
+            transition: transform 0.044s cubic-bezier(0.1, 0.9, 0.2, 1), box-shadow 0.044s cubic-bezier(0.1, 0.9, 0.2, 1);
+        }
+        .ph-pg-btn:hover:not(:active) { transform: translateY(-1px) scale(1.05); }
+        .ph-pg-btn:active { transform: translateY(2px) scale(0.96); box-shadow: 0 1px 0 #0B3C99; }
+        .ph-pg-btn.is-off { opacity: 0.35; pointer-events: none; }
+        .ph-pg-btn i { width: 0; height: 0; border-top: 7px solid transparent; border-bottom: 7px solid transparent; }
+        .ph-pg-btn.prev i { border-right: 11px solid #FFFFFF; margin-right: 3px; }
+        .ph-pg-btn.next i { border-left: 11px solid #FFFFFF; margin-left: 3px; }
+        .ph-pg-text { min-width: 110px; text-align: center; font-size: 15px; font-weight: 800 !important; color: #262C2D; }
 
         .pd-center-msg { position: absolute; left: 334px; top: 210px; width: 770px; text-align: center; padding: 0 40px; font-size: 34px; font-weight: 800 !important; color: #B1B1B1; z-index: 950; }
         .pd-center-msg.is-error { color: #ff4a4a; }
@@ -353,13 +358,29 @@
 
                 <div class="ph-wrap" id="phContent">
                     <img class="ph-avatar" id="phAvatar" src="data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==" alt="" draggable="false">
+                    <div class="ph-kicker">WAR HISTORY</div>
                     <div class="ph-name" id="phName" data-text="">&nbsp;</div>
                     <div class="ph-sub" id="phSub"></div>
+                    <div class="ph-count pd-card">
+                        <div class="ph-count-num pd-outline" id="phCount">0</div>
+                        <div class="ph-count-label">wars joined</div>
+                    </div>
 
-                    <div class="ph-sum ph-sum-1 pd-card"><div class="ph-sum-label">BEST FINISH</div><div class="ph-sum-value pd-outline" id="sumBestV">N/A</div><div class="ph-sum-sub" id="sumBestS"></div></div>
-                    <div class="ph-sum ph-sum-2 pd-card"><div class="ph-sum-label">LAST 5 WARS</div><div class="ph-sum-value pd-outline" id="sumRecentV">N/A</div><div class="ph-sum-sub" id="sumRecentS"></div></div>
+                    <div class="ph-stats">
+                        <div class="ph-stat pd-card"><div class="ph-stat-label">BEST FINISH</div><div class="ph-stat-value pd-outline" id="stBestV">N/A</div><div class="ph-stat-sub" id="stBestS"></div></div>
+                        <div class="ph-stat pd-card"><div class="ph-stat-label">LAST 5 WARS</div><div class="ph-stat-value pd-outline" id="stRecentV">N/A</div><div class="ph-stat-sub" id="stRecentS"></div></div>
+                        <div class="ph-stat pd-card"><div class="ph-stat-label">ALL WARS</div><div class="ph-stat-value pd-outline" id="stAllV">N/A</div><div class="ph-stat-sub" id="stAllS"></div></div>
+                    </div>
 
-                    <div class="ph-scroll" id="phScroll"></div>
+                    <div class="ph-list pd-card">
+                        <div class="ph-cols"><span style="left:2px">WAR / CLAN</span><span style="left:224px;width:126px;text-align:right">POINTS</span><span style="left:362px;width:120px;text-align:center">PLACE</span><span style="left:494px">STANDING</span></div>
+                        <div class="ph-rows" id="phRows"></div>
+                        <div class="ph-pager">
+                            <div class="ph-pg-btn prev" id="pgPrev"><i></i></div>
+                            <div class="ph-pg-text" id="pgText">PAGE 1 / 1</div>
+                            <div class="ph-pg-btn next" id="pgNext"><i></i></div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -369,6 +390,8 @@
 
     <script>
         const WORKER_URL = "https://rough-pine-d90f.ps99clans.workers.dev";
+        const BLANK = "data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==";
+        const PER_PAGE = 5;
         const $ = id => document.getElementById(id);
         const userId = parseInt(new URLSearchParams(location.search).get("id"), 10);
 
@@ -384,7 +407,6 @@
         // "HatchWarBattle2026" -> "Hatch War Battle 2026"
         function prettyBattle(n) { return String(n || "").replace(/([a-z])([A-Z])/g, "$1 $2").replace(/([A-Za-z])(\d)/g, "$1 $2"); }
         const topPct = better => Math.max(0, 100 - better);
-        const fmtPct = v => (v < 10 ? v.toFixed(2) : v.toFixed(1)).replace(/\.?0+$/, "");
 
         function showCenter(text, isError) {
             $("phContent").classList.remove("is-visible");
@@ -411,7 +433,7 @@
             el.textContent = name;
             el.setAttribute("data-text", name);
             document.title = `${name} - War History - PS99 Clans`;
-            fitWidth(el, 276, 38, 18, 0.15);
+            fitWidth(el, 440, 38, 20, 0.15);
         }
 
         async function fetchAvatar(id) {
@@ -434,57 +456,48 @@
             } catch (e) { console.warn("Jméno se nepodařilo načíst:", e.message); }
         }
 
-        function setSum(idV, idS, value, sub) {
+        function setStat(idV, idS, value, sub) {
             const v = $(idV);
             v.textContent = value == null ? "N/A" : value;
             v.classList.toggle("is-na", value == null);
             $(idS).textContent = sub || "";
         }
 
-        function fillSummary(stats) {
-            const b = stats.best, r = stats.last5;
-            setSum("sumBestV", "sumBestS", b ? `#${fullNumber(b.rank)}` : null,
-                b ? `${prettyBattle(b.battle)}` : "No finished war yet");
-            setSum("sumRecentV", "sumRecentS", r && r.wars ? `#${fullNumber(Math.round(r.avgRank))}` : null,
-                r && r.wars ? `avg place · top ${fmtPct(topPct(r.avgBetterThan))}%` : "");
+        function fillStats(stats) {
+            const b = stats.best;
+            setStat("stBestV", "stBestS", b ? `#${fullNumber(b.rank)}` : null,
+                b ? `of ${fullNumber(b.total)} · ${prettyBattle(b.battle)}` : "No finished war yet");
+            const r = stats.last5, a = stats.overall;
+            setStat("stRecentV", "stRecentS", r.wars ? `#${fullNumber(Math.round(r.avgRank))}` : null,
+                r.wars ? `avg place · top ${topPct(r.avgBetterThan).toFixed(1)}%` : "");
+            setStat("stAllV", "stAllS", a.wars ? `#${fullNumber(Math.round(a.avgRank))}` : null,
+                a.wars ? `avg place · top ${topPct(a.avgBetterThan).toFixed(1)}%` : "");
         }
 
-        function tierOf(b) {
-            if (b.betterThan == null) return "";
-            const top = topPct(b.betterThan);
-            return top <= 1 ? "t1" : top <= 5 ? "t2" : top <= 25 ? "t3" : "";
-        }
+        let battles = [], page = 1;
 
-        function renderWars(battles) {
-            const box = $("phScroll");
-            box.innerHTML = battles.map(b => {
-                const better = b.betterThan == null ? 0 : Math.min(100, b.betterThan);
-                const flag = b.live ? "LIVE" : (b.current ? "LATEST" : "");
-                return `<div class="ph-war${b.live ? " is-live" : ""}">
-                    <div class="ph-medal ${tierOf(b)}">
-                        <div class="ph-medal-num pd-outline" data-fit="90">#${fullNumber(b.rank)}</div>
-                        <div class="ph-medal-of">${b.total ? "of " + fullNumber(b.total) : "&nbsp;"}</div>
-                    </div>
-                    <div class="ph-battle pd-outline" data-fit="330">${esc(prettyBattle(b.battle))}</div>
-                    <div class="ph-clan">${esc(b.clan || "-")}</div>
-                    ${flag ? `<div class="ph-flag${b.live ? "" : " is-latest"}" data-flag="1">${flag}</div>` : ""}
-                    <div class="ph-pts"><img src="/images/stars.png" alt="" draggable="false"><span class="ph-pts-num pd-outline">${fullNumber(b.points)}</span></div>
-                    <div class="ph-stand">
-                        <div class="ph-stand-top pd-outline">${b.betterThan == null ? "-" : "Top " + fmtPct(topPct(better)) + "%"}</div>
-                        <div class="ph-stand-label">${b.live ? "STANDING SO FAR" : "STANDING"}</div>
-                        <div class="ph-stand-bar"><i style="width:${better.toFixed(1)}%"></i><b style="left:${better.toFixed(1)}%"></b></div>
-                    </div>
+        function renderPage() {
+            const pages = Math.max(1, Math.ceil(battles.length / PER_PAGE));
+            page = Math.min(Math.max(1, page), pages);
+            const slice = battles.slice((page - 1) * PER_PAGE, page * PER_PAGE);
+            $("phRows").innerHTML = slice.map(b => {
+                const better = b.betterThan == null ? 0 : b.betterThan;
+                const flag = b.live ? `<div class="ph-flag">LIVE</div>` : (b.current ? `<div class="ph-flag is-latest">LATEST</div>` : "");
+                return `<div class="ph-row${b.live ? " is-live" : ""}">
+                    <div class="ph-battle pd-outline" data-fit="1">${esc(prettyBattle(b.battle))}</div>
+                    <div class="ph-clan">${esc(b.clan || "-")}</div>${flag}
+                    <div class="ph-pts"><img src="/images/stars.png" alt="" draggable="false"><span class="ph-pts-num pd-outline">${short2(b.points)}</span></div>
+                    <div class="ph-rank"><div class="ph-rank-num">#${fullNumber(b.rank)}</div><div class="ph-rank-total">${b.total ? "of " + fullNumber(b.total) : ""}</div></div>
+                    <div class="ph-bar"><i style="width:${Math.min(100, better).toFixed(1)}%"></i></div>
+                    <div class="ph-top"><div class="ph-top-num">${b.betterThan == null ? "-" : "Top " + topPct(better).toFixed(1) + "%"}</div><div class="ph-top-sub">${b.live ? "so far" : ""}</div></div>
                 </div>`;
             }).join("");
-            box.querySelectorAll("[data-fit]").forEach(el => fitWidth(el, +el.dataset.fit, parseFloat(getComputedStyle(el).fontSize), 12, 0.24));
-            // štítek LIVE / LATEST hned za klanem
-            box.querySelectorAll(".ph-war").forEach(row => {
-                const clan = row.querySelector(".ph-clan"), flag = row.querySelector("[data-flag]");
-                if (clan && flag) flag.style.left = (136 + clan.offsetWidth + 8) + "px";
-            });
+            document.querySelectorAll("#phRows [data-fit]").forEach(el => fitWidth(el, 214, 19, 11, 0.26));
+            $("pgText").textContent = `PAGE ${page} / ${pages}`;
+            $("pgPrev").classList.toggle("is-off", page <= 1);
+            $("pgNext").classList.toggle("is-off", page >= pages);
         }
 
-        let allBattles = [];
         async function loadHistory() {
             if (!userId) { showCenter("Player not found."); return; }
             $("backBtn").onclick = () => { location.href = `/people-detail/?id=${encodeURIComponent(userId)}`; };
@@ -493,7 +506,7 @@
                 const json = await res.json();
                 if (!json || json.status !== "ok") { showCenter("API Error.", true); return; }
                 if (!json.found || !json.battles.length) {
-                    showCenter("No war history for this player yet.");
+                    showCenter("No war history for this player yet. Results appear here once a clan war has finished.");
                     return;
                 }
                 $("centerMsg").style.display = "none";
@@ -503,16 +516,19 @@
                 setName(p.username || `User ${p.userId}`);
                 if (!p.username) loadMissingName(p.userId);
                 fetchAvatar(p.userId);
-                const n = json.stats.wars;
-                $("phSub").innerHTML = `<b>${n}</b> ${n === 1 ? "war" : "wars"} &middot; ID ${esc(p.userId)}`;
-                fillSummary(json.stats);
-                allBattles = json.battles;
-                renderWars(allBattles);
+                $("phSub").innerHTML = `Clan war results &middot; ID <b>${esc(p.userId)}</b>`;
+                $("phCount").textContent = String(json.stats.wars);
+                fillStats(json.stats);
+                battles = json.battles;
+                renderPage();
             } catch (err) {
                 console.error(err);
                 showCenter("API Error.", true);
             }
         }
+
+        $("pgPrev").onclick = () => { page--; renderPage(); };
+        $("pgNext").onclick = () => { page++; renderPage(); };
 
         function autoFitScreen() {
             const scaler = $("appScaler");
@@ -527,7 +543,7 @@
         window.addEventListener("orientationchange", autoFitScreen);
         window.addEventListener("DOMContentLoaded", autoFitScreen);
         window.addEventListener("DOMContentLoaded", loadHistory);
-        if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { if (currentName) setName(currentName); if (allBattles.length) renderWars(allBattles); });
+        if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { if (currentName) setName(currentName); if (battles.length) renderPage(); });
     </script>
 
     <a href="https://forms.gle/2DWB7Hzcv2XZ1PVCA" target="_blank" class="ps99-feedback-btn">
@@ -535,7 +551,7 @@
     </a>
 
     <a href="/privacy/" class="privacy-link">Privacy Policy</a>
-    <script src="/scrollbar.js?v=3"></script>
+    <script src="/scrollbar.js?v=2"></script>
     <script src="/hotbar.js?v=5"></script>
 </body>
 </html>
