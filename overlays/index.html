@@ -50,21 +50,11 @@
         .game-window { position: relative; display: inline-block; overflow: visible; }
         .menu-bg { display: block; width: auto; height: auto; filter: drop-shadow(0px 10px 20px rgba(0, 0, 0, 0.35)); }
 
-        /* logo "Overlays!" ve stejném stylu jako Clans! / Compare! */
-        .ov-logo { position: absolute; left: -36px; top: -66px; height: 112px; display: flex; align-items: center; gap: 4px; z-index: 998; pointer-events: none; }
-        .ov-logo img { height: 112px; width: auto; filter: drop-shadow(0 4px 0 rgba(0,0,0,0.25)); }
-        .ov-logo span {
-            margin-top: 18px;
-            font-size: 64px;
-            line-height: 1;
-            color: #FFFFFF;
-            -webkit-text-stroke: 11px #2B2D33;
-            stroke-linejoin: round;
-            -webkit-stroke-linejoin: round;
-            paint-order: stroke fill;
-            font-weight: 700 !important;
-            letter-spacing: 0.5px;
-            filter: drop-shadow(0 4px 0 rgba(0,0,0,0.25));
+        /* logo */
+        .ov-logo {
+            position: absolute; left: -36px; top: -69px; width: 338px; height: 112px;
+            background: url("/images/overlays-logo.png") no-repeat center center; background-size: 100% 100%;
+            z-index: 998; pointer-events: none;
         }
 
         .close-btn {
@@ -81,8 +71,9 @@
         .ov-scroll {
             position: absolute; left: 8px; top: 7px; width: 1096px; height: 556px;
             overflow-y: auto; overflow-x: hidden; z-index: 900;
-            clip-path: inset(0 0 0 0 round 16px);
+            border-radius: 16px;
             touch-action: pan-y !important; overscroll-behavior: contain !important;
+            contain: strict;
         }
         .ov-inner { position: relative; width: 1096px; padding: 52px 24px 22px 12px; display: flex; flex-direction: column; gap: 16px; }
 
@@ -143,46 +134,63 @@
 
         /* ---------- nastavení + náhled ---------- */
         .row-cfg { display: flex; gap: 14px; align-items: stretch; }
-        .settings { flex: 0 0 420px; padding: 14px 16px 16px; display: flex; flex-direction: column; gap: 12px; }
+        .settings { flex: 0 0 430px; padding: 0; display: flex; flex-direction: column; overflow: hidden; }
         .preview { flex: 1 1 auto; min-width: 0; padding: 14px 16px 14px; display: flex; flex-direction: column; }
+
+        .set-head { display: flex; align-items: center; gap: 10px; padding: 12px 16px; background: linear-gradient(180deg, #8FF8FB 0%, #48D2F7 100%); border-bottom: 4px solid #000; }
+        .set-head .title-stroke { font-size: 22px; }
+        .set-head small { margin-left: auto; padding: 1px 10px; border-radius: 10px; border: 3px solid #000; background: #FFF; font-size: 13px; font-weight: 800 !important; color: #1C2130; }
+        .set-body { padding: 4px 16px 16px; display: flex; flex-direction: column; }
+        .group { padding: 12px 0 12px; border-bottom: 3px dashed #E3E6EE; display: flex; flex-direction: column; gap: 10px; }
+        .group:last-child { border-bottom: none; padding-bottom: 0; }
+        .group-t { display: flex; align-items: center; gap: 7px; font-size: 13px; font-weight: 800 !important; color: #8E9099; letter-spacing: 0.8px; text-transform: uppercase; }
+        .group-t i { display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; border-radius: 7px; border: 2px solid #000; background: #FFE873; font-style: normal; font-size: 12px; color: #1C2130; }
 
         .field { display: flex; flex-direction: column; gap: 5px; }
         .field-l { display: flex; align-items: center; justify-content: space-between; gap: 8px; font-size: 15px; font-weight: 800 !important; color: #1C2130; }
         .field-l small { font-size: 12px; font-weight: 700 !important; color: #8E9099; }
-        .two { display: flex; gap: 10px; }
+        .two { display: flex; gap: 10px; align-items: flex-end; }
         .two > .field { flex: 1 1 0; min-width: 0; }
         .inp {
-            position: relative; height: 46px; border: 3px solid #000; border-radius: 23px; background: #FFF;
-            display: flex; align-items: center;
+            position: relative; height: 46px; border: 3px solid #000; border-radius: 14px; background: #F7F9FC;
+            display: flex; align-items: center; box-shadow: inset 0 3px 0 rgba(0, 0, 0, 0.06);
+            transition: background 0.12s, box-shadow 0.12s;
         }
-        .inp:focus-within { box-shadow: 0 0 0 3px #BDE9FF; }
+        .inp:focus-within { background: #FFF; box-shadow: 0 0 0 3px #BDE9FF, inset 0 3px 0 rgba(0, 0, 0, 0.04); }
         .inp input {
             width: 100%; height: 100%; border: none; outline: none; background: transparent;
-            padding: 0 40px 0 16px; font-size: 22px; font-weight: 800 !important; color: #1C2130; user-select: text;
+            padding: 0 40px 0 14px; font-size: 20px; font-weight: 800 !important; color: #1C2130; user-select: text;
         }
         .inp input::placeholder { color: #B6B8BF; font-weight: 600 !important; }
         .inp.tag input { text-transform: uppercase; text-align: center; padding-left: 40px; }
         .inp.tag input::placeholder { text-transform: none; }
         .inp .dot { position: absolute; left: 13px; width: 18px; height: 18px; border-radius: 50%; border: 3px solid #000; background: var(--c, #48D2F7); }
-        .inp .st { position: absolute; right: 10px; width: 24px; height: 24px; border-radius: 50%; border: 3px solid #000; display: none; align-items: center; justify-content: center; font-size: 13px; font-weight: 800 !important; color: #FFF; -webkit-text-stroke: 3px #000; paint-order: stroke fill; }
+        .inp .st { position: absolute; right: 10px; width: 24px; height: 24px; border-radius: 50%; border: 3px solid #000; display: none; align-items: center; justify-content: center; font-size: 12px; font-weight: 800 !important; color: #FFF; }
         .inp.ok .st { display: flex; background: #6BF06B; }
+        .inp.ok .st::after { content: "✓"; -webkit-text-stroke: 3px #000; paint-order: stroke fill; }
         .inp.bad .st { display: flex; background: #FF5C5C; }
-        .inp.wait .st { display: flex; background: #FFE873; animation: spin 0.9s linear infinite; }
+        .inp.bad .st::after { content: "✕"; -webkit-text-stroke: 3px #000; paint-order: stroke fill; }
+        .inp.wait .st { display: flex; background: #FFE873; border-top-color: transparent; animation: spin 0.8s linear infinite; }
         @keyframes spin { to { transform: rotate(360deg); } }
-        .field-msg { min-height: 16px; font-size: 13px; font-weight: 700 !important; color: #8E9099; padding-left: 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .field-msg { min-height: 16px; font-size: 13px; font-weight: 700 !important; color: #8E9099; padding-left: 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .field-msg:empty { display: none; }
         .field-msg.ok { color: #2DA84B; }
         .field-msg.bad { color: #FF4A4A; }
+        .field-msg a { color: #2DB9E5; text-decoration: underline; cursor: pointer; }
 
-        .seg { display: flex; flex-wrap: wrap; gap: 6px; }
-        .seg button {
-            height: 36px; padding: 0 12px; border: 3px solid #000; border-radius: 12px; background: #F1F4FA;
-            font-size: 15px; font-weight: 800 !important; color: #1C2130; cursor: pointer; display: flex; align-items: center; gap: 6px;
+        /* tlačítka stylů */
+        .themes { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; }
+        .theme-b {
+            position: relative; height: 58px; border: 3px solid #000; border-radius: 12px; cursor: pointer; overflow: hidden;
+            display: flex; align-items: flex-end; justify-content: center; padding-bottom: 3px;
+            font-size: 12px; font-weight: 800 !important; color: #1C2130; background: #F1F4FA;
             transition: transform 0.044s cubic-bezier(0.1, 0.9, 0.2, 1);
         }
-        .seg button:hover:not(:active) { transform: scale(1.04); }
-        .seg button:active { transform: scale(0.95); }
-        .seg button.on { background: #48D2F7; color: #FFF; -webkit-text-stroke: 4px #000; paint-order: stroke fill; }
-        .seg button .sw { width: 16px; height: 16px; border-radius: 5px; border: 2px solid #000; -webkit-text-stroke: 0; }
+        .theme-b:hover:not(:active) { transform: scale(1.05); }
+        .theme-b:active { transform: scale(0.94); }
+        .theme-b .pv { position: absolute; left: 7px; right: 7px; top: 6px; height: 24px; border-radius: 7px; }
+        .theme-b.on { box-shadow: 0 0 0 3px #48D2F7; }
+        .theme-b.on::after { content: "✓"; position: absolute; right: 3px; top: 3px; width: 16px; height: 16px; border-radius: 50%; border: 2px solid #000; background: #6BF06B; font-size: 10px; display: flex; align-items: center; justify-content: center; color: #FFF; }
 
         .swatches { display: flex; align-items: center; gap: 7px; flex-wrap: wrap; }
         .swatch { width: 30px; height: 30px; border-radius: 50%; border: 3px solid #000; cursor: pointer; transition: transform 0.044s cubic-bezier(0.1, 0.9, 0.2, 1); }
@@ -192,31 +200,49 @@
         .swatch.custom { position: relative; overflow: hidden; background: conic-gradient(#FF4F86, #FFE873, #6BF06B, #48D2F7, #8F55F2, #FF4F86); }
         .swatch.custom input { position: absolute; inset: -6px; width: 44px; height: 44px; opacity: 0; cursor: pointer; }
 
-        .range { display: flex; align-items: center; gap: 12px; }
-        .range input[type=range] { flex: 1 1 auto; -webkit-appearance: none; appearance: none; height: 14px; border-radius: 7px; border: 3px solid #000; background: linear-gradient(90deg, #48D2F7 var(--p, 50%), #E6E9F0 var(--p, 50%)); outline: none; }
-        .range input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 26px; height: 26px; border-radius: 50%; background: #FFF; border: 3px solid #000; cursor: pointer; box-shadow: 0 3px 0 rgba(0,0,0,0.2); }
-        .range input[type=range]::-moz-range-thumb { width: 22px; height: 22px; border-radius: 50%; background: #FFF; border: 3px solid #000; cursor: pointer; }
-        .range .rv { flex: 0 0 56px; text-align: right; font-size: 17px; font-weight: 800 !important; color: #1C2130; }
+        .range { display: flex; align-items: center; gap: 10px; height: 38px; }
+        .range input[type=range] { flex: 1 1 auto; -webkit-appearance: none; appearance: none; height: 14px; border-radius: 7px; border: 3px solid #000; background: linear-gradient(90deg, #48D2F7 var(--p, 50%), #E6E9F0 var(--p, 50%)); outline: none; margin: 0; }
+        .range input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 24px; height: 24px; border-radius: 50%; background: #FFF; border: 3px solid #000; cursor: pointer; box-shadow: 0 3px 0 rgba(0,0,0,0.2); }
+        .range input[type=range]::-moz-range-thumb { width: 20px; height: 20px; border-radius: 50%; background: #FFF; border: 3px solid #000; cursor: pointer; }
+        .range .rv { flex: 0 0 50px; text-align: center; padding: 2px 0; border-radius: 10px; border: 3px solid #000; background: #FFF; font-size: 14px; font-weight: 800 !important; color: #1C2130; }
 
-        .stepper { display: flex; align-items: center; gap: 8px; }
-        .stepper button { width: 38px; height: 38px; border-radius: 12px; border: 3px solid #000; background: #F1F4FA; font-size: 22px; font-weight: 800 !important; color: #1C2130; cursor: pointer; line-height: 1; transition: transform 0.044s cubic-bezier(0.1, 0.9, 0.2, 1); }
-        .stepper button:hover:not(:active) { transform: scale(1.06); }
-        .stepper button:active { transform: scale(0.92); }
-        .stepper span { min-width: 34px; text-align: center; font-size: 22px; font-weight: 800 !important; color: #1C2130; }
+        /* zarovnání – segment s ikonami */
+        .align { display: flex; height: 38px; border: 3px solid #000; border-radius: 12px; overflow: hidden; background: #F1F4FA; }
+        .align button { width: 42px; border: none; border-right: 3px solid #000; background: transparent; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.1s; }
+        .align button:last-child { border-right: none; }
+        .align button:hover { background: #E3E9F5; }
+        .align button svg { width: 20px; height: 20px; }
+        .align button.on { background: #48D2F7; }
+        .align button.on svg rect { fill: #FFF; stroke: #000; }
 
-        .toggles { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 12px; }
-        .tgl { display: flex; align-items: center; justify-content: space-between; gap: 8px; cursor: pointer; font-size: 14px; font-weight: 700 !important; color: #1C2130; padding: 2px 0; }
-        .tgl input { display: none; }
-        .tgl .sw2 { flex: 0 0 auto; position: relative; width: 44px; height: 26px; border-radius: 13px; border: 3px solid #000; background: #D5D8E0; transition: background 0.15s; }
-        .tgl .sw2::after { content: ""; position: absolute; left: 2px; top: 2px; width: 16px; height: 16px; border-radius: 50%; background: #FFF; border: 2px solid #000; transition: left 0.15s cubic-bezier(0.2, 1.3, 0.4, 1); }
+        .stepper { display: flex; align-items: center; height: 46px; border: 3px solid #000; border-radius: 14px; overflow: hidden; background: #F7F9FC; }
+        .stepper button { width: 42px; height: 100%; border: none; background: #F1F4FA; font-size: 22px; font-weight: 800 !important; color: #1C2130; cursor: pointer; line-height: 1; }
+        .stepper button:first-child { border-right: 3px solid #000; }
+        .stepper button:last-child { border-left: 3px solid #000; }
+        .stepper button:hover { background: #E3E9F5; }
+        .stepper button:active { background: #D5DEEE; }
+        .stepper span { flex: 1 1 auto; text-align: center; font-size: 20px; font-weight: 800 !important; color: #1C2130; }
+
+        /* přepínače */
+        .toggles { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+        .tgl {
+            display: flex; align-items: center; justify-content: space-between; gap: 8px; cursor: pointer;
+            height: 40px; padding: 0 8px 0 11px; border: 3px solid #000; border-radius: 12px; background: #F7F9FC;
+            font-size: 14px; font-weight: 700 !important; color: #1C2130; transition: background 0.12s;
+        }
+        .tgl:hover { background: #EEF3FA; }
+        .tgl input { position: absolute; opacity: 0; pointer-events: none; }
+        .tgl .sw2 { flex: 0 0 auto; position: relative; width: 42px; height: 24px; border-radius: 12px; border: 3px solid #000; background: #C9CED9; box-shadow: inset 0 2px 0 rgba(0, 0, 0, 0.12); transition: background 0.15s; }
+        .tgl .sw2::after { content: ""; position: absolute; left: 1px; top: 1px; width: 16px; height: 16px; border-radius: 50%; background: #FFF; border: 2px solid #000; box-shadow: 0 2px 0 rgba(0, 0, 0, 0.2); transition: transform 0.18s cubic-bezier(0.2, 1.3, 0.4, 1); }
         .tgl input:checked + .sw2 { background: #6BF06B; }
-        .tgl input:checked + .sw2::after { left: 20px; }
+        .tgl input:checked + .sw2::after { transform: translateX(18px); }
+        .tgl input:focus-visible + .sw2 { box-shadow: 0 0 0 3px #BDE9FF; }
 
         /* náhled */
         .pv-tools { display: flex; align-items: center; gap: 6px; }
         .pv-tools .seg button { height: 30px; padding: 0 9px; font-size: 13px; border-radius: 10px; }
         .pv-box {
-            position: relative; flex: 1 1 auto; min-height: 300px; margin-top: 10px; border-radius: 14px; border: 3px solid #000; overflow: hidden;
+            position: relative; flex: 1 1 auto; min-height: 320px; contain: strict; margin-top: 10px; border-radius: 14px; border: 3px solid #000; overflow: hidden;
             display: flex; align-items: center; justify-content: center;
         }
         .pv-box.bg-game { background:
@@ -227,11 +253,12 @@
         .pv-box.bg-check { background-color: #FFF; background-image: linear-gradient(45deg, #D9DCE3 25%, transparent 25%), linear-gradient(-45deg, #D9DCE3 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #D9DCE3 75%), linear-gradient(-45deg, transparent 75%, #D9DCE3 75%); background-size: 22px 22px; background-position: 0 0, 0 11px, 11px -11px, -11px 0; }
         .pv-box.bg-dark { background: #14161D; }
         .pv-box.bg-green { background: #00B140; }
-        .pv-frame-wrap { position: absolute; transform-origin: top left; }
+        .pv-frame-wrap { position: absolute; left: 0; top: 0; transform-origin: top left; will-change: transform; transition: opacity 0.2s; }
         .pv-frame-wrap iframe { display: block; border: 0; background: transparent; }
         .pv-size { position: absolute; left: 10px; bottom: 8px; padding: 1px 9px; border-radius: 9px; border: 2px solid #000; background: rgba(255, 255, 255, 0.92); font-size: 12px; font-weight: 800 !important; color: #1C2130; }
-        .pv-note { margin-top: 8px; font-size: 13px; font-weight: 700 !important; color: #8E9099; }
+        .pv-note { margin-top: 8px; font-size: 13px; font-weight: 700 !important; color: #8E9099; display: flex; align-items: center; gap: 6px; }
         .pv-note b { color: #1C2130; font-weight: 800 !important; }
+        .pv-note .ld { width: 10px; height: 10px; border-radius: 50%; background: #2ECC40; border: 2px solid #000; animation: livePulse 1.4s infinite ease-in-out; }
 
         /* ---------- odkaz ---------- */
         .link { padding: 14px 16px 16px; }
@@ -348,7 +375,7 @@
     <div class="app-scaler" id="appScaler">
         <div class="game-window">
             <img class="menu-bg" src="/images/compare-bg.png" draggable="false" alt="">
-            <div class="ov-logo"><img src="/images/hotbar/obs.png" alt="" draggable="false"><span>Overlays!</span></div>
+            <div class="ov-logo"></div>
 
             <div class="ov-scroll" id="ovScroll">
                 <div class="ov-inner">
@@ -384,12 +411,12 @@
                                     <div class="mini" style="box-shadow:0 0 0 2px #48D2F7 inset"><i style="width:12px;height:12px;background:#FFC48A;border-radius:4px"></i><b style="width:26px"></b><b style="width:22px;margin-left:auto;background:#8E9099"></b></div></div></div>
                                 <div class="tile-name">Top Clans</div><div class="tile-desc">Live battle leaderboard</div>
                             </div>
-                            <div class="card tile" data-w="timer">
-                                <div class="tile-art"><div class="mini" style="flex-direction:column;gap:4px;padding:6px 10px"><span style="font-family:Roboto,sans-serif!important;font-weight:600!important;font-size:18px;color:#1C2130">02:14:37</span><div class="m-bar" style="width:76px"><u style="width:64%"></u></div></div></div>
-                                <div class="tile-name">Battle Timer</div><div class="tile-desc">Countdown to the end</div>
+                            <div class="card tile" data-w="player">
+                                <span class="tile-new">NEW</span>
+                                <div class="tile-art"><div class="mini"><i style="width:26px;height:26px;background:#FFE873"></i><div class="col"><b style="width:36px;height:5px;background:#8E9099"></b><b style="width:56px;height:9px"></b></div></div></div>
+                                <div class="tile-name">Player Points</div><div class="tile-desc">Your own war points</div>
                             </div>
                             <div class="card tile" data-w="goal">
-                                <span class="tile-new">NEW</span>
                                 <div class="tile-art"><div class="mini" style="flex-direction:column;align-items:stretch;gap:5px;width:78%"><div style="display:flex;align-items:center;gap:5px"><i style="width:16px;height:16px"></i><b style="width:40px"></b><b style="width:16px;margin-left:auto;background:#2DA84B"></b></div><div class="m-bar"><u style="width:72%;background:#6BF06B"></u></div></div></div>
                                 <div class="tile-name">Points Goal</div><div class="tile-desc">Progress to your target</div>
                             </div>
@@ -401,76 +428,86 @@
                         <div class="sec-head"><span class="title-stroke">2. Customize it</span><span class="sec-sub" id="cfgSub"></span></div>
                         <div class="row-cfg">
                             <div class="card settings" id="settings">
-                                <div class="two">
-                                    <div class="field" data-for="clan versus goal top">
-                                        <div class="field-l"><span id="clanLabel">Your clan</span><small id="clanOpt"></small></div>
-                                        <div class="inp tag" id="clanBox" style="--c:#48D2F7"><span class="dot"></span><input id="fClan" maxlength="4" placeholder="Clan tag" autocomplete="off" spellcheck="false"><span class="st" id="clanSt"></span></div>
-                                        <div class="field-msg" id="clanMsg"></div>
+                                <div class="set-head"><span class="title-stroke">Settings</span><small id="setName">Clan Points</small></div>
+                                <div class="set-body">
+                                    <div class="group" data-for="clan versus goal top player">
+                                        <div class="group-t"><i>1</i>Data</div>
+                                        <div class="field" data-for="player">
+                                            <div class="field-l"><span>Roblox user ID</span><small>number or People link</small></div>
+                                            <div class="inp tag" id="plBox" style="--c:#FFE873"><span class="dot"></span><input id="fPlayer" maxlength="60" placeholder="e.g. 33492395" autocomplete="off" spellcheck="false"><span class="st"></span></div>
+                                            <div class="field-msg" id="plMsg"></div>
+                                        </div>
+                                        <div class="two" data-for="clan versus goal top">
+                                            <div class="field" data-for="clan versus goal top">
+                                                <div class="field-l"><span id="clanLabel">Your clan</span><small id="clanOpt"></small></div>
+                                                <div class="inp tag" id="clanBox" style="--c:#48D2F7"><span class="dot"></span><input id="fClan" maxlength="4" placeholder="Clan tag" autocomplete="off" spellcheck="false"><span class="st"></span></div>
+                                            </div>
+                                            <div class="field" data-for="versus">
+                                                <div class="field-l"><span>Opponent</span></div>
+                                                <div class="inp tag" id="vsBox" style="--c:#FF4F86"><span class="dot"></span><input id="fVs" maxlength="4" placeholder="Clan tag" autocomplete="off" spellcheck="false"><span class="st"></span></div>
+                                            </div>
+                                            <div class="field" data-for="goal">
+                                                <div class="field-l"><span>Goal</span><small>250b, 1.5t…</small></div>
+                                                <div class="inp"><input id="fGoal" maxlength="10" placeholder="250b" autocomplete="off" spellcheck="false"></div>
+                                            </div>
+                                            <div class="field" data-for="top" style="flex:0 0 130px">
+                                                <div class="field-l"><span>Rows</span></div>
+                                                <div class="stepper"><button id="rowsMinus" aria-label="Fewer rows">−</button><span id="rowsVal">5</span><button id="rowsPlus" aria-label="More rows">+</button></div>
+                                            </div>
+                                        </div>
+                                        <div class="field-msg" id="clanMsg" data-for="clan versus goal top"></div>
+                                        <div class="field-msg" id="vsMsg" data-for="versus"></div>
+                                        <div class="field-msg" id="goalMsg" data-for="goal"></div>
+                                        <div class="field" data-for="clan top goal player">
+                                            <div class="field-l"><span>Custom title</span><small>optional</small></div>
+                                            <div class="inp"><input id="fLabel" maxlength="40" placeholder="Default" autocomplete="off"></div>
+                                        </div>
                                     </div>
-                                    <div class="field" data-for="versus">
-                                        <div class="field-l"><span>Opponent</span></div>
-                                        <div class="inp tag" id="vsBox" style="--c:#FF4F86"><span class="dot" id="vsDot"></span><input id="fVs" maxlength="4" placeholder="Clan tag" autocomplete="off" spellcheck="false"><span class="st"></span></div>
-                                        <div class="field-msg" id="vsMsg"></div>
-                                    </div>
-                                    <div class="field" data-for="goal">
-                                        <div class="field-l"><span>Goal</span><small>e.g. 250b, 1.5t</small></div>
-                                        <div class="inp"><input id="fGoal" maxlength="10" placeholder="250b" autocomplete="off" spellcheck="false"></div>
-                                        <div class="field-msg" id="goalMsg"></div>
-                                    </div>
-                                </div>
 
-                                <div class="two">
-                                    <div class="field" data-for="clan top timer goal">
-                                        <div class="field-l"><span>Custom title</span><small>optional</small></div>
-                                        <div class="inp"><input id="fLabel" maxlength="40" placeholder="Default" autocomplete="off"></div>
+                                    <div class="group">
+                                        <div class="group-t"><i>2</i>Look</div>
+                                        <div class="themes" id="themes">
+                                            <button class="theme-b" data-v="ps99"><span class="pv" style="background:#FFF;border:2px solid #000"></span>PS99</button>
+                                            <button class="theme-b" data-v="dark"><span class="pv" style="background:#0D0E12;border:2px solid #000"></span>Dark</button>
+                                            <button class="theme-b" data-v="glass"><span class="pv" style="background:linear-gradient(160deg,#c9e6ff,#8fb6f0);border:2px solid #fff;box-shadow:0 0 0 1px #9fb8e0"></span>Glass</button>
+                                            <button class="theme-b" data-v="neon"><span class="pv" style="background:#060812;border:2px solid #48D2F7;box-shadow:0 0 8px #48D2F7"></span>Neon</button>
+                                            <button class="theme-b" data-v="minimal"><span class="pv" style="background:repeating-linear-gradient(45deg,#e6e9f0 0 5px,#fff 5px 10px);border:2px dashed #8E9099"></span>Text</button>
+                                        </div>
+                                        <div class="field">
+                                            <div class="field-l"><span id="accLabel">Accent color</span></div>
+                                            <div class="swatches" id="acc1"></div>
+                                        </div>
+                                        <div class="field" data-for="versus">
+                                            <div class="field-l"><span>Opponent color</span></div>
+                                            <div class="swatches" id="acc2"></div>
+                                        </div>
+                                        <div class="two">
+                                            <div class="field">
+                                                <div class="field-l"><span>Size</span></div>
+                                                <div class="range"><input type="range" id="fScale" min="50" max="200" step="5" value="100" aria-label="Size"><span class="rv" id="scaleVal">100%</span></div>
+                                            </div>
+                                            <div class="field" style="flex:0 0 auto">
+                                                <div class="field-l"><span>Align</span></div>
+                                                <div class="align" id="aligns">
+                                                    <button data-v="left" title="Left"><svg viewBox="0 0 20 20"><rect x="2" y="3" width="16" height="4" rx="2" fill="#1C2130"/><rect x="2" y="9" width="11" height="4" rx="2" fill="#1C2130"/><rect x="2" y="15" width="13" height="3.5" rx="1.75" fill="#1C2130"/></svg></button>
+                                                    <button data-v="center" title="Center"><svg viewBox="0 0 20 20"><rect x="2" y="3" width="16" height="4" rx="2" fill="#1C2130"/><rect x="4.5" y="9" width="11" height="4" rx="2" fill="#1C2130"/><rect x="3.5" y="15" width="13" height="3.5" rx="1.75" fill="#1C2130"/></svg></button>
+                                                    <button data-v="right" title="Right"><svg viewBox="0 0 20 20"><rect x="2" y="3" width="16" height="4" rx="2" fill="#1C2130"/><rect x="7" y="9" width="11" height="4" rx="2" fill="#1C2130"/><rect x="5" y="15" width="13" height="3.5" rx="1.75" fill="#1C2130"/></svg></button>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
-                                    <div class="field" data-for="top" style="flex:0 0 150px">
-                                        <div class="field-l"><span>Rows</span></div>
-                                        <div class="stepper"><button id="rowsMinus">−</button><span id="rowsVal">5</span><button id="rowsPlus">+</button></div>
-                                    </div>
-                                </div>
 
-                                <div class="field">
-                                    <div class="field-l"><span>Style</span></div>
-                                    <div class="seg" id="themes">
-                                        <button data-v="ps99"><span class="sw" style="background:#FFF"></span>PS99</button>
-                                        <button data-v="dark"><span class="sw" style="background:#1B1E27"></span>Dark</button>
-                                        <button data-v="glass"><span class="sw" style="background:linear-gradient(135deg,#cfe6ff,#ffffff55)"></span>Glass</button>
-                                        <button data-v="neon"><span class="sw" style="background:#0A0C18;box-shadow:0 0 0 2px #48D2F7 inset"></span>Neon</button>
-                                        <button data-v="minimal"><span class="sw" style="background:transparent;border-style:dashed"></span>Text only</button>
-                                    </div>
-                                </div>
-
-                                <div class="field">
-                                    <div class="field-l"><span id="accLabel">Accent color</span></div>
-                                    <div class="swatches" id="acc1"></div>
-                                </div>
-                                <div class="field" data-for="versus">
-                                    <div class="field-l"><span>Opponent color</span></div>
-                                    <div class="swatches" id="acc2"></div>
-                                </div>
-
-                                <div class="two">
-                                    <div class="field">
-                                        <div class="field-l"><span>Size</span></div>
-                                        <div class="range"><input type="range" id="fScale" min="50" max="200" step="5" value="100"><span class="rv" id="scaleVal">100%</span></div>
-                                    </div>
-                                    <div class="field" style="flex:0 0 auto">
-                                        <div class="field-l"><span>Align</span></div>
-                                        <div class="seg" id="aligns"><button data-v="left">◧</button><button data-v="center">◫</button><button data-v="right">◨</button></div>
-                                    </div>
-                                </div>
-
-                                <div class="field">
-                                    <div class="field-l"><span>Show</span></div>
-                                    <div class="toggles" id="toggles">
-                                        <label class="tgl" data-for="clan versus top goal">Clan icon<input type="checkbox" data-k="icon"><span class="sw2"></span></label>
-                                        <label class="tgl" data-for="clan versus top goal">Flag<input type="checkbox" data-k="flag"><span class="sw2"></span></label>
-                                        <label class="tgl" data-for="clan versus">Place<input type="checkbox" data-k="rank"><span class="sw2"></span></label>
-                                        <label class="tgl" data-for="clan versus goal">+Points popups<input type="checkbox" data-k="gain"><span class="sw2"></span></label>
-                                        <label class="tgl" data-for="clan">Points / hour<input type="checkbox" data-k="rate"><span class="sw2"></span></label>
-                                        <label class="tgl" data-for="top timer">Title<input type="checkbox" data-k="title"><span class="sw2"></span></label>
-                                        <label class="tgl">Pop-in animation<input type="checkbox" data-k="anim"><span class="sw2"></span></label>
+                                    <div class="group">
+                                        <div class="group-t"><i>3</i>Show</div>
+                                        <div class="toggles" id="toggles">
+                                            <label class="tgl" data-for="clan versus top goal player"><span id="iconTxt">Clan icon</span><input type="checkbox" data-k="icon"><span class="sw2"></span></label>
+                                            <label class="tgl" data-for="clan versus top goal">Flag<input type="checkbox" data-k="flag"><span class="sw2"></span></label>
+                                            <label class="tgl" data-for="clan versus player"><span id="rankTxt">Place</span><input type="checkbox" data-k="rank"><span class="sw2"></span></label>
+                                            <label class="tgl" data-for="clan versus goal player">+Points popups<input type="checkbox" data-k="gain"><span class="sw2"></span></label>
+                                            <label class="tgl" data-for="clan player">Points / hour<input type="checkbox" data-k="rate"><span class="sw2"></span></label>
+                                            <label class="tgl" data-for="top">Title<input type="checkbox" data-k="title"><span class="sw2"></span></label>
+                                            <label class="tgl">Pop-in animation<input type="checkbox" data-k="anim"><span class="sw2"></span></label>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -487,7 +524,6 @@
                                     <span class="pv-size" id="pvSize">…</span>
                                 </div>
                                 <div class="pv-note" id="pvNote"></div>
-                                <div class="seg" style="margin-top:8px" id="dataMode"><button data-v="demo">Demo data (fast)</button><button data-v="live">Live data</button></div>
                             </div>
                         </div>
                     </div>
@@ -541,6 +577,9 @@
         const WORKER_URL = "https://rough-pine-d90f.ps99clans.workers.dev";
         const $ = (id) => document.getElementById(id);
         const BASE = location.origin + "/overlay/";
+        const TYPES = ["clan", "player", "versus", "top", "goal"];
+        const NAMES = { clan: "Clan Points", player: "Player Points", versus: "Versus", top: "Top Clans", goal: "Points Goal", timer: "Battle Timer" };
+        const PAD_TOP = 54, PAD_SIDE = 16, PAD_BOTTOM = 16;   // okraje #stage v overlayi (nahoře místo pro +body)
 
         function autoFitScreen() {
             const scaler = $("appScaler");
@@ -558,89 +597,91 @@
         // ---------- stav (pamatuje se v prohlížeči) ----------
         const COLORS = ["48D2F7", "FF4F86", "6BF06B", "FFB21E", "8F55F2", "FF5C5C", "FFFFFF", "1C2130"];
         const DEF = {
-            w: "clan", clan: "", vs: "", goal: "", label: "", rows: 5,
+            w: "clan", clan: "", vs: "", player: "", goal: "", label: "", rows: 5,
             theme: "ps99", accent: "48D2F7", accent2: "FF4F86", scale: 100, align: "left",
             show: { icon: true, flag: true, rank: true, gain: true, rate: true, title: true, anim: true },
-            bg: "game", data: "demo"
+            bg: "game"
         };
         let S = JSON.parse(JSON.stringify(DEF));
         try {
             const saved = JSON.parse(localStorage.getItem("ps99OverlayCfg") || "null");
             if (saved && typeof saved === "object") S = Object.assign(S, saved, { show: Object.assign({}, DEF.show, saved.show || {}) });
         } catch (e) {}
+        if (!TYPES.includes(S.w)) S.w = "clan";
         const save = () => { try { localStorage.setItem("ps99OverlayCfg", JSON.stringify(S)); } catch (e) {} };
 
         // ---------- odkaz pro OBS ----------
-        function buildParams(forPreview) {
-            const p = new URLSearchParams();
-            p.set("w", S.w);
-            if (S.clan && ["clan", "versus", "goal", "top"].includes(S.w)) p.set("clan", S.clan);
-            if (S.w === "versus" && S.vs) p.set("vs", S.vs);
-            if (S.w === "goal" && S.goal) p.set("goal", S.goal.toLowerCase());
-            if (S.w === "top" && S.rows !== 5) p.set("rows", S.rows);
-            if (S.label && ["clan", "top", "timer", "goal"].includes(S.w)) p.set("label", S.label);
-            if (S.theme !== "ps99") p.set("theme", S.theme);
-            if (S.accent !== "48D2F7") p.set("accent", S.accent);
-            if (S.w === "versus" && S.accent2 !== "FF4F86") p.set("accent2", S.accent2);
-            if (S.scale !== 100) p.set("scale", (S.scale / 100).toFixed(2).replace(/0+$/, "").replace(/\.$/, ""));
-            if (S.align !== "left") p.set("align", S.align);
-            const hide = Object.keys(S.show).filter((k) => !S.show[k] && relevant(k));
-            if (hide.length) p.set("hide", hide.join(","));
-            if (forPreview && S.data === "demo") p.set("demo", "1");
-            return p;
-        }
         function relevant(k) {
             const el = document.querySelector(`#toggles input[data-k="${k}"]`);
             const lab = el && el.closest(".tgl");
             return !lab || !lab.dataset.for || lab.dataset.for.split(" ").includes(S.w);
         }
-        const obsUrl = () => BASE + "?" + buildParams(false).toString();
+        function buildParams() {
+            const p = new URLSearchParams();
+            p.set("w", S.w);
+            if (S.clan && ["clan", "versus", "goal", "top"].includes(S.w)) p.set("clan", S.clan);
+            if (S.w === "versus" && S.vs) p.set("vs", S.vs);
+            if (S.w === "player" && S.player) p.set("player", S.player);
+            if (S.w === "goal" && S.goal) p.set("goal", S.goal.toLowerCase().replace(/\s+/g, ""));
+            if (S.w === "top" && S.rows !== 5) p.set("rows", S.rows);
+            if (S.label && ["clan", "top", "goal", "player"].includes(S.w)) p.set("label", S.label);
+            if (S.theme !== "ps99") p.set("theme", S.theme);
+            if (S.accent !== "48D2F7") p.set("accent", S.accent);
+            if (S.w === "versus" && S.accent2 !== "FF4F86") p.set("accent2", S.accent2);
+            if (S.scale !== 100) p.set("scale", String(S.scale / 100));
+            if (S.align !== "left") p.set("align", S.align);
+            const hide = Object.keys(S.show).filter((k) => !S.show[k] && relevant(k));
+            if (hide.length) p.set("hide", hide.join(","));
+            return p;
+        }
+        const obsUrl = () => BASE + "?" + buildParams().toString();
+        // co z nastavení mění obsah (= nutné znovu načíst náhled); vzhled se mění bez načtení
+        const contentKey = () => { const p = buildParams(); ["theme", "accent", "accent2", "scale", "align"].forEach((k) => p.delete(k)); return p.toString(); };
 
+        function parseAmount(v) {
+            const m = String(v || "").trim().toLowerCase().replace(/[,\s]/g, "").match(/^([\d.]+)([kmbt]?)$/);
+            return m ? Math.round(parseFloat(m[1]) * { "": 1, k: 1e3, m: 1e6, b: 1e9, t: 1e12 }[m[2]]) || 0 : 0;
+        }
+        const short = (v) => { const a = Math.abs(v), f = (x, s) => parseFloat(x.toFixed(2)) + s; return a >= 1e12 ? f(v / 1e12, "t") : a >= 1e9 ? f(v / 1e9, "b") : a >= 1e6 ? f(v / 1e6, "m") : a >= 1e3 ? f(v / 1e3, "k") : String(v); };
         function missing() {
             if (["clan", "versus", "goal"].includes(S.w) && !S.clan) return "Enter your clan tag first";
             if (S.w === "versus" && !S.vs) return "Enter the opponent's clan tag";
             if (S.w === "goal" && !parseAmount(S.goal)) return "Enter a goal, e.g. 250b";
+            if (S.w === "player" && !S.player) return "Enter a Roblox user ID";
             return "";
         }
-        function parseAmount(v) {
-            const m = String(v || "").trim().toLowerCase().replace(/,/g, "").match(/^([\d.]+)\s*([kmbt]?)$/);
-            return m ? Math.round(parseFloat(m[1]) * { "": 1, k: 1e3, m: 1e6, b: 1e9, t: 1e12 }[m[2]]) || 0 : 0;
-        }
-        const short = (v) => { const a = Math.abs(v), f = (x, s) => parseFloat(x.toFixed(2)) + s; return a >= 1e12 ? f(v / 1e12, "t") : a >= 1e9 ? f(v / 1e9, "b") : a >= 1e6 ? f(v / 1e6, "m") : a >= 1e3 ? f(v / 1e3, "k") : String(v); };
 
-        // ---------- vykreslení ovládání ----------
+        // ---------- ovládání ----------
         function swatches(boxId, key) {
             const box = $(boxId);
-            box.innerHTML = COLORS.map((c) => `<span class="swatch" data-c="${c}" style="background:#${c}"></span>`).join("")
+            box.innerHTML = COLORS.map((c) => `<span class="swatch" data-c="${c}" style="background:#${c}" title="#${c}"></span>`).join("")
                 + `<label class="swatch custom" title="Custom color"><input type="color"></label>`;
-            box.addEventListener("click", (e) => {
-                const sw = e.target.closest(".swatch[data-c]");
-                if (!sw) return;
-                S[key] = sw.dataset.c; changed();
-            });
+            box.addEventListener("click", (e) => { const sw = e.target.closest(".swatch[data-c]"); if (sw) { S[key] = sw.dataset.c; changed(); } });
             box.querySelector("input[type=color]").addEventListener("input", (e) => { S[key] = e.target.value.slice(1).toUpperCase(); changed(); });
         }
         swatches("acc1", "accent");
         swatches("acc2", "accent2");
 
+        const setOn = (sel, v, attr = "v") => document.querySelectorAll(sel).forEach((b) => b.classList.toggle("on", b.dataset[attr] === v));
         function syncUI() {
+            setOn("#tiles .tile", S.w, "w");
             document.querySelectorAll("#tiles .tile").forEach((t) => t.classList.toggle("sel", t.dataset.w === S.w));
             document.querySelectorAll("#settings [data-for]").forEach((el) => el.classList.toggle("is-hidden", !el.dataset.for.split(" ").includes(S.w)));
-            $("clanLabel").textContent = S.w === "top" ? "Highlight your clan" : "Your clan";
+            $("setName").textContent = NAMES[S.w];
+            $("cfgSub").textContent = NAMES[S.w];
+            $("clanLabel").textContent = S.w === "top" ? "Highlight clan" : "Your clan";
             $("clanOpt").textContent = S.w === "top" ? "optional" : "";
             $("accLabel").textContent = S.w === "versus" ? "Your color" : "Accent color";
-            $("cfgSub").textContent = { clan: "Clan Points", versus: "Versus", top: "Top Clans", timer: "Battle Timer", goal: "Points Goal" }[S.w];
-            if (document.activeElement !== $("fClan")) $("fClan").value = S.clan;
-            if (document.activeElement !== $("fVs")) $("fVs").value = S.vs;
-            if (document.activeElement !== $("fGoal")) $("fGoal").value = S.goal;
-            if (document.activeElement !== $("fLabel")) $("fLabel").value = S.label;
+            $("iconTxt").textContent = S.w === "player" ? "Avatar" : "Clan icon";
+            $("rankTxt").textContent = S.w === "player" ? "Clan tag" : "Place";
+            const keep = (id, v) => { if (document.activeElement !== $(id)) $(id).value = v; };
+            keep("fClan", S.clan); keep("fVs", S.vs); keep("fGoal", S.goal); keep("fLabel", S.label); keep("fPlayer", S.player);
             $("rowsVal").textContent = S.rows;
-            document.querySelectorAll("#themes button").forEach((b) => b.classList.toggle("on", b.dataset.v === S.theme));
-            document.querySelectorAll("#aligns button").forEach((b) => b.classList.toggle("on", b.dataset.v === S.align));
-            document.querySelectorAll("#bgs button").forEach((b) => b.classList.toggle("on", b.dataset.v === S.bg));
-            document.querySelectorAll("#dataMode button").forEach((b) => b.classList.toggle("on", b.dataset.v === S.data));
-            document.querySelectorAll("#acc1 .swatch[data-c]").forEach((s) => s.classList.toggle("on", s.dataset.c === S.accent));
-            document.querySelectorAll("#acc2 .swatch[data-c]").forEach((s) => s.classList.toggle("on", s.dataset.c === S.accent2));
+            setOn("#themes .theme-b", S.theme);
+            setOn("#aligns button", S.align);
+            setOn("#bgs button", S.bg);
+            setOn("#acc1 .swatch[data-c]", S.accent, "c");
+            setOn("#acc2 .swatch[data-c]", S.accent2, "c");
             $("acc1").querySelector(".custom").classList.toggle("on", !COLORS.includes(S.accent));
             $("acc2").querySelector(".custom").classList.toggle("on", !COLORS.includes(S.accent2));
             $("clanBox").style.setProperty("--c", "#" + S.accent);
@@ -650,56 +691,74 @@
             document.querySelectorAll("#toggles input").forEach((i) => { i.checked = !!S.show[i.dataset.k]; });
             $("pvBox").className = "pv-box bg-" + S.bg;
             const g = parseAmount(S.goal);
-            $("goalMsg").textContent = S.goal ? (g ? `= ${g.toLocaleString("en-US")} points` : "Use a number like 250b") : "";
+            $("goalMsg").textContent = S.goal ? (g ? `Goal = ${g.toLocaleString("en-US")} points` : "Use a number like 250b") : "";
             $("goalMsg").className = "field-msg " + (S.goal ? (g ? "ok" : "bad") : "");
-            $("pvNote").innerHTML = S.data === "demo"
-                ? "Preview uses <b>demo data</b> so you can see the animations. Your OBS link always shows <b>live data</b>."
-                : "Preview shows <b>live data</b> (updates every 15 s, like in OBS).";
 
             const miss = missing();
+            $("pvNote").innerHTML = miss
+                ? `Showing an <b>example</b> – ${miss.charAt(0).toLowerCase() + miss.slice(1)} to see your real data.`
+                : `<span class="ld"></span>Live data · updates every 15 s, exactly like in OBS.`;
             $("urlOut").value = miss ? "" : obsUrl();
             $("urlOut").placeholder = miss;
             $("chipWarn").textContent = miss;
             $("chipWarn").classList.toggle("is-hidden", !miss);
-            $("copyBtn").disabled = !!miss;
         }
 
-        let pvTimer = null;
-        function changed(now) {
+        let pvTimer = null, lastContent = null;
+        function changed() {
             save();
             syncUI();
+            const ck = contentKey() + "|" + missing();
+            if (ck === lastContent) { applyStyleToPreview(); return; }     // jen vzhled -> bez znovunačtení
             clearTimeout(pvTimer);
-            pvTimer = setTimeout(loadPreview, now ? 0 : 350);
+            pvTimer = setTimeout(loadPreview, 450);
         }
 
         // ---------- náhled (skutečný overlay v iframe) ----------
-        let measureT = null, size = { w: 0, h: 0 };
+        let size = { w: 0, h: 0 }, ro = null;
         function loadPreview() {
             const f = $("pvFrame");
-            const miss = missing();
-            const params = buildParams(true);
-            // dokud chybí klan, ukáže se náhled s ukázkovým klanem
-            if (miss) { params.set("demo", "1"); if (!params.get("clan") && S.w !== "top" && S.w !== "timer") params.set("clan", "CLAN"); if (S.w === "versus" && !params.get("vs")) params.set("vs", "RIVL"); if (S.w === "goal" && !params.get("goal")) params.set("goal", "250b"); }
-            f.style.width = "1400px"; f.style.height = "900px";
+            const params = buildParams();
+            lastContent = contentKey() + "|" + missing();
+            if (missing()) {                       // ukázka, dokud chybí údaje
+                params.set("demo", "1");
+                if (["clan", "versus", "goal"].includes(S.w) && !S.clan) params.set("clan", "CLAN");
+                if (S.w === "versus" && !S.vs) params.set("vs", "RIVL");
+                if (S.w === "goal" && !parseAmount(S.goal)) params.set("goal", "250b");
+                if (S.w === "player" && !S.player) params.set("player", "1");
+            }
+            if (ro) { ro.disconnect(); ro = null; }
+            f.style.width = "1100px"; f.style.height = "700px";
             $("pvWrap").style.opacity = "0";
             f.src = BASE + "?" + params.toString();
         }
-        $("pvFrame").addEventListener("load", () => { clearInterval(measureT); setTimeout(measure, 700); measureT = setInterval(measure, 2500); });
+        function applyStyleToPreview() {
+            const w = $("pvFrame").contentWindow;
+            try { if (w && w.applyStyle) w.applyStyle({ theme: S.theme, accent: S.accent, accent2: S.accent2, scale: S.scale / 100, align: S.align, anim: S.show.anim }); } catch (e) {}
+            requestAnimationFrame(measure);
+        }
+        $("pvFrame").addEventListener("load", () => {
+            let doc; try { doc = $("pvFrame").contentDocument; } catch (e) { return; }
+            const stage = doc && doc.getElementById("stage");
+            if (!stage) return;
+            // velikost se přepočítá jen když se obsah opravdu změní (žádné stálé měření)
+            const RO = $("pvFrame").contentWindow.ResizeObserver || window.ResizeObserver;
+            ro = new RO(() => measure());
+            ro.observe(stage);
+            setTimeout(measure, 300);
+        });
 
         function measure() {
-            const f = $("pvFrame");
-            let doc;
-            try { doc = f.contentDocument; } catch (e) { return; }
+            let doc; try { doc = $("pvFrame").contentDocument; } catch (e) { return; }
             const stage = doc && doc.getElementById("stage");
             const card = stage && stage.firstElementChild;
             if (!card) return;
-            const r = card.getBoundingClientRect();
-            const pad = 14;
             const scale = S.scale / 100;
-            // velikost zdroje v OBS: obsah + okraje (nahoře místo pro vyskakující +body)
-            const w = Math.ceil(r.width + pad * 2 * scale + 4), h = Math.ceil(r.height + (26 + 14) * scale + 4);
+            const w = Math.ceil(card.offsetWidth * scale + PAD_SIDE * 2 * scale + 2);
+            const h = Math.ceil(card.offsetHeight * scale + (PAD_TOP + PAD_BOTTOM) * scale + 2);
             if (w !== size.w || h !== size.h) {
                 size = { w, h };
+                const f = $("pvFrame");
                 f.style.width = w + "px"; f.style.height = h + "px";
                 $("outW").textContent = w; $("outH").textContent = h;
                 $("pvSize").textContent = `${w} × ${h}`;
@@ -709,65 +768,91 @@
         function fitPreview() {
             const box = $("pvBox"), wrap = $("pvWrap");
             if (!size.w) return;
-            const bw = box.clientWidth - 24, bh = box.clientHeight - 40;
+            const bw = box.clientWidth - 24, bh = box.clientHeight - 36;
             const s = Math.min(1, bw / size.w, bh / size.h);
-            wrap.style.transform = `scale(${s})`;
-            wrap.style.left = ((box.clientWidth - size.w * s) / 2) + "px";
-            wrap.style.top = ((box.clientHeight - size.h * s) / 2 - 8) + "px";
+            wrap.style.transform = `translate(${((box.clientWidth - size.w * s) / 2).toFixed(1)}px, ${((box.clientHeight - size.h * s) / 2 - 6).toFixed(1)}px) scale(${s.toFixed(4)})`;
             wrap.style.opacity = "1";
         }
 
-        // ---------- kontrola klanu ----------
+        // ---------- kontrola klanu / hráče ----------
         const checkT = {};
+        let battleId = null;
+        const getBattle = async () => {
+            if (battleId !== null) return battleId;
+            try { const j = await (await fetch(`${WORKER_URL}/activeClanBattle`)).json(); battleId = (j && j.data && j.data.configName) || ""; } catch (e) { battleId = ""; }
+            return battleId;
+        };
+        function setStatus(box, msg, state, text) {
+            box.classList.remove("ok", "bad", "wait");
+            if (state) box.classList.add(state);
+            msg.className = "field-msg " + (state === "wait" ? "" : state || "");
+            msg.textContent = text || "";
+        }
         function checkClan(key, boxId, msgId) {
             const tag = S[key], box = $(boxId), msg = $(msgId);
             clearTimeout(checkT[key]);
-            box.classList.remove("ok", "bad", "wait");
-            msg.textContent = ""; msg.className = "field-msg";
-            if (!tag) return;
-            box.classList.add("wait");
+            if (!tag) return setStatus(box, msg, "", "");
+            setStatus(box, msg, "wait", "Checking…");
             checkT[key] = setTimeout(async () => {
                 try {
-                    const [cj, bj] = await Promise.all([
-                        fetch(`${WORKER_URL}/clan/${encodeURIComponent(tag)}`).then((r) => r.json()),
-                        fetch(`${WORKER_URL}/activeClanBattle`).then((r) => r.json()).catch(() => null)
-                    ]);
+                    const [cj, id] = await Promise.all([fetch(`${WORKER_URL}/clan/${encodeURIComponent(tag)}`).then((r) => r.json()), getBattle()]);
                     if (tag !== S[key]) return;
-                    box.classList.remove("wait");
-                    if (!cj || cj.status !== "ok" || !cj.data) { box.classList.add("bad"); msg.textContent = `Clan [${tag}] not found`; msg.className = "field-msg bad"; return; }
-                    const id = bj && bj.data && bj.data.configName, bs = cj.data.Battles || {};
+                    if (!cj || cj.status !== "ok" || !cj.data) return setStatus(box, msg, "bad", `Clan [${tag}] not found`);
+                    const bs = cj.data.Battles || {};
                     const b = id ? (bs[id] || Object.values(bs).find((x) => x.BattleID === id)) : null;
-                    box.classList.add("ok");
-                    msg.textContent = `[${cj.data.Name}] found` + (b ? ` · #${b.Place || "?"} · ${short(b.Points || 0)} pts` : "");
-                    msg.className = "field-msg ok";
+                    setStatus(box, msg, "ok", `[${cj.data.Name}] found` + (b ? ` · #${b.Place || "?"} · ${short(b.Points || 0)} pts` : ""));
                 } catch (e) {
-                    if (tag !== S[key]) return;
-                    box.classList.remove("wait");
-                    msg.textContent = "Couldn't check right now – the link will still work";
+                    if (tag === S[key]) setStatus(box, msg, "", "Couldn't check right now – the link will still work");
+                }
+            }, 600);
+        }
+        function checkPlayer() {
+            const id = S.player, box = $("plBox"), msg = $("plMsg");
+            clearTimeout(checkT.pl);
+            if (!id) { setStatus(box, msg, "", ""); msg.innerHTML = `Find it in the address of a player on the <a href="/people/">People</a> page (…?id=<b>123</b>)`; return; }
+            setStatus(box, msg, "wait", "Checking…");
+            checkT.pl = setTimeout(async () => {
+                try {
+                    const [pj, uj] = await Promise.all([
+                        fetch(`${WORKER_URL}/v1/clans/players/${id}`).then((r) => r.json()).catch(() => null),
+                        fetch(`${WORKER_URL}/roblox/users/${id}`).then((r) => r.json()).catch(() => null)
+                    ]);
+                    if (id !== S.player) return;
+                    const name = uj && (uj.name || uj.displayName);
+                    const pts = (function find(o, d) { if (!o || typeof o !== "object" || d > 4) return undefined; if ("ActiveBattlePoints" in o) return o.ActiveBattlePoints; for (const k in o) { const v = find(o[k], d + 1); if (v !== undefined) return v; } })(pj, 0);
+                    if (pts === undefined) return setStatus(box, msg, "bad", name ? `@${name} has no clan war points` : `Player ${id} not found`);
+                    setStatus(box, msg, "ok", `${name ? "@" + name : "Player " + id} · ${short(Number(pts) || 0)} war points`);
+                } catch (e) {
+                    if (id === S.player) setStatus(box, msg, "", "Couldn't check right now – the link will still work");
                 }
             }, 600);
         }
 
         // ---------- události ----------
-        $("tiles").addEventListener("click", (e) => { const t = e.target.closest(".tile"); if (t && t.dataset.w !== S.w) { S.w = t.dataset.w; changed(true); } });
+        $("tiles").addEventListener("click", (e) => { const t = e.target.closest(".tile"); if (t && t.dataset.w !== S.w) { S.w = t.dataset.w; changed(); } });
         const tagInput = (id, key, boxId, msgId) => $(id).addEventListener("input", (e) => {
             const v = e.target.value.replace(/[^A-Za-z0-9]/g, "").toUpperCase().slice(0, 4);
-            e.target.value = v;
-            S[key] = v; changed(); checkClan(key, boxId, msgId);
+            e.target.value = v; S[key] = v; changed(); checkClan(key, boxId, msgId);
         });
         tagInput("fClan", "clan", "clanBox", "clanMsg");
         tagInput("fVs", "vs", "vsBox", "vsMsg");
+        $("fPlayer").addEventListener("input", (e) => {
+            const raw = e.target.value.trim();
+            const m = raw.match(/[?&]id=(\d+)/) || raw.match(/(\d{3,})/);
+            S.player = m ? m[1] : "";
+            if (/[?&]id=/.test(raw) && m) e.target.value = m[1];
+            changed(); checkPlayer();
+        });
         $("fGoal").addEventListener("input", (e) => { S.goal = e.target.value.replace(/[^0-9.,kmbtKMBT ]/g, ""); e.target.value = S.goal; changed(); });
         $("fLabel").addEventListener("input", (e) => { S.label = e.target.value; changed(); });
         $("rowsMinus").addEventListener("click", () => { S.rows = Math.max(3, S.rows - 1); changed(); });
         $("rowsPlus").addEventListener("click", () => { S.rows = Math.min(10, S.rows + 1); changed(); });
         $("fScale").addEventListener("input", (e) => { S.scale = +e.target.value; changed(); });
-        const seg = (id, key) => $(id).addEventListener("click", (e) => { const b = e.target.closest("button"); if (b && S[key] !== b.dataset.v) { S[key] = b.dataset.v; changed(key === "data"); } });
-        seg("themes", "theme"); seg("aligns", "align");
+        $("themes").addEventListener("click", (e) => { const b = e.target.closest(".theme-b"); if (b) { S.theme = b.dataset.v; changed(); } });
+        $("aligns").addEventListener("click", (e) => { const b = e.target.closest("button"); if (b) { S.align = b.dataset.v; changed(); } });
         $("bgs").addEventListener("click", (e) => { const b = e.target.closest("button"); if (b) { S.bg = b.dataset.v; save(); syncUI(); } });
-        seg("dataMode", "data");
         $("toggles").addEventListener("change", (e) => { const i = e.target; if (i.dataset.k) { S.show[i.dataset.k] = i.checked; changed(); } });
-        ["fClan", "fVs", "fGoal", "fLabel"].forEach((id) => $(id).addEventListener("keydown", (e) => { if (e.key === "Enter") e.target.blur(); }));
+        ["fClan", "fVs", "fGoal", "fLabel", "fPlayer"].forEach((id) => $(id).addEventListener("keydown", (e) => { if (e.key === "Enter") e.target.blur(); }));
 
         function toast(t) { const el = $("toast"); el.textContent = t; el.classList.add("show"); clearTimeout(toast.t); toast.t = setTimeout(() => el.classList.remove("show"), 1600); }
         async function copy(text, what) {
@@ -782,26 +867,24 @@
             const b = e.currentTarget; b.textContent = "Copied!"; b.classList.remove("done"); void b.offsetWidth; b.classList.add("done", "green");
             setTimeout(() => { b.textContent = "Copy link"; b.classList.remove("green"); }, 1600);
         });
-        $("openBtn").addEventListener("click", () => {
-            const miss = missing();
-            if (miss) { toast(miss); return; }
-            window.open(obsUrl(), "_blank");
-        });
+        $("openBtn").addEventListener("click", () => { const miss = missing(); if (miss) { toast(miss); return; } window.open(obsUrl(), "_blank"); });
         $("chipW").addEventListener("click", () => copy(String(size.w), "Width"));
         $("chipH").addEventListener("click", () => copy(String(size.h), "Height"));
         $("urlOut").addEventListener("focus", (e) => e.target.select());
-        window.addEventListener("resize", fitPreview);
+        let rT = null;
+        window.addEventListener("resize", () => { clearTimeout(rT); rT = setTimeout(fitPreview, 120); });
 
         // ---------- start ----------
         const q = new URLSearchParams(location.search);          // /overlays/?w=versus&clan=UN0 předvyplní
-        if (q.get("w")) S.w = q.get("w");
+        if (TYPES.includes(q.get("w"))) S.w = q.get("w");
         if (q.get("clan")) S.clan = q.get("clan").toUpperCase().slice(0, 4);
         if (q.get("vs")) S.vs = q.get("vs").toUpperCase().slice(0, 4);
-        if (!["clan", "versus", "top", "timer", "goal"].includes(S.w)) S.w = "clan";
+        if (/^\d+$/.test(q.get("player") || "")) S.player = q.get("player");
         syncUI();
         loadPreview();
         if (S.clan) checkClan("clan", "clanBox", "clanMsg");
         if (S.vs) checkClan("vs", "vsBox", "vsMsg");
+        checkPlayer();
     })();
     </script>
 
