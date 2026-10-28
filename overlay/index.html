@@ -1,0 +1,871 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex">
+    <title>PS99 Clans - OBS Overlay</title>
+    <link rel="icon" href="/images/favicon.png" type="image/png">
+    <script>
+        // odometer.js stejně jako live stránka (2.5 s, slide); instance si stránka vytváří sama
+        window.odometerOptions = { auto: false, duration: 2500, animation: 'slide' };
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700;800&family=Roboto:wght@600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/odometer.js/0.4.7/themes/odometer-theme-minimal.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/odometer.js/0.4.7/odometer.min.js"></script>
+
+    <style>
+        /* =====================================================================
+           PS99 Clans – OBS overlay. Pozadí je průhledné, vše se nastavuje v URL.
+           Návod a generátor odkazu: /overlays/
+           ===================================================================== */
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        html, body { background: transparent !important; overflow: hidden; }
+        body {
+            font-family: 'Fredoka', sans-serif;
+            font-weight: 600;
+            -webkit-font-smoothing: antialiased;
+            user-select: none;
+        }
+
+        /* ---------- motivy ---------- */
+        :root {
+            --accent: #48D2F7;
+            --accent2: #FF4F86;
+            --card-bg: #FFFFFF;
+            --card-border: #000000;
+            --border-w: 4px;
+            --radius: 18px;
+            --text: #1C2130;
+            --muted: #8E9099;
+            --soft: #F1F4FA;
+            --shadow: 0 6px 0 rgba(0, 0, 0, 0.18), 0 10px 24px rgba(0, 0, 0, 0.25);
+            --num-shadow: none;
+            --track: #E6E9F0;
+        }
+        body.t-dark {
+            --card-bg: linear-gradient(180deg, #232733 0%, #171A22 100%);
+            --card-border: #05060A;
+            --text: #FFFFFF;
+            --muted: #9AA3B5;
+            --soft: rgba(255, 255, 255, 0.08);
+            --track: rgba(255, 255, 255, 0.12);
+        }
+        body.t-glass {
+            --card-bg: rgba(255, 255, 255, 0.14);
+            --card-border: rgba(255, 255, 255, 0.45);
+            --border-w: 2px;
+            --text: #FFFFFF;
+            --muted: rgba(255, 255, 255, 0.78);
+            --soft: rgba(255, 255, 255, 0.14);
+            --shadow: 0 10px 30px rgba(0, 0, 0, 0.28);
+            --num-shadow: 0 2px 8px rgba(0, 0, 0, 0.45);
+            --track: rgba(255, 255, 255, 0.22);
+        }
+        body.t-glass .card { -webkit-backdrop-filter: blur(14px) saturate(1.3); backdrop-filter: blur(14px) saturate(1.3); }
+        body.t-neon {
+            --card-bg: rgba(8, 10, 22, 0.88);
+            --card-border: var(--accent);
+            --border-w: 3px;
+            --text: #FFFFFF;
+            --muted: #A9B3CC;
+            --soft: rgba(255, 255, 255, 0.07);
+            --shadow: 0 0 18px color-mix(in srgb, var(--accent) 65%, transparent), inset 0 0 14px color-mix(in srgb, var(--accent) 30%, transparent);
+            --num-shadow: 0 0 12px color-mix(in srgb, var(--accent) 80%, transparent);
+            --track: rgba(255, 255, 255, 0.1);
+        }
+        body.t-minimal {
+            --card-bg: transparent;
+            --card-border: transparent;
+            --border-w: 0px;
+            --text: #FFFFFF;
+            --muted: #FFFFFF;
+            --soft: transparent;
+            --shadow: none;
+            --track: rgba(0, 0, 0, 0.35);
+        }
+        /* minimal = jen text s černým obrysem jako ve hře */
+        body.t-minimal .name, body.t-minimal .num, body.t-minimal .label, body.t-minimal .sub, body.t-minimal .muted-txt,
+        body.t-minimal .row-rank, body.t-minimal .timer-val, body.t-minimal .vs-diff {
+            -webkit-text-stroke: 6px #000;
+            paint-order: stroke fill;
+            stroke-linejoin: round;
+        }
+        body.t-minimal .label, body.t-minimal .sub, body.t-minimal .muted-txt { -webkit-text-stroke-width: 4px; }
+
+        /* ---------- kotva + zvětšení ---------- */
+        #stage { position: absolute; top: 0; left: 0; padding: 26px 14px 14px; transform-origin: top left; }
+        body.a-center #stage { left: 50%; transform-origin: top center; }
+        body.a-right #stage { left: auto; right: 0; transform-origin: top right; }
+
+        .card {
+            position: relative;
+            background: var(--card-bg);
+            border: var(--border-w) solid var(--card-border);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            color: var(--text);
+        }
+        body.t-minimal .card { box-shadow: none; }
+
+        .num, .num * {
+            font-family: 'Roboto', sans-serif !important;
+            font-weight: 600 !important;
+        }
+        .num { color: var(--text); white-space: nowrap; line-height: 1.15; text-shadow: var(--num-shadow); }
+        .num .odometer { vertical-align: top; }
+        .name { font-weight: 700; white-space: nowrap; line-height: 1.1; }
+        .label { font-size: 15px; font-weight: 700; letter-spacing: 0.5px; color: var(--muted); white-space: nowrap; }
+        .muted-txt { color: var(--muted); }
+
+        .clan-icon {
+            display: block;
+            border-radius: 50%;
+            border: 3px solid var(--card-border);
+            background: #FFFFFF;
+            object-fit: cover;
+        }
+        body.t-minimal .clan-icon, body.t-glass .clan-icon { border-color: #000; }
+        .flag {
+            position: absolute;
+            right: -2px;
+            bottom: -2px;
+            border-radius: 50%;
+            border: 3px solid #000;
+            background: #FFF;
+            object-fit: cover;
+        }
+        .rank-pill {
+            display: inline-flex;
+            align-items: center;
+            padding: 1px 11px;
+            border-radius: 13px;
+            border: 3px solid #000;
+            background: #FFFFFF;
+            color: #1C2130;
+            font-size: 18px;
+            font-weight: 800;
+            white-space: nowrap;
+            line-height: 1.25;
+        }
+        .rank-pill.gold   { background: linear-gradient(#FFE873, #FFB21E); }
+        .rank-pill.silver { background: linear-gradient(#F4F6FA, #BFC6D4); }
+        .rank-pill.bronze { background: linear-gradient(#FFC48A, #E4893A); }
+        .rank-pill.bump { animation: bump 0.9s cubic-bezier(0.2, 1.4, 0.4, 1); }
+        @keyframes bump { 0% { transform: scale(1); } 25% { transform: scale(1.28); } 100% { transform: scale(1); } }
+
+        /* vyskakující +body */
+        .gain {
+            position: absolute;
+            padding: 2px 11px;
+            border-radius: 20px;
+            border: 3px solid #000;
+            background: #6BF06B;
+            color: #FFF;
+            font-size: 18px;
+            font-weight: 800;
+            -webkit-text-stroke: 4px #000;
+            paint-order: stroke fill;
+            white-space: nowrap;
+            pointer-events: none;
+            opacity: 0;
+            z-index: 5;
+        }
+        .gain.go { animation: gainUp 2.6s ease-out forwards; }
+        @keyframes gainUp {
+            0%   { opacity: 0; transform: translateY(8px) scale(0.6); }
+            12%  { opacity: 1; transform: translateY(-4px) scale(1.08); }
+            22%  { transform: translateY(-6px) scale(1); }
+            78%  { opacity: 1; transform: translateY(-20px); }
+            100% { opacity: 0; transform: translateY(-30px); }
+        }
+
+        /* vstupní animace */
+        body.anim .card { animation: popIn 0.55s cubic-bezier(0.2, 1.3, 0.4, 1) both; }
+        body.anim .row { animation: fadeIn 0.5s ease-out both; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes popIn { 0% { opacity: 0; transform: translateY(14px) scale(0.92); } 100% { opacity: 1; transform: none; } }
+
+        .hidden { display: none !important; }
+
+        /* ================= CLAN ================= */
+        .w-clan { display: flex; align-items: center; gap: 18px; padding: 16px 26px 16px 18px; min-width: 440px; }
+        .w-clan .icon-wrap { position: relative; flex: 0 0 auto; }
+        .w-clan .clan-icon { width: 104px; height: 104px; }
+        .w-clan .flag { width: 34px; height: 34px; }
+        .w-clan .info { display: flex; flex-direction: column; min-width: 0; }
+        .w-clan .top-row { display: flex; align-items: center; gap: 10px; }
+        .w-clan .name { font-size: 32px; }
+        .w-clan .num { font-size: 54px; margin-top: 2px; }
+        .w-clan .sub { display: flex; align-items: center; gap: 7px; margin-top: 2px; }
+        .w-clan .sub img { width: 20px; height: 20px; }
+        .rate { color: #2DB84B; font-weight: 800; }
+        body.t-dark .rate, body.t-glass .rate, body.t-neon .rate, body.t-minimal .rate { color: #7CFF5B; }
+        .w-clan .gain { right: 18px; top: -14px; }
+
+        /* ================= VERSUS ================= */
+        .w-vs { width: 860px; padding: 16px 20px 16px; }
+        .vs-row { display: flex; align-items: center; gap: 12px; }
+        .vs-side { flex: 1 1 0; display: flex; align-items: center; gap: 14px; min-width: 0; position: relative; }
+        .vs-side.b { flex-direction: row-reverse; text-align: right; }
+        .vs-side .icon-wrap { position: relative; flex: 0 0 auto; }
+        .vs-side .clan-icon { width: 78px; height: 78px; }
+        .vs-side .flag { width: 28px; height: 28px; }
+        .vs-side .txt { display: flex; flex-direction: column; min-width: 0; }
+        .vs-side.b .txt { align-items: flex-end; }
+        .vs-side .name { font-size: 26px; display: flex; align-items: center; gap: 8px; }
+        .vs-side.b .name { flex-direction: row-reverse; }
+        .vs-side .num { font-size: 36px; }
+        .vs-side .gain { top: -18px; }
+        .vs-side.a .gain { left: 92px; }
+        .vs-side.b .gain { right: 92px; }
+        .vs-mid { flex: 0 0 auto; width: 70px; height: 70px; border-radius: 50%; border: 4px solid #000; background: #FFF; display: flex; align-items: center; justify-content: center; }
+        .vs-mid span {
+            position: relative;
+            font-size: 30px;
+            font-weight: 800;
+            color: #000;
+            -webkit-text-stroke: 5px #000;
+            paint-order: stroke fill;
+        }
+        .vs-mid span::after {
+            content: "VS";
+            position: absolute; left: 0; top: 0;
+            -webkit-text-stroke: 0;
+            background: linear-gradient(#FFE873, #FFB21E);
+            -webkit-background-clip: text; background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .tug {
+            position: relative;
+            height: 26px;
+            margin-top: 14px;
+            border-radius: 13px;
+            border: 3px solid #000;
+            background: var(--accent2);
+            overflow: hidden;
+        }
+        .tug-a {
+            position: absolute; left: 0; top: 0; bottom: 0;
+            width: 50%;
+            background: var(--accent);
+            border-right: 3px solid #000;
+            transition: width 1.4s cubic-bezier(0.2, 0.9, 0.2, 1);
+        }
+        .tug-shine { position: absolute; left: 10px; right: 10px; top: 3px; height: 6px; border-radius: 4px; background: rgba(255, 255, 255, 0.4); }
+        .tug-l {
+            position: absolute; top: 50%; transform: translateY(-50%);
+            font-size: 15px; font-weight: 800; color: #FFF;
+            -webkit-text-stroke: 4px #000; paint-order: stroke fill;
+        }
+        .tug-l.a { left: 10px; } .tug-l.b { right: 10px; }
+        .vs-foot { display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 8px; }
+        .vs-diff { font-size: 26px; }
+        .vs-lead { font-size: 18px; font-weight: 700; color: var(--muted); white-space: nowrap; }
+        .vs-lead b { font-weight: 800; }
+
+        /* ================= TOP ================= */
+        .w-top { width: 440px; padding: 12px 12px 10px; }
+        .top-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 2px 6px 8px; }
+        .top-title { font-size: 22px; font-weight: 800; color: var(--text); white-space: nowrap; }
+        .top-sub { font-size: 13px; font-weight: 700; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .top-list { position: relative; }
+        .row {
+            position: absolute;
+            left: 0; right: 0;
+            height: 52px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 0 12px 0 8px;
+            border-radius: 12px;
+            background: var(--soft);
+            transition: transform 0.9s cubic-bezier(0.25, 1, 0.3, 1), opacity 0.4s, background 0.4s, box-shadow 0.4s;
+        }
+        body.t-minimal .row { background: rgba(0, 0, 0, 0.28); }
+        .row.off { opacity: 0 !important; visibility: hidden; }
+        .row.me { box-shadow: 0 0 0 3px var(--accent) inset; background: color-mix(in srgb, var(--accent) 18%, transparent); }
+        .row.up { animation: rowUp 1.1s ease-out !important; }
+        @keyframes rowUp { 0% { background: rgba(107, 240, 107, 0.55); } 100% { } }
+        .row-rank {
+            flex: 0 0 auto;
+            width: 40px;
+            height: 34px;
+            border-radius: 10px;
+            border: 3px solid #000;
+            background: #FFF;
+            color: #1C2130;
+            font-size: 17px;
+            font-weight: 800;
+            display: flex; align-items: center; justify-content: center;
+            -webkit-text-stroke: 0 !important;
+        }
+        .row-rank.gold   { background: linear-gradient(#FFE873, #FFB21E); }
+        .row-rank.silver { background: linear-gradient(#F4F6FA, #BFC6D4); }
+        .row-rank.bronze { background: linear-gradient(#FFC48A, #E4893A); }
+        .row .icon-wrap { position: relative; flex: 0 0 auto; }
+        .row .clan-icon { width: 38px; height: 38px; border-width: 2px; }
+        .row .flag { width: 18px; height: 18px; border-width: 2px; right: -4px; bottom: -3px; }
+        .row .name { font-size: 20px; flex: 1 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+        .row .num { font-size: 22px; }
+        .row-sep { position: absolute; left: 40%; right: 40%; height: 4px; border-radius: 2px; background: var(--muted); opacity: 0.5; }
+
+        /* ================= TIMER ================= */
+        .w-timer { width: 460px; padding: 14px 22px 16px; text-align: center; }
+        .timer-head { display: flex; align-items: center; justify-content: center; gap: 8px; }
+        .live-dot { width: 12px; height: 12px; border-radius: 50%; background: #2ECC40; border: 2px solid #000; animation: pulse 1.4s infinite ease-in-out; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+        .timer-name { font-size: 22px; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .timer-val { font-size: 50px; margin-top: 2px; }
+        .timer-val .u { font-size: 0.5em; color: var(--muted); margin: 0 6px 0 1px; font-family: 'Fredoka', sans-serif !important; font-weight: 700 !important; }
+        .bar {
+            position: relative;
+            height: 22px;
+            margin-top: 8px;
+            border-radius: 11px;
+            border: 3px solid #000;
+            background: var(--track);
+            overflow: hidden;
+        }
+        .bar-fill {
+            position: absolute; left: 0; top: 0; bottom: 0;
+            width: 0%;
+            background: linear-gradient(180deg, color-mix(in srgb, var(--accent) 70%, #FFF) 0%, var(--accent) 100%);
+            border-right: 3px solid #000;
+            transition: width 1.2s cubic-bezier(0.2, 0.9, 0.2, 1);
+        }
+        .bar-fill.full { border-right: none; }
+        .bar-shine { position: absolute; left: 8px; right: 8px; top: 3px; height: 5px; border-radius: 3px; background: rgba(255, 255, 255, 0.45); }
+        .bar-stripes {
+            position: absolute; inset: 0;
+            background: repeating-linear-gradient(-45deg, rgba(255, 255, 255, 0.22) 0 10px, transparent 10px 20px);
+            background-size: 28px 28px;
+            animation: stripes 1s linear infinite;
+        }
+        @keyframes stripes { from { background-position: 0 0; } to { background-position: 28px 0; } }
+        .timer-foot { display: flex; justify-content: space-between; margin-top: 4px; font-size: 13px; }
+
+        /* ================= GOAL ================= */
+        .w-goal { width: 600px; padding: 14px 20px 16px; }
+        .goal-top { display: flex; align-items: center; gap: 14px; }
+        .goal-top .icon-wrap { position: relative; flex: 0 0 auto; }
+        .goal-top .clan-icon { width: 66px; height: 66px; }
+        .goal-top .flag { width: 24px; height: 24px; }
+        .goal-txt { flex: 1 1 auto; min-width: 0; }
+        .goal-title { font-size: 22px; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .goal-nums { display: flex; align-items: baseline; gap: 8px; }
+        .goal-nums .num { font-size: 34px; }
+        .goal-nums .of { font-size: 20px; font-weight: 700; color: var(--muted); white-space: nowrap; }
+        .goal-pct { flex: 0 0 auto; font-size: 34px; }
+        .w-goal .bar { height: 28px; border-radius: 14px; margin-top: 10px; }
+        .w-goal.done .bar-fill { background: linear-gradient(180deg, #A8FF8A 0%, #4CC93A 100%); }
+        .goal-done {
+            position: absolute; right: 18px; top: -16px;
+            padding: 2px 12px; border-radius: 14px; border: 3px solid #000;
+            background: linear-gradient(#FFE873, #FFB21E);
+            font-size: 16px; font-weight: 800; color: #1C2130;
+            animation: bump 1.2s cubic-bezier(0.2, 1.4, 0.4, 1) infinite alternate;
+        }
+        .w-goal .gain { right: 110px; top: -14px; }
+
+        /* chybová hláška (vidět i v OBS, ať streamer ví, co je špatně) */
+        .err-card { padding: 12px 18px; font-size: 18px; font-weight: 700; color: #FF4A4A; }
+        body.t-minimal .err-card { -webkit-text-stroke: 4px #000; paint-order: stroke fill; }
+    </style>
+</head>
+<body class="t-ps99">
+    <div id="stage"></div>
+
+    <script>
+    (function () {
+        "use strict";
+        const WORKER_URL = "https://rough-pine-d90f.ps99clans.workers.dev";
+        const P = new URLSearchParams(location.search);
+
+        // ---------- nastavení z URL ----------
+        const W = (P.get("w") || "clan").toLowerCase();                 // clan | versus | top | timer | goal
+        const TAG = (P.get("clan") || "").trim().toUpperCase().slice(0, 4);
+        const TAG2 = (P.get("vs") || "").trim().toUpperCase().slice(0, 4);
+        const THEME = (P.get("theme") || "ps99").toLowerCase();
+        const hex = (v, d) => /^[0-9a-f]{6}$/i.test(v || "") ? "#" + v : d;
+        const ACCENT = hex(P.get("accent"), "#48D2F7");
+        const ACCENT2 = hex(P.get("accent2"), "#FF4F86");
+        const SCALE = Math.max(0.3, Math.min(3, parseFloat(P.get("scale")) || 1));
+        const ROWS = Math.max(3, Math.min(10, parseInt(P.get("rows"), 10) || 5));
+        const HIDE = new Set((P.get("hide") || "").toLowerCase().split(",").filter(Boolean));   // icon,flag,rank,gain,rate,title,anim
+        const ALIGN = (P.get("align") || "left").toLowerCase();
+        const LABEL = (P.get("label") || "").slice(0, 40);
+        const GOAL = parseAmount(P.get("goal"));
+        const DEMO = P.has("demo");
+
+        // ---------- časování (stejný princip jako live stránka) ----------
+        const POLL_MS = DEMO ? 4000 : 15000;    // stažení dat
+        const STEP_MS = DEMO ? 3500 : 15000;    // nový přírůstek se rozloží na 4 kroky
+        const STEPS = 4;
+        const TOP_POLL_MS = DEMO ? 4000 : 20000;
+        const BATTLE_MS = 300000;
+
+        document.body.className = "t-" + (["ps99", "dark", "glass", "neon", "minimal"].includes(THEME) ? THEME : "ps99")
+            + (ALIGN === "center" ? " a-center" : ALIGN === "right" ? " a-right" : "")
+            + (HIDE.has("anim") ? "" : " anim");
+        document.documentElement.style.setProperty("--accent", ACCENT);
+        document.documentElement.style.setProperty("--accent2", ACCENT2);
+        const stage = document.getElementById("stage");
+        stage.style.transform = (ALIGN === "center" ? "translateX(-50%) " : "") + `scale(${SCALE})`;
+
+        // ---------- pomocné ----------
+        function parseAmount(v) {
+            if (!v) return 0;
+            const m = String(v).trim().toLowerCase().replace(/,/g, "").match(/^([\d.]+)\s*([kmbt]?)$/);
+            if (!m) return 0;
+            const mult = { "": 1, k: 1e3, m: 1e6, b: 1e9, t: 1e12 }[m[2]];
+            return Math.round(parseFloat(m[1]) * mult) || 0;
+        }
+        function short(v) {
+            const a = Math.abs(v), f = (x, s) => parseFloat(x.toFixed(x >= 100 ? 0 : x >= 10 ? 1 : 2)) + s;
+            if (a >= 1e12) return f(v / 1e12, "t");
+            if (a >= 1e9) return f(v / 1e9, "b");
+            if (a >= 1e6) return f(v / 1e6, "m");
+            if (a >= 1e3) return f(v / 1e3, "k");
+            return String(Math.round(v));
+        }
+        const full = (v) => Math.round(v).toLocaleString("en-US");
+        const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+        function flagUrl(cc) {
+            if (!cc || cc.length !== 2) return "";
+            const cp = cc.toUpperCase().split("").map((c) => 0x1F1E6 + c.charCodeAt(0) - 65);
+            return `https://twemoji.maxcdn.com/v/14.0.2/svg/${cp[0].toString(16)}-${cp[1].toString(16)}.svg`;
+        }
+        function iconUrl(icon) {
+            const id = (icon || "").replace("rbxassetid://", "").trim();
+            return id ? `https://ps99.biggamesapi.io/image/${id}` : "";
+        }
+        const FALLBACK_ICON = "/images/hotbar/clans.png";
+        const prettyBattle = (n) => (n || "").replace(/([a-z])([A-Z0-9])/g, "$1 $2").replace(/([0-9])([A-Z])/g, "$1 $2").trim();
+        const rankClass = (p) => (p === 1 ? "gold" : p === 2 ? "silver" : p === 3 ? "bronze" : "");
+        function iconHtml(d) {
+            const ic = HIDE.has("icon") ? "" : `<img class="clan-icon" src="${esc(d && d.icon ? d.icon : FALLBACK_ICON)}" onerror="this.onerror=null;this.src='${FALLBACK_ICON}'" alt="">`;
+            const fl = HIDE.has("flag") || !d || !d.flag ? "" : `<img class="flag" src="${esc(d.flag)}" onerror="this.remove()" alt="">`;
+            return ic ? `<div class="icon-wrap">${ic}${fl}</div>` : "";
+        }
+        function restart(el, cls) { el.classList.remove(cls); void el.offsetWidth; el.classList.add(cls); }
+
+        // ---------- odometer (odometer.js jako live stránka, jinak jen text) ----------
+        class Odo {
+            constructor(el) { this.el = el; this.inst = null; this.value = null; }
+            set(v, animate = true) {
+                v = Math.max(0, Math.round(v || 0));
+                if (typeof window.Odometer !== "function") { this.el.textContent = full(v); this.value = v; return; }
+                if (!this.inst || !animate) {
+                    if (this.inst && this.value === v) return;
+                    const fresh = document.createElement("span");
+                    this.el.replaceWith(fresh);
+                    this.el = fresh;
+                    this.inst = new window.Odometer({ el: fresh, value: v, format: "(,ddd)", theme: "minimal", duration: 2500, animation: "slide" });
+                    this.value = v;
+                    return;
+                }
+                if (v !== this.value) { this.value = v; this.inst.update(v); }
+            }
+        }
+
+        // ---------- plynulé body: přírůstek se rozloží na 4 kroky (jako live stránka) ----------
+        class Smooth {
+            constructor(onStep) { this.shown = null; this.lastApi = null; this.timer = null; this.onStep = onStep; this.hist = []; }
+            feed(pts) {
+                pts = Math.max(0, Math.round(pts || 0));
+                const now = Date.now();
+                if (this.lastApi === null) { this.shown = this.lastApi = pts; this.hist = [{ t: now, v: pts }]; this.onStep(0, true); return; }
+                if (pts === this.lastApi) return;
+                if (pts < this.lastApi * 0.5) {                          // nová bitva -> hned bez animace
+                    clearInterval(this.timer); this.timer = null;
+                    this.shown = this.lastApi = pts; this.hist = [{ t: now, v: pts }];
+                    this.onStep(0, true); return;
+                }
+                if (pts < this.lastApi) return;                            // starší data z API -> ignorovat
+                this.lastApi = pts;
+                this.hist.push({ t: now, v: pts });
+                while (this.hist.length > 2 && now - this.hist[1].t > 3600000) this.hist.shift();
+                clearInterval(this.timer);
+                const target = pts, chunk = (target - this.shown) / STEPS;
+                let n = 0;
+                const step = () => {
+                    n++;
+                    const before = this.shown;
+                    this.shown = n >= STEPS ? target : Math.round(this.shown + chunk);
+                    if (n >= STEPS) { clearInterval(this.timer); this.timer = null; }
+                    this.onStep(this.shown - before, false);
+                };
+                this.timer = null;
+                step();
+                if (n < STEPS) this.timer = setInterval(step, STEP_MS);
+            }
+            // body za hodinu podle posledních dat
+            rate() {
+                const h = this.hist;
+                if (h.length < 2) return 0;
+                const a = h[0], b = h[h.length - 1], dt = (b.t - a.t) / 3600000;
+                return dt > (DEMO ? 0.002 : 0.03) ? (b.v - a.v) / dt : 0;
+            }
+        }
+
+        // ---------- data ----------
+        let battle = null, battleAt = 0;
+        async function loadBattle() {
+            if (DEMO) { if (!battle) battle = { configName: "HatchWarBattle2026", StartTime: Date.now() / 1000 - 3 * 86400, FinishTime: Date.now() / 1000 + 2 * 86400 + 5 * 3600 }; return battle; }
+            if (battle && Date.now() - battleAt < BATTLE_MS) return battle;
+            try {
+                const j = await (await fetch(`${WORKER_URL}/activeClanBattle`, { cache: "no-store" })).json();
+                if (j && j.status === "ok" && j.data) { battle = j.data; battleAt = Date.now(); }
+            } catch (e) {}
+            return battle;
+        }
+
+        const demo = {};
+        function demoClan(tag) {
+            if (!demo[tag]) {
+                let h = 0; for (const c of tag) h = (h * 31 + c.charCodeAt(0)) >>> 0;
+                demo[tag] = { name: tag, icon: "", flag: flagUrl(["GB", "CZ", "US", "DE", "PL", "JP", "SK"][h % 7]), members: 40 + (h % 10), points: 40e9 + (h % 90) * 1e9, place: 1 + (h % 12) };
+            }
+            const d = demo[tag];
+            if (Math.random() < 0.85) d.points += Math.round(d.points * (0.002 + Math.random() * 0.01));
+            return { ...d };
+        }
+
+        async function fetchClan(tag) {
+            if (DEMO) return demoClan(tag);
+            const j = await (await fetch(`${WORKER_URL}/clan/${encodeURIComponent(tag)}`, { cache: "no-store" })).json();
+            if (!j || j.status !== "ok" || !j.data) return null;
+            const c = j.data, id = battle && battle.configName;
+            const bs = c.Battles || {};
+            const list = Array.isArray(bs) ? bs : Object.values(bs);
+            const active = id ? ((!Array.isArray(bs) && bs[id]) || list.find((b) => b.BattleID === id) || null) : null;
+            const raw = Array.isArray(c.Members) ? c.Members.length : 0;
+            return {
+                name: c.Name,
+                icon: iconUrl(c.Icon),
+                flag: flagUrl(c.CountryCode),
+                members: raw ? raw + 1 : 0,
+                points: active ? (active.Points || 0) : 0,
+                place: active && active.Place ? active.Place : null
+            };
+        }
+
+        let demoTop = null;
+        async function fetchTop(n) {
+            if (DEMO) {
+                if (!demoTop) {
+                    const names = ["UN0", "SOPU", "C0LD", "HROT", "MDKT", "RSNK", "NOVA", "ZERO", "PETS", "LUCK", "FIRE", "GG"];
+                    const ccs = ["GB", "XK", "JP", "CZ", "US", "DE", "PL", "BR", "FR", "SE", "SK", "CA"];
+                    demoTop = names.map((x, i) => ({ Name: x, Points: Math.round(160e9 * Math.pow(0.86, i)), CountryCode: ccs[i], Icon: "" }));
+                } else demoTop.forEach((d) => { if (Math.random() < 0.7) d.Points += Math.round(d.Points * Math.random() * (Math.random() < 0.15 ? 0.06 : 0.008)); });
+                return demoTop.map((d) => ({ ...d })).sort((a, b) => b.Points - a.Points);
+            }
+            const j = await (await fetch(`${WORKER_URL}/clans?page=1&pageSize=${Math.max(n, 10)}&sort=Points&sortOrder=desc`, { cache: "no-store" })).json();
+            if (!j || j.status !== "ok" || !Array.isArray(j.data)) throw new Error("bad data");
+            return j.data;
+        }
+
+        function showError(text) {
+            stage.innerHTML = `<div class="card err-card">${esc(text)}</div>`;
+        }
+
+        // =========================================================
+        // WIDGET: CLAN – jeden klan, body v bitvě, pořadí, body za hodinu
+        // =========================================================
+        async function widgetClan() {
+            if (!TAG) return showError("Overlay: add ?clan=TAG to the URL");
+            await loadBattle();
+            let d = await fetchClan(TAG).catch(() => undefined);
+            if (d === null) return showError(`Clan [${TAG}] not found`);
+            if (!d) return setTimeout(widgetClan, 5000);
+            stage.innerHTML = `
+                <div class="card w-clan">
+                    ${iconHtml(d)}
+                    <div class="info">
+                        <div class="top-row">
+                            <span class="name">[${esc(d.name)}]</span>
+                            ${HIDE.has("rank") ? "" : `<span class="rank-pill" id="rank"></span>`}
+                        </div>
+                        <div class="num" id="pts"><span></span></div>
+                        <div class="sub label">
+                            <img src="/images/hvezda.png" alt="">
+                            <span>${esc(LABEL || "BATTLE POINTS")}</span>
+                            ${HIDE.has("rate") ? "" : `<span class="rate" id="rate"></span>`}
+                        </div>
+                    </div>
+                    ${HIDE.has("gain") ? "" : `<div class="gain" id="gain"></div>`}
+                </div>`;
+            const odo = new Odo(document.querySelector("#pts span"));
+            const gain = document.getElementById("gain"), rate = document.getElementById("rate"), rank = document.getElementById("rank");
+            let lastPlace = null;
+            const sm = new Smooth((delta, instant) => {
+                odo.set(sm.shown, !instant);
+                if (delta > 0 && gain) { gain.textContent = "+" + short(delta); restart(gain, "go"); }
+                if (rate) { const r = sm.rate(); rate.textContent = r > 0 ? `· +${short(r)}/h` : ""; }
+            });
+            const apply = (x) => {
+                sm.feed(x.points);
+                if (rank) {
+                    rank.textContent = x.place ? `#${x.place}` : "#?";
+                    rank.className = "rank-pill " + rankClass(x.place);
+                    if (lastPlace && x.place && x.place !== lastPlace) restart(rank, "bump");
+                    lastPlace = x.place;
+                }
+            };
+            apply(d);
+            setInterval(async () => {
+                if (document.hidden && !DEMO) return;
+                await loadBattle();
+                const x = await fetchClan(TAG).catch(() => null);
+                if (x) apply(x);
+            }, POLL_MS);
+        }
+
+        // =========================================================
+        // WIDGET: VERSUS – dva klany, poměr a rozdíl
+        // =========================================================
+        async function widgetVersus() {
+            if (!TAG || !TAG2) return showError("Overlay: add ?clan=TAG&vs=TAG to the URL");
+            await loadBattle();
+            const [a, b] = await Promise.all([fetchClan(TAG).catch(() => undefined), fetchClan(TAG2).catch(() => undefined)]);
+            if (a === null || b === null) return showError(`Clan [${a === null ? TAG : TAG2}] not found`);
+            if (!a || !b) return setTimeout(widgetVersus, 5000);
+            const side = (d, k) => `
+                <div class="vs-side ${k}">
+                    ${iconHtml(d)}
+                    <div class="txt">
+                        <span class="name">[${esc(d.name)}]${HIDE.has("rank") ? "" : `<span class="rank-pill" id="rank${k}"></span>`}</span>
+                        <span class="num" id="pts${k}"><span></span></span>
+                    </div>
+                    ${HIDE.has("gain") ? "" : `<div class="gain" id="gain${k}"></div>`}
+                </div>`;
+            stage.innerHTML = `
+                <div class="card w-vs">
+                    <div class="vs-row">${side(a, "a")}<div class="vs-mid"><span>VS</span></div>${side(b, "b")}</div>
+                    <div class="tug"><div class="tug-a" id="tugA"></div><div class="tug-shine"></div><span class="tug-l a" id="tlA">50%</span><span class="tug-l b" id="tlB">50%</span></div>
+                    <div class="vs-foot"><span class="num vs-diff" id="diff"><span id="diffSign"></span><span></span></span><span class="vs-lead" id="lead"></span></div>
+                </div>`;
+            const oA = new Odo(document.querySelector("#ptsa span")), oB = new Odo(document.querySelector("#ptsb span"));
+            const oD = new Odo(document.querySelector("#diff span:last-child"));
+            const names = { a: a.name, b: b.name };
+            const upd = (instant) => {
+                const A = sA.shown || 0, B = sB.shown || 0, total = A + B, pa = total ? A / total : 0.5;
+                document.getElementById("tugA").style.width = Math.max(3, Math.min(97, pa * 100)).toFixed(2) + "%";
+                document.getElementById("tlA").textContent = (pa * 100).toFixed(1) + "%";
+                document.getElementById("tlB").textContent = ((1 - pa) * 100).toFixed(1) + "%";
+                const d = A - B;
+                document.getElementById("diffSign").textContent = d < 0 ? "-" : d > 0 ? "+" : "";
+                oD.set(Math.abs(d), !instant);
+                const L = d > 0 ? "a" : "b";
+                document.getElementById("lead").innerHTML = d === 0 ? "Tied!"
+                    : `<b style="color:${L === "a" ? ACCENT : ACCENT2}">[${esc(names[L])}]</b> leads`;
+            };
+            const mk = (k, odo) => new Smooth((delta, instant) => {
+                odo.set((k === "a" ? sA : sB).shown, !instant);
+                const g = document.getElementById("gain" + k);
+                if (delta > 0 && g) { g.textContent = "+" + short(delta); restart(g, "go"); }
+                upd(instant);
+            });
+            const sA = mk("a", oA), sB = mk("b", oB);
+            const places = {};
+            const apply = (k, x) => {
+                (k === "a" ? sA : sB).feed(x.points);
+                const r = document.getElementById("rank" + k);
+                if (r) {
+                    r.textContent = x.place ? `#${x.place}` : "#?";
+                    r.className = "rank-pill " + rankClass(x.place);
+                    if (places[k] && x.place && x.place !== places[k]) restart(r, "bump");
+                    places[k] = x.place;
+                }
+            };
+            apply("a", a); apply("b", b);
+            setInterval(async () => {
+                if (document.hidden && !DEMO) return;
+                await loadBattle();
+                const [x, y] = await Promise.all([fetchClan(TAG).catch(() => null), fetchClan(TAG2).catch(() => null)]);
+                if (x) apply("a", x);
+                if (y) apply("b", y);
+            }, POLL_MS);
+        }
+
+        // =========================================================
+        // WIDGET: TOP – žebříček bitvy, plynulé přeřazování, zvýraznění vlastního klanu
+        // =========================================================
+        async function widgetTop() {
+            await loadBattle();
+            const ROW_H = 52, GAP = 6;
+            const me = TAG;
+            stage.innerHTML = `
+                <div class="card w-top">
+                    ${HIDE.has("title") ? "" : `<div class="top-head"><span class="top-title">${esc(LABEL || `TOP ${ROWS} CLANS`)}</span><span class="top-sub" id="topSub"></span></div>`}
+                    <div class="top-list" id="list"></div>
+                </div>`;
+            const list = document.getElementById("list");
+            const rows = new Map();          // name -> { el, odo, smooth, rank }
+            let extraName = null;            // vlastní klan mimo top N
+
+            const ensureRow = (d) => {
+                let r = rows.get(d.Name);
+                if (r) return r;
+                const el = document.createElement("div");
+                el.className = "row off" + (d.Name.toUpperCase() === me ? " me" : "");
+                const info = { icon: iconUrl(d.Icon), flag: flagUrl(d.CountryCode) };
+                el.innerHTML = `<span class="row-rank"></span>${iconHtml(info)}<span class="name">[${esc(d.Name)}]</span><span class="num"><span></span></span>`;
+                list.appendChild(el);
+                const odo = new Odo(el.querySelector(".num span"));
+                r = { el, odo, rank: null, smooth: null };
+                r.smooth = new Smooth((delta, instant) => { odo.set(r.smooth.shown, !instant); if (!instant) scheduleSort(); });
+                rows.set(d.Name, r);
+                return r;
+            };
+
+            let sortT = null;
+            const scheduleSort = () => { clearTimeout(sortT); sortT = setTimeout(layout, 2600); };   // přeřadit až po dotočení čísla
+
+            const layout = () => {
+                const shownList = [...rows.entries()].filter(([, r]) => !r.gone).sort((x, y) => (y[1].smooth.shown || 0) - (x[1].smooth.shown || 0));
+                let y = 0, idx = 0;
+                const vis = new Set();
+                shownList.forEach(([name, r], i) => {
+                    const inTop = i < ROWS;
+                    const isExtra = !inTop && name.toUpperCase() === me;
+                    if (!inTop && !isExtra) { r.el.classList.add("off"); return; }
+                    if (isExtra) y += 14;      // oddělení pro vlastní klan mimo top
+                    vis.add(name);
+                    const rank = i + 1;
+                    const rk = r.el.querySelector(".row-rank");
+                    rk.textContent = rank;
+                    rk.className = "row-rank " + rankClass(rank);
+                    if (r.rank && rank < r.rank) restart(r.el, "up");
+                    r.rank = rank;
+                    r.el.classList.remove("off");
+                    r.el.style.transform = `translateY(${y}px)`;
+                    y += ROW_H + GAP;
+                    idx++;
+                });
+                list.style.height = Math.max(0, y - GAP) + "px";
+            };
+
+            const ingest = (data) => {
+                const n = Math.max(ROWS, 10);
+                const seen = new Set();
+                data.slice(0, n).forEach((d) => { seen.add(d.Name); ensureRow(d).smooth.feed(d.Points); });
+                // vlastní klan mimo top: dotáhnout zvlášť
+                return seen;
+            };
+
+            const refresh = async (first) => {
+                try {
+                    const data = await fetchTop(Math.max(ROWS, 10));
+                    const seen = ingest(data);
+                    if (me && !seen.has(me) && !DEMO) {
+                        const x = await fetchClan(me).catch(() => null);
+                        if (x) { const r = ensureRow({ Name: x.name, Icon: "", CountryCode: "" }); r.smooth.feed(x.points); }
+                    }
+                    const sub = document.getElementById("topSub");
+                    if (sub && battle) sub.textContent = prettyBattle(battle.configName);
+                    if (first) layout(); else scheduleSort();
+                } catch (e) {
+                    if (first) { list.innerHTML = `<div class="muted-txt" style="padding:10px">Loading...</div>`; setTimeout(() => refresh(true), 5000); }
+                }
+            };
+            await refresh(true);
+            setInterval(() => { if (!document.hidden || DEMO) { loadBattle(); refresh(false); } }, TOP_POLL_MS);
+        }
+
+        // =========================================================
+        // WIDGET: TIMER – odpočet do konce bitvy
+        // =========================================================
+        async function widgetTimer() {
+            await loadBattle();
+            stage.innerHTML = `
+                <div class="card w-timer">
+                    ${HIDE.has("title") ? "" : `<div class="timer-head"><span class="live-dot"></span><span class="timer-name" id="tName"></span></div>`}
+                    <div class="num timer-val" id="tVal"></div>
+                    <div class="bar"><div class="bar-fill" id="tBar"><div class="bar-stripes"></div></div><div class="bar-shine"></div></div>
+                    <div class="timer-foot label"><span id="tStart"></span><span id="tEnd"></span></div>
+                </div>`;
+            const p = (x) => String(x).padStart(2, "0");
+            const unit = (v, u) => `${p(v)}<span class="u">${u}</span>`;
+            const tick = () => {
+                const n = document.getElementById("tName");
+                if (!battle || !battle.configName) {
+                    if (n) n.textContent = "No active battle";
+                    document.getElementById("tVal").innerHTML = unit(0, "h") + unit(0, "m") + unit(0, "s");
+                    return;
+                }
+                if (n) n.textContent = LABEL || prettyBattle(battle.configName);
+                const now = Date.now() / 1000, left = Math.max(0, (battle.FinishTime || 0) - now);
+                const d = Math.floor(left / 86400), h = Math.floor((left % 86400) / 3600), m = Math.floor((left % 3600) / 60), s = Math.floor(left % 60);
+                document.getElementById("tVal").innerHTML = left <= 0 ? "ENDED" : (d ? unit(d, "d") : "") + unit(h, "h") + unit(m, "m") + unit(s, "s");
+                const tot = (battle.FinishTime || 0) - (battle.StartTime || 0);
+                const pct = tot > 0 ? Math.max(0, Math.min(1, (now - battle.StartTime) / tot)) : 0;
+                const bar = document.getElementById("tBar");
+                bar.style.width = (pct * 100).toFixed(2) + "%";
+                bar.classList.toggle("full", pct >= 0.999);
+                const fmt = (t) => new Date(t * 1000).toLocaleDateString("en-GB", { day: "numeric", month: "short" });
+                document.getElementById("tStart").textContent = battle.StartTime ? fmt(battle.StartTime) : "";
+                document.getElementById("tEnd").textContent = (pct * 100).toFixed(0) + "% · " + (battle.FinishTime ? fmt(battle.FinishTime) : "");
+            };
+            tick();
+            setInterval(tick, 1000);
+            setInterval(loadBattle, 60000);
+        }
+
+        // =========================================================
+        // WIDGET: GOAL – cíl bodů pro klan (progress bar)
+        // =========================================================
+        async function widgetGoal() {
+            if (!TAG) return showError("Overlay: add ?clan=TAG&goal=200b to the URL");
+            if (!GOAL) return showError("Overlay: add a goal, e.g. &goal=200b");
+            await loadBattle();
+            const d = await fetchClan(TAG).catch(() => undefined);
+            if (d === null) return showError(`Clan [${TAG}] not found`);
+            if (!d) return setTimeout(widgetGoal, 5000);
+            stage.innerHTML = `
+                <div class="card w-goal" id="goal">
+                    <div class="goal-top">
+                        ${iconHtml(d)}
+                        <div class="goal-txt">
+                            <div class="goal-title">${esc(LABEL || `[${d.name}] GOAL`)}</div>
+                            <div class="goal-nums"><span class="num" id="gPts"><span></span></span><span class="of">/ ${short(GOAL)}</span></div>
+                        </div>
+                        <span class="num goal-pct" id="gPct">0%</span>
+                    </div>
+                    <div class="bar"><div class="bar-fill" id="gBar"><div class="bar-stripes"></div></div><div class="bar-shine"></div></div>
+                    ${HIDE.has("gain") ? "" : `<div class="gain" id="gain"></div>`}
+                </div>`;
+            const odo = new Odo(document.querySelector("#gPts span"));
+            const gain = document.getElementById("gain");
+            let doneShown = false;
+            const sm = new Smooth((delta, instant) => {
+                odo.set(sm.shown, !instant);
+                const pct = Math.min(1, sm.shown / GOAL);
+                const bar = document.getElementById("gBar");
+                bar.style.width = (pct * 100).toFixed(2) + "%";
+                bar.classList.toggle("full", pct >= 1);
+                document.getElementById("gPct").textContent = (pct >= 1 ? 100 : Math.floor(pct * 1000) / 10).toFixed(pct >= 1 ? 0 : 1) + "%";
+                if (delta > 0 && gain) { gain.textContent = "+" + short(delta); restart(gain, "go"); }
+                if (pct >= 1 && !doneShown) {
+                    doneShown = true;
+                    const g = document.getElementById("goal");
+                    g.classList.add("done");
+                    g.insertAdjacentHTML("beforeend", `<div class="goal-done">GOAL REACHED!</div>`);
+                }
+            });
+            sm.feed(d.points);
+            setInterval(async () => {
+                if (document.hidden && !DEMO) return;
+                await loadBattle();
+                const x = await fetchClan(TAG).catch(() => null);
+                if (x) sm.feed(x.points);
+            }, POLL_MS);
+        }
+
+        const widgets = { clan: widgetClan, versus: widgetVersus, top: widgetTop, timer: widgetTimer, goal: widgetGoal };
+        (widgets[W] || widgetClan)();
+    })();
+    </script>
+</body>
+</html>
