@@ -53,27 +53,22 @@
         }
         body.t-dark .card { box-shadow: var(--shadow), inset 0 0 0 2px #22252E; }
 
-        /* ---------- GLASS: výraznější sklo ---------- */
+        /* ---------- GLASS (původní vzhled) ---------- */
         body.t-glass {
-            --card-bg: linear-gradient(160deg, rgba(255, 255, 255, 0.30) 0%, rgba(255, 255, 255, 0.10) 55%, rgba(255, 255, 255, 0.16) 100%);
-            --card-border: rgba(255, 255, 255, 0.70);
+            --card-bg: rgba(255, 255, 255, 0.14);
+            --card-border: rgba(255, 255, 255, 0.45);
             --border-w: 2px;
             --text: #FFFFFF;
-            --muted: rgba(255, 255, 255, 0.85);
-            --soft: rgba(255, 255, 255, 0.16);
-            --shadow: 0 12px 32px rgba(0, 0, 0, 0.32);
-            --num-filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.45));
-            --track: rgba(0, 0, 0, 0.25);
+            --muted: rgba(255, 255, 255, 0.80);
+            --soft: rgba(255, 255, 255, 0.14);
+            --shadow: 0 10px 30px rgba(0, 0, 0, 0.28);
+            --num-filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.45));
+            --track: rgba(255, 255, 255, 0.22);
             --star-filter: brightness(0) invert(1) drop-shadow(0 1px 2px rgba(0, 0, 0, 0.45));
         }
-        body.t-glass .card {
-            -webkit-backdrop-filter: blur(22px) saturate(1.6);
-            backdrop-filter: blur(22px) saturate(1.6);
-            box-shadow: var(--shadow), inset 0 1px 0 rgba(255, 255, 255, 0.75), inset 0 -1px 0 rgba(255, 255, 255, 0.18);
-        }
-        body.t-glass .name, body.t-glass .label, body.t-glass .top-title, body.t-glass .goal-title, body.t-glass .timer-name, body.t-glass .vs-lead,
-        body.t-glass .p-clan { filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.45)); }
-        body.t-glass .row.me { background: rgba(255, 255, 255, 0.28); box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.9); }
+        body.t-glass .card { -webkit-backdrop-filter: blur(14px) saturate(1.3); backdrop-filter: blur(14px) saturate(1.3); }
+        body.t-glass .name, body.t-glass .label, body.t-glass .top-title, body.t-glass .top-sub, body.t-glass .goal-title,
+        body.t-glass .timer-name, body.t-glass .vs-lead, body.t-glass .of { filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.55)); }
 
         /* ---------- NEON: čistá záře v barvě akcentu ---------- */
         body.t-neon {
@@ -104,11 +99,18 @@
             --track: rgba(0, 0, 0, 0.35);
             --star-filter: brightness(0) invert(1) drop-shadow(1.5px 0 0 #000) drop-shadow(-1.5px 0 0 #000) drop-shadow(0 1.5px 0 #000) drop-shadow(0 -1.5px 0 #000);
         }
-        /* obrys se dědí na všechny texty v kartě */
-        body.t-minimal .card { box-shadow: none; -webkit-text-stroke: 5px #000; paint-order: stroke fill; stroke-linejoin: round; }
-        body.t-minimal .card .num { -webkit-text-stroke-width: 7px; }
-        body.t-minimal .card .label, body.t-minimal .card .top-sub, body.t-minimal .card .timer-foot { -webkit-text-stroke-width: 4px; }
-        body.t-minimal .rank-pill, body.t-minimal .row-rank, body.t-minimal .p-clan { -webkit-text-stroke: 0; }
+        /* obrys celého textu najednou (filter) -> u odometru se neusekne za každou číslicí */
+        body.t-minimal .card { box-shadow: none; }
+        body.t-minimal .name, body.t-minimal .num, body.t-minimal .label, body.t-minimal .top-title, body.t-minimal .top-sub,
+        body.t-minimal .goal-title, body.t-minimal .of, body.t-minimal .vs-lead, body.t-minimal .timer-name, body.t-minimal .timer-val,
+        body.t-minimal .timer-foot, body.t-minimal .goal-pct, body.t-minimal .err-card {
+            filter: drop-shadow(2.5px 0 0 #000) drop-shadow(-2.5px 0 0 #000) drop-shadow(0 2.5px 0 #000) drop-shadow(0 -2.5px 0 #000) drop-shadow(0 3px 2px rgba(0, 0, 0, 0.35));
+        }
+        body.t-minimal .label, body.t-minimal .top-sub, body.t-minimal .timer-foot, body.t-minimal .of {
+            filter: drop-shadow(1.6px 0 0 #000) drop-shadow(-1.6px 0 0 #000) drop-shadow(0 1.6px 0 #000) drop-shadow(0 -1.6px 0 #000);
+        }
+        body.t-minimal .row .name { padding: 3px 0; }
+        body.t-minimal { --star-filter: brightness(0) invert(1); }
 
         /* ---------- kotva + zvětšení ---------- */
         #stage { position: absolute; top: 0; left: 0; padding: 54px 16px 16px; transform-origin: top left; }
@@ -147,26 +149,32 @@
         .gain-layer { position: absolute; z-index: 6; pointer-events: none; width: 0; height: 0; }
         .gain {
             position: absolute; left: 0; bottom: 0;
-            padding: 3px 13px 4px;
-            border-radius: 20px;
-            border: 3px solid #000;
-            background: linear-gradient(180deg, #A8FF8A 0%, #4CD43A 100%);
-            box-shadow: 0 3px 0 rgba(0, 0, 0, 0.25), inset 0 2px 0 rgba(255, 255, 255, 0.45);
-            color: #FFF;
-            font-size: 19px;
+            font-size: 28px;
             font-weight: 800;
-            -webkit-text-stroke: 4px #000;
+            color: #7CFF5B;
+            -webkit-text-stroke: 6px #000;
             paint-order: stroke fill;
+            stroke-linejoin: round;
             white-space: nowrap;
+            letter-spacing: 0.5px;
             transform-origin: 50% 100%;
-            animation: gainUp 2.8s cubic-bezier(0.2, 0.8, 0.3, 1) forwards;
+            filter: drop-shadow(0 3px 0 rgba(0, 0, 0, 0.35));
+            animation: gainUp 2.2s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+            will-change: transform, opacity;
+        }
+        .gain::after {                 /* lesk na textu */
+            content: attr(data-t);
+            position: absolute; left: 0; top: 0;
+            -webkit-text-stroke: 0;
+            background: linear-gradient(180deg, #E4FFD6 0%, #9BFF73 45%, #3FD12F 100%);
+            -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
         }
         @keyframes gainUp {
-            0%   { opacity: 0; transform: translate(-50%, 10px) scale(0.4); }
-            10%  { opacity: 1; transform: translate(-50%, -6px) scale(1.12); }
-            18%  { transform: translate(-50%, -4px) scale(1); }
-            75%  { opacity: 1; transform: translate(-50%, -26px) scale(1); }
-            100% { opacity: 0; transform: translate(-50%, -38px) scale(0.92); }
+            0%   { opacity: 0; transform: translate(-50%, 14px) scale(0.3) rotate(-8deg); }
+            14%  { opacity: 1; transform: translate(-50%, -4px) scale(1.22) rotate(3deg); }
+            24%  { transform: translate(-50%, -2px) scale(1) rotate(0deg); }
+            70%  { opacity: 1; transform: translate(-50%, -22px) scale(1); }
+            100% { opacity: 0; transform: translate(-50%, -34px) scale(0.85); }
         }
 
         body.anim .card { animation: popIn 0.55s cubic-bezier(0.2, 1.3, 0.4, 1) both; }
@@ -186,7 +194,7 @@
         .sub { display: flex; align-items: center; gap: 7px; margin-top: 2px; }
         .rate { color: #2DB84B; font-weight: 800; }
         body.t-dark .rate, body.t-glass .rate, body.t-neon .rate, body.t-minimal .rate { color: #7CFF5B; }
-        .w-clan .gain-layer { right: 64px; top: 8px; }
+        .w-clan .gain-layer { right: 70px; top: 12px; }
 
         /* ================= PLAYER ================= */
         .w-player { display: flex; align-items: center; gap: 18px; padding: 16px 26px 16px 18px; min-width: 440px; }
@@ -198,7 +206,7 @@
             background: var(--accent); color: #FFF; font-size: 16px; font-weight: 800; white-space: nowrap;
             -webkit-text-stroke: 4px #000; paint-order: stroke fill;
         }
-        .w-player .gain-layer { right: 64px; top: 8px; }
+        .w-player .gain-layer { right: 70px; top: 12px; }
 
         /* ================= VERSUS ================= */
         .w-vs { width: 860px; padding: 16px 20px 16px; }
@@ -244,7 +252,9 @@
         .row.off { opacity: 0 !important; visibility: hidden; }
         .row.me { box-shadow: inset 0 0 0 3px var(--accent); background: rgba(var(--acc-rgb), 0.18); }
         body.t-neon .row.me { box-shadow: inset 0 0 0 2px var(--accent), 0 0 12px rgba(var(--acc-rgb), 0.5); }
-        .row.up { animation: rowUp 1.1s ease-out; }
+        .row.lift { z-index: 5; box-shadow: 0 12px 22px rgba(0, 0, 0, 0.35), inset 0 0 0 3px #6BF06B; }
+        .row.sink { z-index: 1; opacity: 0.8; }
+        .row.up { animation: rowUp 1.4s ease-out; }
         @keyframes rowUp { 0% { background: rgba(107, 240, 107, 0.6); } 100% { } }
         .row-rank {
             flex: 0 0 auto; min-width: 42px; height: 34px; padding: 0 7px; border-radius: 10px; border: 3px solid #000;
@@ -342,6 +352,7 @@
         const TAG = (P.get("clan") || "").trim().toUpperCase().slice(0, 4);
         const TAG2 = (P.get("vs") || "").trim().toUpperCase().slice(0, 4);
         const PLAYER = parseInt(P.get("player"), 10) || 0;
+        const PNAME = (P.get("pname") || "").replace(/[^A-Za-z0-9_]/g, "").slice(0, 20);
         const THEME = (P.get("theme") || "ps99").toLowerCase();
         const hex = (v, d) => /^[0-9a-f]{6}$/i.test(v || "") ? "#" + v.toUpperCase() : d;
         const ROWS = Math.max(3, Math.min(10, parseInt(P.get("rows"), 10) || 5));
@@ -417,6 +428,7 @@
             const g = document.createElement("div");
             g.className = "gain";
             g.textContent = "+" + short(delta);
+            g.dataset.t = g.textContent;
             layer.appendChild(g);
             g.addEventListener("animationend", () => g.remove());
             while (layer.children.length > 3) layer.firstChild.remove();
@@ -551,12 +563,24 @@
                 demoP.points += Math.round(demoP.points * Math.random() * 0.01);
                 return { ...demoP };
             }
-            const j = await (await fetch(`${WORKER_URL}/v1/clans/players/${id}`, { cache: "no-store" })).json();
-            if (!j || (j.status && j.status !== "ok")) return null;
-            const pts = findKey(j, "ActiveBattlePoints");
-            if (pts === undefined) return null;
-            const clan = findKey(j, "ClanName") || findKey(j, "Clan") || findKey(j, "clan") || "";
-            return { points: Number(pts) || 0, clan: typeof clan === "string" ? clan : "" };
+            let j = null;
+            try { j = await (await fetch(`${WORKER_URL}/v1/clans/players/${id}`, { cache: "no-store" })).json(); } catch (e) {}
+            let pts = j ? findKey(j, "ActiveBattlePoints") : undefined;
+            let clan = j ? (findKey(j, "ClanName") || findKey(j, "Clan") || "") : "";
+            let name = "";
+            // záloha: stejný zdroj jako stránka People
+            if (pts === undefined || !clan) {
+                try {
+                    const a = await (await fetch(`${WORKER_URL}/api/player/${id}`, { cache: "no-store" })).json();
+                    if (a && a.found && a.player) {
+                        if (pts === undefined) pts = a.player.points;
+                        if (!clan && a.player.inClan !== false) clan = a.player.clan || "";
+                        name = a.player.username || "";
+                    }
+                } catch (e) {}
+            }
+            if (pts === undefined) return j ? null : undefined;
+            return { points: Number(pts) || 0, clan: typeof clan === "string" ? clan : "", name };
         }
         async function fetchRoblox(id) {
             const out = { name: "", avatar: "" };
@@ -625,7 +649,8 @@
             const [d, rb] = await Promise.all([fetchPlayer(PLAYER).catch(() => undefined), fetchRoblox(PLAYER)]);
             if (d === null) return showError(`Player ${PLAYER} not found`);
             if (!d) return (showLoading(), setTimeout(widgetPlayer, 5000));
-            const name = rb.name ? "@" + rb.name : (DEMO ? "@" + d.name : `Player ${PLAYER}`);
+            const nm = PNAME || rb.name || d.name || "";
+            const name = nm ? "@" + nm : `Player ${PLAYER}`;
             stage.innerHTML = `
                 <div class="card w-player">
                     ${HIDE.has("icon") ? "" : `<img class="avatar" src="${esc(rb.avatar || FALLBACK_ICON)}" onerror="this.onerror=null;this.src='${FALLBACK_ICON}'" alt="">`}
@@ -751,6 +776,34 @@
             const scheduleSort = () => { clearTimeout(sortT); sortT = setTimeout(layout, 2600); };   // přeřadit až po dotočení čísla
             let windowNames = [];
 
+            // zvednout -> přesunout -> položit (předbíhající se zvedne nad ostatní)
+            const moveRow = (r, y, dir) => {
+                clearTimeout(r.t1); clearTimeout(r.t2); clearTimeout(r.t3);
+                const el = r.el;
+                if (r.y === undefined || r.y === y || !dir) {
+                    el.style.transition = r.y === undefined ? "none" : "";
+                    el.style.transform = `translateY(${y}px)`;
+                    r.y = y;
+                    return;
+                }
+                const sc = dir < 0 ? 1.05 : 0.97, from = r.y;
+                r.y = y;
+                el.classList.remove("lift", "sink");
+                el.classList.add(dir < 0 ? "lift" : "sink");
+                el.style.transition = "transform 0.25s cubic-bezier(0.2, 1.2, 0.4, 1), box-shadow 0.25s, opacity 0.25s";
+                el.style.transform = `translateY(${from}px) scale(${sc})`;
+                r.t1 = setTimeout(() => {
+                    el.style.transition = "transform 1s cubic-bezier(0.45, 0, 0.2, 1), box-shadow 0.3s, opacity 0.3s";
+                    el.style.transform = `translateY(${y}px) scale(${sc})`;
+                }, dir < 0 ? 260 : 120);
+                r.t2 = setTimeout(() => {
+                    el.style.transition = "transform 0.35s cubic-bezier(0.2, 1.4, 0.4, 1), box-shadow 0.35s, opacity 0.35s";
+                    el.style.transform = `translateY(${y}px)`;
+                    el.classList.remove("lift", "sink");
+                }, (dir < 0 ? 260 : 120) + 1000);
+                r.t3 = setTimeout(() => { el.style.transition = ""; }, (dir < 0 ? 260 : 120) + 1400);
+            };
+
             const layout = () => {
                 // pořadí v okně podle zobrazených bodů; skutečné pozice = začátek okna + index
                 const vis = windowNames.map((n) => [n, rows.get(n)]).filter(([, r]) => r);
@@ -764,10 +817,12 @@
                     const rk = r.el.querySelector(".row-rank");
                     rk.textContent = rank;
                     rk.className = "row-rank " + rankClass(rank);
-                    if (r.rank && rank < r.rank) restart(r.el, "up");
+                    const dir = r.rank ? Math.sign(rank - r.rank) : 0;
+                    if (dir < 0) restart(r.el, "up");
                     r.rank = rank;
+                    const wasOff = r.el.classList.contains("off");
                     r.el.classList.remove("off");
-                    r.el.style.transform = `translateY(${y}px)`;
+                    moveRow(r, y, wasOff ? 0 : dir);
                     y += ROW_H + GAP;
                 });
                 list.style.height = Math.max(0, y - GAP) + "px";

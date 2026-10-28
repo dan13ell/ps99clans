@@ -85,12 +85,19 @@
             paint-order: stroke fill; font-weight: 800 !important; white-space: nowrap;
         }
         .sec-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 10px; }
+        .sec-n {
+            display: inline-flex; align-items: center; justify-content: center; width: 34px; height: 34px; margin-right: 8px; vertical-align: -6px;
+            border-radius: 50%; border: 3px solid #000; background: linear-gradient(#FFE873, #FFB21E);
+            font-size: 19px; color: #FFF; -webkit-text-stroke: 4px #000; paint-order: stroke fill; font-weight: 800 !important;
+        }
         .sec-sub { font-size: 15px; font-weight: 700 !important; color: #8E9099; white-space: nowrap; }
         .is-hidden { display: none !important; }
 
         /* ---------- hero ---------- */
         .hero { display: flex; align-items: center; gap: 18px; padding: 14px 22px; background: linear-gradient(100deg, #FFFFFF 0%, #EAF7FF 60%, #FFE9F1 100%); }
         .hero-txt { flex: 1 1 auto; min-width: 0; }
+        .hero-ic { width: 74px; height: auto; flex: 0 0 auto; animation: heroBob 3s ease-in-out infinite; }
+        @keyframes heroBob { 0%, 100% { transform: translateY(0) rotate(-4deg); } 50% { transform: translateY(-5px) rotate(4deg); } }
         .hero h1 { font-size: 30px; }
         .hero p { margin-top: 4px; font-size: 16px; color: #5A5D66; font-weight: 600 !important; }
         .hero-badges { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
@@ -111,9 +118,12 @@
             cursor: pointer; text-align: center;
             transition: transform 0.044s cubic-bezier(0.1, 0.9, 0.2, 1), box-shadow 0.15s;
         }
-        .tile:hover:not(:active) { transform: scale(1.03); }
-        .tile:active { transform: scale(0.97); }
-        .tile.sel { box-shadow: 0 0 0 4px #48D2F7, 0 0 0 8px #000; }
+        .tile { box-shadow: 0 5px 0 rgba(0, 0, 0, 0.12); }
+        .tile:hover:not(:active) { transform: translateY(-3px) scale(1.02); box-shadow: 0 8px 0 rgba(0, 0, 0, 0.12); }
+        .tile:active { transform: scale(0.97); box-shadow: 0 2px 0 rgba(0, 0, 0, 0.12); }
+        .tile.sel { background: #EAF8FF; box-shadow: 0 0 0 4px #48D2F7, 0 0 0 8px #000, 0 10px 0 rgba(0, 0, 0, 0.12); }
+        .tile .tile-art .mini { transition: transform 0.25s cubic-bezier(0.2, 1.4, 0.4, 1); }
+        .tile:hover .tile-art .mini, .tile.sel .tile-art .mini { transform: scale(1.08); }
         .tile.sel::after {
             content: "✓"; position: absolute; right: -10px; top: -12px; width: 32px; height: 32px; border-radius: 50%;
             border: 3px solid #000; background: #6BF06B; color: #FFF; font-size: 18px; font-weight: 800 !important;
@@ -232,15 +242,27 @@
         }
         .tgl:hover { background: #EEF3FA; }
         .tgl input { position: absolute; opacity: 0; pointer-events: none; }
-        .tgl .sw2 { flex: 0 0 auto; position: relative; width: 42px; height: 24px; border-radius: 12px; border: 3px solid #000; background: #C9CED9; box-shadow: inset 0 2px 0 rgba(0, 0, 0, 0.12); transition: background 0.15s; }
-        .tgl .sw2::after { content: ""; position: absolute; left: 1px; top: 1px; width: 16px; height: 16px; border-radius: 50%; background: #FFF; border: 2px solid #000; box-shadow: 0 2px 0 rgba(0, 0, 0, 0.2); transition: transform 0.18s cubic-bezier(0.2, 1.3, 0.4, 1); }
+        .tgl .sw2 { flex: 0 0 auto; position: relative; box-sizing: border-box; width: 46px; height: 26px; border-radius: 13px; border: 3px solid #000; background: #C9CED9; box-shadow: inset 0 2px 0 rgba(0, 0, 0, 0.14); transition: background 0.18s; }
+        .tgl .sw2::after {
+            content: ""; position: absolute; box-sizing: border-box; left: 2px; top: 2px; width: 16px; height: 16px; border-radius: 50%;
+            background: #FFF; border: 2px solid #000; box-shadow: 0 2px 0 rgba(0, 0, 0, 0.18);
+            transition: transform 0.2s cubic-bezier(0.2, 1.3, 0.4, 1);
+        }
         .tgl input:checked + .sw2 { background: #6BF06B; }
-        .tgl input:checked + .sw2::after { transform: translateX(18px); }
+        .tgl input:checked + .sw2::after { transform: translateX(20px); }
+        .tgl:active .sw2::after { width: 19px; }
+        .tgl input:checked + .sw2:active::after, .tgl:active input:checked + .sw2::after { transform: translateX(17px); }
         .tgl input:focus-visible + .sw2 { box-shadow: 0 0 0 3px #BDE9FF; }
 
         /* náhled */
-        .pv-tools { display: flex; align-items: center; gap: 6px; }
-        .pv-tools .seg button { height: 30px; padding: 0 9px; font-size: 13px; border-radius: 10px; }
+        .pv-tools { display: flex; align-items: center; gap: 8px; }
+        .pv-tools > span { font-size: 13px; font-weight: 800 !important; color: #8E9099; }
+        .bgseg { display: flex; height: 34px; border: 3px solid #000; border-radius: 12px; overflow: hidden; background: #F1F4FA; }
+        .bgseg button { display: flex; align-items: center; gap: 6px; padding: 0 10px; border: none; border-right: 3px solid #000; background: transparent; cursor: pointer; font-size: 13px; font-weight: 800 !important; color: #1C2130; transition: background 0.1s; }
+        .bgseg button:last-child { border-right: none; }
+        .bgseg button:hover { background: #E3E9F5; }
+        .bgseg button i { width: 14px; height: 14px; border-radius: 4px; border: 2px solid #000; flex: 0 0 auto; }
+        .bgseg button.on { background: #48D2F7; color: #FFF; -webkit-text-stroke: 4px #000; paint-order: stroke fill; }
         .pv-box {
             position: relative; flex: 1 1 auto; min-height: 320px; contain: strict; margin-top: 10px; border-radius: 14px; border: 3px solid #000; overflow: hidden;
             display: flex; align-items: center; justify-content: center;
@@ -264,6 +286,7 @@
         .link { padding: 14px 16px 16px; }
         .link-row { display: flex; gap: 10px; align-items: center; }
         .link-row .inp { flex: 1 1 auto; min-width: 0; }
+        .link-row .inp { height: 52px; background: #FFF; }
         .link-row .inp input { font-size: 15px; font-weight: 700 !important; padding: 0 16px; color: #3A3D46; user-select: text; text-overflow: ellipsis; }
         .btn {
             flex: 0 0 auto; height: 52px; padding: 0 20px; border: 4px solid #1F4F5E; border-radius: 16px;
@@ -382,6 +405,7 @@
 
                     <!-- úvod -->
                     <div class="card hero">
+                        <img class="hero-ic" src="/images/hotbar/obs.png" alt="" draggable="false">
                         <div class="hero-txt">
                             <h1 class="title-stroke">Clan overlays for your stream!</h1>
                             <p>Pick an overlay, customize it, copy one link and paste it into OBS or Streamlabs.</p>
@@ -392,7 +416,7 @@
 
                     <!-- 1. výběr overlaye -->
                     <div>
-                        <div class="sec-head"><span class="title-stroke">1. Choose an overlay</span><span class="sec-sub">Click a card</span></div>
+                        <div class="sec-head"><span class="title-stroke"><span class="sec-n">1</span>Choose an overlay</span><span class="sec-sub">Click a card</span></div>
                         <div class="tiles" id="tiles">
                             <div class="card tile" data-w="clan">
                                 <div class="tile-art"><div class="mini"><i style="width:26px;height:26px"></i><div class="col"><b style="width:30px;height:5px;background:#8E9099"></b><b style="width:62px;height:9px"></b></div></div></div>
@@ -425,7 +449,7 @@
 
                     <!-- 2. nastavení + náhled -->
                     <div>
-                        <div class="sec-head"><span class="title-stroke">2. Customize it</span><span class="sec-sub" id="cfgSub"></span></div>
+                        <div class="sec-head"><span class="title-stroke"><span class="sec-n">2</span>Customize it</span><span class="sec-sub" id="cfgSub"></span></div>
                         <div class="row-cfg">
                             <div class="card settings" id="settings">
                                 <div class="set-head"><span class="title-stroke">Settings</span><small id="setName">Clan Points</small></div>
@@ -433,8 +457,8 @@
                                     <div class="group" data-for="clan versus goal top player">
                                         <div class="group-t"><i>1</i>Data</div>
                                         <div class="field" data-for="player">
-                                            <div class="field-l"><span>Roblox user ID</span><small>number or People link</small></div>
-                                            <div class="inp tag" id="plBox" style="--c:#FFE873"><span class="dot"></span><input id="fPlayer" maxlength="60" placeholder="e.g. 33492395" autocomplete="off" spellcheck="false"><span class="st"></span></div>
+                                            <div class="field-l"><span>Roblox username</span><small>or People link / ID</small></div>
+                                            <div class="inp tag" id="plBox" style="--c:#FFE873"><span class="dot"></span><input id="fPlayer" maxlength="80" placeholder="Username" autocomplete="off" spellcheck="false" style="text-transform:none"><span class="st"></span></div>
                                             <div class="field-msg" id="plMsg"></div>
                                         </div>
                                         <div class="two" data-for="clan versus goal top">
@@ -506,7 +530,7 @@
                                             <label class="tgl" data-for="clan versus goal player">+Points popups<input type="checkbox" data-k="gain"><span class="sw2"></span></label>
                                             <label class="tgl" data-for="clan player">Points / hour<input type="checkbox" data-k="rate"><span class="sw2"></span></label>
                                             <label class="tgl" data-for="top">Title<input type="checkbox" data-k="title"><span class="sw2"></span></label>
-                                            <label class="tgl">Pop-in animation<input type="checkbox" data-k="anim"><span class="sw2"></span></label>
+                                            <label class="tgl">Animations<input type="checkbox" data-k="anim"><span class="sw2"></span></label>
                                         </div>
                                     </div>
                                 </div>
@@ -516,7 +540,13 @@
                                 <div class="sec-head" style="margin-bottom:0">
                                     <span class="title-stroke">Preview</span>
                                     <div class="pv-tools">
-                                        <div class="seg" id="bgs"><button data-v="game">Game</button><button data-v="check">Transparent</button><button data-v="dark">Dark</button><button data-v="green">Green</button></div>
+                                        <span>Background</span>
+                                        <div class="bgseg" id="bgs">
+                                            <button data-v="game" title="Game scene"><i style="background:linear-gradient(180deg,#73B6FF 55%,#58A84E 55%)"></i>Game</button>
+                                            <button data-v="check" title="Transparent"><i style="background:repeating-conic-gradient(#D9DCE3 0 25%,#FFF 0 50%) 0 0/6px 6px"></i>None</button>
+                                            <button data-v="dark" title="Dark"><i style="background:#14161D"></i>Dark</button>
+                                            <button data-v="green" title="Green screen"><i style="background:#00B140"></i>Green</button>
+                                        </div>
                                     </div>
                                 </div>
                                 <div class="pv-box bg-game" id="pvBox">
@@ -530,7 +560,7 @@
 
                     <!-- 3. odkaz -->
                     <div>
-                        <div class="sec-head"><span class="title-stroke">3. Copy your link</span><span class="sec-sub">Paste it as a Browser source</span></div>
+                        <div class="sec-head"><span class="title-stroke"><span class="sec-n">3</span>Copy your link</span><span class="sec-sub">Paste it as a Browser source</span></div>
                         <div class="card link">
                             <div class="link-row">
                                 <div class="inp"><input id="urlOut" readonly></div>
@@ -547,7 +577,7 @@
 
                     <!-- 4. návod -->
                     <div>
-                        <div class="sec-head"><span class="title-stroke">4. Add it to OBS</span><span class="sec-sub">Takes 30 seconds</span></div>
+                        <div class="sec-head"><span class="title-stroke"><span class="sec-n">4</span>Add it to OBS</span><span class="sec-sub">Takes 30 seconds</span></div>
                         <div class="steps">
                             <div class="card step"><span class="step-n">1</span><h3>Copy the link</h3><p>Press <b>Copy link</b> above. Your settings are saved in the link.</p></div>
                             <div class="card step"><span class="step-n">2</span><h3>Add a source</h3><p>In OBS: <code>Sources</code> → <code>+</code> → <code>Browser</code>. In Streamlabs: <code>+</code> → <code>Browser Source</code>.</p></div>
@@ -597,7 +627,7 @@
         // ---------- stav (pamatuje se v prohlížeči) ----------
         const COLORS = ["48D2F7", "FF4F86", "6BF06B", "FFB21E", "8F55F2", "FF5C5C", "FFFFFF", "1C2130"];
         const DEF = {
-            w: "clan", clan: "", vs: "", player: "", goal: "", label: "", rows: 5,
+            w: "clan", clan: "", vs: "", player: "", pname: "", pinput: "", goal: "", label: "", rows: 5,
             theme: "ps99", accent: "48D2F7", accent2: "FF4F86", scale: 100, align: "left",
             show: { icon: true, flag: true, rank: true, gain: true, rate: true, title: true, anim: true },
             bg: "game"
@@ -621,7 +651,7 @@
             p.set("w", S.w);
             if (S.clan && ["clan", "versus", "goal", "top"].includes(S.w)) p.set("clan", S.clan);
             if (S.w === "versus" && S.vs) p.set("vs", S.vs);
-            if (S.w === "player" && S.player) p.set("player", S.player);
+            if (S.w === "player" && S.player) { p.set("player", S.player); if (S.pname) p.set("pname", S.pname); }
             if (S.w === "goal" && S.goal) p.set("goal", S.goal.toLowerCase().replace(/\s+/g, ""));
             if (S.w === "top" && S.rows !== 5) p.set("rows", S.rows);
             if (S.label && ["clan", "top", "goal", "player"].includes(S.w)) p.set("label", S.label);
@@ -647,7 +677,7 @@
             if (["clan", "versus", "goal"].includes(S.w) && !S.clan) return "Enter your clan tag first";
             if (S.w === "versus" && !S.vs) return "Enter the opponent's clan tag";
             if (S.w === "goal" && !parseAmount(S.goal)) return "Enter a goal, e.g. 250b";
-            if (S.w === "player" && !S.player) return "Enter a Roblox user ID";
+            if (S.w === "player" && !S.player) return S.pinput ? "Find the player first" : "Enter a Roblox username";
             return "";
         }
 
@@ -675,7 +705,7 @@
             $("iconTxt").textContent = S.w === "player" ? "Avatar" : "Clan icon";
             $("rankTxt").textContent = S.w === "player" ? "Clan tag" : "Place";
             const keep = (id, v) => { if (document.activeElement !== $(id)) $(id).value = v; };
-            keep("fClan", S.clan); keep("fVs", S.vs); keep("fGoal", S.goal); keep("fLabel", S.label); keep("fPlayer", S.player);
+            keep("fClan", S.clan); keep("fVs", S.vs); keep("fGoal", S.goal); keep("fLabel", S.label); keep("fPlayer", S.pinput || S.pname || S.player);
             $("rowsVal").textContent = S.rows;
             setOn("#themes .theme-b", S.theme);
             setOn("#aligns button", S.align);
@@ -806,26 +836,50 @@
                 }
             }, 600);
         }
+        // jméno / odkaz / ID -> Roblox ID + jméno (stejné hledání jako stránka People)
+        async function lookupByName(name) {
+            const j = await (await fetch(`${WORKER_URL}/api/player/search?name=${encodeURIComponent(name)}`)).json();
+            return j && j.status === "ok" && j.found && j.player ? j.player : null;
+        }
+        async function lookupById(id) {
+            try {
+                const j = await (await fetch(`${WORKER_URL}/api/player/${id}`)).json();
+                if (j && j.found && j.player) return j.player;
+            } catch (e) {}
+            try {
+                const u = await (await fetch(`${WORKER_URL}/roblox/users/${id}`)).json();
+                if (u && (u.name || u.displayName)) return { userId: id, username: u.name || u.displayName };
+            } catch (e) {}
+            return null;
+        }
         function checkPlayer() {
-            const id = S.player, box = $("plBox"), msg = $("plMsg");
+            const raw = (S.pinput || "").trim(), box = $("plBox"), msg = $("plMsg");
             clearTimeout(checkT.pl);
-            if (!id) { setStatus(box, msg, "", ""); msg.innerHTML = `Find it in the address of a player on the <a href="/people/">People</a> page (…?id=<b>123</b>)`; return; }
-            setStatus(box, msg, "wait", "Checking…");
+            if (!raw) {
+                setStatus(box, msg, "", "");
+                if (!S.player) msg.innerHTML = `Type a Roblox username (players in the top 25,000 of the <a href="/people/">People</a> list)`;
+                return;
+            }
+            setStatus(box, msg, "wait", "Searching…");
             checkT.pl = setTimeout(async () => {
+                const mine = raw;
                 try {
-                    const [pj, uj] = await Promise.all([
-                        fetch(`${WORKER_URL}/v1/clans/players/${id}`).then((r) => r.json()).catch(() => null),
-                        fetch(`${WORKER_URL}/roblox/users/${id}`).then((r) => r.json()).catch(() => null)
-                    ]);
-                    if (id !== S.player) return;
-                    const name = uj && (uj.name || uj.displayName);
-                    const pts = (function find(o, d) { if (!o || typeof o !== "object" || d > 4) return undefined; if ("ActiveBattlePoints" in o) return o.ActiveBattlePoints; for (const k in o) { const v = find(o[k], d + 1); if (v !== undefined) return v; } })(pj, 0);
-                    if (pts === undefined) return setStatus(box, msg, "bad", name ? `@${name} has no clan war points` : `Player ${id} not found`);
-                    setStatus(box, msg, "ok", `${name ? "@" + name : "Player " + id} · ${short(Number(pts) || 0)} war points`);
+                    const link = raw.match(/[?&]id=(\d+)/);
+                    let p = null;
+                    if (link) p = await lookupById(link[1]);
+                    else if (/^[A-Za-z0-9_]{3,20}$/.test(raw)) {
+                        p = await lookupByName(raw).catch(() => null);
+                        if (!p && /^\d{5,}$/.test(raw)) p = await lookupById(raw);
+                    }
+                    if (mine !== (S.pinput || "").trim()) return;
+                    if (!p) { S.player = ""; S.pname = ""; changed(); return setStatus(box, msg, "bad", `Player "${raw}" not found`); }
+                    S.player = String(p.userId); S.pname = p.username || "";
+                    changed();
+                    setStatus(box, msg, "ok", `${p.username ? "@" + p.username : "Player " + p.userId} found` + (p.points != null ? ` · ${short(Number(p.points) || 0)} war points` : "") + (p.clan ? ` · [${p.clan}]` : ""));
                 } catch (e) {
-                    if (id === S.player) setStatus(box, msg, "", "Couldn't check right now – the link will still work");
+                    if (mine === (S.pinput || "").trim()) setStatus(box, msg, "", "Couldn't search right now – try again in a moment");
                 }
-            }, 600);
+            }, 650);
         }
 
         // ---------- události ----------
@@ -837,10 +891,8 @@
         tagInput("fClan", "clan", "clanBox", "clanMsg");
         tagInput("fVs", "vs", "vsBox", "vsMsg");
         $("fPlayer").addEventListener("input", (e) => {
-            const raw = e.target.value.trim();
-            const m = raw.match(/[?&]id=(\d+)/) || raw.match(/(\d{3,})/);
-            S.player = m ? m[1] : "";
-            if (/[?&]id=/.test(raw) && m) e.target.value = m[1];
+            S.pinput = e.target.value.trim().slice(0, 80);
+            S.player = ""; S.pname = "";
             changed(); checkPlayer();
         });
         $("fGoal").addEventListener("input", (e) => { S.goal = e.target.value.replace(/[^0-9.,kmbtKMBT ]/g, ""); e.target.value = S.goal; changed(); });
@@ -879,12 +931,14 @@
         if (TYPES.includes(q.get("w"))) S.w = q.get("w");
         if (q.get("clan")) S.clan = q.get("clan").toUpperCase().slice(0, 4);
         if (q.get("vs")) S.vs = q.get("vs").toUpperCase().slice(0, 4);
-        if (/^\d+$/.test(q.get("player") || "")) S.player = q.get("player");
+        if (/^\d+$/.test(q.get("player") || "")) { S.player = q.get("player"); S.pname = q.get("pname") || ""; S.pinput = S.pname || S.player; }
         syncUI();
         loadPreview();
         if (S.clan) checkClan("clan", "clanBox", "clanMsg");
         if (S.vs) checkClan("vs", "vsBox", "vsMsg");
-        checkPlayer();
+        if (S.pinput && !S.player) checkPlayer();
+        else if (S.player) setStatus($("plBox"), $("plMsg"), "ok", `${S.pname ? "@" + S.pname : "Player " + S.player} selected`);
+        else checkPlayer();
     })();
     </script>
 
