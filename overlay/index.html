@@ -145,36 +145,34 @@
         .rank-pill.bump { animation: bump 0.9s cubic-bezier(0.2, 1.4, 0.4, 1); }
         @keyframes bump { 0% { transform: scale(1); } 25% { transform: scale(1.28); } 100% { transform: scale(1); } }
 
-        /* ---------- vyskakující +body: každá bublina je samostatná, nic se neusekne ---------- */
-        .gain-layer { position: absolute; z-index: 6; pointer-events: none; width: 0; height: 0; }
+        /* ---------- +body v bublině, vždy uvnitř karty (pravý horní roh) ---------- */
+        .gain-layer { position: absolute; z-index: 6; pointer-events: none; width: 0; height: 0; top: 10px; right: 12px; }
         .gain {
-            position: absolute; left: 0; bottom: 0;
-            font-size: 28px;
+            position: absolute; right: 0; top: 0;
+            padding: 3px 12px 4px;
+            border-radius: 999px;
+            border: 3px solid #000;
+            background: linear-gradient(180deg, #9BFF73 0%, #4BD83A 100%);
+            box-shadow: inset 0 -4px 0 rgba(0, 0, 0, 0.18), inset 0 3px 0 rgba(255, 255, 255, 0.45), 0 3px 0 rgba(0, 0, 0, 0.3);
+            font-size: 20px;
             font-weight: 800;
-            color: #7CFF5B;
-            -webkit-text-stroke: 6px #000;
+            line-height: 1.15;
+            color: #FFFFFF;
+            -webkit-text-stroke: 5px #000;
             paint-order: stroke fill;
-            stroke-linejoin: round;
             white-space: nowrap;
-            letter-spacing: 0.5px;
-            transform-origin: 50% 100%;
-            filter: drop-shadow(0 3px 0 rgba(0, 0, 0, 0.35));
+            transform-origin: 100% 50%;
             animation: gainUp 2.2s cubic-bezier(0.22, 1, 0.36, 1) forwards;
             will-change: transform, opacity;
         }
-        .gain::after {                 /* lesk na textu */
-            content: attr(data-t);
-            position: absolute; left: 0; top: 0;
-            -webkit-text-stroke: 0;
-            background: linear-gradient(180deg, #E4FFD6 0%, #9BFF73 45%, #3FD12F 100%);
-            -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
-        }
+        .gain-layer.l { right: auto; left: 12px; }
+        .gain-layer.l .gain { right: auto; left: 0; transform-origin: 0 50%; }
         @keyframes gainUp {
-            0%   { opacity: 0; transform: translate(-50%, 14px) scale(0.3) rotate(-8deg); }
-            14%  { opacity: 1; transform: translate(-50%, -4px) scale(1.22) rotate(3deg); }
-            24%  { transform: translate(-50%, -2px) scale(1) rotate(0deg); }
-            70%  { opacity: 1; transform: translate(-50%, -22px) scale(1); }
-            100% { opacity: 0; transform: translate(-50%, -34px) scale(0.85); }
+            0%   { opacity: 0; transform: translateY(8px) scale(0.4); }
+            14%  { opacity: 1; transform: translateY(0) scale(1.15); }
+            26%  { transform: translateY(0) scale(1); }
+            75%  { opacity: 1; transform: translateY(0) scale(1); }
+            100% { opacity: 0; transform: translateY(-4px) scale(0.9); }
         }
 
         body.anim .card { animation: popIn 0.55s cubic-bezier(0.2, 1.3, 0.4, 1) both; }
@@ -194,7 +192,6 @@
         .sub { display: flex; align-items: center; gap: 7px; margin-top: 2px; }
         .rate { color: #2DB84B; font-weight: 800; }
         body.t-dark .rate, body.t-glass .rate, body.t-neon .rate, body.t-minimal .rate { color: #7CFF5B; }
-        .w-clan .gain-layer { right: 70px; top: 12px; }
 
         /* ================= PLAYER ================= */
         .w-player { display: flex; align-items: center; gap: 18px; padding: 16px 26px 16px 18px; min-width: 440px; }
@@ -206,35 +203,40 @@
             background: var(--accent); color: #FFF; font-size: 16px; font-weight: 800; white-space: nowrap;
             -webkit-text-stroke: 4px #000; paint-order: stroke fill;
         }
-        .w-player .gain-layer { right: 70px; top: 12px; }
 
         /* ================= VERSUS ================= */
-        .w-vs { width: 860px; padding: 16px 20px 16px; }
-        .vs-row { display: flex; align-items: center; gap: 12px; }
-        .vs-side { flex: 1 1 0; display: flex; align-items: center; gap: 14px; min-width: 0; position: relative; }
+        .w-vs { width: 660px; padding: 14px 16px 12px; }
+        .vs-row { display: flex; align-items: center; gap: 10px; }
+        .vs-side { flex: 1 1 0; display: flex; align-items: center; gap: 10px; min-width: 0; position: relative; }
         .vs-side.b { flex-direction: row-reverse; text-align: right; }
-        .vs-side .clan-icon { width: 78px; height: 78px; }
-        .vs-side .flag { width: 28px; height: 28px; }
+        .vs-side .clan-icon { width: 62px; height: 62px; }
+        .vs-side .flag { width: 22px; height: 22px; }
         .vs-side .txt { display: flex; flex-direction: column; min-width: 0; }
         .vs-side.b .txt { align-items: flex-end; }
-        .vs-side .name { font-size: 26px; display: flex; align-items: center; gap: 8px; }
+        .vs-side .rank-pill { font-size: 15px; padding: 0 8px; }
+        .w-vs .gain-layer { top: auto; bottom: 10px; }
+        .w-vs .gain-layer .gain { top: auto; bottom: 0; font-size: 17px; padding: 2px 10px 3px; }
+        .w-vs .vs-ga { right: auto; left: 16px; }
+        .w-vs .vs-ga .gain { right: auto; left: 0; transform-origin: 0 50%; }
+        .w-vs .vs-gb { left: auto; right: 16px; }
+        .w-vs .vs-gb .gain { left: auto; right: 0; transform-origin: 100% 50%; }
+        .w-goal .gain-layer { right: 140px; }
+        .vs-side .name { font-size: 21px; display: flex; align-items: center; gap: 6px; }
         .vs-side.b .name { flex-direction: row-reverse; }
-        .vs-side .num { font-size: 36px; }
-        .vs-side.a .gain-layer { left: 190px; top: 4px; }
-        .vs-side.b .gain-layer { right: 190px; top: 4px; }
-        .vs-mid { flex: 0 0 auto; width: 70px; height: 70px; border-radius: 50%; border: 4px solid #000; background: #FFF; display: flex; align-items: center; justify-content: center; -webkit-text-stroke: 0 !important; }
-        .vs-mid span { position: relative; font-size: 30px; font-weight: 800; color: #000; -webkit-text-stroke: 5px #000; paint-order: stroke fill; }
+        .vs-side .num { font-size: 28px; }
+        .vs-mid { flex: 0 0 auto; width: 54px; height: 54px; border-radius: 50%; border: 4px solid #000; background: #FFF; display: flex; align-items: center; justify-content: center; -webkit-text-stroke: 0 !important; }
+        .vs-mid span { position: relative; font-size: 23px; font-weight: 800; color: #000; -webkit-text-stroke: 5px #000; paint-order: stroke fill; }
         .vs-mid span::after {
             content: "VS"; position: absolute; left: 0; top: 0; -webkit-text-stroke: 0;
             background: linear-gradient(#FFE873, #FFB21E); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
         }
-        .tug { position: relative; height: 26px; margin-top: 14px; border-radius: 13px; border: 3px solid #000; background: var(--accent2); overflow: hidden; }
+        .tug { position: relative; height: 22px; margin-top: 10px; border-radius: 11px; border: 3px solid #000; background: var(--accent2); overflow: hidden; }
         .tug-a { position: absolute; left: 0; top: 0; bottom: 0; width: 50%; background: var(--accent); border-right: 3px solid #000; transition: width 1.4s cubic-bezier(0.2, 0.9, 0.2, 1); }
-        .tug-l { position: absolute; top: 50%; transform: translateY(-50%); font-size: 15px; font-weight: 800; color: #FFF; -webkit-text-stroke: 4px #000; paint-order: stroke fill; }
+        .tug-l { position: absolute; top: 50%; transform: translateY(-50%); font-size: 13px; font-weight: 800; color: #FFF; -webkit-text-stroke: 4px #000; paint-order: stroke fill; }
         .tug-l.a { left: 10px; } .tug-l.b { right: 10px; }
-        .vs-foot { display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 8px; }
-        .vs-diff { font-size: 26px; }
-        .vs-lead { font-size: 18px; font-weight: 700; color: var(--muted); white-space: nowrap; }
+        .vs-foot { display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 9px; }
+        .vs-diff { font-size: 22px; }
+        .vs-lead { font-size: 15px; font-weight: 700; color: var(--muted); white-space: nowrap; }
         .vs-lead b { font-weight: 800; }
 
         /* ================= TOP ================= */
@@ -307,7 +309,6 @@
         .goal-nums .of { font-size: 20px; font-weight: 700; color: var(--muted); white-space: nowrap; }
         .goal-pct { flex: 0 0 auto; font-size: 34px; }
         .w-goal .bar { height: 28px; border-radius: 14px; margin-top: 10px; }
-        .w-goal .gain-layer { right: 150px; top: 12px; }
         /* splněný cíl: zlatý pruh s odleskem, konfety a odznak */
         .w-goal.done .bar-fill { background: linear-gradient(180deg, #FFE873 0%, #FFB21E 100%); }
         .w-goal.done .bar-fill::after {
@@ -692,10 +693,10 @@
                         <span class="name">[${esc(d.name)}]${HIDE.has("rank") ? "" : `<span class="rank-pill" id="rank${k}"></span>`}</span>
                         <span class="num" id="pts${k}"><span></span></span>
                     </div>
-                    ${HIDE.has("gain") ? "" : `<div class="gain-layer" id="gain${k}"></div>`}
-                </div>`;
+                                    </div>`;
             stage.innerHTML = `
                 <div class="card w-vs">
+                    ${HIDE.has("gain") ? "" : `<div class="gain-layer vs-ga" id="gaina"></div><div class="gain-layer l vs-gb" id="gainb"></div>`}
                     <div class="vs-row">${side(a, "a")}<div class="vs-mid"><span>VS</span></div>${side(b, "b")}</div>
                     <div class="tug"><div class="tug-a" id="tugA"></div><span class="tug-l a" id="tlA">50%</span><span class="tug-l b" id="tlB">50%</span></div>
                     <div class="vs-foot"><span class="num vs-diff" id="diff"><span id="diffSign"></span><span></span></span><span class="vs-lead" id="lead"></span></div>
