@@ -22,18 +22,8 @@ import datetime
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SITE = "https://ps99clans.site"
 ADS = "ca-pub-5302554896051137"
-MULTIPLEX_SLOT = "5488089728"   # reklamní jednotka „multiplex" (data-ad-format="autorelaxed")
-
-
-def ad_unit():
-    """Multiplex reklama na konci obsahu. Skript knihovny je v <head> (nebo ho načte site.js)."""
-    return (f'<aside class="sc-ad" aria-label="Advertisement">\n'
-            f'  <span class="sc-ad-label">Advertisement</span>\n'
-            f'  <ins class="adsbygoogle" style="display:block" data-ad-format="autorelaxed" data-ad-client="{ADS}" data-ad-slot="{MULTIPLEX_SLOT}"></ins>\n'
-            f'  <script>(adsbygoogle = window.adsbygoogle || []).push({{}});</script>\n'
-            f'</aside>\n')
 GA = "G-M5T889PLGJ"
-CSS_V = "9"
+CSS_V = "7"
 JS_V = "2"
 TODAY = datetime.date.today().isoformat()
 
@@ -346,7 +336,7 @@ def build_app(p):
                        "logo": SITE + "/images/favicon.png", "email": "danielmairich@gmail.com"})
     s = replace_block(s, "HEAD", meta_block(p["title"], p["desc"], p["url"], lds), "</head>")
     s = links_to_anchors(s)
-    content = (f'<main class="sc" id="guide" data-peek="{esc(p["peek"])}">\n{panelize(body, p["label"])}{ad_unit() if p["ads"] != "none" else ""}</main>\n{footer()}\n'
+    content = (f'<main class="sc" id="guide" data-peek="{esc(p["peek"])}">\n{panelize(body, p["label"])}</main>\n{footer()}\n'
                f'    <script src="/site.js?v={JS_V}"></script>')
     s = replace_block(s, "BODY", content, "</body>")
     write(p["file"], s)
@@ -425,7 +415,7 @@ def build_doc(d):
         topbar(d["nav"]),
         '<main class="sc">',
         '<div class="sc-article">' if d["kind"] in ("article", "page", "error") else "<div>",
-        crumb_html + body + (ad_unit() if d["ads"] == "static" else ""),
+        crumb_html + body,
         "</div>",
         "</main>",
         footer(),
