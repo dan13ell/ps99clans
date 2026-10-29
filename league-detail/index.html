@@ -549,6 +549,7 @@
             opacity: 1;
         }
     </style>
+    <script src="/avatars.js?v=1"></script>
 </head>
 <body>
 
@@ -695,7 +696,7 @@
         }
 
         const nameCache = {};
-        const avatarCache = {};
+        const AV_OPTS = { size: "180x180", circular: true };
         let cachedRank = null;
         let rankLoading = false;
 
@@ -703,7 +704,6 @@
         async function fetchRobloxUserData(userIds) {
             const validIds = userIds.map(parseUserId).filter(id => id !== null && id > 0);
             const needNames = validIds.filter(id => !nameCache[id]);
-            const needAvatars = validIds.filter(id => !avatarCache[id]);
             const tasks = [];
 
             if (needNames.length) {
@@ -715,15 +715,6 @@
                     })
                     .then(r => r.json())
                     .then(d => { (d.data || []).forEach(u => { nameCache[u.id] = u.name; }); })
-                    .catch(() => {})
-                );
-            }
-
-            if (needAvatars.length) {
-                tasks.push(
-                    fetch(`${WORKER_URL}/roblox/avatars?userIds=${needAvatars.join(',')}&size=180x180&format=Png&isCircular=true`)
-                    .then(r => r.json())
-                    .then(d => { (d.data || []).forEach(i => { if (i.imageUrl) avatarCache[i.targetId] = i.imageUrl; }); })
                     .catch(() => {})
                 );
             }
@@ -760,7 +751,7 @@
                 const usernameWithAt = nameCache[uid]
                     ? `@${nameCache[uid]}`
                     : (namesFinal ? `@Player_${uid}` : "@...");
-                const avatarUrl = avatarCache[uid] || "https://placehold.co/150x150/ffffff/000000?text=Roblox";
+                const avatarUrl = Avatars.src(uid, AV_OPTS);
 
                 let rankHtml = "";
                 if (member.PermissionLevel >= 100) {
@@ -774,7 +765,7 @@
                         <div class="member-username-text">${usernameWithAt}</div>
                         ${rankHtml}
                         <div class="member-avatar-container">
-                            <img class="member-avatar-img" src="${avatarUrl}" onerror="this.src='https://placehold.co/150x150/ffffff/000000?text=Roblox'">
+                            <img class="member-avatar-img" data-avatar-uid="${uid}" src="${avatarUrl}" alt="" decoding="async" onerror="Avatars.broken(this, AV_OPTS)">
                         </div>
                         <div class="member-stats-container">
                             <img class="member-stat-star-icon" src="/images/stars.png" >
@@ -786,6 +777,7 @@
 
             listContainer.innerHTML = membersHtml;
             listContainer.scrollTop = savedScrollTop;
+            Avatars.fill(listContainer, AV_OPTS);
         }
 
         async function loadClanProfile(isSilent = false) {
@@ -907,7 +899,7 @@
 
                 // 2) dotáhnout jen chybějící jména a avatary a překreslit
                 const userIds = finalMembersList.map(m => m.UserID).filter(Boolean);
-                if (userIds.some(id => !nameCache[id] || !avatarCache[id])) {
+                if (userIds.some(id => !nameCache[id])) {
                     await fetchRobloxUserData(userIds);
                 }
                 renderMembers(finalMembersList, true);
@@ -938,6 +930,6 @@
 
     <a href="/privacy/" class="privacy-link">Privacy Policy</a>
     <script src="/scrollbar.js?v=2"></script>
-    <script src="/hotbar.js?v=6"></script>
+<script src="/hotbar.js?v=6"></script>
 </body>
 </html>

@@ -509,6 +509,7 @@
             opacity: 1;
         }
     </style>
+    <script src="/avatars.js?v=1"></script>
 </head>
 <body>
 
@@ -584,32 +585,10 @@
             return num.toString();
         }
 
-        async function loadAllAvatarsBatch(playersOnPage) {
-            const userIds = playersOnPage.map(p => p.UserID).filter(id => id).join(",");
-            if (!userIds) return;
-
-            try {
-                const response = await fetch(`${WORKER_URL}/roblox/avatars?userIds=${userIds}&size=150x150&format=Png&isCircular=false`);
-                const json = await response.json();
-
-                if (json && Array.isArray(json.data)) {
-                    const avatarMap = {};
-                    json.data.forEach(item => {
-                        if (item && item.targetId && item.imageUrl) {
-                            avatarMap[item.targetId] = item.imageUrl;
-                        }
-                    });
-
-                    playersOnPage.forEach((player, index) => {
-                        const imgElement = document.getElementById(`avatar-img-${player.UserID}-${index}`);
-                        if (imgElement) {
-                            imgElement.src = avatarMap[player.UserID] || "https://placehold.co/150x150/f0f4ff/1c1d22?text=Roblox";
-                        }
-                    });
-                }
-            } catch (err) {
-                console.warn("Chyba při hromadném načítání avatarů:", err.message);
-            }
+        const AV_OPTS = { size: "150x150", circular: false };
+        function loadAllAvatarsBatch() {
+            const grid = document.getElementById("playersGrid") || document;
+            return Avatars.fill(grid, AV_OPTS);
         }
 
         async function fetchTopPlayers() {
@@ -716,7 +695,7 @@
 
                 card.innerHTML = `
                     <div class="${rankClass}" style="color: ${rankColor};">#${absoluteRank}</div>
-                    <img class="player-avatar" id="${imgId}" src="data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==" alt="" draggable="false">
+                    <img class="player-avatar" id="${imgId}" data-avatar-uid="${player.UserID}" src="${Avatars.src(player.UserID, AV_OPTS)}" alt="" draggable="false" decoding="async" onerror="Avatars.broken(this, AV_OPTS)">
                     <div class="player-userid" id="name-${player.UserID}-${index}" title="${escapeHtml(displayName)}">${escapeHtml(displayName)}</div>
                     ${player.InClan === false
                         ? `<div class="player-clan-badge no-clan" title="Last clan: ${escapeHtml(player.Clan)}">No clan</div>`
