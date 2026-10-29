@@ -563,7 +563,7 @@
     <meta property="og:image" content="https://ps99clans.site/images/favicon.png">
     <meta name="twitter:card" content="summary">
     <meta name="theme-color" content="#89B3F9">
-    <link rel="stylesheet" href="/site.css?v=4">
+    <link rel="stylesheet" href="/site.css?v=7">
     <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How often does it update?","acceptedAnswer":{"@type":"Answer","text":"The clan is fetched about every 10 seconds, and the active battle and diamond rank are checked every few minutes. The graph keeps the most recent points while the tab is open."}},{"@type":"Question","name":"Can I put this on my stream?","acceptedAnswer":{"@type":"Answer","text":"Use the OBS overlays instead. They are transparent, sized for streams and update by themselves."}}]}</script>
     <!--/SC:HEAD-->
 </head>
@@ -1149,6 +1149,9 @@
     <script src="/hotbar.js?v=7"></script>
 <!--SC:BODY-->
     <main class="sc" id="guide" data-peek="About this page">
+<section class="sc-panel" aria-label="About the live tracker">
+  <div class="sc-panel-head"><span class="sc-panel-label">About the live tracker</span><nav class="sc-panel-nav" aria-label="On this page"><a href="#s-what-you-see-on-the-tracker">What you see on the tracker</a><a href="#s-live-tracker-faq">FAQ</a></nav></div>
+  <div class="sc-panel-body">
 <section class="sc-card sc-hero">
   <span class="sc-kicker">Live tracker</span>
   <h1>Live clan tracker</h1>
@@ -1156,7 +1159,7 @@
 </section>
 
 <section class="sc-card">
-  <h2>What you see on the tracker</h2>
+  <h2 id="s-what-you-see-on-the-tracker">What you see on the tracker</h2>
   <ul>
     <li><b>Total points</b>: the clan's battle score. New points are spread over the next seconds so the counter rolls instead of jumping.</li>
     <li><b>Rank badges</b>: place on the battle leaderboard (star) and on the diamonds leaderboard (gem).</li>
@@ -1167,7 +1170,7 @@
 </section>
 
 <section class="sc-card sc-faq">
-  <h2>Live tracker FAQ</h2>
+  <h2 id="s-live-tracker-faq">Live tracker FAQ</h2>
   <details>
     <summary>How often does it update?</summary>
     <div><p>The clan is fetched about every 10 seconds, and the active battle and diamond rank are checked every few minutes. The graph keeps the most recent points while the tab is open.</p></div>
@@ -1176,6 +1179,8 @@
     <summary>Can I put this on my stream?</summary>
     <div><p>Use the <a href="/overlays/">OBS overlays</a> instead. They are transparent, sized for streams and update by themselves.</p></div>
   </details>
+</section>
+  </div>
 </section>
 </main>
 <footer class="sc-foot">

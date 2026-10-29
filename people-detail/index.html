@@ -359,7 +359,7 @@
     <meta property="og:image" content="https://ps99clans.site/images/favicon.png">
     <meta name="twitter:card" content="summary">
     <meta name="theme-color" content="#89B3F9">
-    <link rel="stylesheet" href="/site.css?v=4">
+    <link rel="stylesheet" href="/site.css?v=7">
     <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why does it say the player is not in the top 25,000?","acceptedAnswer":{"@type":"Answer","text":"Only the 25,000 highest-scoring players of the current battle are tracked. Earn more points and the profile appears after the next collection cycle, which takes a few minutes."}},{"@type":"Question","name":"Why does the clan badge say \"No clan\"?","acceptedAnswer":{"@type":"Answer","text":"The player hasn't been seen in any clan's member list for about an hour. Their points stay because the game keeps them, and the badge shows their last known clan when you hover it."}},{"@type":"Question","name":"How do I find my own profile?","acceptedAnswer":{"@type":"Answer","text":"Search your Roblox username on People and click your card. Bookmark the page to come back to it. The link contains your user ID."}}]}</script>
     <!--/SC:HEAD-->
 </head>
@@ -779,6 +779,9 @@
     <script src="/hotbar.js?v=7"></script>
 <!--SC:BODY-->
     <main class="sc" id="guide" data-peek="About this page">
+<section class="sc-panel" aria-label="About player profiles">
+  <div class="sc-panel-head"><span class="sc-panel-label">About player profiles</span><nav class="sc-panel-nav" aria-label="On this page"><a href="#s-what-each-stat-means">What each stat means</a><a href="#s-player-profile-faq">FAQ</a></nav></div>
+  <div class="sc-panel-body">
 <section class="sc-card sc-hero">
   <span class="sc-kicker">Player profile</span>
   <h1>Player stats for the current clan battle</h1>
@@ -786,7 +789,7 @@
 </section>
 
 <section class="sc-card">
-  <h2>What each stat means</h2>
+  <h2 id="s-what-each-stat-means">What each stat means</h2>
   <ul>
     <li><b>Total points</b>: everything the player has contributed to their clan in this battle.</li>
     <li><b>Global rank</b>: their position across all clans, plus the share of tracked players ahead of and behind them.</li>
@@ -800,7 +803,7 @@
 </section>
 
 <section class="sc-card sc-faq">
-  <h2>Player profile FAQ</h2>
+  <h2 id="s-player-profile-faq">Player profile FAQ</h2>
   <details>
     <summary>Why does it say the player is not in the top 25,000?</summary>
     <div><p>Only the 25,000 highest-scoring players of the current battle are tracked. Earn more points and the profile appears after the next collection cycle, which takes a few minutes.</p></div>
@@ -813,6 +816,8 @@
     <summary>How do I find my own profile?</summary>
     <div><p>Search your Roblox username on <a href="/people/">People</a> and click your card. Bookmark the page to come back to it. The link contains your user ID.</p></div>
   </details>
+</section>
+  </div>
 </section>
 </main>
 <footer class="sc-foot">

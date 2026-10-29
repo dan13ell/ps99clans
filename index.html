@@ -276,7 +276,7 @@
     <meta property="og:image" content="https://ps99clans.site/images/favicon.png">
     <meta name="twitter:card" content="summary">
     <meta name="theme-color" content="#89B3F9">
-    <link rel="stylesheet" href="/site.css?v=4">
+    <link rel="stylesheet" href="/site.css?v=7">
     <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebSite","name":"PS99 Clans","url":"https://ps99clans.site/","description":"Live Pet Simulator 99 clan leaderboards: top 1000 clans, clan battle points, leagues, top players, clan compare, live tracker and free OBS overlays. Updated every few seconds.","inLanguage":"en"}</script>
     <script type="application/ld+json">{"@context":"https://schema.org","@type":"Organization","name":"PS99 Clans","url":"https://ps99clans.site/","logo":"https://ps99clans.site/images/favicon.png","email":"danielmairich@gmail.com"}</script>
     <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Is PS99 Clans official?","acceptedAnswer":{"@type":"Answer","text":"No. PS99 Clans is an independent fan project. It is not made, endorsed or sponsored by BIG Games or Roblox. It uses the public API that BIG Games offers so that the community can build tools like this one."}},{"@type":"Question","name":"How do I find my clan?","acceptedAnswer":{"@type":"Answer","text":"Open Top Clans and type your clan tag into the search bar at the top of the window. Clicking a clan opens its profile with every member, their battle points and the diamonds they deposited."}},{"@type":"Question","name":"How do I find my own stats as a player?","acceptedAnswer":{"@type":"Answer","text":"Go to People and search your Roblox username (not your display name). You will see your rank among the top 25,000 players of the current battle. Open your card for an hourly points chart, your best hour and the players just above and below you."}},{"@type":"Question","name":"Why is my clan not on the list?","acceptedAnswer":{"@type":"Answer","text":"Top Clans shows the 1,000 clans with the most battle points. A clan with no points in the current battle, or one ranked below 1,000, won't be listed. You can still open any clan directly with a link like /clan-detail/?name=TAG ."}},{"@type":"Question","name":"How often is the data updated?","acceptedAnswer":{"@type":"Answer","text":"Clan profiles and the live tracker refresh every 10 to 15 seconds. Leaderboards refresh about once a minute. The official API itself can lag by a minute or two during busy moments, especially at the very end of a battle."}},{"@type":"Question","name":"Does it work on mobile?","acceptedAnswer":{"@type":"Answer","text":"Yes. The whole window scales down to fit your screen, and all the tools work with touch. On very small phones, landscape mode gives you a bigger window."}},{"@type":"Question","name":"Is it free?","acceptedAnswer":{"@type":"Answer","text":"Yes, every page and tool is free and needs no account. The site is paid for by a small amount of advertising."}}]}</script>
@@ -350,6 +350,9 @@
     <script src="/hotbar.js?v=7"></script>
 <!--SC:BODY-->
     <main class="sc" id="guide" data-peek="Guide &amp; FAQ">
+<section class="sc-panel" aria-label="Guide &amp; FAQ">
+  <div class="sc-panel-head"><span class="sc-panel-label">Guide &amp; FAQ</span><nav class="sc-panel-nav" aria-label="On this page"><a href="#s-what-you-can-do-on-ps99-clans">What you can do on PS99 Clans</a><a href="#s-where-the-numbers-come-from">Where the numbers come from</a><a href="#s-new-to-clan-battles">New to clan battles?</a><a href="#s-frequently-asked-questions">FAQ</a></nav></div>
+  <div class="sc-panel-body">
 <section class="sc-card sc-hero">
   <span class="sc-kicker">Pet Simulator 99 clan stats</span>
   <h1>Live Pet Simulator 99 clan leaderboards</h1>
@@ -361,13 +364,13 @@
 </section>
 
 <section class="sc-card" hidden>
-  <h2>Top 5 clans right now</h2>
+  <h2 data-nonav>Top 5 clans right now</h2>
   <p>Live from the official API. Click a clan to open its full profile with every member.</p>
   <ol class="sc-rank-list" data-sc-top="5"></ol>
   <p><a href="/topclans/">See the full top 1000 →</a></p>
 </section>
 
-<h2 class="sc-title">What you can do on PS99 Clans</h2>
+<h2 class="sc-title" id="s-what-you-can-do-on-ps99-clans">What you can do on PS99 Clans</h2>
 <div class="sc-grid">
   <a class="sc-card sc-tile sc-link-tile" href="/topclans/">
     <h3><img src="/images/hotbar/clans.png" alt="" width="38" height="38" loading="lazy">Top 1000 clans</h3>
@@ -402,7 +405,7 @@
 </div>
 
 <section class="sc-card">
-  <h2>Where the numbers come from</h2>
+  <h2 id="s-where-the-numbers-come-from">Where the numbers come from</h2>
   <p>All clan, league and battle data comes from the <b>official Pet Simulator 99 public API</b> that BIG Games provides for community projects. Usernames and profile pictures come from Roblox. PS99 Clans doesn't change these numbers. It collects them, keeps short histories and presents them in a way that is easier to read than raw data:</p>
   <ul>
     <li><b>Clan pages and the live tracker</b> refresh roughly every 10 to 15 seconds.</li>
@@ -414,7 +417,7 @@
 </section>
 
 <section class="sc-card">
-  <h2>New to clan battles?</h2>
+  <h2 id="s-new-to-clan-battles">New to clan battles?</h2>
   <p>These guides explain the game systems behind the numbers on this site:</p>
   <div class="sc-grid">
     <a class="sc-card sc-tile sc-link-tile" href="/guides/clan-battles/"><h3>How clan battles work</h3><p>Points, medals, placement rewards and how a battle runs from start to finish.</p><span class="sc-go">Read guide →</span></a>
@@ -425,7 +428,7 @@
 </section>
 
 <section class="sc-card sc-faq">
-  <h2>Frequently asked questions</h2>
+  <h2 id="s-frequently-asked-questions">Frequently asked questions</h2>
   <details>
     <summary>Is PS99 Clans official?</summary>
     <div><p>No. PS99 Clans is an independent fan project. It is not made, endorsed or sponsored by BIG Games or Roblox. It uses the public API that BIG Games offers so that the community can build tools like this one.</p></div>
@@ -454,6 +457,8 @@
     <summary>Is it free?</summary>
     <div><p>Yes, every page and tool is free and needs no account. The site is paid for by a small amount of advertising.</p></div>
   </details>
+</section>
+  </div>
 </section>
 </main>
 <footer class="sc-foot">

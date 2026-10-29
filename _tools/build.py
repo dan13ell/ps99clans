@@ -23,41 +23,41 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SITE = "https://ps99clans.site"
 ADS = "ca-pub-5302554896051137"
 GA = "G-M5T889PLGJ"
-CSS_V = "4"
+CSS_V = "7"
 JS_V = "2"
 TODAY = datetime.date.today().isoformat()
 
 # ---------------------------------------------------------------- stránky s oknem
 # ads: "static" = reklamní skript hned, "defer" = až po načtení dat (site.js), "none"
 APP = [
-    dict(key="home", file="index.html", url="/", ads="static", peek="Guide & FAQ",
+    dict(key="home", label="Guide & FAQ", file="index.html", url="/", ads="static", peek="Guide & FAQ",
          title="PS99 Clans – Live Pet Simulator 99 Clan Leaderboards & Stats",
          desc="Live Pet Simulator 99 clan leaderboards: top 1000 clans, clan battle points, leagues, top players, clan compare, live tracker and free OBS overlays. Updated every few seconds."),
-    dict(key="topclans", file="topclans/index.html", url="/topclans/", ads="static", peek="How it works",
+    dict(key="topclans", label="About Top Clans", file="topclans/index.html", url="/topclans/", ads="static", peek="How it works",
          title="Top Clans – Live PS99 Clan Battle Leaderboard (Top 1000) | PS99 Clans",
          desc="Live leaderboard of the top 1000 Pet Simulator 99 clans. Sort by clan battle points or deposited diamonds, filter by country and see the time left in the active clan battle."),
-    dict(key="leagues", file="leagues/index.html", url="/leagues/", ads="static", peek="How it works",
+    dict(key="leagues", label="About Leagues", file="leagues/index.html", url="/leagues/", ads="static", peek="How it works",
          title="PS99 Leagues Leaderboard – League Points & Rankings | PS99 Clans",
          desc="Live Pet Simulator 99 league leaderboard: league points, member counts and positions. Open any league to see its members and how much each one contributed."),
-    dict(key="people", file="people/index.html", url="/people/", ads="static", peek="How it works",
+    dict(key="people", label="About Top Players", file="people/index.html", url="/people/", ads="static", peek="How it works",
          title="Top Players – PS99 Clan Battle Player Leaderboard | PS99 Clans",
          desc="The top 25,000 Pet Simulator 99 players in the current clan battle, ranked by battle points. Search by Roblox username or clan and open any player for hourly stats."),
-    dict(key="compare", file="compare/index.html", url="/compare/", ads="static", peek="How it works",
+    dict(key="compare", label="About Compare", file="compare/index.html", url="/compare/", ads="static", peek="How it works",
          title="Compare PS99 Clans – Live Head-to-Head Point Difference | PS99 Clans",
          desc="Compare two Pet Simulator 99 clans live: total battle points, point difference, diamonds, average per member and a live difference chart."),
-    dict(key="overlays", file="overlays/index.html", url="/overlays/", ads="static", peek="Guide & FAQ",
+    dict(key="overlays", label="About OBS Overlays", file="overlays/index.html", url="/overlays/", ads="static", peek="Guide & FAQ",
          title="Free PS99 OBS Overlays – Live Clan Points for Streamers | PS99 Clans",
          desc="Free Pet Simulator 99 overlays for OBS and Streamlabs: live clan points, clan versus, top clans, player points and points goal. Transparent, customizable, one link."),
-    dict(key="clan-detail", file="clan-detail/index.html", url=None, ads="defer", peek="About this page",
+    dict(key="clan-detail", label="About clan profiles", file="clan-detail/index.html", url=None, ads="defer", peek="About this page",
          title="Clan Profile – Members, Battle Points & Diamonds | PS99 Clans",
          desc="Pet Simulator 99 clan profile: every member with their clan battle points and deposited diamonds, the clan's place, medals, country and live tracker."),
-    dict(key="league-detail", file="league-detail/index.html", url=None, ads="defer", peek="About this page",
+    dict(key="league-detail", label="About league profiles", file="league-detail/index.html", url=None, ads="defer", peek="About this page",
          title="League Profile – Members & League Points | PS99 Clans",
          desc="Pet Simulator 99 league profile: members, their league points, the league's place on the leaderboard and its total score."),
-    dict(key="people-detail", file="people-detail/index.html", url=None, ads="defer", peek="About this page",
+    dict(key="people-detail", label="About player profiles", file="people-detail/index.html", url=None, ads="defer", peek="About this page",
          title="Player Stats – Battle Points, Rank & Hourly Chart | PS99 Clans",
          desc="Pet Simulator 99 player stats for the current clan battle: total points, global rank, hourly points chart, best hour and the players just ahead and behind."),
-    dict(key="live", file="live/index.html", url=None, ads="defer", peek="About this page",
+    dict(key="live", label="About the live tracker", file="live/index.html", url=None, ads="defer", peek="About this page",
          title="Live Clan Tracker – Real-Time PS99 Clan Points | PS99 Clans",
          desc="Watch a Pet Simulator 99 clan's battle points rise in real time with a live points graph, rank, diamonds and average per member."),
 ]
@@ -236,6 +236,35 @@ def footer():
 </footer>"""
 
 
+# ---------------------------------------------------------------- panel pod herním oknem
+def slug(t):
+    return re.sub(r"[^a-z0-9]+", "-", strip_tags(t).lower()).strip("-")[:40]
+
+
+def panelize(body, label):
+    """Obsah do jednoho panelu ve stylu herního okna: hlavička s názvem a odkazy na sekce."""
+    links = []
+
+    def add_id(m):
+        attrs, inner = m.group(1), m.group(2)
+        if "data-nonav" in attrs:
+            return m.group(0)
+        if "id=" in attrs:
+            i = re.search(r'id="([^"]+)"', attrs).group(1)
+        else:
+            i = "s-" + slug(inner)
+            attrs += f' id="{i}"'
+        txt = strip_tags(inner)
+        short = "FAQ" if ("FAQ" in txt or "questions" in txt.lower()) else (txt if len(txt) <= 32 else txt[:30].rsplit(" ", 1)[0] + "…")
+        links.append((i, short))
+        return f"<h2{attrs}>{inner}</h2>"
+    body = re.sub(r"<h2([^>]*)>(.*?)</h2>", add_id, body, flags=re.S)
+    nav = "".join(f'<a href="#{i}">{esc(t)}</a>' for i, t in links)
+    return (f'<section class="sc-panel" aria-label="{esc(label)}">\n'
+            f'  <div class="sc-panel-head"><span class="sc-panel-label">{esc(label)}</span><nav class="sc-panel-nav" aria-label="On this page">{nav}</nav></div>\n'
+            f'  <div class="sc-panel-body">\n{body}  </div>\n</section>\n')
+
+
 # ---------------------------------------------------------------- úprava stránek s oknem
 LABELS = {"/": "Clans", "/topclans/": "Top Clans", "/leagues/": "Leagues", "/people/": "People"}
 
@@ -307,7 +336,7 @@ def build_app(p):
                        "logo": SITE + "/images/favicon.png", "email": "danielmairich@gmail.com"})
     s = replace_block(s, "HEAD", meta_block(p["title"], p["desc"], p["url"], lds), "</head>")
     s = links_to_anchors(s)
-    content = (f'<main class="sc" id="guide" data-peek="{esc(p["peek"])}">\n{body}</main>\n{footer()}\n'
+    content = (f'<main class="sc" id="guide" data-peek="{esc(p["peek"])}">\n{panelize(body, p["label"])}</main>\n{footer()}\n'
                f'    <script src="/site.js?v={JS_V}"></script>')
     s = replace_block(s, "BODY", content, "</body>")
     write(p["file"], s)
@@ -364,7 +393,7 @@ def build_doc(d):
         words = len(strip_tags(body).split())
         mins = max(2, round(words / 220))
         meta_html = (f'<div class="sc-meta"><span class="sc-chip">Updated {upd.strftime("%b")} {upd.day}, {upd.year}</span>'
-                     f'<span class="sc-chip">{mins} min read</span><span class="sc-chip">By the PS99 Clans team</span></div>\n')
+                     f'<span class="sc-chip">{mins} min read</span><span class="sc-chip">By PS99 Clans</span></div>\n')
     body = body.replace("<!--META-->", meta_html)
 
     robots = meta.get("robots")

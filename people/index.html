@@ -521,7 +521,7 @@
     <meta property="og:image" content="https://ps99clans.site/images/favicon.png">
     <meta name="twitter:card" content="summary">
     <meta name="theme-color" content="#89B3F9">
-    <link rel="stylesheet" href="/site.css?v=4">
+    <link rel="stylesheet" href="/site.css?v=7">
     <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why am I not on the list?","acceptedAnswer":{"@type":"Answer","text":"Only the top 25,000 players with battle points are stored. You also need to be in a clan that is on the clan leaderboard. A player in a very small clan can be missed until the clan scores enough to rank. Earn a few more points and check again after the next collection cycle."}},{"@type":"Question","name":"My points here are lower than in the game. Why?","acceptedAnswer":{"@type":"Answer","text":"Every clan is re-read once per cycle, which takes a few minutes. Your number is from the last time your clan was read. It catches up on the next pass."}},{"@type":"Question","name":"Does the list reset?","acceptedAnswer":{"@type":"Answer","text":"Yes, when a new clan battle starts. Until then the final results of the last battle stay visible, so you can still check how you finished."}}]}</script>
     <!--/SC:HEAD-->
 </head>
@@ -857,6 +857,9 @@
     <script src="/hotbar.js?v=7"></script>
 <!--SC:BODY-->
     <main class="sc" id="guide" data-peek="How it works">
+<section class="sc-panel" aria-label="About Top Players">
+  <div class="sc-panel-head"><span class="sc-panel-label">About Top Players</span><nav class="sc-panel-nav" aria-label="On this page"><a href="#s-how-the-player-ranking-is-built">How the player ranking is built</a><a href="#s-searching">Searching</a><a href="#s-what-a-good-score-looks-like">What a good score looks like</a><a href="#s-top-players-faq">FAQ</a></nav></div>
+  <div class="sc-panel-body">
 <section class="sc-card sc-hero">
   <span class="sc-kicker">Player leaderboard</span>
   <h1>Top Pet Simulator 99 players in the current clan battle</h1>
@@ -865,7 +868,7 @@
 </section>
 
 <section class="sc-card">
-  <h2>How the player ranking is built</h2>
+  <h2 id="s-how-the-player-ranking-is-built">How the player ranking is built</h2>
   <p>There is no official "all players" leaderboard for clan battles, so PS99 Clans builds one. A background job walks through the clan leaderboard all day, 200 clans every minute. For every clan it reads the battle contribution of each member and stores the highest value it has seen. Players are then sorted by those points, and the top <b>25,000</b> are kept.</p>
   <ul>
     <li><b>Rank</b> is your position among all collected players, not just inside your clan.</li>
@@ -877,7 +880,7 @@
 
 <div class="sc-grid two">
   <section class="sc-card">
-    <h2>Searching</h2>
+    <h2 id="s-searching">Searching</h2>
     <p>The search bar accepts three things:</p>
     <ul>
       <li>a <b>Roblox username</b> or part of it (an exact match is shown first),</li>
@@ -887,14 +890,14 @@
     <p>Display names don't work. Use the @username from your Roblox profile.</p>
   </section>
   <section class="sc-card">
-    <h2>What a good score looks like</h2>
+    <h2 id="s-what-a-good-score-looks-like">What a good score looks like</h2>
     <p>Point values change completely from one battle to the next. In one battle a single action is worth 1 point, in another it is worth thousands. Don't compare your total with an older battle. Compare it with players near you right now.</p>
     <p>The <a href="/guides/reading-the-stats/">stats guide</a> explains how to read points per hour and why the top of the list moves in bursts.</p>
   </section>
 </div>
 
 <section class="sc-card sc-faq">
-  <h2>Top Players FAQ</h2>
+  <h2 id="s-top-players-faq">Top Players FAQ</h2>
   <details>
     <summary>Why am I not on the list?</summary>
     <div><p>Only the top 25,000 players with battle points are stored. You also need to be in a clan that is on the clan leaderboard. A player in a very small clan can be missed until the clan scores enough to rank. Earn a few more points and check again after the next collection cycle.</p></div>
@@ -907,6 +910,8 @@
     <summary>Does the list reset?</summary>
     <div><p>Yes, when a new clan battle starts. Until then the final results of the last battle stay visible, so you can still check how you finished.</p></div>
   </details>
+</section>
+  </div>
 </section>
 </main>
 <footer class="sc-foot">

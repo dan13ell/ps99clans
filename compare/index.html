@@ -525,7 +525,7 @@
     <meta property="og:image" content="https://ps99clans.site/images/favicon.png">
     <meta name="twitter:card" content="summary">
     <meta name="theme-color" content="#89B3F9">
-    <link rel="stylesheet" href="/site.css?v=4">
+    <link rel="stylesheet" href="/site.css?v=7">
     <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Does the chart keep its history if I close the page?","acceptedAnswer":{"@type":"Answer","text":"No. The chart starts recording when you open the matchup and keeps the most recent points while the page stays open. For long tracking, leave the tab open on a computer, or use the OBS Versus overlay on stream."}},{"@type":"Question","name":"Can I compare clans outside the top 1000?","acceptedAnswer":{"@type":"Answer","text":"Yes. Any clan tag works. The rank badge only appears for clans with a known place on the leaderboard."}},{"@type":"Question","name":"Why does one total move in jumps?","acceptedAnswer":{"@type":"Answer","text":"The game sends new totals in batches. Between updates the page spreads the increase over a few seconds so it reads naturally. A bigger jump simply means more points arrived in that batch."}}]}</script>
     <!--/SC:HEAD-->
 </head>
@@ -1156,6 +1156,9 @@
     <script src="/hotbar.js?v=7"></script>
 <!--SC:BODY-->
     <main class="sc" id="guide" data-peek="How it works">
+<section class="sc-panel" aria-label="About Compare">
+  <div class="sc-panel-head"><span class="sc-panel-label">About Compare</span><nav class="sc-panel-nav" aria-label="On this page"><a href="#s-how-to-compare-clans">How to compare clans</a><a href="#s-what-each-number-means">What each number means</a><a href="#s-using-the-chart-to-plan">Using the chart to plan</a><a href="#s-compare-faq">FAQ</a></nav></div>
+  <div class="sc-panel-body">
 <section class="sc-card sc-hero">
   <span class="sc-kicker">Head-to-head</span>
   <h1>Compare two PS99 clans live</h1>
@@ -1163,7 +1166,7 @@
 </section>
 
 <section class="sc-card">
-  <h2>How to compare clans</h2>
+  <h2 id="s-how-to-compare-clans">How to compare clans</h2>
   <ol class="sc-steps">
     <li>Press <b>Select Clans</b> and type two clan tags. The first clan is "your side". All differences and the chart are shown from its point of view.</li>
     <li>Watch the two totals. They update every few seconds and roll up smoothly, just like the live tracker.</li>
@@ -1175,7 +1178,7 @@
 
 <div class="sc-grid two">
   <section class="sc-card">
-    <h2>What each number means</h2>
+    <h2 id="s-what-each-number-means">What each number means</h2>
     <ul>
       <li><b>Total points</b>: the clan's score in the active battle.</li>
       <li><b>Point difference</b>: your side minus the other side.</li>
@@ -1185,14 +1188,14 @@
     </ul>
   </section>
   <section class="sc-card">
-    <h2>Using the chart to plan</h2>
+    <h2 id="s-using-the-chart-to-plan">Using the chart to plan</h2>
     <p>A steady slope tells you the real pace difference between two clans. Divide the gap by how fast it is shrinking and you get a rough time until an overtake. If that time is later than the end of the battle, you'll need a push to win.</p>
     <p>Sudden steps in the line usually mean one clan has started a coordinated push or used boosts. The <a href="/guides/battle-strategy/">battle strategy guide</a> covers how clans plan those.</p>
   </section>
 </div>
 
 <section class="sc-card sc-faq">
-  <h2>Compare FAQ</h2>
+  <h2 id="s-compare-faq">Compare FAQ</h2>
   <details>
     <summary>Does the chart keep its history if I close the page?</summary>
     <div><p>No. The chart starts recording when you open the matchup and keeps the most recent points while the page stays open. For long tracking, leave the tab open on a computer, or use the OBS Versus overlay on stream.</p></div>
@@ -1205,6 +1208,8 @@
     <summary>Why does one total move in jumps?</summary>
     <div><p>The game sends new totals in batches. Between updates the page spreads the increase over a few seconds so it reads naturally. A bigger jump simply means more points arrived in that batch.</p></div>
   </details>
+</section>
+  </div>
 </section>
 </main>
 <footer class="sc-foot">

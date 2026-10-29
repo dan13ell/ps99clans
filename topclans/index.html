@@ -797,7 +797,7 @@
     <meta property="og:image" content="https://ps99clans.site/images/favicon.png">
     <meta name="twitter:card" content="summary">
     <meta name="theme-color" content="#89B3F9">
-    <link rel="stylesheet" href="/site.css?v=4">
+    <link rel="stylesheet" href="/site.css?v=7">
     <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why does the list stop at 1,000 clans?","acceptedAnswer":{"@type":"Answer","text":"The official API returns the leaderboard in pages, and 1,000 clans covers every reward tier that recent battles have used. It also keeps the page fast on phones. Clans below 1,000 can still be opened directly from their profile link."}},{"@type":"Question","name":"Why do all clans show 0 points?","acceptedAnswer":{"@type":"Answer","text":"Between battles, or right after a new battle starts, clans can have no points in the active battle yet. The banner shows the next battle's name and the countdown. Points appear as soon as members start playing the new event."}},{"@type":"Question","name":"What does the member count (like 42/50) mean?","acceptedAnswer":{"@type":"Answer","text":"The first number is how many players are in the clan now. The second is the clan's current capacity. Clans start with a small number of slots and buy more with diamonds, up to 50 members."}},{"@type":"Question","name":"How current is the countdown?","acceptedAnswer":{"@type":"Answer","text":"The end time comes straight from the official battle schedule and counts down on your device, so it is accurate to the second. The points next to it refresh about once a minute."}}]}</script>
     <!--/SC:HEAD-->
 </head>
@@ -1362,6 +1362,9 @@
     <script src="/hotbar.js?v=7"></script>
 <!--SC:BODY-->
     <main class="sc" id="guide" data-peek="How it works">
+<section class="sc-panel" aria-label="About Top Clans">
+  <div class="sc-panel-head"><span class="sc-panel-label">About Top Clans</span><nav class="sc-panel-nav" aria-label="On this page"><a href="#s-how-to-use-the-top-clans-list">How to use the Top Clans list</a><a href="#s-what-decides-the-ranking">What decides the ranking?</a><a href="#s-reading-the-gaps">Reading the gaps</a><a href="#s-top-clans-faq">FAQ</a></nav></div>
+  <div class="sc-panel-body">
 <section class="sc-card sc-hero">
   <span class="sc-kicker">Clan battle leaderboard</span>
   <h1>Top 1000 Pet Simulator 99 clans</h1>
@@ -1370,7 +1373,7 @@
 </section>
 
 <section class="sc-card">
-  <h2>How to use the Top Clans list</h2>
+  <h2 id="s-how-to-use-the-top-clans-list">How to use the Top Clans list</h2>
   <ol class="sc-steps">
     <li><b>Read a clan card.</b> Each card shows the clan's place, icon and tag, its description, its <b>battle points</b> (the star) and the <b>diamonds</b> its members have deposited (the gem), plus how many members it has out of its current capacity.</li>
     <li><b>Switch the ranking.</b> The star/gem toggle at the top of the window switches between ranking by battle points and ranking by deposited diamonds. Points show who is winning this battle. Diamonds show which clans have been the richest and best organised over time.</li>
@@ -1382,20 +1385,20 @@
 
 <div class="sc-grid two">
   <section class="sc-card">
-    <h2>What decides the ranking?</h2>
+    <h2 id="s-what-decides-the-ranking">What decides the ranking?</h2>
     <p>During a clan battle, members earn points by doing that battle's activity. Depending on the event, that can be hatching certain pets, opening presents, breaking chests or clearing rooms in a minigame. Each member's points are added to the clan total, and clans are ranked by that total.</p>
     <p>Rewards are given by final placement when the timer reaches zero, so the order a few hours before the end is only a forecast. Clans often save boosts and organise pushes for the last day.</p>
     <p><a href="/guides/clan-battles/">Read the full clan battle guide →</a></p>
   </section>
   <section class="sc-card">
-    <h2>Reading the gaps</h2>
+    <h2 id="s-reading-the-gaps">Reading the gaps</h2>
     <p>The most useful number is often not your own total but the <b>distance to the clan above you</b>. A gap of a few million points can close in minutes in the top 10, but can take a whole day lower down where clans are smaller.</p>
     <p>To follow one specific rival, open <a href="/compare/">Compare</a>. It shows the live difference between two clans and a chart of how that gap changes over time.</p>
   </section>
 </div>
 
 <section class="sc-card sc-faq">
-  <h2>Top Clans FAQ</h2>
+  <h2 id="s-top-clans-faq">Top Clans FAQ</h2>
   <details>
     <summary>Why does the list stop at 1,000 clans?</summary>
     <div><p>The official API returns the leaderboard in pages, and 1,000 clans covers every reward tier that recent battles have used. It also keeps the page fast on phones. Clans below 1,000 can still be opened directly from their profile link.</p></div>
@@ -1412,6 +1415,8 @@
     <summary>How current is the countdown?</summary>
     <div><p>The end time comes straight from the official battle schedule and counts down on your device, so it is accurate to the second. The points next to it refresh about once a minute.</p></div>
   </details>
+</section>
+  </div>
 </section>
 </main>
 <footer class="sc-foot">
