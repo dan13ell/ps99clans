@@ -68,11 +68,13 @@
     const release = () => { const w = waiters.shift(); if (w) w(); else active--; };
     const sleep = (ms) => new Promise(r => setTimeout(r, ms));
 
-    async function fetchJson(url) {
+    async function fetchJson(url, fresh) {
         const ctrl = typeof AbortController !== "undefined" ? new AbortController() : null;
         const t = ctrl ? setTimeout(() => ctrl.abort(), 9000) : null;
         try {
-            const r = await fetch(url, ctrl ? { signal: ctrl.signal } : undefined);
+            const init = fresh ? { cache: "no-store" } : {};
+            if (ctrl) init.signal = ctrl.signal;
+            const r = await fetch(url, init);
             if (!r.ok) throw new Error("HTTP " + r.status);
             const j = await r.json();
             if (!j || !Array.isArray(j.data)) throw new Error("bad json");
@@ -91,7 +93,7 @@
             const q = `?userIds=${todo.join(",")}&size=${o.size}&format=Png&isCircular=${o.circular}`;
             let data;
             await slot();
-            try { data = await fetchJson(src + q); }
+            try { data = await fetchJson(src + q, attempt > 0); }   // opakování obejde cache prohlížeče
             catch (e) { data = null; }
             finally { release(); }
             if (!data) continue;
