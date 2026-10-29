@@ -289,19 +289,21 @@ html.sc-doc body {
 }
 .sc-logo { flex: 0 0 auto; display: block; line-height: 0; }
 .sc-logo img { height: 50px; width: auto; filter: drop-shadow(0 3px 0 rgba(0, 0, 0, 0.18)); }
-.sc-nav { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; flex: 1 1 auto; justify-content: flex-end; }
+.sc-nav { display: flex; gap: 2px; align-items: center; overflow-x: auto; scrollbar-width: none; flex: 1 1 auto; justify-content: flex-end; }
 .sc-nav::-webkit-scrollbar { display: none; }
 .sc-nav a {
     flex: 0 0 auto;
-    padding: 6px 12px; border-radius: 11px;
-    background: #FFFFFF; border: 2.5px solid #000; box-shadow: 0 3px 0 #000;
-    color: #000; text-decoration: none;
-    font: 700 14px/1.1 'Fredoka', sans-serif;
-    transition: transform 0.05s ease, box-shadow 0.05s ease;
+    padding: 7px 12px;
+    border-radius: 10px;
+    border: 2.5px solid transparent;
+    color: var(--sc-ink);
+    text-decoration: none;
+    font: 700 15px/1.1 'Fredoka', sans-serif;
+    white-space: nowrap;
+    transition: background-color 0.12s ease, border-color 0.12s ease;
 }
-.sc-nav a:hover { transform: translateY(-1px); box-shadow: 0 4px 0 #000; }
-.sc-nav a:active { transform: translateY(2px); box-shadow: 0 1px 0 #000; }
-.sc-nav a.on { background: var(--sc-blue); color: #FFF; -webkit-text-stroke: 3.5px #000; paint-order: stroke fill; }
+.sc-nav a:hover { background: rgba(255, 255, 255, 0.5); }
+.sc-nav a.on { background: #FFFFFF; border-color: var(--sc-line); box-shadow: 0 3px 0 rgba(0, 0, 0, 0.18); }
 
 .sc-doc .sc { padding-top: 28px; }
 .sc-article { max-width: 860px; margin: 0 auto; }

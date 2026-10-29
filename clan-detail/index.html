@@ -771,7 +771,7 @@
     <meta property="og:image" content="https://ps99clans.site/images/favicon.png">
     <meta name="twitter:card" content="summary">
     <meta name="theme-color" content="#89B3F9">
-    <link rel="stylesheet" href="/site.css?v=3">
+    <link rel="stylesheet" href="/site.css?v=4">
     <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"A member shows 0 points. Are they inactive?","acceptedAnswer":{"@type":"Answer","text":"Not always. They may have joined after the battle started, play a different part of the game, or simply not have played the event yet. Look at the same member again later in the battle before drawing conclusions."}},{"@type":"Question","name":"Why does a member show \"@...\" or \"@Player_123\"?","acceptedAnswer":{"@type":"Answer","text":"Usernames are looked up from Roblox separately. \"@...\" means the lookup is still running. \"@Player_\" plus a number means Roblox didn't return a name, for example for a deleted account."}},{"@type":"Question","name":"How do I link to a clan?","acceptedAnswer":{"@type":"Answer","text":"Copy the address from your browser. It looks like ps99clans.site/clan-detail/?name=TAG and always opens the latest data for that clan."}}]}</script>
     <!--/SC:HEAD-->
 </head>
@@ -822,7 +822,7 @@
                 <div class="live-stats-label">WATCH LIVE</div>
                 
                 <div class="member-count-icon"></div>
-                <div class="detail-members" id="clanMemberCount" data-text="0/75">0/75</div>
+                <div class="detail-members" id="clanMemberCount" data-text="0/50">0/50</div>
 
                 <div class="members-scroll-area" id="membersListContainer">
                 </div>
@@ -1333,7 +1333,7 @@
                 const finalMembersList = [leaderMember, ...officers, ...regularMembers];
 
                 const mCount = finalMembersList.length;
-                const mCap = clan.MemberCapacity || 75;
+                const mCap = clan.MemberCapacity || 50;
 
                 if (memberCountEl) {
                     const textValue = `${mCount}/${mCap}`;
@@ -1399,7 +1399,7 @@
     <li><b>Battle points (star)</b>: the clan's total in the active clan battle. Between battles this shows the last battle's result.</li>
     <li><b>Diamonds (gem)</b>: everything members have deposited into the clan bank. Clans spend these on upgrades and extra member slots.</li>
     <li><b>Place</b>: the clan's position on the battle leaderboard, or its overall position by points when no battle is running.</li>
-    <li><b>Members</b>: the current member count out of the clan's capacity (up to 75).</li>
+    <li><b>Members</b>: the current member count out of the clan's capacity (up to 50).</li>
     <li><b>Status</b>: the latest clan shout, with who posted it and when. Leaders often use it for battle instructions or recruiting.</li>
   </ul>
   <p>The member list is ordered the way the game orders it: the <b>Leader</b> first, then <b>Officers</b>, then everyone else. Each card shows the member's battle points and the diamonds they deposited, so you can see at a glance who is carrying the clan. Click a member to open their player profile.</p>

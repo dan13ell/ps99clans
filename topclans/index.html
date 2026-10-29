@@ -797,8 +797,8 @@
     <meta property="og:image" content="https://ps99clans.site/images/favicon.png">
     <meta name="twitter:card" content="summary">
     <meta name="theme-color" content="#89B3F9">
-    <link rel="stylesheet" href="/site.css?v=3">
-    <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why does the list stop at 1,000 clans?","acceptedAnswer":{"@type":"Answer","text":"The official API returns the leaderboard in pages, and 1,000 clans covers every reward tier that recent battles have used. It also keeps the page fast on phones. Clans below 1,000 can still be opened directly from their profile link."}},{"@type":"Question","name":"Why do all clans show 0 points?","acceptedAnswer":{"@type":"Answer","text":"Between battles, or right after a new battle starts, clans can have no points in the active battle yet. The banner shows the next battle's name and the countdown. Points appear as soon as members start playing the new event."}},{"@type":"Question","name":"What does the member count (like 47/75) mean?","acceptedAnswer":{"@type":"Answer","text":"The first number is how many players are in the clan now. The second is the clan's current capacity. Clans start with a small number of slots and buy more with diamonds, up to 75 members."}},{"@type":"Question","name":"How current is the countdown?","acceptedAnswer":{"@type":"Answer","text":"The end time comes straight from the official battle schedule and counts down on your device, so it is accurate to the second. The points next to it refresh about once a minute."}}]}</script>
+    <link rel="stylesheet" href="/site.css?v=4">
+    <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why does the list stop at 1,000 clans?","acceptedAnswer":{"@type":"Answer","text":"The official API returns the leaderboard in pages, and 1,000 clans covers every reward tier that recent battles have used. It also keeps the page fast on phones. Clans below 1,000 can still be opened directly from their profile link."}},{"@type":"Question","name":"Why do all clans show 0 points?","acceptedAnswer":{"@type":"Answer","text":"Between battles, or right after a new battle starts, clans can have no points in the active battle yet. The banner shows the next battle's name and the countdown. Points appear as soon as members start playing the new event."}},{"@type":"Question","name":"What does the member count (like 42/50) mean?","acceptedAnswer":{"@type":"Answer","text":"The first number is how many players are in the clan now. The second is the clan's current capacity. Clans start with a small number of slots and buy more with diamonds, up to 50 members."}},{"@type":"Question","name":"How current is the countdown?","acceptedAnswer":{"@type":"Answer","text":"The end time comes straight from the official battle schedule and counts down on your device, so it is accurate to the second. The points next to it refresh about once a minute."}}]}</script>
     <!--/SC:HEAD-->
 </head>
 <body>
@@ -969,22 +969,6 @@
             return "https://placehold.co/90x90/ffffff/000000?text=Clan";
         }
 
-        function generateFallbackData() {
-            const fallback = [];
-            const countries = ["US", "CZ", "SK", "PL", "DE", "GB", "FR", "CA", "AU", "BR", "JP", "KR", "NL", "SE", "ES", "IT", "UA", "MX", "AT", "CH", "NO", "FI"];
-            for (let i = 1; i <= 1000; i++) {
-                fallback.push({
-                    Name: `FALL${i}`,
-                    Points: Math.floor(10000000000 / i),
-                    DepositedDiamonds: Math.floor(500000000000 / i),
-                    Members: Math.max(1, Math.min(74, Math.floor(74 - (i % 70)))),
-                    MemberCapacity: 75,
-                    CountryCode: countries[i % countries.length],
-                    Icon: "rbxassetid://1372728282"
-                });
-            }
-            return fallback;
-        }
 
         function adjustDescSize(el) {
             if (!el) return;
@@ -1134,20 +1118,22 @@
             if (!isSilent && list) {
                 list.innerHTML = `<div class="leaderboard-loading">Loading...</div>`;
             }
+            // při chybě API žádná vymyšlená data: necháme poslední známý seznam, jinak hláška a nový pokus
             try {
                 const resPoints = await fetch(`${WORKER_URL}/clans?page=1&pageSize=1000&sort=Points&sortOrder=desc`);
                 const dataPoints = await resPoints.json();
-                pointsClanData = (dataPoints && dataPoints.status === "ok") ? dataPoints.data : generateFallbackData();
+                if (dataPoints && dataPoints.status === "ok" && Array.isArray(dataPoints.data)) pointsClanData = dataPoints.data;
 
                 const resGems = await fetch(`${WORKER_URL}/clans?page=1&pageSize=1000&sort=DepositedDiamonds&sortOrder=desc`);
                 const dataGems = await resGems.json();
-                gemsClanData = (dataGems && dataGems.status === "ok") ? dataGems.data : generateFallbackData();
-            } catch (err) {
-                if (!isSilent) {
-                    pointsClanData = generateFallbackData();
-                    gemsClanData = generateFallbackData();
-                }
+                if (dataGems && dataGems.status === "ok" && Array.isArray(dataGems.data)) gemsClanData = dataGems.data;
+            } catch (err) {}
+            if (!pointsClanData.length) {
+                if (list) list.innerHTML = `<div class="leaderboard-loading">Could not load clans. Retrying...</div>`;
+                setTimeout(() => fetchLeaderboardData(true), 10000);
+                return;
             }
+            if (!gemsClanData.length) gemsClanData = pointsClanData.slice().sort((x, y) => (y.DepositedDiamonds || 0) - (x.DepositedDiamonds || 0));
             // tichá obnova počká, až uživatel dorolluje (jinak by seznam poskočil)
             if (isSilent && window.whenScrollIdle) whenScrollIdle(renderLeaderboard);
             else renderLeaderboard();
@@ -1208,7 +1194,7 @@
                 
                 const rawMembers = clan.Members !== undefined ? clan.Members : 0;
                 const mCount = rawMembers + 1;
-                const mCap = clan.MemberCapacity !== undefined ? clan.MemberCapacity : 75;
+                const mCap = clan.MemberCapacity !== undefined ? clan.MemberCapacity : 50;
                 
                 const rankColor = (absoluteRank === 1) ? "#8AFCED" : "#FFFFFF";
                 const flagUrl = getTwemojiUrl(clan.CountryCode);
@@ -1419,8 +1405,8 @@
     <div><p>Between battles, or right after a new battle starts, clans can have no points in the active battle yet. The banner shows the next battle's name and the countdown. Points appear as soon as members start playing the new event.</p></div>
   </details>
   <details>
-    <summary>What does the member count (like 47/75) mean?</summary>
-    <div><p>The first number is how many players are in the clan now. The second is the clan's current capacity. Clans start with a small number of slots and buy more with diamonds, up to 75 members.</p></div>
+    <summary>What does the member count (like 42/50) mean?</summary>
+    <div><p>The first number is how many players are in the clan now. The second is the clan's current capacity. Clans start with a small number of slots and buy more with diamonds, up to 50 members.</p></div>
   </details>
   <details>
     <summary>How current is the countdown?</summary>

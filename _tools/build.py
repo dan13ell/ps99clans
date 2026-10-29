@@ -23,7 +23,7 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SITE = "https://ps99clans.site"
 ADS = "ca-pub-5302554896051137"
 GA = "G-M5T889PLGJ"
-CSS_V = "3"
+CSS_V = "4"
 JS_V = "2"
 TODAY = datetime.date.today().isoformat()
 
