@@ -1,0 +1,53 @@
+<section class="sc-card sc-hero">
+  <span class="sc-kicker">For streamers</span>
+  <h1>Free Pet Simulator 99 overlays for OBS and Streamlabs</h1>
+  <p class="sc-lead">Show your clan's live battle points on stream without screen-capturing a website. Every overlay is a transparent browser source that updates by itself, so viewers see the numbers roll up while you play.</p>
+</section>
+
+<section class="sc-card">
+  <h2>The five overlay types</h2>
+  <div class="sc-grid">
+    <div class="sc-card sc-tile"><h3>Clan points</h3><p>Your clan's icon, tag, total battle points, current place and points per hour, with a green +points bubble every time the score goes up.</p></div>
+    <div class="sc-card sc-tile"><h3>Versus</h3><p>Two clans side by side with a tug-of-war bar and the live point difference. Made for close races.</p></div>
+    <div class="sc-card sc-tile"><h3>Top clans</h3><p>A mini leaderboard. With your clan set, it shows the clans around you with real places, and cards slide when someone overtakes.</p></div>
+    <div class="sc-card sc-tile"><h3>Player points</h3><p>Your own battle points by Roblox username, with your clan tag and points per hour. Good for solo grinding streams.</p></div>
+    <div class="sc-card sc-tile"><h3>Points goal</h3><p>A progress bar toward a target such as "10B for the clan". It turns gold with confetti when the goal is reached.</p></div>
+    <div class="sc-card sc-tile"><h3>Styles</h3><p>PS99, Dark, Glass, Neon and Text-only looks, any accent colour, size and alignment. All previewed live before you copy the link.</p></div>
+  </div>
+</section>
+
+<section class="sc-card">
+  <h2>Set it up in under a minute</h2>
+  <ol class="sc-steps">
+    <li>Choose an overlay type in section 1 at the top of the page and enter your clan tag (or username).</li>
+    <li>Pick a look in section 2. The preview updates immediately. Turn parts like the flag or the +points bubbles on and off.</li>
+    <li>Press <b>Copy link</b> in section 3. Note the Width and Height shown under the link.</li>
+    <li>In OBS, add a <b>Browser</b> source, paste the link as the URL and set the width and height. In Streamlabs, use <b>Browser Source</b>.</li>
+    <li>Drag it where you want it on your scene. That's it. It refreshes itself every 15 seconds.</li>
+  </ol>
+  <p>There is a longer walkthrough with screenshots-in-words, troubleshooting and layout tips in the <a href="/guides/obs-overlays/">OBS overlay guide</a>.</p>
+</section>
+
+<section class="sc-card sc-faq">
+  <h2>Overlay FAQ</h2>
+  <details>
+    <summary>Do I need to install anything?</summary>
+    <div><p>No. The overlays are web pages that OBS and Streamlabs load with their built-in browser source. There is no plugin, download or account.</p></div>
+  </details>
+  <details>
+    <summary>The background isn't transparent. What do I do?</summary>
+    <div><p>The page itself is already transparent. Remove any custom CSS you typed into the browser source settings, and make sure you pasted the overlay link that the builder copied, not the link of the builder page.</p></div>
+  </details>
+  <details>
+    <summary>Text looks blurry on stream.</summary>
+    <div><p>Use the Size slider in the builder instead of stretching the source in OBS, and set the browser source width and height to the numbers the builder shows. Then the overlay is drawn at full sharpness.</p></div>
+  </details>
+  <details>
+    <summary>It stopped updating.</summary>
+    <div><p>Right-click the source in OBS and choose <b>Refresh</b>. If the clan tag was changed in game, create a new link with the new tag.</p></div>
+  </details>
+  <details>
+    <summary>Do the overlays show ads?</summary>
+    <div><p>No. The overlay pages never contain ads or anything else besides your stats, so nothing unexpected can appear on your stream.</p></div>
+  </details>
+</section>

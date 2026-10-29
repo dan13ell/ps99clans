@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="sc-page" data-ads="static">
 <head>
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-M5T889PLGJ"></script>
     <script>
@@ -16,8 +16,7 @@
     <link rel="icon" href="/images/favicon.png" type="image/png">
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>PS99 Clans - Clan Compare</title>
-    <meta name="description" content="Compare two Pet Simulator 99 clans live: total points, point difference, diamonds, average per member and a live difference chart.">
+    <title>Compare PS99 Clans – Live Head-to-Head Point Difference | PS99 Clans</title>
     <script>
         // odometer.js stejně jako live stránka; instance si stránka vytváří sama
         window.odometerOptions = { auto: false, duration: 2500, animation: 'slide' };
@@ -515,6 +514,20 @@
             opacity: 1;
         }
     </style>
+<!--SC:HEAD-->
+    <meta name="description" content="Compare two Pet Simulator 99 clans live: total battle points, point difference, diamonds, average per member and a live difference chart.">
+    <link rel="canonical" href="https://ps99clans.site/compare/">
+    <meta property="og:url" content="https://ps99clans.site/compare/">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="PS99 Clans">
+    <meta property="og:title" content="Compare PS99 Clans – Live Head-to-Head Point Difference | PS99 Clans">
+    <meta property="og:description" content="Compare two Pet Simulator 99 clans live: total battle points, point difference, diamonds, average per member and a live difference chart.">
+    <meta property="og:image" content="https://ps99clans.site/images/favicon.png">
+    <meta name="twitter:card" content="summary">
+    <meta name="theme-color" content="#89B3F9">
+    <link rel="stylesheet" href="/site.css?v=3">
+    <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Does the chart keep its history if I close the page?","acceptedAnswer":{"@type":"Answer","text":"No. The chart starts recording when you open the matchup and keeps the most recent points while the page stays open. For long tracking, leave the tab open on a computer, or use the OBS Versus overlay on stream."}},{"@type":"Question","name":"Can I compare clans outside the top 1000?","acceptedAnswer":{"@type":"Answer","text":"Yes. Any clan tag works. The rank badge only appears for clans with a known place on the leaderboard."}},{"@type":"Question","name":"Why does one total move in jumps?","acceptedAnswer":{"@type":"Answer","text":"The game sends new totals in batches. Between updates the page spreads the increase over a few seconds so it reads naturally. A bigger jump simply means more points arrived in that batch."}}]}</script>
+    <!--/SC:HEAD-->
 </head>
 <body class="no-clans">
 
@@ -589,7 +602,7 @@
                 </div>
             </div>
 
-            <div class="close-btn" onclick="location.href='/'"></div>
+            <a class="close-btn" href="/" aria-label="Close" draggable="false"></a>
         </div>
     </div>
 
@@ -1140,6 +1153,105 @@
 
     <a href="/privacy/" class="privacy-link">Privacy Policy</a>
     <script src="/scrollbar.js?v=2"></script>
-    <script src="/hotbar.js?v=6"></script>
+    <script src="/hotbar.js?v=7"></script>
+<!--SC:BODY-->
+    <main class="sc" id="guide" data-peek="How it works">
+<section class="sc-card sc-hero">
+  <span class="sc-kicker">Head-to-head</span>
+  <h1>Compare two PS99 clans live</h1>
+  <p class="sc-lead">Leaderboards tell you who is ahead. Compare tells you whether the gap is growing or shrinking. Pick your clan and the rival you are chasing (or the one chasing you), and the page follows both clans live, with a chart of the point difference over time.</p>
+</section>
+
+<section class="sc-card">
+  <h2>How to compare clans</h2>
+  <ol class="sc-steps">
+    <li>Press <b>Select Clans</b> and type two clan tags. The first clan is "your side". All differences and the chart are shown from its point of view.</li>
+    <li>Watch the two totals. They update every few seconds and roll up smoothly, just like the live tracker.</li>
+    <li>Read the <b>point difference</b> in the middle. A plus sign means your side is ahead, a minus sign means it is behind.</li>
+    <li>Scroll down inside the window to the <b>difference chart</b>. The line above zero means you lead. Hover or tap any point to see both totals and how much the gap changed since the previous point.</li>
+    <li>Share the matchup: the address bar updates to something like <code>/compare/?a=TAG1&amp;b=TAG2</code>, so you can copy it to your clan's Discord.</li>
+  </ol>
+</section>
+
+<div class="sc-grid two">
+  <section class="sc-card">
+    <h2>What each number means</h2>
+    <ul>
+      <li><b>Total points</b>: the clan's score in the active battle.</li>
+      <li><b>Point difference</b>: your side minus the other side.</li>
+      <li><b>Diamonds</b>: diamonds the members have deposited into the clan bank, a rough measure of a clan's size and history.</li>
+      <li><b>Avg / person</b>: total points divided by the number of members. A clan with fewer members but a higher average can be more dangerous than it looks.</li>
+      <li><b>Members</b>: current member count.</li>
+    </ul>
+  </section>
+  <section class="sc-card">
+    <h2>Using the chart to plan</h2>
+    <p>A steady slope tells you the real pace difference between two clans. Divide the gap by how fast it is shrinking and you get a rough time until an overtake. If that time is later than the end of the battle, you'll need a push to win.</p>
+    <p>Sudden steps in the line usually mean one clan has started a coordinated push or used boosts. The <a href="/guides/battle-strategy/">battle strategy guide</a> covers how clans plan those.</p>
+  </section>
+</div>
+
+<section class="sc-card sc-faq">
+  <h2>Compare FAQ</h2>
+  <details>
+    <summary>Does the chart keep its history if I close the page?</summary>
+    <div><p>No. The chart starts recording when you open the matchup and keeps the most recent points while the page stays open. For long tracking, leave the tab open on a computer, or use the OBS Versus overlay on stream.</p></div>
+  </details>
+  <details>
+    <summary>Can I compare clans outside the top 1000?</summary>
+    <div><p>Yes. Any clan tag works. The rank badge only appears for clans with a known place on the leaderboard.</p></div>
+  </details>
+  <details>
+    <summary>Why does one total move in jumps?</summary>
+    <div><p>The game sends new totals in batches. Between updates the page spreads the increase over a few seconds so it reads naturally. A bigger jump simply means more points arrived in that batch.</p></div>
+  </details>
+</section>
+</main>
+<footer class="sc-foot">
+  <div class="sc-foot-in">
+    <div class="sc-foot-top">
+      <div class="sc-foot-brand">
+        <a href="/" aria-label="PS99 Clans home"><img src="/images/clans-logo.png" alt="PS99 Clans" width="145" height="54" loading="lazy"></a>
+        <p>Free live clan leaderboards, player rankings and stream tools for Pet Simulator 99 – built and maintained by a PS99 player for the PS99 community.</p>
+      </div>
+      <div>
+        <h4>Leaderboards</h4>
+        <ul>
+          <li><a href="/">Clans home</a></li>
+          <li><a href="/topclans/">Top 1000 clans</a></li>
+          <li><a href="/leagues/">Leagues</a></li>
+          <li><a href="/people/">Top players</a></li>
+          <li><a href="/live-placement/">Live top 500</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Tools &amp; guides</h4>
+        <ul>
+          <li><a href="/compare/">Compare two clans</a></li>
+          <li><a href="/overlays/">OBS overlays</a></li>
+          <li><a href="/guides/">All guides</a></li>
+          <li><a href="/guides/clan-battles/">Clan battles explained</a></li>
+          <li><a href="/guides/find-a-clan/">How to find a clan</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Site</h4>
+        <ul>
+          <li><a href="/about/">About</a></li>
+          <li><a href="/contact/">Contact</a></li>
+          <li><a href="/changelog/">What's new</a></li>
+          <li><a href="/privacy/">Privacy policy</a></li>
+          <li><a href="/terms/">Terms of use</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="sc-foot-bottom">
+      <span>© <span data-sc-year>2026</span> PS99 Clans · Independent fan project. Not affiliated with, endorsed or sponsored by Roblox Corporation or BIG Games.</span>
+      <span>Game data: official PS99 public API · Avatars: Roblox</span>
+    </div>
+  </div>
+</footer>
+    <script src="/site.js?v=2"></script>
+    <!--/SC:BODY-->
 </body>
 </html>

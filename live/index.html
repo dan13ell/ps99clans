@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="sc-page" data-ads="defer">
 <head>
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-M5T889PLGJ"></script>
     <script>
@@ -10,13 +10,10 @@
       gtag('config', 'G-M5T889PLGJ');
     </script>
 
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5302554896051137"
-     crossorigin="anonymous"></script>
-
     <link rel="icon" href="/images/favicon.png" type="image/png">
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>PS99 Clans - Live Tracker</title>
+    <title>Live Clan Tracker – Real-Time PS99 Clan Points | PS99 Clans</title>
     <script>
         window.odometerOptions = {
             duration: 2500, 
@@ -557,6 +554,18 @@
             opacity: 1;
         }
     </style>
+<!--SC:HEAD-->
+    <meta name="description" content="Watch a Pet Simulator 99 clan&#x27;s battle points rise in real time with a live points graph, rank, diamonds and average per member.">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="PS99 Clans">
+    <meta property="og:title" content="Live Clan Tracker – Real-Time PS99 Clan Points | PS99 Clans">
+    <meta property="og:description" content="Watch a Pet Simulator 99 clan&#x27;s battle points rise in real time with a live points graph, rank, diamonds and average per member.">
+    <meta property="og:image" content="https://ps99clans.site/images/favicon.png">
+    <meta name="twitter:card" content="summary">
+    <meta name="theme-color" content="#89B3F9">
+    <link rel="stylesheet" href="/site.css?v=3">
+    <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How often does it update?","acceptedAnswer":{"@type":"Answer","text":"The clan is fetched about every 10 seconds, and the active battle and diamond rank are checked every few minutes. The graph keeps the most recent points while the tab is open."}},{"@type":"Question","name":"Can I put this on my stream?","acceptedAnswer":{"@type":"Answer","text":"Use the OBS overlays instead. They are transparent, sized for streams and update by themselves."}}]}</script>
+    <!--/SC:HEAD-->
 </head>
 <body>
 
@@ -566,10 +575,10 @@
             
             <div class="clans-logo"></div>
             
-            <div class="menu-btn btn-clans" onclick="location.href='/'" ></div>
-            <div class="menu-btn btn-topclans is-active" onclick="location.href='/topclans/'" ></div>
-            <div class="menu-btn btn-people" onclick="location.href='/leagues/'" ></div>
-            <div class="menu-btn btn-search" onclick="location.href='/people/'" ></div>
+            <a class="menu-btn btn-clans" href="/" aria-label="Clans" draggable="false"></a>
+            <a class="menu-btn btn-topclans is-active" href="/topclans/" aria-label="Top Clans" draggable="false"></a>
+            <a class="menu-btn btn-people" href="/leagues/" aria-label="Leagues" draggable="false"></a>
+            <a class="menu-btn btn-search" href="/people/" aria-label="People" draggable="false"></a>
             
             <img class="menu-text text-clans" src="/images/text-Clans.png" draggable="false">
             <img class="menu-text text-topclans" src="/images/text-Top-Clans.png" draggable="false">
@@ -643,6 +652,7 @@
         const WORKER_URL = "https://rough-pine-d90f.ps99clans.workers.dev";
         const params = new URLSearchParams(window.location.search);
         const clanName = params.get('name') || "";
+        if (!clanName) document.addEventListener("DOMContentLoaded", () => { if (window.PS99Site) PS99Site.notFound(); });
 
         // ---------- NASTAVENÍ ----------
         const POLL_MS = 10000;          // jak často se stahuje klan (worker ho drží v cache 10 s)
@@ -1004,7 +1014,7 @@
 
                 const responseData = await clanRes.json();
                 if (!responseData || responseData.status !== "ok" || !responseData.data) {
-                    if (isFirstLoad) showStatus("Clan not found!");
+                    if (isFirstLoad) { showStatus("Clan not found!"); if (window.PS99Site) PS99Site.notFound(); }
                     return;
                 }
 
@@ -1020,6 +1030,7 @@
 
                 const clan = responseData.data;
                 renderStatic(clan);
+                if (window.PS99Site) PS99Site.contentReady();
 
                 // body a pořadí z aktivní války
                 let warPoints = 0;
@@ -1135,6 +1146,83 @@
 
     <a href="/privacy/" class="privacy-link">Privacy Policy</a>
     <script src="/scrollbar.js?v=2"></script>
-    <script src="/hotbar.js?v=6"></script>
+    <script src="/hotbar.js?v=7"></script>
+<!--SC:BODY-->
+    <main class="sc" id="guide" data-peek="About this page">
+<section class="sc-card sc-hero">
+  <span class="sc-kicker">Live tracker</span>
+  <h1>Live clan tracker</h1>
+  <p class="sc-lead">The live tracker follows one Pet Simulator 99 clan in real time. The big counter rolls up as battle points come in, the graph draws the last minutes of progress, and the badges show the clan's rank by points and by diamonds.</p>
+</section>
+
+<section class="sc-card">
+  <h2>What you see on the tracker</h2>
+  <ul>
+    <li><b>Total points</b>: the clan's battle score. New points are spread over the next seconds so the counter rolls instead of jumping.</li>
+    <li><b>Rank badges</b>: place on the battle leaderboard (star) and on the diamonds leaderboard (gem).</li>
+    <li><b>Diamonds, average and members</b>: deposited diamonds, points per member and the current member count.</li>
+    <li><b>Points graph</b>: the score over the time the page has been open. A steeper line means a faster pace.</li>
+  </ul>
+  <p>To track a clan, open its profile from <a href="/topclans/">Top Clans</a> and press <b>Watch Live</b>. The address looks like <code>/live/?name=TAG</code>, so you can bookmark it or share it.</p>
+</section>
+
+<section class="sc-card sc-faq">
+  <h2>Live tracker FAQ</h2>
+  <details>
+    <summary>How often does it update?</summary>
+    <div><p>The clan is fetched about every 10 seconds, and the active battle and diamond rank are checked every few minutes. The graph keeps the most recent points while the tab is open.</p></div>
+  </details>
+  <details>
+    <summary>Can I put this on my stream?</summary>
+    <div><p>Use the <a href="/overlays/">OBS overlays</a> instead. They are transparent, sized for streams and update by themselves.</p></div>
+  </details>
+</section>
+</main>
+<footer class="sc-foot">
+  <div class="sc-foot-in">
+    <div class="sc-foot-top">
+      <div class="sc-foot-brand">
+        <a href="/" aria-label="PS99 Clans home"><img src="/images/clans-logo.png" alt="PS99 Clans" width="145" height="54" loading="lazy"></a>
+        <p>Free live clan leaderboards, player rankings and stream tools for Pet Simulator 99 – built and maintained by a PS99 player for the PS99 community.</p>
+      </div>
+      <div>
+        <h4>Leaderboards</h4>
+        <ul>
+          <li><a href="/">Clans home</a></li>
+          <li><a href="/topclans/">Top 1000 clans</a></li>
+          <li><a href="/leagues/">Leagues</a></li>
+          <li><a href="/people/">Top players</a></li>
+          <li><a href="/live-placement/">Live top 500</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Tools &amp; guides</h4>
+        <ul>
+          <li><a href="/compare/">Compare two clans</a></li>
+          <li><a href="/overlays/">OBS overlays</a></li>
+          <li><a href="/guides/">All guides</a></li>
+          <li><a href="/guides/clan-battles/">Clan battles explained</a></li>
+          <li><a href="/guides/find-a-clan/">How to find a clan</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Site</h4>
+        <ul>
+          <li><a href="/about/">About</a></li>
+          <li><a href="/contact/">Contact</a></li>
+          <li><a href="/changelog/">What's new</a></li>
+          <li><a href="/privacy/">Privacy policy</a></li>
+          <li><a href="/terms/">Terms of use</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="sc-foot-bottom">
+      <span>© <span data-sc-year>2026</span> PS99 Clans · Independent fan project. Not affiliated with, endorsed or sponsored by Roblox Corporation or BIG Games.</span>
+      <span>Game data: official PS99 public API · Avatars: Roblox</span>
+    </div>
+  </div>
+</footer>
+    <script src="/site.js?v=2"></script>
+    <!--/SC:BODY-->
 </body>
 </html>

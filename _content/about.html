@@ -1,0 +1,43 @@
+<!--
+title: About PS99 Clans – Who We Are & How the Data Works | PS99 Clans
+description: PS99 Clans is an independent fan-made site with live Pet Simulator 99 clan leaderboards, player rankings and stream tools. Learn who runs it, where the data comes from and how it is processed.
+h1: About PS99 Clans
+crumb: About
+-->
+<article class="sc-card">
+<h1>About PS99 Clans</h1>
+<p class="sc-lead">PS99 Clans is a free website for Pet Simulator 99 players who care about clans. It shows live clan battle leaderboards, every member's contribution, player rankings across all clans and tools for following a race, all in a design that looks and feels like the game.</p>
+
+<h2>Why this site exists</h2>
+<p>In the game you can see your own clan and the top of the leaderboard, but not much more. You can't easily check how a rival's members are doing, how your pace compares to the clan above you, or where you rank as a player across the whole game. PS99 Clans started as a small tool to answer exactly those questions during clan battles, and grew into the set of pages you see today.</p>
+
+<h2>Who runs it</h2>
+<p>PS99 Clans is built and maintained by an independent developer who plays Pet Simulator 99. It is a one-person fan project, not a company. Feedback from players shapes most updates, from the country filter to the OBS overlays, and the <a href="/changelog/">changelog</a> lists what has changed recently.</p>
+
+<h2>What you can do here</h2>
+<ul>
+  <li><a href="/topclans/">Top Clans</a>: the live top 1000 clans by battle points or diamonds, with search and a country filter.</li>
+  <li><a href="/leagues/">Leagues</a>: the league leaderboard and every league's members.</li>
+  <li><a href="/people/">Top Players</a>: the 25,000 best players of the current battle across all clans.</li>
+  <li><a href="/compare/">Compare</a>: two clans head to head with a live difference chart.</li>
+  <li><a href="/live-placement/">Live Top 500</a>: an animated board of the race at the top.</li>
+  <li><a href="/overlays/">OBS Overlays</a>: free live overlays for streamers.</li>
+  <li><a href="/guides/">Guides</a>: explanations of clan battles, clans, strategy and the stats.</li>
+</ul>
+
+<h2>Where the data comes from</h2>
+<p>All game data comes from the <b>official Pet Simulator 99 public API</b>, which BIG Games provides for community projects. Usernames and avatars come from Roblox's public services. A small server (a Cloudflare Worker) sits in between. It caches responses for a few seconds so the official API isn't overloaded, retries when a request fails, and runs a background job that reads the clan leaderboard every minute to build the <a href="/people/">player ranking</a> and the hourly charts on player pages.</p>
+<p>We don't edit or estimate game numbers. When a counter rolls smoothly between two updates, that's only an animation between two real values. Read more in <a href="/guides/reading-the-stats/">how to read the stats</a>.</p>
+
+<h2>Accuracy</h2>
+<p>The site shows what the official API reports, usually within seconds. During very busy moments, like the last hour of a battle, the API can be a little behind the game. Final rewards are always decided by the game, not by this site. If you notice a number that stays wrong, please <a href="/contact/">report it</a>.</p>
+
+<h2>Advertising and costs</h2>
+<p>The site is free, needs no account and has no paid features. Hosting, the data server and development are paid for by a small amount of advertising. The OBS overlays never show ads. See the <a href="/privacy/">privacy policy</a> for how advertising cookies work and how to opt out.</p>
+
+<h2>Not affiliated with Roblox or BIG Games</h2>
+<p>PS99 Clans is an unofficial fan project. It is not affiliated with, endorsed or sponsored by Roblox Corporation or BIG Games. "Pet Simulator 99", "Roblox" and related names, images and trademarks belong to their respective owners. Game images are used only to make the site recognisable to players.</p>
+
+<h2>Contact</h2>
+<p>Questions, ideas or bug reports are welcome. Use the <a href="/contact/">contact page</a> or email <a href="mailto:danielmairich@gmail.com">danielmairich@gmail.com</a>.</p>
+</article>

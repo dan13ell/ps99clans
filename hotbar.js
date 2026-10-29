@@ -67,6 +67,7 @@
     }
 
     .ps-hb-btn {
+      text-decoration: none;
       position: relative;
       width: auto;                    /* všechny ikony mají stejnou výšku */
       height: ${SIZE}px;
@@ -193,12 +194,10 @@
     btn.addEventListener("pointerup", release);
     btn.addEventListener("pointercancel", release);
 
-    btn.addEventListener("click", () => {
-      if (it.active) return;           // už jsem na té stránce -> nic nedělat
-      if (typeof b.onClick === "function") return b.onClick();
-      if (!b.href) return;
-      if (b.newTab) window.open(b.href, "_blank");
-      else location.href = b.href;
+    btn.addEventListener("click", (e) => {
+      if (it.active) { e.preventDefault(); return; }   // už jsem na té stránce -> nic nedělat
+      if (typeof b.onClick === "function") { e.preventDefault(); return b.onClick(); }
+      // jinak normální odkaz (href)
     });
   }
 
@@ -213,10 +212,16 @@
     if (document.querySelector(".country-toggle-arrow")) bar.classList.add("ps-hb-has-arrow");
 
     BUTTONS.forEach((b) => {
-      const btn = document.createElement("div");
+      // skutečný odkaz (<a href>) – vyhledávače a čtečky vidí navigaci
+      const btn = document.createElement(b.href ? "a" : "div");
       btn.className = "ps-hb-btn";
       if (b.id) btn.id = "hb-" + b.id;
-      btn.setAttribute("role", "button");
+      if (b.href) {
+        btn.href = b.href;
+        btn.style.display = "block";
+        if (b.newTab) { btn.target = "_blank"; btn.rel = "noopener"; }
+        btn.draggable = false;
+      } else btn.setAttribute("role", "button");
       btn.setAttribute("aria-label", b.label || "");
 
       const img = document.createElement("img");
@@ -272,7 +277,8 @@
     const s = m ? parseFloat(m[1]) : 1;
     const cur = parseFloat(win.style.getPropertyValue("--hb-lift")) || 0;
     const r = bg.getBoundingClientRect();
-    const top0 = r.top + cur * s, bottom0 = r.bottom + cur * s;          // okno bez posunu
+    const sy = window.scrollY || window.pageYOffset || 0;               // stránka se může posouvat (obsah pod oknem)
+    const top0 = r.top + sy + cur * s, bottom0 = r.bottom + sy + cur * s; // okno bez posunu
     const room = Math.max(0, (top0 - 75 * s - 6) / s);                   // místo pro logo nad oknem
     // Top Clans na mobilu má hned pod oknem šipku filtru zemí -> větší minimální mezera
     const arrow = bar.classList.contains("ps-hb-has-arrow") && document.body.classList.contains("is-mobile");

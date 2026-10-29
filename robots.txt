@@ -1,2 +1,5 @@
 User-agent: *
 Allow: /
+Disallow: /overlay/
+
+Sitemap: https://ps99clans.site/sitemap.xml

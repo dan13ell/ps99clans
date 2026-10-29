@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="sc-page" data-ads="static">
 <head>
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-M5T889PLGJ"></script>
     <script>
@@ -16,7 +16,7 @@
     <link rel="icon" href="/images/favicon.png" type="image/png">
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>PS99 Clans - Top Players</title>
+    <title>Top Players – PS99 Clan Battle Player Leaderboard | PS99 Clans</title>
     <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     
     <link rel="preload" as="image" href="/images/main-menu.png">
@@ -510,6 +510,20 @@
         }
     </style>
     <script src="/avatars.js?v=2"></script>
+<!--SC:HEAD-->
+    <meta name="description" content="The top 25,000 Pet Simulator 99 players in the current clan battle, ranked by battle points. Search by Roblox username or clan and open any player for hourly stats.">
+    <link rel="canonical" href="https://ps99clans.site/people/">
+    <meta property="og:url" content="https://ps99clans.site/people/">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="PS99 Clans">
+    <meta property="og:title" content="Top Players – PS99 Clan Battle Player Leaderboard | PS99 Clans">
+    <meta property="og:description" content="The top 25,000 Pet Simulator 99 players in the current clan battle, ranked by battle points. Search by Roblox username or clan and open any player for hourly stats.">
+    <meta property="og:image" content="https://ps99clans.site/images/favicon.png">
+    <meta name="twitter:card" content="summary">
+    <meta name="theme-color" content="#89B3F9">
+    <link rel="stylesheet" href="/site.css?v=3">
+    <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why am I not on the list?","acceptedAnswer":{"@type":"Answer","text":"Only the top 25,000 players with battle points are stored. You also need to be in a clan that is on the clan leaderboard. A player in a very small clan can be missed until the clan scores enough to rank. Earn a few more points and check again after the next collection cycle."}},{"@type":"Question","name":"My points here are lower than in the game. Why?","acceptedAnswer":{"@type":"Answer","text":"Every clan is re-read once per cycle, which takes a few minutes. Your number is from the last time your clan was read. It catches up on the next pass."}},{"@type":"Question","name":"Does the list reset?","acceptedAnswer":{"@type":"Answer","text":"Yes, when a new clan battle starts. Until then the final results of the last battle stay visible, so you can still check how you finished."}}]}</script>
+    <!--/SC:HEAD-->
 </head>
 <body>
 
@@ -518,10 +532,10 @@
             <img class="menu-bg" src="/images/main-menu.png" draggable="false">
             
             <div class="clans-logo"></div>
-        <div class="menu-btn btn-clans" onclick="location.href='/'"></div>
-        <div class="menu-btn btn-topclans" onclick="location.href='/topclans/'"></div>
-        <div class="menu-btn btn-people" onclick="location.href='/leagues/'"></div>
-        <div class="menu-btn btn-search is-active" onclick="location.href='/people/'"></div>
+        <a class="menu-btn btn-clans" href="/" aria-label="Clans" draggable="false"></a>
+        <a class="menu-btn btn-topclans" href="/topclans/" aria-label="Top Clans" draggable="false"></a>
+        <a class="menu-btn btn-people" href="/leagues/" aria-label="Leagues" draggable="false"></a>
+        <a class="menu-btn btn-search is-active" href="/people/" aria-label="People" draggable="false"></a>
         
         <img class="menu-text text-clans" src="/images/text-Clans.png" draggable="false">
         <img class="menu-text text-topclans" src="/images/text-Top-Clans.png" draggable="false">
@@ -840,6 +854,106 @@
 
     <a href="/privacy/" class="privacy-link">Privacy Policy</a>
     <script src="/scrollbar.js?v=2"></script>
-    <script src="/hotbar.js?v=6"></script>
+    <script src="/hotbar.js?v=7"></script>
+<!--SC:BODY-->
+    <main class="sc" id="guide" data-peek="How it works">
+<section class="sc-card sc-hero">
+  <span class="sc-kicker">Player leaderboard</span>
+  <h1>Top Pet Simulator 99 players in the current clan battle</h1>
+  <p class="sc-lead">The game only shows you the players inside your own clan. This leaderboard puts players from every ranked clan on one list, so you can see who is earning the most battle points in the whole game and where you rank among them.</p>
+  <div class="sc-live"><span class="sc-chip" hidden><i></i><span data-sc-battle></span></span></div>
+</section>
+
+<section class="sc-card">
+  <h2>How the player ranking is built</h2>
+  <p>There is no official "all players" leaderboard for clan battles, so PS99 Clans builds one. A background job walks through the clan leaderboard all day, 200 clans every minute. For every clan it reads the battle contribution of each member and stores the highest value it has seen. Players are then sorted by those points, and the top <b>25,000</b> are kept.</p>
+  <ul>
+    <li><b>Rank</b> is your position among all collected players, not just inside your clan.</li>
+    <li><b>Clan</b> is the clan you are earning points for. If you leave or get kicked, your points stay (the game keeps them too) and the badge changes to <b>No clan</b> once you haven't been seen in any clan for about an hour.</li>
+    <li><b>Names</b> are your Roblox username, looked up from your user ID. A brand-new player can show without a name for a few minutes.</li>
+  </ul>
+  <div class="sc-note blue"><span>Tip</span><span>Click any player to open their profile with an hourly points chart for the last 24 hours, their best hour, their average per hour and the players right above and below them.</span></div>
+</section>
+
+<div class="sc-grid two">
+  <section class="sc-card">
+    <h2>Searching</h2>
+    <p>The search bar accepts three things:</p>
+    <ul>
+      <li>a <b>Roblox username</b> or part of it (an exact match is shown first),</li>
+      <li>a <b>clan tag</b>, which lists that clan's members in global order,</li>
+      <li>a numeric <b>Roblox user ID</b>.</li>
+    </ul>
+    <p>Display names don't work. Use the @username from your Roblox profile.</p>
+  </section>
+  <section class="sc-card">
+    <h2>What a good score looks like</h2>
+    <p>Point values change completely from one battle to the next. In one battle a single action is worth 1 point, in another it is worth thousands. Don't compare your total with an older battle. Compare it with players near you right now.</p>
+    <p>The <a href="/guides/reading-the-stats/">stats guide</a> explains how to read points per hour and why the top of the list moves in bursts.</p>
+  </section>
+</div>
+
+<section class="sc-card sc-faq">
+  <h2>Top Players FAQ</h2>
+  <details>
+    <summary>Why am I not on the list?</summary>
+    <div><p>Only the top 25,000 players with battle points are stored. You also need to be in a clan that is on the clan leaderboard. A player in a very small clan can be missed until the clan scores enough to rank. Earn a few more points and check again after the next collection cycle.</p></div>
+  </details>
+  <details>
+    <summary>My points here are lower than in the game. Why?</summary>
+    <div><p>Every clan is re-read once per cycle, which takes a few minutes. Your number is from the last time your clan was read. It catches up on the next pass.</p></div>
+  </details>
+  <details>
+    <summary>Does the list reset?</summary>
+    <div><p>Yes, when a new clan battle starts. Until then the final results of the last battle stay visible, so you can still check how you finished.</p></div>
+  </details>
+</section>
+</main>
+<footer class="sc-foot">
+  <div class="sc-foot-in">
+    <div class="sc-foot-top">
+      <div class="sc-foot-brand">
+        <a href="/" aria-label="PS99 Clans home"><img src="/images/clans-logo.png" alt="PS99 Clans" width="145" height="54" loading="lazy"></a>
+        <p>Free live clan leaderboards, player rankings and stream tools for Pet Simulator 99 – built and maintained by a PS99 player for the PS99 community.</p>
+      </div>
+      <div>
+        <h4>Leaderboards</h4>
+        <ul>
+          <li><a href="/">Clans home</a></li>
+          <li><a href="/topclans/">Top 1000 clans</a></li>
+          <li><a href="/leagues/">Leagues</a></li>
+          <li><a href="/people/">Top players</a></li>
+          <li><a href="/live-placement/">Live top 500</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Tools &amp; guides</h4>
+        <ul>
+          <li><a href="/compare/">Compare two clans</a></li>
+          <li><a href="/overlays/">OBS overlays</a></li>
+          <li><a href="/guides/">All guides</a></li>
+          <li><a href="/guides/clan-battles/">Clan battles explained</a></li>
+          <li><a href="/guides/find-a-clan/">How to find a clan</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Site</h4>
+        <ul>
+          <li><a href="/about/">About</a></li>
+          <li><a href="/contact/">Contact</a></li>
+          <li><a href="/changelog/">What's new</a></li>
+          <li><a href="/privacy/">Privacy policy</a></li>
+          <li><a href="/terms/">Terms of use</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="sc-foot-bottom">
+      <span>© <span data-sc-year>2026</span> PS99 Clans · Independent fan project. Not affiliated with, endorsed or sponsored by Roblox Corporation or BIG Games.</span>
+      <span>Game data: official PS99 public API · Avatars: Roblox</span>
+    </div>
+  </div>
+</footer>
+    <script src="/site.js?v=2"></script>
+    <!--/SC:BODY-->
 </body>
 </html>

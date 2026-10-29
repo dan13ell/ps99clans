@@ -1,0 +1,91 @@
+<!--
+title: How to Add PS99 Clan Points to OBS & Streamlabs (Step by Step) | PS99 Clans
+description: Step-by-step guide to adding live Pet Simulator 99 clan points, versus bars, top clans and goals to OBS Studio or Streamlabs with a free transparent browser source.
+h1: How to add live PS99 clan points to OBS and Streamlabs
+crumb: OBS overlay guide
+updated: 2026-10-29
+-->
+<article class="sc-card">
+<h1>How to add live PS99 clan points to OBS and Streamlabs</h1>
+<!--META-->
+<p class="sc-lead">Viewers love watching a number go up. A live clan points overlay turns a quiet grinding stream into a race your chat can follow. This guide walks through creating an overlay on PS99 Clans, adding it to OBS Studio or Streamlabs, and fixing the common problems.</p>
+
+<div class="sc-toc"><b>In this guide</b>
+<ol>
+  <li><a href="#pick">Pick the right overlay</a></li>
+  <li><a href="#build">Build your overlay</a></li>
+  <li><a href="#obs">Add it to OBS Studio</a></li>
+  <li><a href="#slobs">Add it to Streamlabs</a></li>
+  <li><a href="#layout">Layout tips</a></li>
+  <li><a href="#fix">Troubleshooting</a></li>
+</ol></div>
+
+<h2 id="pick">1. Pick the right overlay</h2>
+<div class="sc-table-wrap"><table>
+  <thead><tr><th>Overlay</th><th>Best for</th></tr></thead>
+  <tbody>
+    <tr><td><b>Clan Points</b></td><td>Every clan battle stream. Shows total points, place and points per hour.</td></tr>
+    <tr><td><b>Versus</b></td><td>Close races with one rival. The tug-of-war bar makes the gap easy to read at a glance.</td></tr>
+    <tr><td><b>Top Clans</b></td><td>Showing where your clan sits among its neighbours, with animated overtakes.</td></tr>
+    <tr><td><b>Player Points</b></td><td>Solo grinding. Shows your own contribution by username.</td></tr>
+    <tr><td><b>Points Goal</b></td><td>Stream goals like "help the clan reach 10B tonight". Celebrates when reached.</td></tr>
+  </tbody>
+</table></div>
+
+<h2 id="build">2. Build your overlay</h2>
+<ol class="sc-steps">
+  <li>Open the <a href="/overlays/">OBS Overlays</a> page and choose a type at the top.</li>
+  <li>Enter your clan tag. For Versus also enter the rival's tag. For Player Points enter your Roblox username, and the builder looks up your user ID for you.</li>
+  <li>Choose a <b>look</b>. <i>PS99</i> matches the game, <i>Dark</i> and <i>Glass</i> work over busy gameplay, <i>Neon</i> stands out, and <i>Text only</i> has no card at all.</li>
+  <li>Pick an accent colour, the size and the alignment, and switch off any parts you don't need (flag, place, +points bubbles…).</li>
+  <li>Check the preview. You can switch its background between the game, dark, green and none to see how it will look over your stream.</li>
+  <li>Press <b>Copy link</b>. Under the link you'll see the recommended <b>Width</b> and <b>Height</b>.</li>
+</ol>
+<p>Your settings are saved in your browser, so next time the builder opens exactly where you left it.</p>
+
+<h2 id="obs">3. Add it to OBS Studio</h2>
+<ol class="sc-steps">
+  <li>In the <b>Sources</b> panel click <b>+</b> and choose <b>Browser</b>.</li>
+  <li>Name it, for example "Clan points", and press OK.</li>
+  <li>Paste the link into <b>URL</b>.</li>
+  <li>Set <b>Width</b> and <b>Height</b> to the numbers from the builder.</li>
+  <li>Leave <b>Custom CSS</b> empty, or delete what OBS puts there by default if anything looks off. The overlay is already transparent.</li>
+  <li>Press OK and drag the source into place.</li>
+</ol>
+
+<h2 id="slobs">4. Add it to Streamlabs</h2>
+<ol class="sc-steps">
+  <li>Click <b>+</b> in the Sources list and pick <b>Browser Source</b>.</li>
+  <li>Paste the link as the URL and enter the width and height from the builder.</li>
+  <li>Confirm and position it on your scene.</li>
+</ol>
+<p>The same link works in any software with a browser source, including vMix and XSplit.</p>
+
+<h2 id="layout">5. Layout tips</h2>
+<ul>
+  <li><b>Corners are your friend.</b> The top corners usually have the least game UI in Pet Simulator 99. Keep the bottom free for your hotbar and chat.</li>
+  <li><b>Use the Size slider, not the OBS handles.</b> Scaling in the builder keeps text sharp, while stretching in OBS makes it blurry.</li>
+  <li><b>Match alignment to position.</b> Right-aligned overlays grow to the left as numbers get longer, so they never run off the screen on the right edge.</li>
+  <li><b>One overlay is often enough.</b> Clan Points plus an occasional Versus during a close race beats a screen full of widgets.</li>
+  <li><b>Goals drive chat.</b> A Points Goal with a round target gives viewers a reason to stay until it's reached.</li>
+</ul>
+
+<h2 id="fix">6. Troubleshooting</h2>
+<h3>The overlay shows "Loading" forever</h3>
+<p>Check the clan tag for typos. It has to be the clan's exact tag. Then right-click the source and press <b>Refresh</b>.</p>
+<h3>The background is white or black</h3>
+<p>Make sure you pasted the overlay link that the builder copied, which starts with <code>ps99clans.site/overlay/</code>, not the link of the builder page itself. Clear the Custom CSS field.</p>
+<h3>The numbers are not moving</h3>
+<p>Outside an active battle there is nothing to count. Check the countdown on <a href="/topclans/">Top Clans</a>. During a battle the overlay updates every 15 seconds and spreads each increase smoothly over the next seconds.</p>
+<h3>It's cut off at the edge</h3>
+<p>Increase the browser source width and height a little, or lower the Size slider in the builder and copy the new link.</p>
+</article>
+
+<section class="sc-card">
+  <h2>Keep reading</h2>
+  <div class="sc-grid">
+    <a class="sc-card sc-tile sc-link-tile" href="/overlays/"><h3>Open the builder</h3><p>Create your overlay now.</p><span class="sc-go">Open →</span></a>
+    <a class="sc-card sc-tile sc-link-tile" href="/guides/battle-strategy/"><h3>Battle strategy</h3><p>Make your stream's race worth watching.</p><span class="sc-go">Read →</span></a>
+    <a class="sc-card sc-tile sc-link-tile" href="/guides/reading-the-stats/"><h3>Reading the stats</h3><p>Explain the numbers to your chat.</p><span class="sc-go">Read →</span></a>
+  </div>
+</section>

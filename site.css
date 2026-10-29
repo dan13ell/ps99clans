@@ -1,0 +1,353 @@
+/* =====================================================================
+   PS99 Clans – sdílený obsah pod hlavním oknem (návody, FAQ, patička)
+   a samostatné textové stránky (guides, about, privacy...).
+   Hlavní okno zůstává na první obrazovce přesně jako dřív,
+   stránka se jen dá posunout dolů k textu.
+   ===================================================================== */
+
+:root {
+    --sc-ink: #1C2130;
+    --sc-text: #3A4152;
+    --sc-muted: #6B7385;
+    --sc-line: #2A2B31;
+    --sc-card: #FFFFFF;
+    --sc-soft: #F3F6FC;
+    --sc-blue: #3FC8F4;
+    --sc-green: #6FD94B;
+    --sc-gold: #FFC52E;
+    --sc-bg: #89B3F9;
+}
+
+/* ---------- odemknutí scrollu na stránkách s hlavním oknem ---------- */
+html.sc-page, html.sc-page body {
+    position: static !important;
+    width: auto !important;
+    height: auto !important;
+    min-height: 0 !important;
+    overflow-x: hidden !important;
+    overflow-y: visible !important;
+    overscroll-behavior: auto !important;
+    touch-action: auto !important;
+    inset: auto !important;
+}
+html.sc-page { overflow-y: auto !important; scroll-behavior: smooth; }
+html.sc-page body { display: block !important; background-color: var(--sc-bg); }
+html.sc-page .app-scaler,
+html.sc-page .sc-stage {
+    width: 100%;
+    height: 100vh;
+    height: var(--sc-vh, 100vh);   /* výška první obrazovky (site.js), nemění se při schování lišty prohlížeče */
+    overflow: visible;
+}
+html.sc-page .app-scaler { display: flex !important; align-items: center; justify-content: center; }
+html.sc-page .ps99-feedback-btn { position: absolute !important; }
+html.sc-page .privacy-link { display: none !important; }
+
+/* ---------- malá nápověda „níž je návod" ---------- */
+.sc-peek {
+    position: fixed;
+    left: 14px;
+    bottom: 14px;
+    z-index: 99990;
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 6px 13px 6px 10px;
+    border-radius: 999px;
+    background: #FFFFFF;
+    border: 2.5px solid #000;
+    box-shadow: 0 3px 0 #000, 0 6px 12px rgba(0, 0, 0, 0.18);
+    color: #000;
+    font: 700 13.5px/1 'Fredoka', sans-serif;
+    text-decoration: none;
+    cursor: pointer;
+    transition: opacity 0.25s ease, transform 0.25s ease;
+}
+.sc-peek svg { width: 15px; height: 15px; animation: scBob 1.6s ease-in-out infinite; }
+.sc-peek.is-gone { opacity: 0; transform: translateY(10px); pointer-events: none; }
+@keyframes scBob { 0%, 100% { transform: translateY(-1px); } 50% { transform: translateY(2px); } }
+
+/* =====================================================================
+   OBSAH
+   ===================================================================== */
+.sc, .sc * { box-sizing: border-box; user-select: text; -webkit-user-select: text; }
+.sc {
+    position: relative;
+    z-index: 1;
+    max-width: 1060px;
+    margin: 0 auto;
+    padding: 34px 20px 0;
+    color: var(--sc-text);
+    font-family: 'Fredoka', sans-serif;
+    font-weight: 500;
+    font-size: 17px;
+    line-height: 1.62;
+    text-align: left;
+}
+.sc a { color: #1667D9; text-decoration: underline; text-decoration-thickness: 2px; text-underline-offset: 2px; }
+.sc a:hover { color: #0B4FB3; }
+.sc img { max-width: 100%; }
+.sc b, .sc strong { color: var(--sc-ink); font-weight: 700; }
+.sc p { margin: 0 0 14px; }
+.sc ul, .sc ol { margin: 0 0 14px; padding-left: 22px; }
+.sc li { margin: 0 0 7px; }
+.sc li::marker { color: var(--sc-ink); font-weight: 700; }
+
+.sc h1, .sc h2, .sc h3 { color: var(--sc-ink); font-weight: 700; line-height: 1.2; margin: 0 0 12px; letter-spacing: 0.1px; }
+.sc h1 { font-size: 40px; }
+.sc h2 { font-size: 28px; }
+.sc h3 { font-size: 21px; }
+
+/* nadpis na modrém pozadí ve stylu hry */
+.sc-title {
+    color: #FFFFFF !important;
+    -webkit-text-stroke: 7px #2A2B31;
+    paint-order: stroke fill;
+    text-shadow: 0 4px 0 rgba(0, 0, 0, 0.22);
+    font-weight: 700;
+}
+
+.sc-card {
+    position: relative;
+    background: var(--sc-card);
+    border: 4px solid var(--sc-line);
+    border-radius: 20px;
+    box-shadow: 0 6px 0 rgba(0, 0, 0, 0.16), 0 14px 30px rgba(20, 40, 90, 0.12);
+    padding: 26px 28px 14px;
+    margin: 0 0 22px;
+}
+.sc-card.tight { padding: 20px 22px 8px; }
+.sc-lead { font-size: 19px; color: var(--sc-text); }
+.sc-kicker {
+    display: inline-block;
+    margin: 0 0 10px;
+    padding: 3px 12px;
+    border-radius: 999px;
+    background: var(--sc-ink);
+    color: #FFFFFF;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+}
+
+/* úvod stránky */
+.sc-hero { text-align: left; }
+.sc-hero h1 { font-size: 38px; }
+
+/* mřížky */
+.sc-grid { display: grid; gap: 18px; grid-template-columns: repeat(3, minmax(0, 1fr)); margin: 0 0 22px; }
+.sc-grid.two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.sc-grid.four { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.sc-grid > .sc-card { margin: 0; }
+.sc-tile { display: flex; flex-direction: column; padding: 20px 20px 10px; }
+.sc-tile h3 { display: flex; align-items: center; gap: 10px; font-size: 20px; }
+.sc-tile h3 img { width: 38px; height: 38px; object-fit: contain; flex: 0 0 auto; }
+.sc-tile p { font-size: 16px; }
+
+/* odkazové dlaždice */
+a.sc-link-tile { display: block; color: inherit !important; text-decoration: none !important; transition: transform 0.08s ease, box-shadow 0.08s ease; }
+a.sc-link-tile:hover { transform: translateY(-3px); box-shadow: 0 9px 0 rgba(0, 0, 0, 0.16), 0 18px 34px rgba(20, 40, 90, 0.16); }
+a.sc-link-tile:active { transform: translateY(2px); box-shadow: 0 3px 0 rgba(0, 0, 0, 0.16); }
+.sc-go { display: inline-block; margin: 2px 0 10px; font-weight: 700; color: #1667D9; }
+
+/* kroky */
+.sc-steps { list-style: none; padding: 0 !important; margin: 0 0 14px; counter-reset: st; }
+.sc-steps li { position: relative; padding: 0 0 0 52px; margin: 0 0 16px; min-height: 38px; counter-increment: st; }
+.sc-steps li::before {
+    content: counter(st);
+    position: absolute; left: 0; top: -2px;
+    width: 36px; height: 36px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    background: linear-gradient(#FFE873, #FFB21E);
+    border: 3px solid #000;
+    color: #FFF; font-weight: 800; font-size: 18px;
+    -webkit-text-stroke: 4px #000; paint-order: stroke fill;
+}
+
+/* tabulky */
+.sc-table-wrap { overflow-x: auto; margin: 0 0 16px; border: 3px solid var(--sc-line); border-radius: 14px; }
+.sc table { border-collapse: collapse; width: 100%; font-size: 15.5px; background: #FFF; }
+.sc th, .sc td { padding: 9px 12px; text-align: left; border-bottom: 2px solid #E5E9F2; vertical-align: top; }
+.sc th { background: var(--sc-soft); color: var(--sc-ink); font-weight: 700; white-space: nowrap; }
+.sc tr:last-child td { border-bottom: 0; }
+
+/* slovníček */
+.sc dl { margin: 0 0 16px; }
+.sc dt { color: var(--sc-ink); font-size: 18px; margin: 14px 0 2px; }
+.sc dd { margin: 0 0 0 0; padding: 0 0 10px 14px; border-left: 4px solid #E5E9F2; }
+.sc dd p { margin: 0; }
+.sc code { font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 0.88em; background: var(--sc-soft); border: 1.5px solid #D5DCEA; border-radius: 6px; padding: 1px 5px; overflow-wrap: anywhere; }
+
+/* poznámka */
+.sc-note {
+    display: flex; gap: 12px;
+    padding: 13px 16px; margin: 0 0 16px;
+    border-radius: 14px; border: 3px solid var(--sc-line);
+    background: #FFF8DF;
+    font-size: 16px;
+}
+.sc-note.blue { background: #E8F6FF; }
+.sc-note.green { background: #EAFBE3; }
+.sc-note > span:first-child { flex: 0 0 auto; font-weight: 800; color: var(--sc-ink); }
+
+/* FAQ */
+.sc-faq details { border-bottom: 2px solid #E5E9F2; padding: 4px 0; }
+.sc-faq details:last-child { border-bottom: 0; }
+.sc-faq summary {
+    list-style: none;
+    cursor: pointer;
+    position: relative;
+    padding: 10px 40px 10px 0;
+    color: var(--sc-ink);
+    font-weight: 700;
+    font-size: 18px;
+}
+.sc-faq summary::-webkit-details-marker { display: none; }
+.sc-faq summary::after {
+    content: "+";
+    position: absolute; right: 4px; top: 50%; transform: translateY(-50%);
+    width: 28px; height: 28px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    background: var(--sc-soft); border: 2.5px solid var(--sc-line);
+    font-size: 19px; line-height: 1; font-weight: 800;
+}
+.sc-faq details[open] summary::after { content: "–"; background: var(--sc-blue); color: #FFF; }
+.sc-faq details > div { padding: 0 0 8px; }
+
+/* výpis stavu (živá data z API) */
+.sc-live { display: flex; flex-wrap: wrap; gap: 10px; margin: 0 0 14px; }
+.sc-chip {
+    display: inline-flex; align-items: center; gap: 7px;
+    padding: 5px 12px; border-radius: 999px;
+    background: var(--sc-soft); border: 2.5px solid var(--sc-line);
+    font-size: 15px; font-weight: 700; color: var(--sc-ink);
+}
+.sc-chip i { width: 9px; height: 9px; border-radius: 50%; background: #2ED158; display: inline-block; box-shadow: 0 0 0 3px rgba(46, 209, 88, 0.22); }
+.sc-rank-list { list-style: none; padding: 0 !important; margin: 0 0 14px; counter-reset: rk; }
+.sc-rank-list li {
+    display: flex; align-items: center; gap: 12px;
+    padding: 8px 12px; margin: 0 0 8px;
+    border: 2.5px solid var(--sc-line); border-radius: 12px; background: #FFF;
+    counter-increment: rk;
+}
+.sc-rank-list li::before { content: "#" counter(rk); min-width: 34px; font-weight: 800; color: var(--sc-ink); }
+.sc-rank-list .nm { flex: 1 1 auto; font-weight: 700; color: var(--sc-ink); }
+.sc-rank-list .pt { font-family: 'Roboto', 'Fredoka', sans-serif; font-weight: 700; color: var(--sc-ink); white-space: nowrap; }
+
+/* =====================================================================
+   PATIČKA
+   ===================================================================== */
+.sc-foot {
+    max-width: 1060px;
+    margin: 18px auto 0;
+    padding: 0 20px 34px;
+    font-family: 'Fredoka', sans-serif;
+    color: var(--sc-text);
+}
+.sc-foot * { box-sizing: border-box; user-select: text; }
+.sc-foot-in {
+    background: #FFFFFF;
+    border: 4px solid var(--sc-line);
+    border-radius: 20px;
+    box-shadow: 0 6px 0 rgba(0, 0, 0, 0.16);
+    padding: 24px 28px 18px;
+}
+.sc-foot-top { display: grid; grid-template-columns: 1.3fr 1fr 1fr 1fr; gap: 22px; }
+.sc-foot-brand img { height: 54px; width: auto; display: block; margin: 0 0 8px; }
+.sc-foot-brand p { margin: 0; font-size: 14.5px; line-height: 1.5; font-weight: 500; }
+.sc-foot h4 { margin: 4px 0 8px; font-size: 15px; font-weight: 700; color: var(--sc-ink); letter-spacing: 0.6px; text-transform: uppercase; }
+.sc-foot ul { list-style: none; margin: 0; padding: 0; }
+.sc-foot li { margin: 0 0 5px; }
+.sc-foot a { color: var(--sc-text); text-decoration: none; font-weight: 600; font-size: 15px; }
+.sc-foot a:hover { color: #1667D9; text-decoration: underline; }
+.sc-foot-bottom {
+    margin-top: 16px; padding-top: 12px; border-top: 2px solid #E5E9F2;
+    display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px;
+    font-size: 13px; line-height: 1.5; color: var(--sc-muted); font-weight: 500;
+}
+
+/* =====================================================================
+   SAMOSTATNÉ TEXTOVÉ STRÁNKY (guides, about, privacy, terms…)
+   ===================================================================== */
+html.sc-doc { background: var(--sc-bg); }
+html.sc-doc body {
+    margin: 0;
+    background: var(--sc-bg) url("/images/sc-pattern.svg") repeat;
+    background-size: 360px;
+    min-height: 100vh;
+}
+.sc-top {
+    position: sticky; top: 0; z-index: 50;
+    background: rgba(137, 179, 249, 0.92);
+    -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
+    border-bottom: 3px solid rgba(42, 43, 49, 0.18);
+}
+.sc-top-in {
+    max-width: 1060px; margin: 0 auto; padding: 8px 20px;
+    display: flex; align-items: center; gap: 16px;
+}
+.sc-logo { flex: 0 0 auto; display: block; line-height: 0; }
+.sc-logo img { height: 50px; width: auto; filter: drop-shadow(0 3px 0 rgba(0, 0, 0, 0.18)); }
+.sc-nav { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; flex: 1 1 auto; justify-content: flex-end; }
+.sc-nav::-webkit-scrollbar { display: none; }
+.sc-nav a {
+    flex: 0 0 auto;
+    padding: 6px 12px; border-radius: 11px;
+    background: #FFFFFF; border: 2.5px solid #000; box-shadow: 0 3px 0 #000;
+    color: #000; text-decoration: none;
+    font: 700 14px/1.1 'Fredoka', sans-serif;
+    transition: transform 0.05s ease, box-shadow 0.05s ease;
+}
+.sc-nav a:hover { transform: translateY(-1px); box-shadow: 0 4px 0 #000; }
+.sc-nav a:active { transform: translateY(2px); box-shadow: 0 1px 0 #000; }
+.sc-nav a.on { background: var(--sc-blue); color: #FFF; -webkit-text-stroke: 3.5px #000; paint-order: stroke fill; }
+
+.sc-doc .sc { padding-top: 28px; }
+.sc-article { max-width: 860px; margin: 0 auto; }
+.sc-crumbs { font-size: 14.5px; font-weight: 600; margin: 0 0 10px; color: var(--sc-ink); }
+.sc-crumbs a { color: var(--sc-ink) !important; text-decoration: none !important; opacity: 0.8; }
+.sc-crumbs a:hover { opacity: 1; text-decoration: underline !important; }
+.sc-meta { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 16px; }
+.sc-toc { background: var(--sc-soft); border: 3px solid var(--sc-line); border-radius: 14px; padding: 12px 18px 4px; margin: 0 0 20px; }
+.sc-toc b { display: block; margin: 0 0 6px; }
+.sc-toc ol { margin: 0 0 8px; }
+.sc-toc li { margin: 0 0 3px; font-size: 16px; }
+.sc-article h2 { margin-top: 26px; scroll-margin-top: 80px; }
+.sc-article h3 { margin-top: 18px; }
+.sc-article .sc-card > h2:first-child { margin-top: 0; }
+.sc-src { font-size: 14px; color: var(--sc-muted); }
+
+/* =====================================================================
+   MOBIL
+   ===================================================================== */
+@media (max-width: 860px) {
+    .sc-grid, .sc-grid.four { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .sc-foot-top { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 600px) {
+    .sc { padding: 24px 14px 0; font-size: 16px; }
+    .sc h1, .sc-hero h1 { font-size: 30px; }
+    .sc h2 { font-size: 24px; }
+    .sc h3 { font-size: 19px; }
+    .sc-lead { font-size: 17px; }
+    .sc-card { padding: 20px 18px 8px; border-radius: 18px; border-width: 3px; }
+    .sc-grid, .sc-grid.two, .sc-grid.four { grid-template-columns: 1fr; gap: 14px; }
+    .sc-foot { padding: 0 14px 24px; }
+    .sc-foot-in { padding: 20px 18px 14px; border-width: 3px; }
+    .sc-foot-top { grid-template-columns: 1fr 1fr; gap: 16px; }
+    .sc-foot-brand { grid-column: 1 / -1; }
+    .sc-top-in { padding: 6px 12px; gap: 10px; }
+    .sc-logo img { height: 40px; }
+    .sc-nav { justify-content: flex-start; }
+    .sc-title { -webkit-text-stroke: 6px #2A2B31; }
+    .sc-peek { left: 10px; bottom: 10px; }
+}
+@media (prefers-reduced-motion: reduce) {
+    html.sc-page { scroll-behavior: auto; }
+    .sc-peek svg { animation: none; }
+}
+
+/* odkazy v herním okně: žádný rámeček po kliknutí myší */
+.game-window a { -webkit-tap-highlight-color: transparent; }
+.game-window a:focus:not(:focus-visible) { outline: none; }

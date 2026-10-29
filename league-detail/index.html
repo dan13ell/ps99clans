@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="sc-page" data-ads="defer">
 <head>
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-M5T889PLGJ"></script>
     <script>
@@ -10,13 +10,10 @@
       gtag('config', 'G-M5T889PLGJ');
     </script>
 
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5302554896051137"
-     crossorigin="anonymous"></script>
-
     <link rel="icon" href="/images/favicon.png" type="image/png">
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>PS99 Clans - League Profile</title>
+    <title>League Profile – Members &amp; League Points | PS99 Clans</title>
     <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     
     <link rel="preload" as="image" href="/images/main-menu.png">
@@ -550,6 +547,18 @@
         }
     </style>
     <script src="/avatars.js?v=2"></script>
+<!--SC:HEAD-->
+    <meta name="description" content="Pet Simulator 99 league profile: members, their league points, the league&#x27;s place on the leaderboard and its total score.">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="PS99 Clans">
+    <meta property="og:title" content="League Profile – Members &amp; League Points | PS99 Clans">
+    <meta property="og:description" content="Pet Simulator 99 league profile: members, their league points, the league&#x27;s place on the leaderboard and its total score.">
+    <meta property="og:image" content="https://ps99clans.site/images/favicon.png">
+    <meta name="twitter:card" content="summary">
+    <meta name="theme-color" content="#89B3F9">
+    <link rel="stylesheet" href="/site.css?v=3">
+    <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why does the place say \"N/A\"?","acceptedAnswer":{"@type":"Answer","text":"The place comes from the full league leaderboard. \"N/A\" means the league wasn't found in the ranked part of the list yet, usually because it has no points this season."}},{"@type":"Question","name":"Is a league the same as my clan?","acceptedAnswer":{"@type":"Answer","text":"No. Leagues have their own membership and their own score. See the Leagues page for how the two differ, or the glossary for quick definitions."}}]}</script>
+    <!--/SC:HEAD-->
 </head>
 <body>
 
@@ -559,10 +568,10 @@
             
             <div class="clans-logo"></div>
             
-            <div class="menu-btn btn-clans" onclick="location.href='/'" ></div>
-            <div class="menu-btn btn-topclans" onclick="location.href='/topclans/'" ></div>
-            <div class="menu-btn btn-people is-active" onclick="location.href='/leagues/'" ></div>
-            <div class="menu-btn btn-search" onclick="location.href='/people/'" ></div>
+            <a class="menu-btn btn-clans" href="/" aria-label="Clans" draggable="false"></a>
+            <a class="menu-btn btn-topclans" href="/topclans/" aria-label="Top Clans" draggable="false"></a>
+            <a class="menu-btn btn-people is-active" href="/leagues/" aria-label="Leagues" draggable="false"></a>
+            <a class="menu-btn btn-search" href="/people/" aria-label="People" draggable="false"></a>
             
             <img class="menu-text text-clans" src="/images/text-Clans.png" draggable="false">
             <img class="menu-text text-topclans" src="/images/text-Top-Clans.png" draggable="false">
@@ -593,7 +602,7 @@
                 </div>
             </div>
             
-            <div class="close-btn" onclick="location.href='/leagues/'" ></div>
+            <a class="close-btn" href="/leagues/" aria-label="Close" draggable="false"></a>
         </div>
     </div>
 
@@ -790,7 +799,7 @@
 
             if (!clanName) {
                 if (container) {
-                    container.innerHTML = `<div class="clan-error">No league specified!</div>`;
+                    container.innerHTML = `<div class="clan-error">No league specified!</div>`; if (window.PS99Site) PS99Site.notFound();
                 }
                 hideMemberCountUI();
                 return;
@@ -807,7 +816,7 @@
 
                 if (!responseData || responseData.status !== "ok" || !responseData.data) {
                     if (container) {
-                        container.innerHTML = `<div class="clan-error">League [${clanName}] not found!</div>`;
+                        container.innerHTML = `<div class="clan-error">League [${clanName}] not found!</div>`; if (window.PS99Site) PS99Site.notFound();
                     }
                     hideMemberCountUI();
                     return;
@@ -894,6 +903,7 @@
 
                 // 1) hned vykreslit členy s tím, co už známe
                 renderMembers(finalMembersList, false);
+                if (window.PS99Site) PS99Site.contentReady();
                 const loadingEl = document.getElementById("loadingState");
                 if (loadingEl) loadingEl.style.display = "none";
 
@@ -930,6 +940,83 @@
 
     <a href="/privacy/" class="privacy-link">Privacy Policy</a>
     <script src="/scrollbar.js?v=2"></script>
-<script src="/hotbar.js?v=6"></script>
+<script src="/hotbar.js?v=7"></script>
+<!--SC:BODY-->
+    <main class="sc" id="guide" data-peek="About this page">
+<section class="sc-card sc-hero">
+  <span class="sc-kicker">League profile</span>
+  <h1>League profile: members and league points</h1>
+  <p class="sc-lead">This page shows one Pet Simulator 99 league: its icon, total league points, place on the league leaderboard and every member with the points they contributed in the current league season.</p>
+</section>
+
+<section class="sc-card">
+  <h2>How to read a league profile</h2>
+  <ul>
+    <li><b>Points</b>: the league's total score in the current season.</li>
+    <li><b>Place</b>: the league's position on the full league leaderboard, worked out from all ranked leagues.</li>
+    <li><b>Members</b>: the current member count out of the league's capacity.</li>
+    <li><b>Member cards</b>: the leader first, then officers, then the other members, each with the league points they earned.</li>
+  </ul>
+  <p>The page refreshes in the background while it is open, so you can keep it open during an event and watch your teammates' points grow. Click <b>Leagues</b> in the menu to go back to the full leaderboard.</p>
+</section>
+
+<section class="sc-card sc-faq">
+  <h2>League profile FAQ</h2>
+  <details>
+    <summary>Why does the place say "N/A"?</summary>
+    <div><p>The place comes from the full league leaderboard. "N/A" means the league wasn't found in the ranked part of the list yet, usually because it has no points this season.</p></div>
+  </details>
+  <details>
+    <summary>Is a league the same as my clan?</summary>
+    <div><p>No. Leagues have their own membership and their own score. See <a href="/leagues/">the Leagues page</a> for how the two differ, or the <a href="/guides/glossary/">glossary</a> for quick definitions.</p></div>
+  </details>
+</section>
+</main>
+<footer class="sc-foot">
+  <div class="sc-foot-in">
+    <div class="sc-foot-top">
+      <div class="sc-foot-brand">
+        <a href="/" aria-label="PS99 Clans home"><img src="/images/clans-logo.png" alt="PS99 Clans" width="145" height="54" loading="lazy"></a>
+        <p>Free live clan leaderboards, player rankings and stream tools for Pet Simulator 99 – built and maintained by a PS99 player for the PS99 community.</p>
+      </div>
+      <div>
+        <h4>Leaderboards</h4>
+        <ul>
+          <li><a href="/">Clans home</a></li>
+          <li><a href="/topclans/">Top 1000 clans</a></li>
+          <li><a href="/leagues/">Leagues</a></li>
+          <li><a href="/people/">Top players</a></li>
+          <li><a href="/live-placement/">Live top 500</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Tools &amp; guides</h4>
+        <ul>
+          <li><a href="/compare/">Compare two clans</a></li>
+          <li><a href="/overlays/">OBS overlays</a></li>
+          <li><a href="/guides/">All guides</a></li>
+          <li><a href="/guides/clan-battles/">Clan battles explained</a></li>
+          <li><a href="/guides/find-a-clan/">How to find a clan</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Site</h4>
+        <ul>
+          <li><a href="/about/">About</a></li>
+          <li><a href="/contact/">Contact</a></li>
+          <li><a href="/changelog/">What's new</a></li>
+          <li><a href="/privacy/">Privacy policy</a></li>
+          <li><a href="/terms/">Terms of use</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="sc-foot-bottom">
+      <span>© <span data-sc-year>2026</span> PS99 Clans · Independent fan project. Not affiliated with, endorsed or sponsored by Roblox Corporation or BIG Games.</span>
+      <span>Game data: official PS99 public API · Avatars: Roblox</span>
+    </div>
+  </div>
+</footer>
+    <script src="/site.js?v=2"></script>
+    <!--/SC:BODY-->
 </body>
 </html>

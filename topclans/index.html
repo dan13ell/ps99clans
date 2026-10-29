@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="sc-page" data-ads="static">
 <head>
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-M5T889PLGJ"></script>
     <script>
@@ -16,7 +16,7 @@
     <link rel="icon" href="/images/favicon.png" type="image/png">
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>PS99 Clans - Top Clans</title>
+    <title>Top Clans – Live PS99 Clan Battle Leaderboard (Top 1000) | PS99 Clans</title>
     <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     
     <link rel="preload" as="image" href="/images/main-menu.png">
@@ -786,6 +786,20 @@
             opacity: 1;
         }
     </style>
+<!--SC:HEAD-->
+    <meta name="description" content="Live leaderboard of the top 1000 Pet Simulator 99 clans. Sort by clan battle points or deposited diamonds, filter by country and see the time left in the active clan battle.">
+    <link rel="canonical" href="https://ps99clans.site/topclans/">
+    <meta property="og:url" content="https://ps99clans.site/topclans/">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="PS99 Clans">
+    <meta property="og:title" content="Top Clans – Live PS99 Clan Battle Leaderboard (Top 1000) | PS99 Clans">
+    <meta property="og:description" content="Live leaderboard of the top 1000 Pet Simulator 99 clans. Sort by clan battle points or deposited diamonds, filter by country and see the time left in the active clan battle.">
+    <meta property="og:image" content="https://ps99clans.site/images/favicon.png">
+    <meta name="twitter:card" content="summary">
+    <meta name="theme-color" content="#89B3F9">
+    <link rel="stylesheet" href="/site.css?v=3">
+    <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why does the list stop at 1,000 clans?","acceptedAnswer":{"@type":"Answer","text":"The official API returns the leaderboard in pages, and 1,000 clans covers every reward tier that recent battles have used. It also keeps the page fast on phones. Clans below 1,000 can still be opened directly from their profile link."}},{"@type":"Question","name":"Why do all clans show 0 points?","acceptedAnswer":{"@type":"Answer","text":"Between battles, or right after a new battle starts, clans can have no points in the active battle yet. The banner shows the next battle's name and the countdown. Points appear as soon as members start playing the new event."}},{"@type":"Question","name":"What does the member count (like 47/75) mean?","acceptedAnswer":{"@type":"Answer","text":"The first number is how many players are in the clan now. The second is the clan's current capacity. Clans start with a small number of slots and buy more with diamonds, up to 75 members."}},{"@type":"Question","name":"How current is the countdown?","acceptedAnswer":{"@type":"Answer","text":"The end time comes straight from the official battle schedule and counts down on your device, so it is accurate to the second. The points next to it refresh about once a minute."}}]}</script>
+    <!--/SC:HEAD-->
 </head>
 <body>
 
@@ -795,10 +809,10 @@
             
             <div class="clans-logo"></div>
             
-            <div class="menu-btn btn-clans" onclick="location.href='/'" ></div>
-            <div class="menu-btn btn-topclans is-active" onclick="location.href='/topclans/'" ></div>
-            <div class="menu-btn btn-people" onclick="location.href='/leagues/'" ></div>
-            <div class="menu-btn btn-search" onclick="location.href='/people/'" ></div>
+            <a class="menu-btn btn-clans" href="/" aria-label="Clans" draggable="false"></a>
+            <a class="menu-btn btn-topclans is-active" href="/topclans/" aria-label="Top Clans" draggable="false"></a>
+            <a class="menu-btn btn-people" href="/leagues/" aria-label="Leagues" draggable="false"></a>
+            <a class="menu-btn btn-search" href="/people/" aria-label="People" draggable="false"></a>
             
             <img class="menu-text text-clans" src="/images/text-Clans.png" draggable="false">
             <img class="menu-text text-topclans" src="/images/text-Top-Clans.png" draggable="false">
@@ -839,7 +853,7 @@
                 <div class="country-list-scroll" id="countryListScroll"></div>
             </div>
             
-            <div class="close-btn" onclick="location.href='/'" ></div>
+            <a class="close-btn" href="/" aria-label="Close" draggable="false"></a>
         </div>
     </div>
 
@@ -1359,6 +1373,106 @@
 
     <a href="/privacy/" class="privacy-link">Privacy Policy</a>
     <script src="/scrollbar.js?v=2"></script>
-    <script src="/hotbar.js?v=6"></script>
+    <script src="/hotbar.js?v=7"></script>
+<!--SC:BODY-->
+    <main class="sc" id="guide" data-peek="How it works">
+<section class="sc-card sc-hero">
+  <span class="sc-kicker">Clan battle leaderboard</span>
+  <h1>Top 1000 Pet Simulator 99 clans</h1>
+  <p class="sc-lead">This is the live leaderboard of the current clan battle. Every clan with battle points is ranked by its total score, and the yellow banner at the top counts down to the end of the battle, so you always know how much time is left to climb.</p>
+  <div class="sc-live"><span class="sc-chip" hidden><i></i><span data-sc-battle></span></span></div>
+</section>
+
+<section class="sc-card">
+  <h2>How to use the Top Clans list</h2>
+  <ol class="sc-steps">
+    <li><b>Read a clan card.</b> Each card shows the clan's place, icon and tag, its description, its <b>battle points</b> (the star) and the <b>diamonds</b> its members have deposited (the gem), plus how many members it has out of its current capacity.</li>
+    <li><b>Switch the ranking.</b> The star/gem toggle at the top of the window switches between ranking by battle points and ranking by deposited diamonds. Points show who is winning this battle. Diamonds show which clans have been the richest and best organised over time.</li>
+    <li><b>Search.</b> Type a clan tag into the search bar. The list filters instantly and every clan keeps its real position, so you can see exactly where it stands.</li>
+    <li><b>Filter by country.</b> The arrow on the right edge of the window opens the country panel. Pick a flag to see only clans that set that country, which is handy for finding a clan that plays in your time zone or speaks your language.</li>
+    <li><b>Open a clan.</b> Click any card to open the clan profile with every member, their battle points and diamonds, and a button to watch the clan live.</li>
+  </ol>
+</section>
+
+<div class="sc-grid two">
+  <section class="sc-card">
+    <h2>What decides the ranking?</h2>
+    <p>During a clan battle, members earn points by doing that battle's activity. Depending on the event, that can be hatching certain pets, opening presents, breaking chests or clearing rooms in a minigame. Each member's points are added to the clan total, and clans are ranked by that total.</p>
+    <p>Rewards are given by final placement when the timer reaches zero, so the order a few hours before the end is only a forecast. Clans often save boosts and organise pushes for the last day.</p>
+    <p><a href="/guides/clan-battles/">Read the full clan battle guide →</a></p>
+  </section>
+  <section class="sc-card">
+    <h2>Reading the gaps</h2>
+    <p>The most useful number is often not your own total but the <b>distance to the clan above you</b>. A gap of a few million points can close in minutes in the top 10, but can take a whole day lower down where clans are smaller.</p>
+    <p>To follow one specific rival, open <a href="/compare/">Compare</a>. It shows the live difference between two clans and a chart of how that gap changes over time.</p>
+  </section>
+</div>
+
+<section class="sc-card sc-faq">
+  <h2>Top Clans FAQ</h2>
+  <details>
+    <summary>Why does the list stop at 1,000 clans?</summary>
+    <div><p>The official API returns the leaderboard in pages, and 1,000 clans covers every reward tier that recent battles have used. It also keeps the page fast on phones. Clans below 1,000 can still be opened directly from their profile link.</p></div>
+  </details>
+  <details>
+    <summary>Why do all clans show 0 points?</summary>
+    <div><p>Between battles, or right after a new battle starts, clans can have no points in the active battle yet. The banner shows the next battle's name and the countdown. Points appear as soon as members start playing the new event.</p></div>
+  </details>
+  <details>
+    <summary>What does the member count (like 47/75) mean?</summary>
+    <div><p>The first number is how many players are in the clan now. The second is the clan's current capacity. Clans start with a small number of slots and buy more with diamonds, up to 75 members.</p></div>
+  </details>
+  <details>
+    <summary>How current is the countdown?</summary>
+    <div><p>The end time comes straight from the official battle schedule and counts down on your device, so it is accurate to the second. The points next to it refresh about once a minute.</p></div>
+  </details>
+</section>
+</main>
+<footer class="sc-foot">
+  <div class="sc-foot-in">
+    <div class="sc-foot-top">
+      <div class="sc-foot-brand">
+        <a href="/" aria-label="PS99 Clans home"><img src="/images/clans-logo.png" alt="PS99 Clans" width="145" height="54" loading="lazy"></a>
+        <p>Free live clan leaderboards, player rankings and stream tools for Pet Simulator 99 – built and maintained by a PS99 player for the PS99 community.</p>
+      </div>
+      <div>
+        <h4>Leaderboards</h4>
+        <ul>
+          <li><a href="/">Clans home</a></li>
+          <li><a href="/topclans/">Top 1000 clans</a></li>
+          <li><a href="/leagues/">Leagues</a></li>
+          <li><a href="/people/">Top players</a></li>
+          <li><a href="/live-placement/">Live top 500</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Tools &amp; guides</h4>
+        <ul>
+          <li><a href="/compare/">Compare two clans</a></li>
+          <li><a href="/overlays/">OBS overlays</a></li>
+          <li><a href="/guides/">All guides</a></li>
+          <li><a href="/guides/clan-battles/">Clan battles explained</a></li>
+          <li><a href="/guides/find-a-clan/">How to find a clan</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Site</h4>
+        <ul>
+          <li><a href="/about/">About</a></li>
+          <li><a href="/contact/">Contact</a></li>
+          <li><a href="/changelog/">What's new</a></li>
+          <li><a href="/privacy/">Privacy policy</a></li>
+          <li><a href="/terms/">Terms of use</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="sc-foot-bottom">
+      <span>© <span data-sc-year>2026</span> PS99 Clans · Independent fan project. Not affiliated with, endorsed or sponsored by Roblox Corporation or BIG Games.</span>
+      <span>Game data: official PS99 public API · Avatars: Roblox</span>
+    </div>
+  </div>
+</footer>
+    <script src="/site.js?v=2"></script>
+    <!--/SC:BODY-->
 </body>
 </html>

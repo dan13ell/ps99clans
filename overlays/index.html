@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="sc-page" data-ads="static">
 <head>
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-M5T889PLGJ"></script>
     <script>
@@ -16,8 +16,7 @@
     <link rel="icon" href="/images/favicon.png" type="image/png">
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>PS99 Clans - OBS Overlays</title>
-    <meta name="description" content="Free Pet Simulator 99 clan overlays for OBS and Streamlabs: live clan points, clan versus, top clans, battle timer and points goal. Transparent, customizable, copy one link.">
+    <title>Free PS99 OBS Overlays – Live Clan Points for Streamers | PS99 Clans</title>
     <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@300;400;500;600;700;800&family=Roboto:wght@600&display=swap" rel="stylesheet">
 
     <link rel="preload" as="image" href="/images/compare-bg.png">
@@ -394,6 +393,20 @@
             opacity: 1;
         }
     </style>
+<!--SC:HEAD-->
+    <meta name="description" content="Free Pet Simulator 99 overlays for OBS and Streamlabs: live clan points, clan versus, top clans, player points and points goal. Transparent, customizable, one link.">
+    <link rel="canonical" href="https://ps99clans.site/overlays/">
+    <meta property="og:url" content="https://ps99clans.site/overlays/">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="PS99 Clans">
+    <meta property="og:title" content="Free PS99 OBS Overlays – Live Clan Points for Streamers | PS99 Clans">
+    <meta property="og:description" content="Free Pet Simulator 99 overlays for OBS and Streamlabs: live clan points, clan versus, top clans, player points and points goal. Transparent, customizable, one link.">
+    <meta property="og:image" content="https://ps99clans.site/images/favicon.png">
+    <meta name="twitter:card" content="summary">
+    <meta name="theme-color" content="#89B3F9">
+    <link rel="stylesheet" href="/site.css?v=3">
+    <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Do I need to install anything?","acceptedAnswer":{"@type":"Answer","text":"No. The overlays are web pages that OBS and Streamlabs load with their built-in browser source. There is no plugin, download or account."}},{"@type":"Question","name":"The background isn't transparent. What do I do?","acceptedAnswer":{"@type":"Answer","text":"The page itself is already transparent. Remove any custom CSS you typed into the browser source settings, and make sure you pasted the overlay link that the builder copied, not the link of the builder page."}},{"@type":"Question","name":"Text looks blurry on stream.","acceptedAnswer":{"@type":"Answer","text":"Use the Size slider in the builder instead of stretching the source in OBS, and set the browser source width and height to the numbers the builder shows. Then the overlay is drawn at full sharpness."}},{"@type":"Question","name":"It stopped updating.","acceptedAnswer":{"@type":"Answer","text":"Right-click the source in OBS and choose Refresh . If the clan tag was changed in game, create a new link with the new tag."}},{"@type":"Question","name":"Do the overlays show ads?","acceptedAnswer":{"@type":"Answer","text":"No. The overlay pages never contain ads or anything else besides your stats, so nothing unexpected can appear on your stream."}}]}</script>
+    <!--/SC:HEAD-->
 </head>
 <body>
 
@@ -595,7 +608,7 @@
                 </div>
             </div>
 
-            <div class="close-btn" onclick="location.href='/'"></div>
+            <a class="close-btn" href="/" aria-label="Close" draggable="false"></a>
         </div>
     </div>
 
@@ -948,6 +961,108 @@
 
     <a href="/privacy/" class="privacy-link">Privacy Policy</a>
     <script src="/scrollbar.js"></script>
-    <script src="/hotbar.js?v=6"></script>
+    <script src="/hotbar.js?v=7"></script>
+<!--SC:BODY-->
+    <main class="sc" id="guide" data-peek="Guide &amp; FAQ">
+<section class="sc-card sc-hero">
+  <span class="sc-kicker">For streamers</span>
+  <h1>Free Pet Simulator 99 overlays for OBS and Streamlabs</h1>
+  <p class="sc-lead">Show your clan's live battle points on stream without screen-capturing a website. Every overlay is a transparent browser source that updates by itself, so viewers see the numbers roll up while you play.</p>
+</section>
+
+<section class="sc-card">
+  <h2>The five overlay types</h2>
+  <div class="sc-grid">
+    <div class="sc-card sc-tile"><h3>Clan points</h3><p>Your clan's icon, tag, total battle points, current place and points per hour, with a green +points bubble every time the score goes up.</p></div>
+    <div class="sc-card sc-tile"><h3>Versus</h3><p>Two clans side by side with a tug-of-war bar and the live point difference. Made for close races.</p></div>
+    <div class="sc-card sc-tile"><h3>Top clans</h3><p>A mini leaderboard. With your clan set, it shows the clans around you with real places, and cards slide when someone overtakes.</p></div>
+    <div class="sc-card sc-tile"><h3>Player points</h3><p>Your own battle points by Roblox username, with your clan tag and points per hour. Good for solo grinding streams.</p></div>
+    <div class="sc-card sc-tile"><h3>Points goal</h3><p>A progress bar toward a target such as "10B for the clan". It turns gold with confetti when the goal is reached.</p></div>
+    <div class="sc-card sc-tile"><h3>Styles</h3><p>PS99, Dark, Glass, Neon and Text-only looks, any accent colour, size and alignment. All previewed live before you copy the link.</p></div>
+  </div>
+</section>
+
+<section class="sc-card">
+  <h2>Set it up in under a minute</h2>
+  <ol class="sc-steps">
+    <li>Choose an overlay type in section 1 at the top of the page and enter your clan tag (or username).</li>
+    <li>Pick a look in section 2. The preview updates immediately. Turn parts like the flag or the +points bubbles on and off.</li>
+    <li>Press <b>Copy link</b> in section 3. Note the Width and Height shown under the link.</li>
+    <li>In OBS, add a <b>Browser</b> source, paste the link as the URL and set the width and height. In Streamlabs, use <b>Browser Source</b>.</li>
+    <li>Drag it where you want it on your scene. That's it. It refreshes itself every 15 seconds.</li>
+  </ol>
+  <p>There is a longer walkthrough with screenshots-in-words, troubleshooting and layout tips in the <a href="/guides/obs-overlays/">OBS overlay guide</a>.</p>
+</section>
+
+<section class="sc-card sc-faq">
+  <h2>Overlay FAQ</h2>
+  <details>
+    <summary>Do I need to install anything?</summary>
+    <div><p>No. The overlays are web pages that OBS and Streamlabs load with their built-in browser source. There is no plugin, download or account.</p></div>
+  </details>
+  <details>
+    <summary>The background isn't transparent. What do I do?</summary>
+    <div><p>The page itself is already transparent. Remove any custom CSS you typed into the browser source settings, and make sure you pasted the overlay link that the builder copied, not the link of the builder page.</p></div>
+  </details>
+  <details>
+    <summary>Text looks blurry on stream.</summary>
+    <div><p>Use the Size slider in the builder instead of stretching the source in OBS, and set the browser source width and height to the numbers the builder shows. Then the overlay is drawn at full sharpness.</p></div>
+  </details>
+  <details>
+    <summary>It stopped updating.</summary>
+    <div><p>Right-click the source in OBS and choose <b>Refresh</b>. If the clan tag was changed in game, create a new link with the new tag.</p></div>
+  </details>
+  <details>
+    <summary>Do the overlays show ads?</summary>
+    <div><p>No. The overlay pages never contain ads or anything else besides your stats, so nothing unexpected can appear on your stream.</p></div>
+  </details>
+</section>
+</main>
+<footer class="sc-foot">
+  <div class="sc-foot-in">
+    <div class="sc-foot-top">
+      <div class="sc-foot-brand">
+        <a href="/" aria-label="PS99 Clans home"><img src="/images/clans-logo.png" alt="PS99 Clans" width="145" height="54" loading="lazy"></a>
+        <p>Free live clan leaderboards, player rankings and stream tools for Pet Simulator 99 – built and maintained by a PS99 player for the PS99 community.</p>
+      </div>
+      <div>
+        <h4>Leaderboards</h4>
+        <ul>
+          <li><a href="/">Clans home</a></li>
+          <li><a href="/topclans/">Top 1000 clans</a></li>
+          <li><a href="/leagues/">Leagues</a></li>
+          <li><a href="/people/">Top players</a></li>
+          <li><a href="/live-placement/">Live top 500</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Tools &amp; guides</h4>
+        <ul>
+          <li><a href="/compare/">Compare two clans</a></li>
+          <li><a href="/overlays/">OBS overlays</a></li>
+          <li><a href="/guides/">All guides</a></li>
+          <li><a href="/guides/clan-battles/">Clan battles explained</a></li>
+          <li><a href="/guides/find-a-clan/">How to find a clan</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Site</h4>
+        <ul>
+          <li><a href="/about/">About</a></li>
+          <li><a href="/contact/">Contact</a></li>
+          <li><a href="/changelog/">What's new</a></li>
+          <li><a href="/privacy/">Privacy policy</a></li>
+          <li><a href="/terms/">Terms of use</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="sc-foot-bottom">
+      <span>© <span data-sc-year>2026</span> PS99 Clans · Independent fan project. Not affiliated with, endorsed or sponsored by Roblox Corporation or BIG Games.</span>
+      <span>Game data: official PS99 public API · Avatars: Roblox</span>
+    </div>
+  </div>
+</footer>
+    <script src="/site.js?v=2"></script>
+    <!--/SC:BODY-->
 </body>
 </html>
