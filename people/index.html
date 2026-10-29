@@ -585,28 +585,29 @@
         }
 
         async function loadAllAvatarsBatch(playersOnPage) {
-            const userIds = playersOnPage.map(p => p.UserID).filter(id => id).join(",");
-            if (!userIds) return;
+            const ids = playersOnPage.map(p => p.UserID).filter(id => id);
+            if (!ids.length) return;
+
+            const PLACEHOLDER = "https://placehold.co/150x150/f0f4ff/1c1d22?text=Roblox";
+
+            // doplní obrázky pro dané profilovky (id prvku obsahuje UserID, takže správná karta se najde i po přepnutí stránky)
+            function apply(map, fillMissing) {
+                playersOnPage.forEach((player, index) => {
+                    const img = document.getElementById(`avatar-img-${player.UserID}-${index}`);
+                    if (!img) return;
+                    if (map[player.UserID]) img.src = map[player.UserID];
+                    else if (fillMissing) img.src = PLACEHOLDER;
+                });
+            }
 
             try {
-                const response = await fetch(`${WORKER_URL}/roblox/avatars?userIds=${userIds}&size=150x150&format=Png&isCircular=false`);
-                const json = await response.json();
-
-                if (json && Array.isArray(json.data)) {
-                    const avatarMap = {};
-                    json.data.forEach(item => {
-                        if (item && item.targetId && item.imageUrl) {
-                            avatarMap[item.targetId] = item.imageUrl;
-                        }
-                    });
-
-                    playersOnPage.forEach((player, index) => {
-                        const imgElement = document.getElementById(`avatar-img-${player.UserID}-${index}`);
-                        if (imgElement) {
-                            imgElement.src = avatarMap[player.UserID] || "https://placehold.co/150x150/f0f4ff/1c1d22?text=Roblox";
-                        }
-                    });
-                }
+                const map = await PS99Avatars.load(ids, {
+                    worker: WORKER_URL, size: "150x150", circular: false,
+                    onUpdate: got => apply(got, false),
+                    // placeholder až po posledním pokusu, ne hned po prvním selhání
+                    onDone: all => apply(all, true)
+                });
+                apply(map, false);
             } catch (err) {
                 console.warn("Chyba při hromadném načítání avatarů:", err.message);
             }
@@ -862,5 +863,6 @@
     <a href="/privacy/" class="privacy-link">Privacy Policy</a>
     <script src="/scrollbar.js?v=2"></script>
     <script src="/hotbar.js?v=6"></script>
+    <script src="/avatars.js?v=1"></script>
 </body>
 </html>

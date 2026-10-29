@@ -1025,6 +1025,7 @@
 
         const nameCache = {};
         const avatarCache = {};
+        let currentMembers = null; // poslední vykreslený seznam (pro doplnění profilovek na pozadí)
         let cachedGlobalRank = null;
         let rankLoading = false;
 
@@ -1049,9 +1050,15 @@
 
             if (needAvatars.length) {
                 tasks.push(
-                    fetch(`${WORKER_URL}/roblox/avatars?userIds=${needAvatars.join(',')}&size=180x180&format=Png&isCircular=true`)
-                    .then(r => r.json())
-                    .then(d => { (d.data || []).forEach(i => { if (i.imageUrl) avatarCache[i.targetId] = i.imageUrl; }); })
+                    PS99Avatars.load(needAvatars, {
+                        worker: WORKER_URL, size: '180x180', circular: true,
+                        // profilovky, které dorazí při opakování na pozadí, se doplní a seznam se překreslí
+                        onUpdate: got => {
+                            Object.assign(avatarCache, got);
+                            if (currentMembers) renderMembers(currentMembers, true);
+                        }
+                    })
+                    .then(map => { Object.assign(avatarCache, map); })
                     .catch(() => {})
                 );
             }
@@ -1344,6 +1351,7 @@
                 if (countIcon) countIcon.style.display = "block";
 
                 // 1) hned vykreslit členy (s tím, co už známe)
+                currentMembers = finalMembersList;
                 renderMembers(finalMembersList, false);
                 const loadingEl = document.getElementById("loadingState");
                 if (loadingEl) loadingEl.style.display = "none";
@@ -1383,5 +1391,6 @@
     <a href="/privacy/" class="privacy-link">Privacy Policy</a>
     <script src="/scrollbar.js?v=2"></script>
     <script src="/hotbar.js?v=6"></script>
+    <script src="/avatars.js?v=1"></script>
 </body>
 </html>
