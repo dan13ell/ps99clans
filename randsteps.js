@@ -31,7 +31,7 @@
         n = Math.max(1, Math.min(n, Math.floor(span / minGap), delta));
         const ps = parts(delta, n);
         const avg = delta / ps.length;
-        const times = [opts.firstNow === false ? Math.random() * minGap : 0];
+        const times = [opts.firstNow === false ? Math.random() * span * 0.5 : 0];   // firstNow:false = i první skok v náhodný čas
         for (let i = 1; i < ps.length; i++) times.push(Math.random() * span);
         times.sort((a, b) => a - b);
         for (let i = 1; i < times.length; i++) if (times[i] - times[i - 1] < minGap) times[i] = times[i - 1] + minGap;

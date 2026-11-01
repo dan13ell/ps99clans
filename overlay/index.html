@@ -13,7 +13,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700;800&family=Roboto:wght@600;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/odometer.js/0.4.7/themes/odometer-theme-minimal.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/odometer.js/0.4.7/odometer.min.js"></script>
-    <script src="/randsteps.js?v=1"></script>
+    <script src="/randsteps.js?v=2"></script>
 
     <style>
         /* =====================================================================
@@ -466,7 +466,7 @@
 
         // ---------- plynulé body: přírůstek se rozloží na 4 kroky (jako live stránka) ----------
         class Smooth {
-            constructor(onStep) { this.shown = null; this.lastApi = null; this.cancel = null; this.onStep = onStep; this.hist = []; this.iv = RandSteps.interval(DEMO ? 4000 : 60000, DEMO ? 3000 : 15000); }
+            constructor(onStep, opts) { this.opts = opts || {}; this.shown = null; this.lastApi = null; this.cancel = null; this.onStep = onStep; this.hist = []; this.iv = RandSteps.interval(DEMO ? 4000 : 60000, DEMO ? 3000 : 15000); }
             feed(pts) {
                 pts = Math.max(0, Math.round(pts || 0));
                 const now = Date.now();
@@ -491,7 +491,7 @@
                     this.shown = last ? target : Math.min(target, this.shown + part);
                     if (last) this.cancel = null;
                     this.onStep(this.shown - before, false);
-                }, { minGap: 2300, minTicks: 5, maxTicks: 12 });
+                }, Object.assign({ minGap: 2300, minTicks: 5, maxTicks: 12 }, this.opts));
             }
             rate() {
                 const h = this.hist;
@@ -725,7 +725,7 @@
                 document.getElementById("lead").innerHTML = d === 0 ? "Tied!" : `<b style="color:var(--${L === "a" ? "accent" : "accent2"})">[${esc(names[L])}]</b> leads`;
             };
             const mk = (k, odo) => {
-                const s = new Smooth((delta, instant) => { odo.set(s.shown, !instant); popGain(document.getElementById("gain" + k), delta); if (sA && sB) upd(instant); });
+                const s = new Smooth((delta, instant) => { odo.set(s.shown, !instant); popGain(document.getElementById("gain" + k), delta); if (sA && sB) upd(instant); }, { firstNow: false });
                 return s;
             };
             let sA = null, sB = null;
@@ -777,7 +777,8 @@
                 list.appendChild(el);
                 const odo = new Odo(el.querySelector(".num span"));
                 r = { el, odo, rank: null, apiRank: 0 };
-                r.smooth = new Smooth((delta, instant) => { odo.set(r.smooth.shown, !instant); if (!instant) scheduleSort(); });
+                // každý řádek má vlastní náhodné časování (ne všechny najednou)
+                r.smooth = new Smooth((delta, instant) => { odo.set(r.smooth.shown, !instant); if (!instant) scheduleSort(); }, { firstNow: false, minTicks: 3, maxTicks: 9 });
                 rows.set(d.Name, r);
                 return r;
             };
