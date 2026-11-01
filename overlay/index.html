@@ -8,11 +8,12 @@
     <link rel="icon" href="/images/favicon.png" type="image/png">
     <script>
         // odometer.js stejně jako live stránka (2.5 s, slide); instance si stránka vytváří sama
-        window.odometerOptions = { auto: false, duration: 2500, animation: 'slide' };
+        window.odometerOptions = { auto: false, duration: 1500, animation: 'slide' };
     </script>
     <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700;800&family=Roboto:wght@600;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/odometer.js/0.4.7/themes/odometer-theme-minimal.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/odometer.js/0.4.7/odometer.min.js"></script>
+    <script src="/randsteps.js?v=1"></script>
 
     <style>
         /* =====================================================================
@@ -375,8 +376,6 @@
 
         // ---------- časování (stejný princip jako live stránka) ----------
         const POLL_MS = DEMO ? 4000 : 15000;
-        const STEP_MS = DEMO ? 3500 : 15000;
-        const STEPS = 4;
         const TOP_POLL_MS = DEMO ? 4000 : 20000;
         const BATTLE_MS = 300000;
 
@@ -457,7 +456,7 @@
                     const fresh = document.createElement("span");
                     this.el.replaceWith(fresh);
                     this.el = fresh;
-                    this.inst = new window.Odometer({ el: fresh, value: v, format: "(,ddd)", theme: "minimal", duration: 2500, animation: "slide" });
+                    this.inst = new window.Odometer({ el: fresh, value: v, format: "(,ddd)", theme: "minimal", duration: 1500, animation: "slide" });
                     this.value = v;
                     return;
                 }
@@ -467,14 +466,15 @@
 
         // ---------- plynulé body: přírůstek se rozloží na 4 kroky (jako live stránka) ----------
         class Smooth {
-            constructor(onStep) { this.shown = null; this.lastApi = null; this.timer = null; this.onStep = onStep; this.hist = []; }
+            constructor(onStep) { this.shown = null; this.lastApi = null; this.cancel = null; this.onStep = onStep; this.hist = []; this.iv = RandSteps.interval(DEMO ? 4000 : 60000, DEMO ? 3000 : 15000); }
             feed(pts) {
                 pts = Math.max(0, Math.round(pts || 0));
                 const now = Date.now();
                 if (this.lastApi === null) { this.shown = this.lastApi = pts; this.hist = [{ t: now, v: pts }]; this.onStep(0, true); return; }
                 if (pts === this.lastApi) return;
                 if (pts < this.lastApi * 0.5) {                          // nová bitva -> hned bez animace
-                    clearInterval(this.timer); this.timer = null;
+                    if (this.cancel) { this.cancel(); this.cancel = null; }
+                    this.iv.reset();
                     this.shown = this.lastApi = pts; this.hist = [{ t: now, v: pts }];
                     this.onStep(0, true); return;
                 }
@@ -482,18 +482,16 @@
                 this.lastApi = pts;
                 this.hist.push({ t: now, v: pts });
                 while (this.hist.length > 2 && now - this.hist[1].t > 3600000) this.hist.shift();
-                clearInterval(this.timer); this.timer = null;
-                const target = pts, chunk = (target - this.shown) / STEPS;
-                let n = 0;
-                const step = () => {
-                    n++;
+                this.iv.mark();
+                if (this.cancel) this.cancel();
+                // náhodně velké skoky v náhodných časech (randsteps.js), součet přesně sedí
+                const target = pts;
+                this.cancel = RandSteps.run(target - this.shown, this.iv.get(), (part, last) => {
                     const before = this.shown;
-                    this.shown = n >= STEPS ? target : Math.round(this.shown + chunk);
-                    if (n >= STEPS) { clearInterval(this.timer); this.timer = null; }
+                    this.shown = last ? target : Math.min(target, this.shown + part);
+                    if (last) this.cancel = null;
                     this.onStep(this.shown - before, false);
-                };
-                step();
-                if (n < STEPS) this.timer = setInterval(step, STEP_MS);
+                }, { minGap: 2300, minTicks: 5, maxTicks: 12 });
             }
             rate() {
                 const h = this.hist;

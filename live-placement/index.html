@@ -423,6 +423,7 @@
     <meta name="twitter:card" content="summary">
     <meta name="theme-color" content="#89B3F9">
     <!--/SC:HEAD-->
+    <script src="/randsteps.js?v=1"></script>
 </head>
 <body>
 
@@ -1164,6 +1165,18 @@
             return t > now + 150 ? t : t + STEP_MS;
         }
 
+        // náhodný plán skoků pro jeden klan: 3–8 různě velkých kousků během příští minuty
+        const PLAN_SPAN_MS = SMOOTH_STEPS * STEP_MS * 0.92;
+        function randomPlan(delta, now) {
+            delta = Math.round(delta);
+            if (delta <= 0) return [];
+            const n = Math.max(1, Math.min(delta, 3 + Math.floor(Math.random() * 6)));
+            const parts = RandSteps.parts(delta, n);
+            const times = parts.map((_, i) => i === 0 ? Math.random() * 4000 : Math.random() * PLAN_SPAN_MS).sort((a, b) => a - b);
+            for (let i = 1; i < times.length; i++) if (times[i] - times[i - 1] < 2500) times[i] = times[i - 1] + 2500;
+            return parts.map((part, i) => ({ at: now + times[i], part }));
+        }
+
         let reorderTimer = null;
         function scheduleReorder(delay) {
             if (reorderTimer) return;
@@ -1177,17 +1190,15 @@
             let visibleChange = false, anyChange = false;
             // nejdřív ty, co čekají nejdéle
             const due = [];
-            clans.forEach(c => { if (!c.removed && c.steps > 0 && now >= c.nextAt) due.push(c); });
-            due.sort((a, b) => a.nextAt - b.nextAt);
+            clans.forEach(c => { if (!c.removed && c.plan && c.plan.length && now >= c.plan[0].at) due.push(c); });
+            due.sort((a, b) => a.plan[0].at - b.plan[0].at);
             due.forEach(c => {
                 const onScreen = c.el && !c.leaving;
                 // viditelné karty po jedné: když už teď jedna přičítala, další počká na příští tik
                 if (onScreen && now - lastVisibleStepAt < MIN_GAP_MS) return;
                 const before = c.shown;
-                c.steps--;
-                c.shown = c.steps === 0 ? c.target : Math.min(c.target, Math.round(c.shown + c.chunk));
-                c.nextAt += STEP_MS;
-                if (c.nextAt <= now) c.nextAt = nextSlot(c, now);
+                const st = c.plan.shift();
+                c.shown = c.plan.length === 0 ? c.target : Math.min(c.target, c.shown + st.part);
                 const delta = c.shown - before;
                 if (delta <= 0) return;
                 anyChange = true;
@@ -1207,7 +1218,7 @@
         function settleAll() {
             clans.forEach(c => {
                 c.shown = c.target;
-                c.steps = 0;
+                c.plan = [];
                 if (c.el && c.renderedPts !== c.shown) {
                     c.renderedPts = c.shown;
                     setNumberStatic(c, c.shown);
@@ -1228,7 +1239,7 @@
                 let c = clans.get(d.Name);
 
                 if (!c) {
-                    c = { name: d.Name, data: d, shown: pts, target: pts, lastApi: pts, chunk: 0, steps: 0,
+                    c = { name: d.Name, data: d, shown: pts, target: pts, lastApi: pts, plan: [],
                           rank: Infinity, el: null, phase: phaseOf(), nextAt: 0, missing: 0 };
                     c.staticKey = [d.Icon, d.CountryCode].join("|");
                     clans.set(d.Name, c);
@@ -1241,16 +1252,14 @@
                 if (pts === c.lastApi) return;
 
                 if (pts > c.lastApi) {
-                    // víc bodů → zbytek do nové hodnoty rozložit na 4 kroky (zachová se místo v cyklu)
+                    // víc bodů → zbytek do nové hodnoty rozházet na náhodně velké skoky v náhodných časech
                     c.lastApi = pts;
                     c.target = pts;
-                    c.chunk = (pts - c.shown) / SMOOTH_STEPS;
-                    if (c.steps <= 0 || c.nextAt <= now) c.nextAt = nextSlot(c, now);
-                    c.steps = SMOOTH_STEPS;
+                    c.plan = randomPlan(pts - c.shown, now);
                 } else if (pts < c.lastApi * RESET_DROP) {
                     // velký propad = nová bitva → hned a bez animace
                     c.lastApi = c.target = c.shown = pts;
-                    c.steps = 0;
+                    c.plan = [];
                     if (c.el) { c.renderedPts = pts; setNumberStatic(c, pts); fitNumber(c, false); }
                 }
                 // menší pokles = API vrátilo starší data → ignorovat (čísla nikdy necukají dolů)
@@ -1260,7 +1269,7 @@
             clans.forEach(c => {
                 if (seen.has(c.name)) return;
                 c.missing = (c.missing || 0) + 1;
-                if (c.missing >= 2) { c.removed = true; c.steps = 0; }
+                if (c.missing >= 2) { c.removed = true; c.plan = []; }
             });
         }
 

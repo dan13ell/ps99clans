@@ -16,7 +16,7 @@
     <title>Live Clan Tracker – Real-Time PS99 Clan Points | PS99 Clans</title>
     <script>
         window.odometerOptions = {
-            duration: 2500, 
+            duration: 1500, 
             animation: 'slide' 
         };
     </script>
@@ -566,6 +566,7 @@
     <link rel="stylesheet" href="/site.css?v=7">
     <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How often does it update?","acceptedAnswer":{"@type":"Answer","text":"The clan is fetched about every 10 seconds, and the active battle and diamond rank are checked every few minutes. The graph keeps the most recent points while the tab is open."}},{"@type":"Question","name":"Can I put this on my stream?","acceptedAnswer":{"@type":"Answer","text":"Use the OBS overlays instead. They are transparent, sized for streams and update by themselves."}}]}</script>
     <!--/SC:HEAD-->
+    <script src="/randsteps.js?v=1"></script>
 </head>
 <body>
 
@@ -658,7 +659,6 @@
         const POLL_MS = 10000;          // jak často se stahuje klan (worker ho drží v cache 10 s)
         const BATTLE_MS = 300000;       // aktivní bitva se obnovuje jednou za 5 minut
         const GEM_RANK_MS = 120000;     // pořadí v gemech jednou za 2 minuty
-        const SMOOTH_MS = 15000;        // plynulé dopočítávání bodů mezi aktualizacemi
         const CHART_MAX_POINTS = 240;   // kolik bodů drží graf
 
         // Velikost čísel: width = do jaké šířky (px) se číslo vejde, max/min = rozsah písma
@@ -686,11 +686,6 @@
         let gemRankAt = 0;
         let gemRankLoading = false;
         let staticKey = "";
-
-        let smoothId = null;
-        let smoothStep = 0;
-        let smoothChunk = 0;
-        let smoothTarget = 0;
 
         let pointsChart = null;
         let history = [];
@@ -928,29 +923,22 @@
             });
         }
 
-        // ---------- PLYNULÉ DOPOČÍTÁVÁNÍ BODŮ (4 kroky po 15 s) ----------
+        // ---------- NÁHODNÉ SKOKY BODŮ (randsteps.js) ----------
+        // přírůstek se rozdělí na náhodně velké kousky v náhodných časech do příští aktualizace
+        const apiIv = RandSteps.interval();
+        let smoothCancel = null;
         function stopSmoothing() {
-            if (smoothId) { clearInterval(smoothId); smoothId = null; }
-        }
-
-        function stepSmoothing() {
-            smoothStep++;
-            if (smoothStep >= 4) {
-                currentPoints = smoothTarget;
-                stopSmoothing();
-            } else {
-                currentPoints = Math.round(currentPoints + smoothChunk);
-            }
-            updateUI();
+            if (smoothCancel) { smoothCancel(); smoothCancel = null; }
         }
 
         function startSmoothing(target) {
             stopSmoothing();
-            smoothTarget = target;
-            smoothStep = 0;
-            smoothChunk = (target - currentPoints) / 4;
-            stepSmoothing();
-            if (smoothStep < 4) smoothId = setInterval(stepSmoothing, SMOOTH_MS);
+            apiIv.mark();
+            smoothCancel = RandSteps.run(target - currentPoints, apiIv.get(), (part, last) => {
+                currentPoints = last ? target : Math.min(target, currentPoints + part);
+                if (last) smoothCancel = null;
+                updateUI();
+            });
         }
 
         // ---------- POŘADÍ V GEMECH (na pozadí, jednou za pár minut) ----------
