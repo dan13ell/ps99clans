@@ -19,7 +19,7 @@
     <title>Compare PS99 Clans – Live Head-to-Head Point Difference | PS99 Clans</title>
     <script>
         // odometer.js stejně jako live stránka; instance si stránka vytváří sama
-        window.odometerOptions = { auto: false, duration: 2500, animation: 'slide' };
+        window.odometerOptions = { auto: false, duration: 1400, animation: 'slide' };
     </script>
     <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@300;400;500;600;700;800&family=Roboto:wght@600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/odometer.js/0.4.7/themes/odometer-theme-minimal.css">
@@ -204,7 +204,22 @@
 
         .c-name { margin-top: 8px; font-size: 36px; line-height: 1.15; font-weight: 700 !important; color: #1C2130; white-space: nowrap; }
         .c-name.empty { color: #B6B8BF; }
-        .c-points { margin-top: 2px; }
+        .c-points { margin-top: 2px; position: relative; }
+        /* +body při každém skoku */
+        .c-gain {
+            position: absolute; left: 84%; top: -22px; z-index: 5; pointer-events: none;
+            font-family: 'Fredoka', sans-serif !important; font-size: 26px; font-weight: 800 !important; line-height: 1;
+            color: #7CFF5B; -webkit-text-stroke: 6px #000; paint-order: stroke fill; white-space: nowrap;
+            animation: cGain 1.5s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+        }
+        .c-gain.big { font-size: 34px; color: #FFE14D; }
+        @keyframes cGain {
+            0%   { opacity: 0; transform: translate(-50%, 10px) scale(0.4); }
+            15%  { opacity: 1; transform: translate(-50%, -6px) scale(1.18); }
+            28%  { transform: translate(-50%, -8px) scale(1); }
+            75%  { opacity: 1; transform: translate(-50%, -24px) scale(1); }
+            100% { opacity: 0; transform: translate(-50%, -34px) scale(0.9); }
+        }
         .c-points-label { display: flex; align-items: center; gap: 8px; margin-top: 4px; font-size: 21px; }
         .c-points-label img { width: 27px !important; height: 27px !important; }
         .c-points-label img { width: 23px; height: 23px; }
@@ -625,8 +640,6 @@
 
         // ---------- NASTAVENÍ (stejný princip jako live stránka) ----------
         const POLL_MS = 10000;          // jak často se stahují klany
-        const SMOOTH_MS = 15000;        // nový přírůstek bodů se rozdělí na 4 kroky po 15 s
-        const SMOOTH_STEPS = 4;
         const ODO_MS = 2500;            // délka rolování čísel
         const BATTLE_MS = 300000;       // aktivní bitva se obnovuje jednou za 5 minut
         const CHART_MAX = 240;          // kolik bodů drží graf
@@ -677,7 +690,7 @@
         const prettyBattle = (n) => (n || "").replace(/([a-z])([A-Z0-9])/g, "$1 $2").replace(/([0-9])([A-Z])/g, "$1 $2").trim();
 
         // ---------- ODOMETER: stejná knihovna a nastavení jako live stránka (odometer.js, 2.5 s, slide) ----------
-        const ODO_OPTS = { format: "(,ddd)", theme: "minimal", duration: 2500, animation: "slide" };
+        const ODO_OPTS = { format: "(,ddd)", theme: "minimal", duration: 1400, animation: "slide" };
         class LiveOdo {
             constructor(id) { this.id = id; this.inst = null; this.value = null; }
             set(v, animate = true) {
@@ -741,20 +754,65 @@
             };
         }
 
-        // ---------- plynulé dopočítávání (4 kroky po 15 s, jako live stránka) ----------
-        function stopSmoothing(s) { if (s.smooth) { clearInterval(s.smooth.id); s.smooth = null; } }
+        // ---------- akční dopočítávání ----------
+        // Nový přírůstek se NErozdělí na 4 stejné díly, ale na hodně náhodných kousků
+        // (malé i velké) v náhodných časech, rozprostřených do doby, než nejspíš přijde další update API.
+        const RAND_MIN_GAP = 1600;      // nejmenší mezera mezi dvěma skoky (ms) – ať se odometr stihne otočit
+        const RAND_MIN_TICKS = 7, RAND_MAX_TICKS = 16;
+        function stopSmoothing(s) { if (s.smooth) { s.smooth.timers.forEach(clearTimeout); s.smooth = null; } }
+        function apiInterval(s) {
+            // jak často API u tohohle klanu reálně přináší nové body (průměr posledních změn)
+            const h = s.changes || [];
+            if (h.length < 2) return 60000;
+            let sum = 0;
+            for (let i = 1; i < h.length; i++) sum += h[i] - h[i - 1];
+            return Math.max(20000, Math.min(90000, sum / (h.length - 1)));
+        }
+        function randomParts(total, n) {
+            // těžký „ocas": většina kousků malých, občas velký skok
+            const w = [];
+            for (let i = 0; i < n; i++) w.push(Math.pow(-Math.log(1 - Math.random() * 0.999), 1.7) + 0.05);
+            const sum = w.reduce((x, y) => x + y, 0);
+            const parts = w.map((x) => Math.floor(total * x / sum));
+            parts[parts.length - 1] += total - parts.reduce((x, y) => x + y, 0);
+            return parts.filter((x) => x > 0);
+        }
+        function popGain(s, v, big) {
+            if (v <= 0 || document.hidden) return;
+            const box = $("pointsBox" + s.key);
+            if (!box) return;
+            const g = document.createElement("span");
+            g.className = "c-gain" + (big ? " big" : "");
+            g.textContent = "+" + short(v);
+            box.appendChild(g);
+            g.addEventListener("animationend", () => g.remove());
+            while (box.querySelectorAll(".c-gain").length > 3) box.querySelector(".c-gain").remove();
+        }
         function startSmoothing(s, target) {
             stopSmoothing(s);
-            const sm = { target, chunk: (target - s.current) / SMOOTH_STEPS, step: 0, id: null };
+            const delta = Math.round(target - s.current);
+            if (delta <= 0) { s.current = target; render(); return; }
+            const span = apiInterval(s) * 0.92;
+            let n = Math.round(RAND_MIN_TICKS + Math.random() * (RAND_MAX_TICKS - RAND_MIN_TICKS));
+            n = Math.max(1, Math.min(n, Math.floor(span / RAND_MIN_GAP), delta));
+            const parts = randomParts(delta, n);
+            // náhodné časy: první skok hned, ostatní rozházené, občas dva rychle po sobě
+            const times = [0];
+            for (let i = 1; i < parts.length; i++) times.push(Math.random() * span);
+            times.sort((x, y) => x - y);
+            for (let i = 1; i < times.length; i++) if (times[i] - times[i - 1] < RAND_MIN_GAP) times[i] = times[i - 1] + RAND_MIN_GAP;
+            const sm = { target, timers: [] };
             s.smooth = sm;
-            const step = () => {
-                sm.step++;
-                if (sm.step >= SMOOTH_STEPS) { s.current = sm.target; stopSmoothing(s); }
-                else s.current = Math.round(s.current + sm.chunk);
-                render();
-            };
-            step();
-            if (s.smooth) sm.id = setInterval(step, SMOOTH_MS);
+            parts.forEach((part, i) => {
+                sm.timers.push(setTimeout(() => {
+                    if (s.smooth !== sm) return;
+                    const before = s.current;
+                    s.current = i === parts.length - 1 ? sm.target : Math.min(sm.target, s.current + part);
+                    popGain(s, s.current - before, part > delta / parts.length * 2.2);
+                    if (i === parts.length - 1) s.smooth = null;
+                    render();
+                }, times[i]));
+            });
         }
 
         // ---------- vykreslení ----------
@@ -1030,6 +1088,8 @@
                 if (s.lastApi === null) { s.current = s.lastApi = d.points; rendered = false; if (wasEmpty) { setLayout(); renderLegend(); } render(); return; }
                 if (d.points !== s.lastApi) {
                     s.lastApi = d.points;
+                    (s.changes = s.changes || []).push(Date.now());
+                    if (s.changes.length > 6) s.changes.shift();
                     if (d.points > s.current) startSmoothing(s, d.points);
                     else { stopSmoothing(s); s.current = d.points; render(); }
                 } else { renderCard(s); renderStats(s); }
@@ -1043,7 +1103,7 @@
         async function setClans(a, b) {
             for (const [s, tag] of [[side.a, a], [side.b, b]]) {
                 stopSmoothing(s);
-                s.tag = tag; s.data = null; s.current = 0; s.lastApi = null;
+                s.tag = tag; s.data = null; s.current = 0; s.lastApi = null; s.changes = [];
                 setHint(s, tag ? "Loading..." : "");
             }
             points = []; lastChartAt = 0; geo = target = null; hideHover(); buildTarget(false);
@@ -1169,7 +1229,7 @@
   <h2 id="s-how-to-compare-clans">How to compare clans</h2>
   <ol class="sc-steps">
     <li>Press <b>Select Clans</b> and type two clan tags. The first clan is "your side". All differences and the chart are shown from its point of view.</li>
-    <li>Watch the two totals. They update every few seconds and roll up smoothly, just like the live tracker.</li>
+    <li>Watch the two totals. New points arrive in random-sized jumps with a +points popup, so you see every burst as it lands.</li>
     <li>Read the <b>point difference</b> in the middle. A plus sign means your side is ahead, a minus sign means it is behind.</li>
     <li>Scroll down inside the window to the <b>difference chart</b>. The line above zero means you lead. Hover or tap any point to see both totals and how much the gap changed since the previous point.</li>
     <li>Share the matchup: the address bar updates to something like <code>/compare/?a=TAG1&amp;b=TAG2</code>, so you can copy it to your clan's Discord.</li>
