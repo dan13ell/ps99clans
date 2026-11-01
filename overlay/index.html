@@ -245,7 +245,7 @@
         .top-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 2px 6px 8px; }
         .top-title { font-size: 22px; font-weight: 800; color: var(--text); white-space: nowrap; }
         .top-sub { font-size: 13px; font-weight: 700; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .top-list { position: relative; transition: height 0.6s ease; }
+        .top-list { position: relative; transition: height 0.6s ease; clip-path: inset(-14px -16px -8px -16px); }   /* přijíždějící/odjíždějící řádky se neukážou mimo kartu */
         .row {
             position: absolute; left: 0; right: 0; height: 52px;
             display: flex; align-items: center; gap: 10px; padding: 0 12px 0 8px;
@@ -551,6 +551,7 @@
                     const base = ["UN0", "SOPU", "C0LD", "HROT", "MDKT", "RSNK", "NOVA", "ZERO", "PETS", "LUCK", "FIRE", "GG"];
                     demoTop = Array.from({ length: 60 }, (_, i) => ({ Name: base[i] || ("C" + String(i).padStart(2, "0")), Points: Math.round(160e9 * Math.pow(0.95, i)), CountryCode: ccs[i % ccs.length], Icon: "" }));
                     if (TAG && !demoTop.some((d) => d.Name === TAG)) demoTop[14].Name = TAG;
+                    window.__demoTop = demoTop;   // jen demo režim (testy)
                 } else demoTop.forEach((d) => { if (Math.random() < 0.7) d.Points += Math.round(d.Points * Math.random() * (Math.random() < 0.15 ? 0.05 : 0.006)); });
                 return demoTop.map((d) => ({ ...d })).sort((a, b) => b.Points - a.Points).slice(0, n);
             }
@@ -784,8 +785,11 @@
             };
 
             let sortT = null;
-            const scheduleSort = () => { clearTimeout(sortT); sortT = setTimeout(layout, 2600); };   // přeřadit až po dotočení čísla
-            let windowNames = [];
+            const scheduleSort = () => { if (!sortT) sortT = setTimeout(() => { sortT = null; layout(); }, 1300); };   // přeřadit hned po dotočení čísla (ne odkládat donekonečna)
+            // Zásoba klanů kolem okna (BUF nad i pod). Okno se počítá z ZOBRAZENÝCH bodů,
+            // takže když zvolený klan někoho předběhne, hned se znovu vycentruje (s animací).
+            const BUF = 3, STEP = ROW_H + GAP;
+            let poolNames = [], poolStart = 1;     // poolStart = skutečná pozice prvního klanu v zásobě
 
             // zvednout -> přesunout -> položit (předbíhající se zvedne nad ostatní)
             const moveRow = (r, y, dir) => {
@@ -814,54 +818,96 @@
                 }, (dir < 0 ? 260 : 120) + 1000);
                 r.t3 = setTimeout(() => { el.style.transition = ""; }, (dir < 0 ? 260 : 120) + 1400);
             };
+            // klan přijede do okna shora / zdola
+            const slideIn = (r, y, fromBelow) => {
+                clearTimeout(r.t1); clearTimeout(r.t2); clearTimeout(r.t3);
+                const el = r.el;
+                el.style.transition = "none";
+                el.style.opacity = "0";
+                el.style.transform = `translateY(${y + (fromBelow ? STEP : -STEP)}px)`;
+                el.classList.remove("off", "lift", "sink");
+                void el.offsetWidth;
+                el.style.transition = "transform 0.9s cubic-bezier(0.25, 1, 0.3, 1), opacity 0.5s";
+                el.style.transform = `translateY(${y}px)`;
+                el.style.opacity = "";
+                r.y = y;
+                r.t3 = setTimeout(() => { el.style.transition = ""; }, 950);
+            };
+            // klan odjede z okna nahoru / dolů a schová se
+            const slideOut = (r, toBelow) => {
+                clearTimeout(r.t1); clearTimeout(r.t2); clearTimeout(r.t3);
+                const el = r.el, y = (r.y || 0) + (toBelow ? STEP : -STEP);
+                el.classList.remove("lift", "sink");
+                el.style.transition = "transform 0.9s cubic-bezier(0.25, 1, 0.3, 1), opacity 0.5s";
+                el.style.transform = `translateY(${y}px)`;
+                el.style.opacity = "0";
+                r.t3 = setTimeout(() => { el.classList.add("off"); el.style.transition = ""; el.style.opacity = ""; }, 900);
+                r.y = undefined;
+            };
 
             const layout = () => {
-                // pořadí v okně podle zobrazených bodů; skutečné pozice = začátek okna + index
-                const vis = windowNames.map((n) => [n, rows.get(n)]).filter(([, r]) => r);
-                const startRank = Math.min(...vis.map(([, r]) => r.apiRank).filter(Boolean), Infinity);
-                vis.sort((x, y) => (y[1].smooth.shown || 0) - (x[1].smooth.shown || 0));
-                const visible = new Set(vis.map(([n]) => n));
-                rows.forEach((r, n) => { if (!visible.has(n)) r.el.classList.add("off"); });
-                let y = 0;
+                // zásoba seřazená podle zobrazených bodů; skutečné pozice = poolStart + index
+                const pool = poolNames.map((n) => [n, rows.get(n)]).filter(([, r]) => r);
+                pool.sort((x, y) => (y[1].smooth.shown || 0) - (x[1].smooth.shown || 0));
+                let ws = 0;
+                if (me) {
+                    const mi = pool.findIndex(([n]) => n.toUpperCase() === me);
+                    if (mi >= 0) ws = Math.max(0, Math.min(pool.length - ROWS, mi - Math.floor(ROWS / 2)));
+                }
+                const vis = pool.slice(ws, ws + ROWS);
+                const visSet = new Set(vis.map(([n]) => n));
+                // kdo z okna vypadl: odjet směrem, kam patří
+                pool.forEach(([n, r], idx) => {
+                    if (!visSet.has(n) && !r.el.classList.contains("off") && r.y !== undefined) slideOut(r, idx >= ws + ROWS);
+                });
+                rows.forEach((r, n) => { if (!poolNames.includes(n) && !r.el.classList.contains("off") && r.y !== undefined) slideOut(r, true); });
                 vis.forEach(([, r], i) => {
-                    const rank = (isFinite(startRank) ? startRank : 1) + i;
+                    const rank = poolStart + ws + i;
                     const rk = r.el.querySelector(".row-rank");
                     rk.textContent = rank;
                     rk.className = "row-rank " + rankClass(rank);
                     const dir = r.rank ? Math.sign(rank - r.rank) : 0;
-                    if (dir < 0) restart(r.el, "up");
+                    const y = i * STEP;
+                    const wasOff = r.el.classList.contains("off") || r.y === undefined;
+                    if (wasOff && r.rank) slideIn(r, y, dir < 0);           // přijíždí zdola (stoupá) / shora (padá)
+                    else if (wasOff) { r.el.classList.remove("off"); moveRow(r, y, 0); }
+                    else {
+                        if (dir < 0) restart(r.el, "up");
+                        // posun celého okna (bez předbíhání) jen plynule, předbíhání se zvednutím
+                        const overtake = dir !== 0 && Math.abs(r.y - y) <= STEP + 1 && (r.lastWs === ws);
+                        moveRow(r, y, overtake ? dir : 0);
+                    }
                     r.rank = rank;
-                    const wasOff = r.el.classList.contains("off");
-                    r.el.classList.remove("off");
-                    moveRow(r, y, wasOff ? 0 : dir);
-                    y += ROW_H + GAP;
+                    r.lastWs = ws;
                 });
-                list.style.height = Math.max(0, y - GAP) + "px";
+                list.style.height = Math.max(0, Math.min(ROWS, vis.length) * STEP - GAP) + "px";
             };
 
             const refresh = async (first) => {
                 try {
                     if (me && first) {
                         const c = await fetchClan(me).catch(() => null);
-                        if (c && c.place) need = Math.min(MAX_FETCH, Math.max(need, c.place + ROWS + 5));
+                        if (c && c.place) need = Math.min(MAX_FETCH, Math.max(need, c.place + ROWS + BUF + 5));
                         else need = DEMO ? 60 : 500;
                     }
                     const data = await fetchTop(need);
-                    let start = 0;
+                    let start = 0, len = ROWS + BUF;
                     if (me) {
                         const idx = data.findIndex((d) => (d.Name || "").toUpperCase() === me);
                         if (idx >= 0) {
-                            start = Math.max(0, Math.min(data.length - ROWS, idx - Math.floor(ROWS / 2)));
-                            need = Math.min(MAX_FETCH, Math.max(ROWS + 5, idx + ROWS + 5));       // příště stáhnout jen potřebné
+                            start = Math.max(0, idx - Math.floor(ROWS / 2) - BUF);
+                            len = ROWS + BUF * 2;
+                            need = Math.min(MAX_FETCH, Math.max(ROWS + BUF + 5, idx + ROWS + BUF + 5));   // příště stáhnout jen potřebné
                         } else if (first) {
                             const sub = document.getElementById("topSub"); if (sub) sub.textContent = `[${me}] not in top ${data.length}`;
                         }
                     }
-                    const slice = data.slice(start, start + ROWS);
-                    windowNames = slice.map((d) => d.Name);
+                    const slice = data.slice(start, start + len);
+                    poolStart = start + 1;
+                    poolNames = slice.map((d) => d.Name);
                     slice.forEach((d, i) => { const r = ensureRow(d); r.apiRank = start + i + 1; r.smooth.feed(d.Points); });
-                    // řádky mimo okno uklidit
-                    rows.forEach((r, n) => { if (!windowNames.includes(n) && r.el.classList.contains("off")) { r.el.remove(); rows.delete(n); } });
+                    // klany mimo zásobu uklidit
+                    rows.forEach((r, n) => { if (!poolNames.includes(n) && r.el.classList.contains("off")) { r.el.remove(); rows.delete(n); } });
                     const sub = document.getElementById("topSub");
                     if (sub && battle && (!me || data.some((d) => (d.Name || "").toUpperCase() === me))) sub.textContent = prettyBattle(battle.configName);
                     if (first) layout(); else scheduleSort();
