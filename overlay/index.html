@@ -866,6 +866,7 @@
                     const up = pool[k - 1][1], dn = pool[k][1];
                     if ((dn.smooth.shown || 0) >= (up.smooth.shown || 0)) { up.smooth.rush(); dn.smooth.rush(); }
                 }
+                curOrder = pool.map(([n]) => n);
                 let ws = 0, mi = -1;
                 if (me) {
                     mi = pool.findIndex(([n]) => n.toUpperCase() === me);
@@ -873,7 +874,8 @@
                 }
                 // skutečné pozice: oficiální místo zvoleného klanu (nejčerstvější), jinak začátek zásoby
                 const meRow = mi >= 0 ? pool[mi][1] : null;
-                const base = meRow && meRow.place ? meRow.place - mi : (pool[0] && pool[0][1].place ? pool[0][1].place : poolStart);
+                const fresh = (r) => r && r.place && r.placeAt && Date.now() - r.placeAt < 60000;
+                const base = fresh(meRow) ? meRow.place - mi : poolStart;
                 const vis = pool.slice(ws, ws + ROWS);
                 const visSet = new Set(vis.map(([n]) => n));
                 // kdo z okna vypadl: odjet směrem, kam patří
@@ -902,15 +904,23 @@
                 list.style.height = Math.max(0, Math.min(ROWS, vis.length) * STEP - GAP) + "px";
             };
 
-            // čerstvé body a oficiální místo každého klanu v zásobě (/clan/TAG drží worker jen 10 s,
-            // seznam /clans až 60 s) – díky tomu se pozice mění hned, ne až za minutu
+            // čerstvé body a oficiální místo: jen zvolený klan a jeho dva sousedé (/clan/TAG drží worker 10 s,
+            // seznam /clans až 60 s). Jen 3 dotazy, ať se nenarazí na limit API; zbytek jede ze seznamu.
+            let curOrder = [];
             const refreshPool = async () => {
                 if (DEMO || !poolNames.length) return;
-                const res = await Promise.all(poolNames.map((n) => fetchClan(n).catch(() => null)));
+                let names;
+                if (me) {
+                    const ord = curOrder.length ? curOrder : poolNames;
+                    const mi = ord.findIndex((n) => n.toUpperCase() === me);
+                    names = mi >= 0 ? ord.slice(Math.max(0, mi - 1), mi + 2) : [];
+                } else names = poolNames.slice(0, Math.min(3, poolNames.length));
+                if (!names.length) return;
+                const res = await Promise.all(names.map((n) => fetchClan(n).catch(() => null)));
                 res.forEach((x, k) => {
-                    const r = rows.get(poolNames[k]);
+                    const r = rows.get(names[k]);
                     if (!r || !x) return;
-                    if (x.place) r.place = x.place;
+                    if (x.place) { r.place = x.place; r.placeAt = Date.now(); }
                     if (x.points) r.smooth.feed(x.points);
                 });
                 layout();
@@ -938,7 +948,7 @@
                     const slice = data.slice(start, start + len);
                     poolStart = start + 1;
                     poolNames = slice.map((d) => d.Name);
-                    slice.forEach((d, i) => { const r = ensureRow(d); r.apiRank = start + i + 1; if (DEMO || !r.place) r.place = start + i + 1; r.smooth.feed(d.Points); });
+                    slice.forEach((d, i) => { const r = ensureRow(d); r.apiRank = start + i + 1; r.smooth.feed(d.Points); });
                     // klany mimo zásobu uklidit
                     rows.forEach((r, n) => { if (!poolNames.includes(n) && r.el.classList.contains("off")) { r.el.remove(); rows.delete(n); } });
                     const sub = document.getElementById("topSub");
@@ -950,8 +960,8 @@
                 }
             };
             await refresh(true);
-            setInterval(() => { if (!document.hidden || DEMO) { loadBattle(); refresh(false); } }, DEMO ? TOP_POLL_MS : 60000);   // kdo je kolem
-            if (!DEMO) setInterval(() => { if (!document.hidden) refreshPool().catch(() => {}); }, 15000);          // body + místa
+            setInterval(() => { if (!document.hidden || DEMO) { loadBattle(); refresh(false); } }, TOP_POLL_MS);   // seznam kolem (body všech)
+            if (!DEMO) setInterval(() => { if (!document.hidden) refreshPool().catch(() => {}); }, 12000);          // můj klan + sousedé: čerstvé body a místo
 
         }
 
