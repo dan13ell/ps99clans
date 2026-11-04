@@ -493,6 +493,18 @@
                     this.onStep(this.shown - before, false);
                 }, Object.assign({ minGap: 2300, minTicks: 5, maxTicks: 12 }, this.opts));
             }
+            // dohnat cílovou hodnotu rychle (1–2 skoky), když by se jinak pořadí ukazovalo špatně
+            rush(ms) {
+                if (this.lastApi === null || this.shown >= this.lastApi) return;
+                if (this.cancel) this.cancel();
+                const target = this.lastApi;
+                this.cancel = RandSteps.run(target - this.shown, ms || 1200, (part, last) => {
+                    const before = this.shown;
+                    this.shown = last ? target : Math.min(target, this.shown + part);
+                    if (last) this.cancel = null;
+                    this.onStep(this.shown - before, false);
+                }, { minGap: 450, minTicks: 1, maxTicks: 2 });
+            }
             rate() {
                 const h = this.hist;
                 if (h.length < 2) return 0;
@@ -846,14 +858,22 @@
             };
 
             const layout = () => {
-                // zásoba seřazená podle zobrazených bodů; skutečné pozice = poolStart + index
+                // pořadí podle SKUTEČNÝCH bodů z API (ne podle animovaných čísel), takže pozice sedí hned
                 const pool = poolNames.map((n) => [n, rows.get(n)]).filter(([, r]) => r);
-                pool.sort((x, y) => (y[1].smooth.shown || 0) - (x[1].smooth.shown || 0));
-                let ws = 0;
+                pool.sort((x, y) => (y[1].smooth.lastApi || 0) - (x[1].smooth.lastApi || 0));
+                // když animované číslo nesedí s pořadím (nižší klan ukazuje víc), rychle ho dotočit
+                for (let k = 1; k < pool.length; k++) {
+                    const up = pool[k - 1][1], dn = pool[k][1];
+                    if ((dn.smooth.shown || 0) >= (up.smooth.shown || 0)) { up.smooth.rush(); dn.smooth.rush(); }
+                }
+                let ws = 0, mi = -1;
                 if (me) {
-                    const mi = pool.findIndex(([n]) => n.toUpperCase() === me);
+                    mi = pool.findIndex(([n]) => n.toUpperCase() === me);
                     if (mi >= 0) ws = Math.max(0, Math.min(pool.length - ROWS, mi - Math.floor(ROWS / 2)));
                 }
+                // skutečné pozice: oficiální místo zvoleného klanu (nejčerstvější), jinak začátek zásoby
+                const meRow = mi >= 0 ? pool[mi][1] : null;
+                const base = meRow && meRow.place ? meRow.place - mi : (pool[0] && pool[0][1].place ? pool[0][1].place : poolStart);
                 const vis = pool.slice(ws, ws + ROWS);
                 const visSet = new Set(vis.map(([n]) => n));
                 // kdo z okna vypadl: odjet směrem, kam patří
@@ -862,7 +882,7 @@
                 });
                 rows.forEach((r, n) => { if (!poolNames.includes(n) && !r.el.classList.contains("off") && r.y !== undefined) slideOut(r, true); });
                 vis.forEach(([, r], i) => {
-                    const rank = poolStart + ws + i;
+                    const rank = Math.max(1, base + ws + i);
                     const rk = r.el.querySelector(".row-rank");
                     rk.textContent = rank;
                     rk.className = "row-rank " + rankClass(rank);
@@ -873,7 +893,6 @@
                     else if (wasOff) { r.el.classList.remove("off"); moveRow(r, y, 0); }
                     else {
                         if (dir < 0) restart(r.el, "up");
-                        // posun celého okna (bez předbíhání) jen plynule, předbíhání se zvednutím
                         const overtake = dir !== 0 && Math.abs(r.y - y) <= STEP + 1 && (r.lastWs === ws);
                         moveRow(r, y, overtake ? dir : 0);
                     }
@@ -881,6 +900,20 @@
                     r.lastWs = ws;
                 });
                 list.style.height = Math.max(0, Math.min(ROWS, vis.length) * STEP - GAP) + "px";
+            };
+
+            // čerstvé body a oficiální místo každého klanu v zásobě (/clan/TAG drží worker jen 10 s,
+            // seznam /clans až 60 s) – díky tomu se pozice mění hned, ne až za minutu
+            const refreshPool = async () => {
+                if (DEMO || !poolNames.length) return;
+                const res = await Promise.all(poolNames.map((n) => fetchClan(n).catch(() => null)));
+                res.forEach((x, k) => {
+                    const r = rows.get(poolNames[k]);
+                    if (!r || !x) return;
+                    if (x.place) r.place = x.place;
+                    if (x.points) r.smooth.feed(x.points);
+                });
+                layout();
             };
 
             const refresh = async (first) => {
@@ -905,18 +938,21 @@
                     const slice = data.slice(start, start + len);
                     poolStart = start + 1;
                     poolNames = slice.map((d) => d.Name);
-                    slice.forEach((d, i) => { const r = ensureRow(d); r.apiRank = start + i + 1; r.smooth.feed(d.Points); });
+                    slice.forEach((d, i) => { const r = ensureRow(d); r.apiRank = start + i + 1; if (DEMO || !r.place) r.place = start + i + 1; r.smooth.feed(d.Points); });
                     // klany mimo zásobu uklidit
                     rows.forEach((r, n) => { if (!poolNames.includes(n) && r.el.classList.contains("off")) { r.el.remove(); rows.delete(n); } });
                     const sub = document.getElementById("topSub");
                     if (sub && battle && (!me || data.some((d) => (d.Name || "").toUpperCase() === me))) sub.textContent = prettyBattle(battle.configName);
                     if (first) layout(); else scheduleSort();
+                    refreshPool().catch(() => {});
                 } catch (e) {
                     if (first) { list.innerHTML = `<div class="label" style="padding:10px">Loading...</div>`; setTimeout(() => { list.innerHTML = ""; refresh(true); }, 5000); }
                 }
             };
             await refresh(true);
-            setInterval(() => { if (!document.hidden || DEMO) { loadBattle(); refresh(false); } }, TOP_POLL_MS);
+            setInterval(() => { if (!document.hidden || DEMO) { loadBattle(); refresh(false); } }, DEMO ? TOP_POLL_MS : 60000);   // kdo je kolem
+            if (!DEMO) setInterval(() => { if (!document.hidden) refreshPool().catch(() => {}); }, 15000);          // body + místa
+
         }
 
         // =========================================================
