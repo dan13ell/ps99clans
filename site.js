@@ -113,7 +113,7 @@
         if (!force && w === lastW && root.style.getPropertyValue("--sc-vh")) return;
         lastW = w;
         // stejné měřítko jako autoFitScreen() na stránkách (okno 1120 x 960, 92 %)
-        var sc = w >= 1150 ? 1 : Math.min(w / 1120, h / 960) * 0.92;
+        var sc = w >= 1150 ? Math.min(1, h / 840) : Math.min(w / 1120, h / 960) * 0.92;
         // na mobilu na výšku je okno malé -> první obrazovka jen tak vysoká, aby se okno i lišta vešly,
         // a text začíná hned pod ním (žádná prázdná modrá plocha)
         var need = Math.round(960 * sc + 70);

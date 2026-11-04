@@ -15,7 +15,7 @@
      crossorigin="anonymous"></script>
     <link rel="icon" href="/images/favicon.png" type="image/png">
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PS99 Clans – Live Pet Simulator 99 Clan Leaderboards &amp; Stats</title>
     <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     
@@ -324,7 +324,7 @@
             const winH = window.innerHeight;
 
             if (winW >= 1150) {
-                scaler.style.transform = "none";
+                scaler.style.transform = winH < 840 ? `scale(${(winH / 840).toFixed(4)})` : "none";
                 return;
             }
 
@@ -505,7 +505,7 @@
     </div>
   </div>
 </footer>
-    <script src="/site.js?v=2"></script>
+    <script src="/site.js?v=3"></script>
     <!--/SC:BODY-->
 </body>
 </html>

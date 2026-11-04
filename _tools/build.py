@@ -24,7 +24,7 @@ SITE = "https://ps99clans.site"
 ADS = "ca-pub-5302554896051137"
 GA = "G-M5T889PLGJ"
 CSS_V = "7"
-JS_V = "2"
+JS_V = "3"
 TODAY = datetime.date.today().isoformat()
 
 # ---------------------------------------------------------------- stránky s oknem

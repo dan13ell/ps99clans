@@ -12,7 +12,7 @@
 
     <link rel="icon" href="/images/favicon.png" type="image/png">
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Live Top 500 – Animated PS99 Clan Battle Placement | PS99 Clans</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -37,7 +37,7 @@
             position: fixed;
             inset: 0;
             overscroll-behavior: none !important;
-            touch-action: none;
+            touch-action: pinch-zoom;
             background-color: #89b3f9;
         }
 
@@ -510,7 +510,7 @@
             const winW = window.innerWidth, winH = window.innerHeight;
             if (winW >= MOBILE_BREAK) {
                 document.body.classList.remove("is-mobile");
-                scaler.style.transform = "none";
+                scaler.style.transform = winH < 840 ? `scale(${(winH / 840).toFixed(4)})` : "none";
                 return;
             }
             document.body.classList.add("is-mobile");

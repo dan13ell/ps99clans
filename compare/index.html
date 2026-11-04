@@ -15,7 +15,7 @@
 
     <link rel="icon" href="/images/favicon.png" type="image/png">
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Compare PS99 Clans – Live Head-to-Head Point Difference | PS99 Clans</title>
     <script>
         // odometer.js stejně jako live stránka; instance si stránka vytváří sama
@@ -138,7 +138,7 @@
             overflow-y: auto;
             overflow-x: hidden;
             z-index: 900;
-            touch-action: pan-y !important;
+            touch-action: pan-y pinch-zoom !important;
             overscroll-behavior: contain !important;
         }
         /* bez vybraných klanů se okno nescrolluje (vše se vejde) */
@@ -291,7 +291,7 @@
         .chart-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
         .chart-sub { font-size: 15px; font-weight: 700 !important; color: #5A5D66; white-space: nowrap; }
         .chart-sub b { font-weight: 800 !important; }
-        .chart-area { position: relative; width: 100%; height: 268px; margin-top: 6px; touch-action: pan-y; }
+        .chart-area { position: relative; width: 100%; height: 268px; margin-top: 6px; touch-action: pan-y pinch-zoom; }
         .chart-area svg { position: absolute; left: 0; top: 0; width: 100%; height: 100%; overflow: visible; }
         .chart-empty { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 17px; color: #A3A6AE; font-weight: 600 !important; }
         .pulse { transform-box: fill-box; transform-origin: center; animation: pulse 1.6s ease-out infinite; }
@@ -653,7 +653,7 @@
             const scaler = $("appScaler");
             if (!scaler) return;
             const winW = window.innerWidth, winH = window.innerHeight;
-            if (winW >= 1150) { document.body.classList.remove("is-mobile"); scaler.style.transform = "none"; return; }
+            if (winW >= 1150) { document.body.classList.remove("is-mobile"); scaler.style.transform = winH < 840 ? `scale(${(winH / 840).toFixed(4)})` : "none"; return; }
             document.body.classList.add("is-mobile");
             scaler.style.transform = `scale(${Math.min(winW / 1120, winH / 960) * 0.92})`;
         }
@@ -1316,7 +1316,7 @@
     </div>
   </div>
 </footer>
-    <script src="/site.js?v=2"></script>
+    <script src="/site.js?v=3"></script>
     <!--/SC:BODY-->
 </body>
 </html>
