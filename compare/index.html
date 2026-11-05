@@ -207,19 +207,29 @@
         }
         .auto-badge.flash { animation: autoFlash 1.2s ease-out; }
         @keyframes autoFlash { 0% { transform: scale(1.35); } 40% { transform: scale(0.95); } 100% { transform: scale(1); } }
-        /* AUTO přímo v poli Clan 2 (vpravo), ve stylu tlačítek hry */
-        .field.b input { padding-right: 104px; padding-left: 50px; }
+        /* AUTO přímo v poli Clan 2 (vpravo), ve stylu herních tlačítek */
+        .field.b input { padding: 0 100px; }               /* stejně vlevo i vpravo -> text přesně uprostřed */
         .auto-pill {
-            position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
-            height: 34px; padding: 0 12px; border-radius: 10px; border: 3px solid #000; cursor: pointer;
-            background: linear-gradient(#FFFFFF, #E3E7EF); box-shadow: 0 3px 0 #000;
-            font-family: 'Fredoka', sans-serif !important; font-size: 16px; font-weight: 800 !important; letter-spacing: 0.5px; color: #1C2130;
-            transition: transform 0.05s ease, box-shadow 0.05s ease;
+            position: absolute; right: 20px; top: 50%;
+            height: 31px; min-width: 66px; padding: 0 10px; margin-top: -16px;
+            border-radius: 9px; border: 3px solid #000; cursor: pointer;
+            background: linear-gradient(180deg, #F2F4F8 0%, #F2F4F8 45%, #C4CAD6 100%);
+            box-shadow: inset 0 -3px 0 rgba(0, 0, 0, 0.18), inset 0 2px 0 rgba(255, 255, 255, 0.9);
+            font-family: 'Fredoka', sans-serif !important; font-size: 16px; font-weight: 800 !important; line-height: 1; letter-spacing: 0.5px;
+            color: #FFF; -webkit-text-stroke: 4px #000; paint-order: stroke fill;
+            transform-origin: 50% 50%;
+            transition: transform 0.045s cubic-bezier(0.1, 0.9, 0.2, 1), background 0.15s;
         }
-        .auto-pill:hover { transform: translateY(calc(-50% - 1px)); box-shadow: 0 4px 0 #000; }
-        .auto-pill:active { transform: translateY(calc(-50% + 2px)); box-shadow: 0 1px 0 #000; }
-        .auto-pill.on { background: linear-gradient(#7FE9FF, #2FB8F0); color: #FFF; -webkit-text-stroke: 4px #000; paint-order: stroke fill; }
-        .field.b.auto input::placeholder { color: #2FB8F0; font-size: 22px; font-weight: 700; }
+        .auto-pill:hover:not(:active) { transform: scale(1.07); }
+        .auto-pill:active { transform: scale(0.92); }
+        .auto-pill.on {
+            background: linear-gradient(180deg, #8FF6FF 0%, #5FE0FF 45%, #22B5EC 100%);
+            box-shadow: inset 0 -3px 0 rgba(0, 40, 80, 0.25), inset 0 2px 0 rgba(255, 255, 255, 0.7), 0 0 0 3px rgba(72, 210, 247, 0.35);
+        }
+        .auto-pill.pop { animation: autoPop 0.35s cubic-bezier(0.2, 1.4, 0.4, 1); }
+        @keyframes autoPop { 0% { transform: scale(0.8); } 55% { transform: scale(1.15); } 100% { transform: scale(1); } }
+        .field.b.auto input::placeholder { color: #22B5EC; font-size: 22px; font-weight: 800; }
+        .field.b input:disabled { -webkit-text-fill-color: currentColor; opacity: 1; }
         .clan-card.b .rank-pill { right: 14px; }
         .rank-pill.gold   { background: linear-gradient(#FFE873, #FFB21E); }
         .rank-pill.silver { background: linear-gradient(#F4F6FA, #BFC6D4); }
@@ -1230,7 +1240,8 @@
             f.placeholder = on ? "1 place ahead" : "Clan tag";
             if (on) f.value = "";
         }
-        $("autoTgl").addEventListener("click", () => { setAutoUI(!$("autoTgl").classList.contains("on")); if (!$("autoTgl").classList.contains("on")) $("inputB").focus(); });
+        $("autoTgl").addEventListener("click", () => {
+            const b = $("autoTgl"); b.classList.remove("pop"); void b.offsetWidth; b.classList.add("pop"); setAutoUI(!$("autoTgl").classList.contains("on")); if (!$("autoTgl").classList.contains("on")) $("inputB").focus(); });
         function openModal() {
             fitModal();
             $("inputA").value = side.a.tag; $("inputB").value = autoRival ? "" : side.b.tag;
