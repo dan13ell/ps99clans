@@ -207,20 +207,19 @@
         }
         .auto-badge.flash { animation: autoFlash 1.2s ease-out; }
         @keyframes autoFlash { 0% { transform: scale(1.35); } 40% { transform: scale(0.95); } 100% { transform: scale(1); } }
-        .auto-row { display: flex; align-items: center; justify-content: space-between; width: 390px; }
-        .auto-tgl {
-            display: inline-flex; align-items: center; gap: 8px; cursor: pointer;
-            padding: 4px 12px 4px 6px; border-radius: 999px; border: 3px solid #000; background: #FFF;
-            font-size: 15px; font-weight: 800 !important; color: #1C2130; user-select: none;
-            box-shadow: 0 3px 0 #000;
+        /* AUTO přímo v poli Clan 2 (vpravo), ve stylu tlačítek hry */
+        .field.b input { padding-right: 104px; padding-left: 50px; }
+        .auto-pill {
+            position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+            height: 34px; padding: 0 12px; border-radius: 10px; border: 3px solid #000; cursor: pointer;
+            background: linear-gradient(#FFFFFF, #E3E7EF); box-shadow: 0 3px 0 #000;
+            font-family: 'Fredoka', sans-serif !important; font-size: 16px; font-weight: 800 !important; letter-spacing: 0.5px; color: #1C2130;
+            transition: transform 0.05s ease, box-shadow 0.05s ease;
         }
-        .auto-tgl:active { transform: translateY(2px); box-shadow: 0 1px 0 #000; }
-        .auto-tgl .sw { position: relative; width: 38px; height: 22px; border-radius: 11px; border: 2.5px solid #000; background: #D5DAE4; box-sizing: border-box; transition: background 0.15s; }
-        .auto-tgl .sw::after { content: ""; position: absolute; left: 2px; top: 2px; width: 13px; height: 13px; border-radius: 50%; background: #FFF; border: 2px solid #000; box-sizing: border-box; transition: transform 0.15s; }
-        .auto-tgl.on .sw { background: #48D2F7; }
-        .auto-tgl.on .sw::after { transform: translateX(15px); }
-        .field.b.auto input { color: #2FB8F0; }
-        .field.b.auto input::placeholder { color: #2FB8F0; }
+        .auto-pill:hover { transform: translateY(calc(-50% - 1px)); box-shadow: 0 4px 0 #000; }
+        .auto-pill:active { transform: translateY(calc(-50% + 2px)); box-shadow: 0 1px 0 #000; }
+        .auto-pill.on { background: linear-gradient(#7FE9FF, #2FB8F0); color: #FFF; -webkit-text-stroke: 4px #000; paint-order: stroke fill; }
+        .field.b.auto input::placeholder { color: #2FB8F0; font-size: 22px; font-weight: 700; }
         .clan-card.b .rank-pill { right: 14px; }
         .rank-pill.gold   { background: linear-gradient(#FFE873, #FFB21E); }
         .rank-pill.silver { background: linear-gradient(#F4F6FA, #BFC6D4); }
@@ -565,7 +564,7 @@
     <meta name="twitter:card" content="summary">
     <meta name="theme-color" content="#89B3F9">
     <link rel="stylesheet" href="/site.css?v=7">
-    <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Does the chart keep its history if I close the page?","acceptedAnswer":{"@type":"Answer","text":"No. The chart starts recording when you open the matchup and keeps the most recent points while the page stays open. For long tracking, leave the tab open on a computer, or use the OBS Versus overlay on stream."}},{"@type":"Question","name":"Can Compare pick the rival for me?","acceptedAnswer":{"@type":"Answer","text":"Yes. In Select Clans , enter only Clan 1 and switch on Auto: 1 place ahead . Clan 2 is then always the clan one place above yours. When you overtake it, Compare switches to the next clan automatically. If Clan 1 is first, it shows the clan in second place. The link looks like /compare/?a=TAG&auto=1 ."}},{"@type":"Question","name":"Can I compare clans outside the top 1000?","acceptedAnswer":{"@type":"Answer","text":"Yes. Any clan tag works. The rank badge only appears for clans with a known place on the leaderboard."}},{"@type":"Question","name":"Why does one total move in jumps?","acceptedAnswer":{"@type":"Answer","text":"The game sends new totals in batches. Between updates the page spreads the increase over a few seconds so it reads naturally. A bigger jump simply means more points arrived in that batch."}}]}</script>
+    <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Does the chart keep its history if I close the page?","acceptedAnswer":{"@type":"Answer","text":"No. The chart starts recording when you open the matchup and keeps the most recent points while the page stays open. For long tracking, leave the tab open on a computer, or use the OBS Versus overlay on stream."}},{"@type":"Question","name":"Can Compare pick the rival for me?","acceptedAnswer":{"@type":"Answer","text":"Yes. In Select Clans , enter Clan 1 and press AUTO in the Clan 2 field. Clan 2 is then always the clan one place above yours. When you overtake it, Compare switches to the next clan automatically. If Clan 1 is first, it shows the clan in second place. The link looks like /compare/?a=TAG&auto=1 ."}},{"@type":"Question","name":"Can I compare clans outside the top 1000?","acceptedAnswer":{"@type":"Answer","text":"Yes. Any clan tag works. The rank badge only appears for clans with a known place on the leaderboard."}},{"@type":"Question","name":"Why does one total move in jumps?","acceptedAnswer":{"@type":"Answer","text":"The game sends new totals in batches. Between updates the page spreads the increase over a few seconds so it reads naturally. A bigger jump simply means more points arrived in that batch."}}]}</script>
     <!--/SC:HEAD-->
 </head>
 <body class="no-clans">
@@ -653,8 +652,8 @@
             <div class="modal-title" data-text="Select Clans">Select Clans</div>
             <div class="field-label">Clan 1</div>
             <div class="field a"><i></i><input id="inputA" maxlength="4" placeholder="Clan tag" autocomplete="off" spellcheck="false"></div>
-            <div class="auto-row"><div class="field-label">Clan 2</div><div class="auto-tgl" id="autoTgl" role="switch" aria-checked="false" title="Always compare with the clan one place ahead of Clan 1"><span class="sw"></span>Auto: 1 place ahead</div></div>
-            <div class="field b"><i></i><input id="inputB" maxlength="4" placeholder="Clan tag" autocomplete="off" spellcheck="false"></div>
+            <div class="field-label">Clan 2</div>
+            <div class="field b"><i></i><input id="inputB" maxlength="4" placeholder="Clan tag" autocomplete="off" spellcheck="false"><button type="button" class="auto-pill" id="autoTgl" role="switch" aria-checked="false" title="Auto: always the clan one place ahead of Clan 1">AUTO</button></div>
             <div class="modal-err" id="modalErr"></div>
             <div class="go-wrap"><button class="go-btn" id="goBtn">Compare!</button></div>
         </div>
@@ -1228,7 +1227,7 @@
             const f = $("inputB");
             f.disabled = on;
             f.closest(".field").classList.toggle("auto", on);
-            f.placeholder = on ? "Auto" : "Clan tag";
+            f.placeholder = on ? "1 place ahead" : "Clan tag";
             if (on) f.value = "";
         }
         $("autoTgl").addEventListener("click", () => { setAutoUI(!$("autoTgl").classList.contains("on")); if (!$("autoTgl").classList.contains("on")) $("inputB").focus(); });
@@ -1363,7 +1362,7 @@
   </details>
   <details>
     <summary>Can Compare pick the rival for me?</summary>
-    <div><p>Yes. In <b>Select Clans</b>, enter only Clan 1 and switch on <b>Auto: 1 place ahead</b>. Clan 2 is then always the clan one place above yours. When you overtake it, Compare switches to the next clan automatically. If Clan 1 is first, it shows the clan in second place. The link looks like <code>/compare/?a=TAG&amp;auto=1</code>.</p></div>
+    <div><p>Yes. In <b>Select Clans</b>, enter Clan 1 and press <b>AUTO</b> in the Clan 2 field. Clan 2 is then always the clan one place above yours. When you overtake it, Compare switches to the next clan automatically. If Clan 1 is first, it shows the clan in second place. The link looks like <code>/compare/?a=TAG&amp;auto=1</code>.</p></div>
   </details>
   <details>
     <summary>Can I compare clans outside the top 1000?</summary>
