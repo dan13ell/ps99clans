@@ -197,6 +197,30 @@
             white-space: nowrap;
         }
         .clan-card.a .rank-pill { left: 14px; }
+        /* automatický soupeř (klan o místo výš) */
+        .auto-badge {
+            position: absolute; left: 14px; top: 14px;
+            padding: 3px 11px; border-radius: 14px; border: 3px solid #000;
+            background: linear-gradient(#7FE9FF, #2FB8F0); color: #FFF;
+            font-size: 15px; font-weight: 800 !important; white-space: nowrap;
+            -webkit-text-stroke: 4px #000; paint-order: stroke fill;
+        }
+        .auto-badge.flash { animation: autoFlash 1.2s ease-out; }
+        @keyframes autoFlash { 0% { transform: scale(1.35); } 40% { transform: scale(0.95); } 100% { transform: scale(1); } }
+        .auto-row { display: flex; align-items: center; justify-content: space-between; width: 390px; }
+        .auto-tgl {
+            display: inline-flex; align-items: center; gap: 8px; cursor: pointer;
+            padding: 4px 12px 4px 6px; border-radius: 999px; border: 3px solid #000; background: #FFF;
+            font-size: 15px; font-weight: 800 !important; color: #1C2130; user-select: none;
+            box-shadow: 0 3px 0 #000;
+        }
+        .auto-tgl:active { transform: translateY(2px); box-shadow: 0 1px 0 #000; }
+        .auto-tgl .sw { position: relative; width: 38px; height: 22px; border-radius: 11px; border: 2.5px solid #000; background: #D5DAE4; box-sizing: border-box; transition: background 0.15s; }
+        .auto-tgl .sw::after { content: ""; position: absolute; left: 2px; top: 2px; width: 13px; height: 13px; border-radius: 50%; background: #FFF; border: 2px solid #000; box-sizing: border-box; transition: transform 0.15s; }
+        .auto-tgl.on .sw { background: #48D2F7; }
+        .auto-tgl.on .sw::after { transform: translateX(15px); }
+        .field.b.auto input { color: #2FB8F0; }
+        .field.b.auto input::placeholder { color: #2FB8F0; }
         .clan-card.b .rank-pill { right: 14px; }
         .rank-pill.gold   { background: linear-gradient(#FFE873, #FFB21E); }
         .rank-pill.silver { background: linear-gradient(#F4F6FA, #BFC6D4); }
@@ -541,7 +565,7 @@
     <meta name="twitter:card" content="summary">
     <meta name="theme-color" content="#89B3F9">
     <link rel="stylesheet" href="/site.css?v=7">
-    <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Does the chart keep its history if I close the page?","acceptedAnswer":{"@type":"Answer","text":"No. The chart starts recording when you open the matchup and keeps the most recent points while the page stays open. For long tracking, leave the tab open on a computer, or use the OBS Versus overlay on stream."}},{"@type":"Question","name":"Can I compare clans outside the top 1000?","acceptedAnswer":{"@type":"Answer","text":"Yes. Any clan tag works. The rank badge only appears for clans with a known place on the leaderboard."}},{"@type":"Question","name":"Why does one total move in jumps?","acceptedAnswer":{"@type":"Answer","text":"The game sends new totals in batches. Between updates the page spreads the increase over a few seconds so it reads naturally. A bigger jump simply means more points arrived in that batch."}}]}</script>
+    <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Does the chart keep its history if I close the page?","acceptedAnswer":{"@type":"Answer","text":"No. The chart starts recording when you open the matchup and keeps the most recent points while the page stays open. For long tracking, leave the tab open on a computer, or use the OBS Versus overlay on stream."}},{"@type":"Question","name":"Can Compare pick the rival for me?","acceptedAnswer":{"@type":"Answer","text":"Yes. In Select Clans , enter only Clan 1 and switch on Auto: 1 place ahead . Clan 2 is then always the clan one place above yours. When you overtake it, Compare switches to the next clan automatically. If Clan 1 is first, it shows the clan in second place. The link looks like /compare/?a=TAG&auto=1 ."}},{"@type":"Question","name":"Can I compare clans outside the top 1000?","acceptedAnswer":{"@type":"Answer","text":"Yes. Any clan tag works. The rank badge only appears for clans with a known place on the leaderboard."}},{"@type":"Question","name":"Why does one total move in jumps?","acceptedAnswer":{"@type":"Answer","text":"The game sends new totals in batches. Between updates the page spreads the increase over a few seconds so it reads naturally. A bigger jump simply means more points arrived in that batch."}}]}</script>
     <!--/SC:HEAD-->
 </head>
 <body class="no-clans">
@@ -569,6 +593,7 @@
                                                     </div>
                         <div class="vs-badge"><span class="vs-text">VS</span></div>
                         <div class="card clan-card b" id="cardB">
+                            <span class="auto-badge is-hidden" id="autoBadge" title="Clan 2 is picked automatically: the clan one place ahead of Clan 1">AUTO</span>
                             <span class="rank-pill is-hidden" id="rankB"></span>
                             <div class="icon-wrap">
                                 <img class="c-icon placeholder" id="iconB" src="/images/hotbar/clans.png" alt="" draggable="false">
@@ -628,7 +653,7 @@
             <div class="modal-title" data-text="Select Clans">Select Clans</div>
             <div class="field-label">Clan 1</div>
             <div class="field a"><i></i><input id="inputA" maxlength="4" placeholder="Clan tag" autocomplete="off" spellcheck="false"></div>
-            <div class="field-label">Clan 2</div>
+            <div class="auto-row"><div class="field-label">Clan 2</div><div class="auto-tgl" id="autoTgl" role="switch" aria-checked="false" title="Always compare with the clan one place ahead of Clan 1"><span class="sw"></span>Auto: 1 place ahead</div></div>
             <div class="field b"><i></i><input id="inputB" maxlength="4" placeholder="Clan tag" autocomplete="off" spellcheck="false"></div>
             <div class="modal-err" id="modalErr"></div>
             <div class="go-wrap"><button class="go-btn" id="goBtn">Compare!</button></div>
@@ -727,6 +752,7 @@
         const odo = {};
         let battle = null, battleAt = 0;
         let points = [], lastChartAt = 0;      // historie rozdílu pro graf
+        let autoRival = false, autoCheckedAt = 0;   // Clan 2 = klan o jedno místo výš než Clan 1
 
         async function loadBattle() {
             if (battle && Date.now() - battleAt < BATTLE_MS) return;
@@ -1110,11 +1136,50 @@
             rendered = false;
             const q = new URLSearchParams();
             if (a) q.set("a", a);
-            if (b) q.set("b", b);
+            if (b && !autoRival) q.set("b", b);
+            if (autoRival) q.set("auto", "1");
             window.history.replaceState(null, "", location.pathname + (q.toString() ? "?" + q : ""));
             setLayout(); renderLegend(); render();
+            const ab = $("autoBadge");
+            ab.classList.toggle("is-hidden", !autoRival);
             await loadBattle();
             await Promise.all([loadSide(side.a, true), loadSide(side.b, true)]);
+        }
+
+        // klan o jedno místo před Clan 1 (když je Clan 1 první, tak ten druhý)
+        async function findRival(tagA) {
+            await loadBattle();
+            const da = await fetchClan(tagA).catch(() => null);
+            if (!da) return null;
+            const place = da.place || 0;
+            const n = Math.min(1000, Math.max(10, (place || 50) + 6));
+            const j = await (await fetch(`${WORKER_URL}/clans?page=1&pageSize=${n}&sort=Points&sortOrder=desc`)).json();
+            if (!j || j.status !== "ok" || !Array.isArray(j.data)) return null;
+            // seznam může být o chvíli starší než místo klanu -> Clan 1 z něj vyndat a vzít to, co je na místě place-1
+            const others = j.data.filter((c) => c.Name && c.Name.toUpperCase() !== tagA);
+            let idx;
+            if (place) idx = place === 1 ? 0 : place - 2;
+            else {
+                const i = j.data.findIndex((c) => (c.Name || "").toUpperCase() === tagA);
+                if (i < 0) return null;
+                idx = i === 0 ? 0 : i - 1;
+            }
+            const r = others[Math.max(0, Math.min(others.length - 1, idx))];
+            return r ? { tag: r.Name.toUpperCase(), first: place === 1 } : null;
+        }
+        async function checkAuto(force) {
+            if (!autoRival || !side.a.tag) return;
+            if (!force && Date.now() - autoCheckedAt < 30000) return;
+            autoCheckedAt = Date.now();
+            const r = await findRival(side.a.tag).catch(() => null);
+            if (!r || !autoRival) return;
+            const ab = $("autoBadge");
+            ab.textContent = r.first ? "AUTO · #2" : "AUTO · 1 AHEAD";
+            if (r.tag !== side.b.tag) {
+                const was = side.b.tag;
+                await setClans(side.a.tag, r.tag);
+                if (was) { ab.classList.remove("flash"); void ab.offsetWidth; ab.classList.add("flash"); }
+            }
         }
 
         async function poll() {
@@ -1122,6 +1187,10 @@
                 await loadBattle();
                 await Promise.all([loadSide(side.a, false), loadSide(side.b, false)]);
                 if (side.a.data && side.b.data) pushChart(side.a.current - side.b.current, true);
+                // Clan 1 se posunul o místo -> hned najít nového soupeře, jinak kontrola jednou za 30 s
+                const moved = autoRival && side.a.data && side.a.data.place && side.a.data.place !== side.a.lastPlace;
+                if (side.a.data) side.a.lastPlace = side.a.data.place;
+                await checkAuto(moved);
             }
             setTimeout(poll, POLL_MS);
         }
@@ -1153,17 +1222,46 @@
         }
         window.addEventListener("resize", () => { if ($("modalBg").classList.contains("open")) fitModal(); });
 
+        function setAutoUI(on) {
+            $("autoTgl").classList.toggle("on", on);
+            $("autoTgl").setAttribute("aria-checked", on ? "true" : "false");
+            const f = $("inputB");
+            f.disabled = on;
+            f.closest(".field").classList.toggle("auto", on);
+            f.placeholder = on ? "Auto" : "Clan tag";
+            if (on) f.value = "";
+        }
+        $("autoTgl").addEventListener("click", () => { setAutoUI(!$("autoTgl").classList.contains("on")); if (!$("autoTgl").classList.contains("on")) $("inputB").focus(); });
         function openModal() {
             fitModal();
-            $("inputA").value = side.a.tag; $("inputB").value = side.b.tag;
+            $("inputA").value = side.a.tag; $("inputB").value = autoRival ? "" : side.b.tag;
+            setAutoUI(autoRival);
             $("modalErr").textContent = "";
             $("modalBg").classList.add("open");
             setTimeout(() => (side.a.tag ? $("inputB") : $("inputA")).focus(), 60);
         }
         function closeModal() { $("modalBg").classList.remove("open"); }
         async function submitModal() {
-            const a = $("inputA").value.trim().toUpperCase(), b = $("inputB").value.trim().toUpperCase();
+            const a = $("inputA").value.trim().toUpperCase();
+            const wantAuto = $("autoTgl").classList.contains("on");
+            let b = $("inputB").value.trim().toUpperCase();
             const err = $("modalErr");
+            if (wantAuto) {
+                if (!a) { err.textContent = "Enter Clan 1."; return; }
+                $("goBtn").disabled = true; err.textContent = "";
+                try {
+                    const r = await findRival(a).catch(() => null);
+                    if (!r) { err.textContent = `Couldn't find the clan ahead of [${a}].`; return; }
+                    autoRival = true; autoCheckedAt = Date.now();
+                    closeModal();
+                    $("cmpScroll").scrollTo({ top: 0, behavior: "smooth" });
+                    await setClans(a, r.tag);
+                    $("autoBadge").textContent = r.first ? "AUTO · #2" : "AUTO · 1 AHEAD";
+                    side.a.lastPlace = side.a.data && side.a.data.place;
+                } finally { $("goBtn").disabled = false; }
+                return;
+            }
+            autoRival = false;
             if (!a || !b) { err.textContent = "Enter both clan tags."; return; }
             if (a === b) { err.textContent = "Pick two different clans."; return; }
             const btn = $("goBtn");
@@ -1203,7 +1301,10 @@
             setLayout();
             render();
             loadBattle();
-            setClans(a, b).then(() => setTimeout(poll, POLL_MS));
+            if (p.get("auto") === "1" && a) {
+                autoRival = true;
+                setClans(a, "").then(() => checkAuto(true)).then(() => setTimeout(poll, POLL_MS));
+            } else setClans(a, b).then(() => setTimeout(poll, POLL_MS));
         });
     </script>
 
@@ -1259,6 +1360,10 @@
   <details>
     <summary>Does the chart keep its history if I close the page?</summary>
     <div><p>No. The chart starts recording when you open the matchup and keeps the most recent points while the page stays open. For long tracking, leave the tab open on a computer, or use the OBS Versus overlay on stream.</p></div>
+  </details>
+  <details>
+    <summary>Can Compare pick the rival for me?</summary>
+    <div><p>Yes. In <b>Select Clans</b>, enter only Clan 1 and switch on <b>Auto: 1 place ahead</b>. Clan 2 is then always the clan one place above yours. When you overtake it, Compare switches to the next clan automatically. If Clan 1 is first, it shows the clan in second place. The link looks like <code>/compare/?a=TAG&amp;auto=1</code>.</p></div>
   </details>
   <details>
     <summary>Can I compare clans outside the top 1000?</summary>
