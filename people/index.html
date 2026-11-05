@@ -605,34 +605,69 @@
             return Avatars.fill(grid, AV_OPTS);
         }
 
+        // fetch s časovým limitem a jedním automatickým opakováním (worker občas odpoví chybou / pomalu)
+        async function fetchJson(url, { signal, timeout = 9000, retries = 1 } = {}) {
+            let lastErr;
+            for (let attempt = 0; attempt <= retries; attempt++) {
+                const ctrl = new AbortController();
+                const onAbort = () => ctrl.abort();
+                if (signal) {
+                    if (signal.aborted) throw new DOMException("Aborted", "AbortError");
+                    signal.addEventListener("abort", onAbort, { once: true });
+                }
+                const timer = setTimeout(() => ctrl.abort(), timeout);
+                try {
+                    const res = await fetch(url, { signal: ctrl.signal });
+                    const json = await res.json();
+                    if (res.ok && json && json.status === "ok") return json;
+                    lastErr = new Error("bad response");
+                } catch (e) {
+                    if (signal && signal.aborted) throw e;   // zrušeno novějším dotazem, neopakovat
+                    lastErr = e;
+                } finally {
+                    clearTimeout(timer);
+                    if (signal) signal.removeEventListener("abort", onAbort);
+                }
+                if (attempt < retries) await new Promise(r => setTimeout(r, 400));
+            }
+            throw lastErr;
+        }
+
+        let activeCtrl = null;
+
         async function fetchTopPlayers() {
             const overlay = document.getElementById("loadingOverlay");
             if (overlay) overlay.style.display = "flex";
 
             const myRequest = ++requestCounter;
+            if (activeCtrl) activeCtrl.abort();            // starší rozepsaný dotaz už nikoho nezajímá
+            const ctrl = activeCtrl = new AbortController();
+            const signal = ctrl.signal;
+            const q = searchQuery;
+
+            // Přesný nick se hledá souběžně se seznamem (ne až po něm), aby se nečekalo na dva dotazy za sebou
+            const exactPromise = (q && currentPage === 1)
+                ? searchByRobloxName(q, signal).catch(() => null)
+                : Promise.resolve(null);
 
             try {
-                const res = await fetch(`${WORKER_URL}/api/top-war-players?page=${currentPage}&pageSize=${itemsPerPage}&search=${encodeURIComponent(searchQuery)}`);
-                const json = await res.json();
+                const json = await fetchJson(
+                    `${WORKER_URL}/api/top-war-players?page=${currentPage}&pageSize=${itemsPerPage}&search=${encodeURIComponent(q)}`,
+                    { signal });
                 if (myRequest !== requestCounter) return; // mezitím přišel novější dotaz
 
-                if (!json || json.status !== "ok") {
-                    playersData = [];
-                    totalPages = 1;
-                    showMessage("API Error.", "#ff4a4a");
-                    return;
-                }
-
                 totalPages = Math.max(1, json.totalPages || 1);
-
                 const list = Array.isArray(json.data) ? json.data.slice() : [];
 
                 // Hledání: přesný nick dáme na první místo, i když ho databáze ještě nezná podle jména
-                if (searchQuery && currentPage === 1 && list.length > 0 &&
-                    !list.some(p => (p.Username || "").toLowerCase() === searchQuery.toLowerCase())) {
-                    const exact = await searchByRobloxName(searchQuery);
+                if (q && currentPage === 1) {
+                    const exact = await exactPromise;
                     if (myRequest !== requestCounter) return;
-                    if (exact && !list.some(p => p.UserID === exact.UserID)) list.unshift(exact);
+                    if (exact) {
+                        const i = list.findIndex(p => p.UserID === exact.UserID);
+                        if (i >= 0) list.splice(i, 1);
+                        list.unshift(exact);
+                    }
                 }
 
                 if (list.length > 0) {
@@ -641,43 +676,39 @@
                     return;
                 }
 
-                // Nic v databázi: hráč může být mimo top 25 000 nebo mu ještě nemáme nick.
-                // Zkusíme přesné vyhledání přes Roblox nick.
-                if (searchQuery && currentPage === 1) {
-                    const single = await searchByRobloxName(searchQuery);
-                    if (myRequest !== requestCounter) return;
-                    if (single) {
-                        playersData = [single];
-                        totalPages = 1;
-                        renderGrid();
-                        return;
-                    }
-                }
-
                 playersData = [];
                 totalPages = 1;
                 document.getElementById("pageNumberDisplay").textContent = 1;
-                showMessage(searchQuery ? "Player not found in top 25,000." : "No players yet.");
+                showMessage(q ? "Player not found." : "No players yet.");
             } catch (err) {
+                if (err && err.name === "AbortError" && myRequest !== requestCounter) return;
                 console.error(err);
-                if (myRequest === requestCounter) showMessage("API Error.", "#ff4a4a");
+                if (myRequest === requestCounter) {
+                    // seznam selhal, ale přesný nick třeba ještě zachrání výsledek
+                    const exact = q ? await exactPromise : null;
+                    if (myRequest !== requestCounter) return;
+                    if (exact) { playersData = [exact]; totalPages = 1; renderGrid(); return; }
+                    showMessage("Connection problem. Try again.", "#ff4a4a");
+                }
             } finally {
                 if (myRequest === requestCounter && overlay) overlay.style.display = "none";
             }
         }
 
-        // Přesné hledání podle Roblox nicku (worker převede nick -> ID a vrátí pořadí v top 25 000)
-        async function searchByRobloxName(name) {
+        // Přesné hledání podle Roblox nicku (worker převede nick -> ID a vrátí hráče a jeho pořadí)
+        async function searchByRobloxName(name, signal) {
             if (!/^[A-Za-z0-9_]{3,20}$/.test(name)) return null;
             try {
-                const res = await fetch(`${WORKER_URL}/api/player/search?name=${encodeURIComponent(name)}`);
-                const json = await res.json();
-                if (json && json.status === "ok" && json.found && json.player) {
+                const json = await fetchJson(
+                    `${WORKER_URL}/api/player/search?name=${encodeURIComponent(name)}&brief=1`,
+                    { signal, timeout: 8000, retries: 0 });
+                if (json.found && json.player) {
                     const p = json.player;
                     return { UserID: p.userId, Username: p.username, Clan: p.clan, InClan: p.inClan, Points: p.points, Rank: p.rank };
                 }
             } catch (e) {
-                console.warn("Search fallback failed:", e.message);
+                if (e && e.name === "AbortError" && signal && signal.aborted) throw e;
+                console.warn("Search fallback failed:", e && e.message);
             }
             return null;
         }
@@ -794,7 +825,7 @@
             clearTimeout(searchTimeout);
             searchTimeout = setTimeout(() => {
                 fetchTopPlayers();
-            }, 300);
+            }, 350);
         });
 
         document.getElementById("prevPageBtn").addEventListener("click", (e) => {
