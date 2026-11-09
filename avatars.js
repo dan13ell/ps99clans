@@ -10,7 +10,7 @@
 (function () {
     "use strict";
 
-    const WORKER_URL = "https://rough-pine-d90f.ps99clans.workers.dev";
+    const WORKER_URL = "https://rough-pine-d90f.dan13el.workers.dev";
     const SOURCES = [
         WORKER_URL + "/roblox/avatars",
         "https://thumbnails.roproxy.com/v1/users/avatar-headshot"

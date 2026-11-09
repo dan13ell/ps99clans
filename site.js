@@ -7,7 +7,7 @@
 (function () {
     "use strict";
 
-    var WORKER_URL = "https://rough-pine-d90f.ps99clans.workers.dev";
+    var WORKER_URL = "https://rough-pine-d90f.dan13el.workers.dev";
     var ADS_CLIENT = "ca-pub-5302554896051137";
     var root = document.documentElement;
 
