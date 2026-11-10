@@ -11,9 +11,13 @@
     "use strict";
 
     const WORKER_URL = "https://rough-pine-d90f.dan13el.workers.dev";
+    // worker (rychlý, cachovaný) -> přímo z prohlížeče na roproxy -> přímo z prohlížeče na Roblox
+    // Když worker zrovna nemůže (např. dočasně blokovaný Robloxem), další pokus jde hned
+    // na přímé zdroje z prohlížeče, ne znovu na worker.
     const SOURCES = [
         WORKER_URL + "/roblox/avatars",
-        "https://thumbnails.roproxy.com/v1/users/avatar-headshot"
+        "https://thumbnails.roproxy.com/v1/users/avatar-headshot",
+        "https://thumbnails.roblox.com/v1/users/avatar-headshot"
     ];
     const KEY = "ps99Avatars_v1";
     const TTL = 3 * 24 * 3600 * 1000;      // platnost uložené adresy
@@ -88,8 +92,9 @@
         let todo = ids.slice();
         for (let attempt = 0; attempt <= RETRY_MS.length && todo.length; attempt++) {
             if (attempt) await sleep(RETRY_MS[attempt - 1] + Math.random() * 300);
-            // 1. a 2. pokus přes worker, pak střídavě i záloha
-            const src = SOURCES[attempt < 2 ? 0 : attempt % SOURCES.length];
+            // 1. pokus přes worker, od 2. pokusu rovnou přímé zdroje z prohlížeče (worker se
+            // zkusí znovu jen občas, ať se neplýtvá časem, když je zrovna nedostupný)
+            const src = SOURCES[attempt === 0 || attempt % 3 === 0 ? 0 : (attempt % 2 === 1 ? 1 : 2)];
             const q = `?userIds=${todo.join(",")}&size=${o.size}&format=Png&isCircular=${o.circular}`;
             let data;
             await slot();
