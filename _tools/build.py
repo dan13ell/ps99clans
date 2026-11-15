@@ -27,6 +27,10 @@ CSS_V = "7"
 JS_V = "3"
 TODAY = datetime.date.today().isoformat()
 
+# False = pod hlavním oknem nic není (žádné texty, FAQ, guides, patička), stránka končí lištou.
+# True  = vrátí obsah z _content/ a textové stránky (guides, about, contact, ...).
+CONTENT = False
+
 # ---------------------------------------------------------------- stránky s oknem
 # ads: "static" = reklamní skript hned, "defer" = až po načtení dat (site.js), "none"
 APP = [
@@ -320,7 +324,31 @@ def html_tag(s, classes=None, attrs=None):
     return s[:m.start()] + tag + ">" + s[m.end():]
 
 
+def remove_block(s, name):
+    return re.sub(r"\n?<!--SC:" + name + r"-->.*?<!--/SC:" + name + r"-->\n?", "\n", s, flags=re.S)
+
+
+def build_app_plain(p):
+    """Bez obsahu pod oknem: jen popis pro vyhledávače, žádné reklamy ani texty."""
+    s = read(p["file"])
+    s = strip_old(s)
+    s = set_ads(s, "none")
+    s = html_tag(s)
+    s = re.sub(r"<title>.*?</title>", f"<title>{esc(p['title'])}</title>", s, count=1, flags=re.S)
+    s = re.sub(r'\s*<meta name="description"[^>]*>', "", s)
+    lds = []
+    if p["key"] == "home":
+        lds.append({"@context": "https://schema.org", "@type": "WebSite", "name": "PS99 Clans", "url": SITE + "/",
+                    "description": p["desc"], "inLanguage": "en"})
+    s = replace_block(s, "HEAD", meta_block(p["title"], p["desc"], p["url"], lds, css=False), "</head>")
+    s = links_to_anchors(s)
+    s = remove_block(s, "BODY")
+    write(p["file"], s)
+
+
 def build_app(p):
+    if not CONTENT:
+        return build_app_plain(p)
     s = read(p["file"])
     s = strip_old(s)
     s = set_ads(s, p["ads"])
@@ -429,7 +457,7 @@ def build_doc(d):
 
 def sitemap():
     urls = [p["url"] for p in APP if p["url"]] + [p["url"] for p in HEAD_ONLY if p["url"] and not p["robots"]]
-    urls += [d["url"] for d in DOCS if d["url"]]
+    urls += [d["url"] for d in DOCS if d["url"]] if CONTENT else ["/about/", "/privacy/"]
     pr = {"/": "1.0", "/topclans/": "0.9", "/people/": "0.9", "/leagues/": "0.8", "/guides/": "0.8"}
     rows = "".join(f"  <url><loc>{SITE}{u}</loc><lastmod>{TODAY}</lastmod><priority>{pr.get(u, '0.6')}</priority></url>\n" for u in urls)
     write("sitemap.xml", f'<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n{rows}</urlset>\n')
@@ -440,7 +468,8 @@ if __name__ == "__main__":
         build_app(p)
     for p in HEAD_ONLY:
         build_head_only(p)
-    for d in DOCS:
-        build_doc(d)
+    if CONTENT:
+        for d in DOCS:
+            build_doc(d)
     sitemap()
     print("ok:", len(APP), "app pages,", len(DOCS), "doc pages")
