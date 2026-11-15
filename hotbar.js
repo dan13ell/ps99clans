@@ -261,6 +261,7 @@
   // Když na to není místo, okno se posune nahoru jen o tolik, kolik je potřeba (logo nesmí vyjet).
   const PAD_TOP = 30;   // horní padding lišty (místo pro popisek)
   function lift() {
+    if (window.visualViewport && window.visualViewport.scale > 1.01) return;   // zoom prsty -> nepřepočítávat
     const win = document.querySelector(".game-window");
     const bg = win && win.querySelector(".menu-bg");
     const bar = win && win.querySelector(".ps-hotbar");
@@ -285,12 +286,12 @@
     const minGap = (arrow ? 52 : 14) * s;
     const tall = items.some((it) => it.active) ? ACTIVE_SCALE : 1;      // aktivní tlačítko je vyšší (roste nahoru)
     const iconH = SIZE * tall * s;
-    let gap = (window.innerHeight - bottom0 - iconH) / 2;                // stejná mezera nad i pod
+    let gap = (document.documentElement.clientHeight - bottom0 - iconH) / 2;                // stejná mezera nad i pod
     // na mobilu lišta hned pod oknem (jinak je moc daleko od main menu)
     if (s < 1 || document.body.classList.contains("is-mobile")) gap = Math.min(gap, minGap + 10 * s);
     let up = 0;
     if (gap < minGap) {
-      up = Math.min(room, (bottom0 + minGap + iconH + minGap - window.innerHeight) / s);
+      up = Math.min(room, (bottom0 + minGap + iconH + minGap - document.documentElement.clientHeight) / s);
       gap = minGap;
     }
     win.style.setProperty("--hb-lift", up.toFixed(1));

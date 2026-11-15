@@ -679,9 +679,10 @@
         const COL_A = "#2DB9E5", COL_B = "#FF4F86";
 
         function autoFitScreen() {
+            if (window.visualViewport && window.visualViewport.scale > 1.01) return;   // uživatel zoomuje -> nic neměnit
             const scaler = $("appScaler");
             if (!scaler) return;
-            const winW = window.innerWidth, winH = window.innerHeight;
+            const winW = document.documentElement.clientWidth, winH = document.documentElement.clientHeight;
             if (winW >= 1150) { document.body.classList.remove("is-mobile"); scaler.style.transform = winH < 840 ? `scale(${(winH / 840).toFixed(4)})` : "none"; return; }
             document.body.classList.add("is-mobile");
             scaler.style.transform = `scale(${Math.min(winW / 1120, winH / 960) * 0.92})`;
@@ -1319,6 +1320,6 @@
 
     <a href="/privacy/" class="privacy-link">Privacy Policy</a>
     <script src="/scrollbar.js?v=2"></script>
-    <script src="/hotbar.js?v=7"></script>
+    <script src="/hotbar.js?v=8"></script>
 </body>
 </html>

@@ -552,11 +552,12 @@
         let isDataLoaded = false;
 
         function autoFitScreen() {
+            if (window.visualViewport && window.visualViewport.scale > 1.01) return;   // uživatel zoomuje -> nic neměnit
             const scaler = document.getElementById("appScaler");
             if (!scaler) return;
 
-            const winW = window.innerWidth;
-            const winH = window.innerHeight;
+            const winW = document.documentElement.clientWidth;
+            const winH = document.documentElement.clientHeight;
 
             if (winW >= 1150) {
                 document.body.classList.remove("is-mobile");
@@ -754,6 +755,6 @@
 
     <a href="/privacy/" class="privacy-link">Privacy Policy</a>
     <script src="/scrollbar.js?v=2"></script>
-    <script src="/hotbar.js?v=7"></script>
+    <script src="/hotbar.js?v=8"></script>
 </body>
 </html>
