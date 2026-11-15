@@ -488,8 +488,18 @@
         }
 
         let currentName = "";
+        // Adresa stránky nese jméno hráče (/people-detail/?id=Jmeno). Staré odkazy s číselným ID fungují dál.
+        function setUrlName(name) {
+            if (!/^[A-Za-z0-9_]{3,20}$/.test(name)) return;
+            const want = "?id=" + encodeURIComponent(name);
+            if (location.search !== want && history.replaceState) {
+                history.replaceState(null, "", location.pathname + want);
+            }
+        }
+
         function setName(name) {
             currentName = name;
+            setUrlName(name);
             const el = $("pdName");
             el.textContent = name;
             el.setAttribute("data-text", name);
@@ -531,7 +541,7 @@
             nameEl.textContent = name;
             fitInside(nameEl, 12, 8);
             $(prefix + "Sub").textContent = `#${fullNumber(n.rank)} · ${label}`;
-            box.onclick = () => { location.href = `/people-detail/?id=${encodeURIComponent(n.userId)}`; };
+            box.onclick = () => { location.href = `/people-detail/?id=${encodeURIComponent(n.username || n.userId)}`; };
         }
 
         function fillRank(p, nb) {
@@ -697,15 +707,33 @@
         }
 
         // ---------- načtení hráče ----------
+        // V adrese může být jméno (?id=Jmeno) nebo staré číselné ID (?id=123456).
+        async function fetchPlayer(raw) {
+            const getJson = async (u) => (await fetch(u)).json();
+            const nameUrl = `${WORKER_URL}/api/player/search?name=${encodeURIComponent(raw)}`;
+            const looksLikeName = /^[A-Za-z0-9_]{3,20}$/.test(raw);
+
+            if (/^\d+$/.test(raw)) {
+                const json = await getJson(`${WORKER_URL}/api/player/${raw}`);
+                // jméno může být i ze samých číslic – když ID nic nenajde, zkusíme ho ještě jako jméno
+                if (json && json.status === "ok" && !json.found && looksLikeName) {
+                    const alt = await getJson(nameUrl);
+                    if (alt && alt.status === "ok" && alt.found) return alt;
+                }
+                return json;
+            }
+            if (looksLikeName) return getJson(nameUrl);
+            return { status: "ok", found: false };
+        }
+
         async function loadPlayer() {
-            const userId = parseInt(new URLSearchParams(location.search).get("id"), 10);
-            if (!userId) { showCenter("Player not found."); if (window.PS99Site) PS99Site.notFound(); return; }
+            const raw = (new URLSearchParams(location.search).get("id") || "").trim();
+            if (!raw) { showCenter("Player not found."); if (window.PS99Site) PS99Site.notFound(); return; }
 
             try {
-                const res = await fetch(`${WORKER_URL}/api/player/${userId}`);
-                const json = await res.json();
+                const json = await fetchPlayer(raw);
                 if (!json || json.status !== "ok") { showCenter("API Error.", true); return; }
-                if (!json.found || !json.player) { showCenter(json.message || "Player not found in top 25,000."); if (window.PS99Site) PS99Site.notFound(); return; }
+                if (!json.found || !json.player) { showCenter(json.message || "Player not found."); if (window.PS99Site) PS99Site.notFound(); return; }
 
                 const p = json.player, ended = !json.active, battle = json.battle || {};
                 const history = Array.isArray(json.history) ? json.history : [];

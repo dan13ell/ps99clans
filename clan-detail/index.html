@@ -1087,7 +1087,7 @@
             box.addEventListener("click", (e) => {
                 const card = e.target.closest(".member-card");
                 if (!card || !card.dataset.uid) return;
-                location.href = `/people-detail/?id=${encodeURIComponent(card.dataset.uid)}`;
+                location.href = `/people-detail/?id=${encodeURIComponent(card.dataset.name || card.dataset.uid)}`;
             });
         })();
 
@@ -1103,6 +1103,8 @@
                     ? `@${nameCache[uid]}`
                     : (namesFinal ? `@Player_${uid}` : "@...");
                 const avatarUrl = Avatars.src(uid, AV_OPTS);
+                // jméno do odkazu na detail hráče (jen bezpečné Roblox nicky, jdou rovnou do atributu)
+                const linkName = /^[A-Za-z0-9_]{3,20}$/.test(nameCache[uid] || "") ? ` data-name="${nameCache[uid]}"` : "";
 
                 let rankHtml = "";
                 if (member.PermissionLevel >= 100) {
@@ -1112,7 +1114,7 @@
                 }
 
                 membersHtml += `
-                    <div class="member-card" data-uid="${uid}">
+                    <div class="member-card" data-uid="${uid}"${linkName}>
                       <div class="member-card-inner">
                         <div class="member-username-text">${usernameWithAt}</div>
                         ${rankHtml}

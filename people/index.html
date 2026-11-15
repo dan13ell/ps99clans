@@ -729,7 +729,7 @@
                 card.className = "player-card";
                 card.style.cursor = "pointer";
                 card.addEventListener("click", () => {
-                    location.href = `/people-detail/?id=${encodeURIComponent(player.UserID)}`;
+                    location.href = `/people-detail/?id=${encodeURIComponent(player.Username || player.UserID)}`;
                 });
 
                 const rankColor = (absoluteRank === 1) ? "#8AFCED" : "#FFFFFF";
