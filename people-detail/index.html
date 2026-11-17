@@ -597,15 +597,20 @@
                 $("stLabelBest").textContent = "Best hour";
                 return;
             }
+            // gain === null = hodina bez dat (chyba API) – do součtů ani průměru se nepočítá
             const gains = history.map(h => h.gain);
-            const total = gains.reduce((a, b) => a + b, 0);
-            const bestI = gains.indexOf(Math.max(...gains));
+            const known = gains.filter(g => g != null);
+            const total = known.reduce((a, b) => a + b, 0);
+            const bestVal = known.length ? Math.max(...known) : 0;
+            const bestI = gains.indexOf(bestVal);
+            const latest = gains[gains.length - 1];
             $("stLabelTotal").textContent = `Total · ${history.length}h`;
-            $("stLabelBest").textContent = gains[bestI] > 0 ? `Best hour · ${hh(history[bestI].hour)}:00` : "Best hour";
+            $("stLabelBest").textContent = bestVal > 0 ? `Best hour · ${hh(history[bestI].hour)}:00` : "Best hour";
             $("stTotal").textContent = short2(total);
-            $("stAvg").textContent = short2(total / history.length);
-            $("stBest").textContent = short2(gains[bestI]);
-            $("stLatest").textContent = short2(gains[gains.length - 1]);
+            $("stAvg").textContent = known.length ? short2(total / known.length) : "N/A";
+            $("stBest").textContent = known.length ? short2(bestVal) : "N/A";
+            $("stLatest").textContent = latest == null ? "N/A" : short2(latest);
+            $("stLatest").classList.toggle("is-na", latest == null);
         }
 
         function renderChart(history, ended) {
@@ -615,13 +620,20 @@
 
             const n = history.length;
             const plotW = SVG_W - PAD_L - PAD_R, plotH = SVG_H - PAD_T - PAD_B;
+            // gain === null = hodina bez dat (chyba API): žádný bod, čára se v ní přeruší
             const gains = history.map(h => h.gain);
-            const total = gains.reduce((a, b) => a + b, 0), avg = total / n;
-            const max = niceMax(Math.max(...gains, 1));
+            const known = gains.filter(g => g != null);
+            const total = known.reduce((a, b) => a + b, 0), avg = known.length ? total / known.length : 0;
+            const max = niceMax(Math.max(...known, 1));
             const baseY = PAD_T + plotH;
             const xAt = i => n === 1 ? PAD_L + plotW / 2 : PAD_L + (i * plotW) / (n - 1);
             const yAt = v => baseY - (v / max) * plotH;
-            const pts = gains.map((g, i) => ({ x: xAt(i), y: yAt(g) }));
+            const pts = gains.map((g, i) => ({ x: xAt(i), y: g == null ? baseY : yAt(g), gap: g == null }));
+            // souvislé úseky s daty
+            const segs = [];
+            let cur = [];
+            pts.forEach(p => { if (p.gap) { if (cur.length) segs.push(cur); cur = []; } else cur.push(p); });
+            if (cur.length) segs.push(cur);
             const nowHour = Math.floor(Date.now() / 3600000) * 3600;
 
             let out = `<defs><linearGradient id="pdFill" x1="0" y1="0" x2="0" y2="1">
@@ -647,22 +659,25 @@
             const avgY = yAt(avg);
             out += `<line x1="${PAD_L}" y1="${avgY}" x2="${SVG_W - PAD_R}" y2="${avgY}" stroke="#262C2D" stroke-opacity="0.55" stroke-width="2" stroke-dasharray="6 5"/>`;
 
-            // plocha, obrys a bílá čára křivky
-            const line = smoothPath(pts);
-            if (n > 1) out += `<path d="${line} L${pts[n - 1].x.toFixed(1)} ${baseY} L${pts[0].x.toFixed(1)} ${baseY} Z" fill="url(#pdFill)"/>`;
-            if (n > 1) {
+            // plocha, obrys a bílá čára křivky (každý úsek zvlášť, mezery zůstanou prázdné)
+            segs.forEach(seg => {
+                if (seg.length < 2) return;
+                const line = smoothPath(seg), a = seg[0], z = seg[seg.length - 1];
+                out += `<path d="${line} L${z.x.toFixed(1)} ${baseY} L${a.x.toFixed(1)} ${baseY} Z" fill="url(#pdFill)"/>`;
                 out += `<path d="${line}" fill="none" stroke="#000000" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>`;
                 out += `<path d="${line}" fill="none" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>`;
-            }
+            });
 
-            // body (bílé s černým okrajem jako v live)
-            pts.forEach((p, i) => { out += `<circle id="pdPt${i}" cx="${p.x}" cy="${p.y}" r="4" fill="#FFFFFF" stroke="#000000" stroke-width="2"/>`; });
+            // body (bílé s černým okrajem jako v live) – jen hodiny s daty
+            pts.forEach((p, i) => { if (!p.gap) out += `<circle id="pdPt${i}" cx="${p.x}" cy="${p.y}" r="4" fill="#FFFFFF" stroke="#000000" stroke-width="2"/>`; });
 
-            // bublina s posledním přírůstkem
-            const last = pts[n - 1], txt = short2(gains[n - 1]);
+            // bublina s posledním známým přírůstkem
+            let lastI = n - 1;
+            while (lastI > 0 && pts[lastI].gap) lastI--;
+            const last = pts[lastI], txt = gains[lastI] == null ? "" : short2(gains[lastI]);
             const bw = txt.length * 8 + 16, bx = Math.max(PAD_L - 8, Math.min(SVG_W - 4 - bw, last.x - bw / 2));
             const by = Math.max(2, last.y - 30);
-            out += `<g pointer-events="none"><rect x="${bx}" y="${by}" width="${bw}" height="22" rx="6" fill="#FFFFFF" stroke="#000000" stroke-width="2"/>
+            if (txt) out += `<g pointer-events="none"><rect x="${bx}" y="${by}" width="${bw}" height="22" rx="6" fill="#FFFFFF" stroke="#000000" stroke-width="2"/>
                     <text x="${bx + bw / 2}" y="${by + 15.5}" text-anchor="middle" style="font-size:13px;font-weight:800">${txt}</text></g>`;
 
             // neviditelné plochy pro hover/klepnutí
@@ -682,7 +697,7 @@
                 const h = history[i], c = $("pdPt" + i);
                 if (c) c.setAttribute("r", "6.5");
                 $("pdTipTitle").textContent = `${hh(h.hour)}:00 - ${hh(h.hour)}:59${!ended && h.hour === nowHour ? " (so far)" : ""}`;
-                $("pdTipBody").textContent = `+${fullNumber(h.gain)} points`;
+                $("pdTipBody").textContent = h.gain == null ? "No data (API error)" : `+${fullNumber(h.gain)} points`;
                 tip.style.display = "block";
                 const w = tip.offsetWidth, th = tip.offsetHeight;
                 let left = 6 + pts[i].x - w / 2;
