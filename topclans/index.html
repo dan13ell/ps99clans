@@ -474,6 +474,188 @@
             -webkit-text-fill-color: transparent;
         }
 
+        /* ===== Adsterra native ad – vypadá jako karta klanu ===== */
+        /* Prázdný slot (reklama se nenačetla) nezabírá místo. */
+        .ad-slot { width: 736px; }
+        .ad-slot:not(:has(.ad-card)) { height: 0; overflow: hidden; }
+
+        /* Obalové prvky Adsterry "zploštíme", aby nerozbily rozložení karty. */
+        #container-5a8380636c548f4f5edfd9ffe106a2f4,
+        #container-5a8380636c548f4f5edfd9ffe106a2f4 *:not(.ad-card):not(.ad-card *) {
+            margin: 0 !important;
+            padding: 0 !important;
+            border: 0 !important;
+            background: none !important;
+            box-shadow: none !important;
+            width: auto !important;
+            height: auto !important;
+            max-width: none !important;
+        }
+        #container-5a8380636c548f4f5edfd9ffe106a2f4 *:not(.ad-card):not(.ad-card *) {
+            display: block !important;
+            float: none !important;
+        }
+
+        #container-5a8380636c548f4f5edfd9ffe106a2f4 .ad-card {
+            display: block !important;
+            position: relative !important;
+            width: 736px !important;
+            height: 112px !important;
+            margin: 0 0 6px 0 !important;
+            padding: 0 !important;
+            border: 0 !important;
+            border-radius: 0 !important;
+            box-shadow: none !important;
+            background: url("/images/clan-board.png") no-repeat center center !important;
+            background-size: 100% 100% !important;
+            image-rendering: pixelated;
+            overflow: visible !important;
+            cursor: pointer;
+            text-decoration: none !important;
+            font-family: 'Fredoka', sans-serif !important;
+            transition: transform 0.044s cubic-bezier(0.1, 0.9, 0.2, 1);
+        }
+        #container-5a8380636c548f4f5edfd9ffe106a2f4 .ad-card:hover { transform: scale(1.015); z-index: 10; }
+        #container-5a8380636c548f4f5edfd9ffe106a2f4 .ad-card:active { transform: scale(0.96); }
+
+        /* vnitřní obaly reklamy nesmí ovlivnit pozice → display: contents */
+        #container-5a8380636c548f4f5edfd9ffe106a2f4 .ad-card *:not(.ad-card-img):not(.ad-card-title):not(.ad-card-desc):not(.ad-card-meta):not(img):not(style):not(script) {
+            display: contents !important;
+        }
+        #container-5a8380636c548f4f5edfd9ffe106a2f4 .ad-card .ad-card-extra { display: none !important; }
+
+        /* další drobné obrázky od Adsterry (ikonka/info) – malé vpravo dole */
+        #container-5a8380636c548f4f5edfd9ffe106a2f4 .ad-card img:not(.ad-card-img) {
+            position: absolute !important;
+            right: 10px !important;
+            bottom: 8px !important;
+            max-width: 24px !important;
+            max-height: 24px !important;
+        }
+
+        /* třetí text (např. značka/doména) – na místě počtu členů */
+        #container-5a8380636c548f4f5edfd9ffe106a2f4 .ad-card .ad-card-meta {
+            display: block !important;
+            position: absolute !important;
+            right: 40px !important;
+            top: 72px !important;
+            padding: 4px 3px !important;
+            max-width: 200px !important;
+            font-family: 'Fredoka', sans-serif !important;
+            font-size: 22px !important;
+            font-weight: 800 !important;
+            font-style: normal !important;
+            color: #92F0EB !important;
+            -webkit-text-stroke: 5px #000000;
+            paint-order: stroke fill;
+            text-shadow: none !important;
+            white-space: nowrap !important;
+            overflow: hidden !important;
+            text-overflow: ellipsis !important;
+            pointer-events: none;
+        }
+
+        /* štítek "AD" na místě pořadí */
+        #container-5a8380636c548f4f5edfd9ffe106a2f4 .ad-card::before {
+            content: "AD";
+            position: absolute;
+            left: -6px;
+            top: -11px;
+            font-size: 40px;
+            font-weight: 800;
+            color: #FFD84A;
+            -webkit-text-stroke: 6px #000000;
+            paint-order: stroke fill;
+            pointer-events: none;
+            z-index: 15;
+        }
+        /* "Sponsored" na místě bodů */
+        #container-5a8380636c548f4f5edfd9ffe106a2f4 .ad-card::after {
+            content: "Sponsored";
+            position: absolute;
+            right: 14px;
+            top: 14px;
+            font-size: 30px;
+            font-weight: 800;
+            color: #FEFEFE;
+            -webkit-text-stroke: 7px #000000;
+            paint-order: stroke fill;
+            pointer-events: none;
+            white-space: nowrap;
+        }
+
+        /* obrázek reklamy = ikona klanu */
+        #container-5a8380636c548f4f5edfd9ffe106a2f4 .ad-card .ad-card-img {
+            display: block !important;
+            position: absolute !important;
+            left: 13px !important;
+            top: 12px !important;
+            width: 90px !important;
+            height: 90px !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            border: 0 !important;
+            border-radius: 8px !important;
+            background-color: #ffffff;
+            background-size: cover !important;
+            background-position: center !important;
+            object-fit: cover !important;
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        /* nadpis reklamy = jméno klanu */
+        #container-5a8380636c548f4f5edfd9ffe106a2f4 .ad-card .ad-card-title {
+            display: block !important;
+            position: absolute !important;
+            left: 126px !important;
+            top: 8px !important;
+            width: 400px !important;
+            height: auto !important;
+            margin: 0 !important;
+            padding: 4px 4px !important;
+            font-family: 'Fredoka', sans-serif !important;
+            font-size: 30px !important;
+            line-height: 1.1 !important;
+            font-weight: 800 !important;
+            font-style: normal !important;
+            color: #FEFEFE !important;
+            -webkit-text-stroke: 7px #000000;
+            paint-order: stroke fill;
+            text-shadow: none !important;
+            text-align: left !important;
+            white-space: nowrap !important;
+            overflow: hidden !important;
+            text-overflow: ellipsis !important;
+            pointer-events: none;
+        }
+
+        /* popis reklamy = popis klanu */
+        #container-5a8380636c548f4f5edfd9ffe106a2f4 .ad-card .ad-card-desc {
+            display: -webkit-box !important;
+            -webkit-box-orient: vertical;
+            -webkit-line-clamp: 2;
+            position: absolute !important;
+            left: 126px !important;
+            top: 56px !important;
+            width: 500px !important;
+            height: auto !important;
+            max-height: 52px !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            font-family: 'Fredoka', sans-serif !important;
+            font-size: 24px !important;
+            line-height: 1.05 !important;
+            font-weight: 700 !important;
+            font-style: italic !important;
+            color: #2B2B2B !important;
+            text-shadow: none !important;
+            text-align: left !important;
+            white-space: normal !important;
+            overflow: hidden !important;
+            pointer-events: none;
+        }
+
         .leaderboard-footer {
             position: relative;
             width: 736px;
@@ -829,6 +1011,9 @@
                         <div class="banner-timer" id="bannerTimer">00h:00m:00s</div>
                         <div class="banner-subtitle" id="bannerSubtitle">Active Clan Battle</div>
                     </div>
+                    <div class="ad-slot" id="adSlot">
+                        <div id="container-5a8380636c548f4f5edfd9ffe106a2f4"></div>
+                    </div>
                     <div id="clanCardsList"></div>
                     
                     <div class="leaderboard-footer" id="leaderboardFooter">
@@ -1111,6 +1296,7 @@
 
         async function fetchLeaderboardData(isSilent = false) {
             const list = document.getElementById("clanCardsList");
+            parkAdSlot();
             if (!isSilent && list) {
                 list.innerHTML = `<div class="leaderboard-loading">Loading...</div>`;
             }
@@ -1136,7 +1322,104 @@
             if (typeof fetchActiveClanBattle === "function") { fetchActiveClanBattle(); }
         }
 
+        /* ===== Reklama (Adsterra native) =====
+           Slot s reklamou se nikdy nemaže – jen se přesouvá. Seznam se přestavuje přes innerHTML,
+           takže ho před tím "zaparkujeme" mimo seznam a po vykreslení vložíme za AD_AFTER_ROW-tou kartu. */
+        const AD_AFTER_ROW = 3;
+        const AD_CONTAINER_ID = "container-5a8380636c548f4f5edfd9ffe106a2f4";
+
+        function parkAdSlot() {
+            const slot = document.getElementById("adSlot");
+            const list = document.getElementById("clanCardsList");
+            if (slot && list && slot.parentNode === list) list.parentNode.insertBefore(slot, list);
+        }
+
+        function placeAdSlot() {
+            const slot = document.getElementById("adSlot");
+            const list = document.getElementById("clanCardsList");
+            if (!slot || !list) return;
+            const rows = list.querySelectorAll(":scope > .clan-row");
+            if (!rows.length) return;
+            const after = rows[Math.min(AD_AFTER_ROW, rows.length) - 1];
+            after.insertAdjacentElement("afterend", slot);
+        }
+
+        // Najde v reklamě položky (obrázek + text) a přidá jim naše třídy. Nic nemaže ani nemění odkazy,
+        // takže měření zobrazení a kliků od Adsterry zůstává jejich.
+        function hasBgImage(el) {
+            const bg = getComputedStyle(el).backgroundImage;
+            return bg && bg !== "none" && bg.includes("url(");
+        }
+
+        function ownText(el) {
+            let t = "";
+            el.childNodes.forEach(n => { if (n.nodeType === 3) t += n.textContent; });
+            return t.replace(/\s+/g, " ").trim();
+        }
+
+        function picArea(el) {
+            if (el.tagName === "IMG") return (el.naturalWidth * el.naturalHeight) || (el.width * el.height) || 1;
+            return (el.offsetWidth * el.offsetHeight) || 1;
+        }
+
+        function styleAdItems() {
+            const box = document.getElementById(AD_CONTAINER_ID);
+            if (!box) return;
+            const pics = [...box.querySelectorAll("img")].concat(
+                [...box.querySelectorAll("div, span, a, i")].filter(el => !el.querySelector("img") && hasBgImage(el)));
+
+            // nejmenší předek obrázku, který obsahuje i text = jedna reklama
+            const items = new Map();
+            pics.forEach(pic => {
+                let item = pic.parentElement;
+                while (item && item !== box && !(item.innerText || "").trim()) item = item.parentElement;
+                if (!item || item === box) return;
+                if (!items.has(item)) items.set(item, []);
+                items.get(item).push(pic);
+            });
+
+            items.forEach((itemPics, item) => {
+                item.classList.add("ad-card");
+
+                // hlavní obrázek = největší (ne měřicí pixel ani ikonka)
+                itemPics.forEach(p => p.classList.remove("ad-card-img"));
+                itemPics.sort((a, b) => picArea(b) - picArea(a))[0].classList.add("ad-card-img");
+
+                if (!item.dataset.adStyled) {
+                    item.dataset.adStyled = "1";
+                    const texts = [...item.querySelectorAll("*")].filter(el =>
+                        el.tagName !== "STYLE" && el.tagName !== "SCRIPT" && ownText(el).length > 0);
+                    texts.forEach((el, i) => {
+                        el.classList.add(i === 0 ? "ad-card-title" : i === 1 ? "ad-card-desc" : i === 2 ? "ad-card-meta" : "ad-card-extra");
+                    });
+                    if (!item.title && texts[0]) item.title = ownText(texts[0]);
+
+                    // když je karta <div> s odkazem uvnitř, klik kamkoli na kartu otevře reklamní odkaz
+                    if (item.tagName !== "A") {
+                        item.addEventListener("click", (e) => {
+                            if (e.target.closest("a")) return;
+                            const link = item.querySelector("a[href]");
+                            if (link) link.click();
+                        });
+                    }
+                }
+            });
+        }
+
+        (function watchAd() {
+            const box = document.getElementById(AD_CONTAINER_ID);
+            if (!box) return;
+            let pending = false;
+            new MutationObserver(() => {
+                if (pending) return;
+                pending = true;
+                requestAnimationFrame(() => { pending = false; styleAdItems(); });
+            }).observe(box, { childList: true, subtree: true });
+            box.addEventListener("load", styleAdItems, true); // obrázky se načetly → přepočítat
+        })();
+
         function renderLeaderboard() {
+            parkAdSlot();
             const list = document.getElementById("clanCardsList");
             const banner = document.getElementById("clanWarBanner");
             const footerEl = document.getElementById("leaderboardFooter");
@@ -1215,6 +1498,7 @@
                 fetchClanDescription(clan.Name, descElementId);
             });
 
+            placeAdSlot();
             document.getElementById("leaderboardList").scrollTop = savedScrollTop;
         }
 
@@ -1356,5 +1640,7 @@
     <a href="/privacy/" class="privacy-link">Privacy Policy</a>
     <script src="/scrollbar.js?v=4"></script>
     <script src="/hotbar.js?v=8"></script>
+    <!-- Adsterra native banner (vzhled upravený na kartu klanu, viz .ad-card v CSS) -->
+    <script async="async" data-cfasync="false" src="https://bellnewyork.org/21/5a8380636c548f4f5edfd9ffe106a2f4"></script>
 </body>
 </html>
