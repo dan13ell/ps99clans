@@ -1,0 +1,824 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-M5T889PLGJ"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-M5T889PLGJ');
+    </script>
+
+    <link rel="icon" href="/images/favicon.png" type="image/png">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scroll test | PS99 Clans</title>
+    <meta name="robots" content="noindex, nofollow">
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <link rel="preload" as="image" href="/images/main-menu.png">
+    <link rel="preload" as="image" href="/images/clan-board-leagues.png">
+    <link rel="preload" as="image" href="/images/topclans-leaderboard-search.png">
+    <link rel="preload" as="image" href="/images/stars.png">
+    <link rel="preload" as="image" href="/images/scroller.png">
+    <link rel="preload" as="image" href="/images/page-select.png">
+    <link rel="preload" as="image" href="/images/sipka-leva.png">
+    <link rel="preload" as="image" href="/images/sipka-prava.png">
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Fredoka', sans-serif !important;
+            font-weight: 600;
+            user-select: none;
+        }
+
+        body {
+            background-color: #89b3f9;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100dvh;
+            overflow-x: hidden;
+        }
+
+        .app-scaler {
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transform-origin: center center;
+        }
+
+        .game-window {
+            position: relative;
+            display: inline-block;
+            overflow: visible;
+        }
+
+        .menu-bg {
+            display: block;
+            width: auto;
+            height: auto;
+            filter: drop-shadow(0px 10px 20px rgba(0, 0, 0, 0.35));
+        }
+
+        .clans-logo {
+            position: absolute;
+            left: -36px;
+            top: -69px;
+            width: 315px;
+            height: 117px;
+            background: url("/images/clans-logo.png") no-repeat center center;
+            background-size: 100% 100%;
+            z-index: 998;
+        }
+
+        .close-btn {
+            position: absolute;
+            left: 1044px; 
+            top: -30px; 
+            width: 72px;  
+            height: 73px; 
+            background: url("/images/X.png") no-repeat center center;
+            background-size: 100% 100%;
+            cursor: pointer;
+            z-index: 999;
+            filter: drop-shadow(0px 4px 6px rgba(0, 0, 0, 0.35));
+            transition: all 0.044s cubic-bezier(0.1, 0.9, 0.2, 1);
+        }
+
+        .close-btn:hover:not(:active) { left: 1042px; top: -34px; width: 76px; height: 77px; }
+        .close-btn:active { background-image: url("/images/X-clicked.png"); left: 1047px; top: -29px; width: 66px; height: 67px; }
+
+        .menu-btn {
+            position: absolute;
+            left: 14px;
+            width: 306px;
+            height: 84px;
+            background-size: 100% 100%;
+            background-repeat: no-repeat;
+            background-position: center;
+            cursor: pointer;
+            z-index: 900;
+            background-image: url("/images/grey.png");
+            transition: all 0.044s cubic-bezier(0.1, 0.9, 0.2, 1);
+        }
+
+        .menu-btn:hover:not(:active) { left: 11px; width: 315px; height: 88px; z-index: 920; }
+        .menu-btn:active { background-image: url("/images/grey-clicked.png"); left: 20px; width: 294px; height: 78px; z-index: 900; }
+
+        .menu-btn.is-active { background-image: url("/images/selected.png"); }
+        .menu-btn.is-active:active { background-image: url("/images/selected-clicked.png"); left: 20px; width: 294px; height: 78px; z-index: 900; }
+
+        .btn-clans { top: 34px; }
+        .btn-topclans { top: 124px; }
+        .btn-people { top: 214px; }
+        .btn-search { top: 304px; }
+
+        .menu-text {
+            position: absolute;
+            pointer-events: none;
+            z-index: 950;
+            transform-origin: center center;
+            transition: transform 0.044s cubic-bezier(0.1, 0.9, 0.2, 1), top 0.044s cubic-bezier(0.1, 0.9, 0.2, 1), left 0.044s cubic-bezier(0.1, 0.9, 0.2, 1);
+        }
+
+        .text-clans { left: 100px; top: 52px; }
+        .text-topclans { left: 53px; top: 140px; }
+        .text-people { left: 76px; top: 230px; }
+        .text-search { left: 88px; top: 322px; }
+
+        .btn-clans:hover:not(:active) ~ .text-clans { transform: scale(1.06) translate(-3px, 2px); }
+        .btn-topclans:hover:not(:active) ~ .text-topclans { transform: scale(1.06) translate(-3px, 2px); }
+        .btn-people:hover:not(:active) ~ .text-people { transform: scale(1.06) translate(-3px, 2px); }
+        .btn-search:hover:not(:active) ~ .text-search { transform: scale(1.06) translate(-3px, 2px); }
+
+        .btn-clans:hover:not(:active) ~ .btn-topclans { top: 128px; }
+        .btn-clans:hover:not(:active) ~ .text-topclans { top: 144px; }
+        .btn-clans:hover:not(:active) ~ .btn-people { top: 218px; }
+        .btn-clans:hover:not(:active) ~ .text-people { top: 234px; }
+        .btn-clans:hover:not(:active) ~ .btn-search { top: 308px; }
+        .btn-clans:hover:not(:active) ~ .text-search { top: 326px; }
+
+        .btn-topclans:hover:not(:active) ~ .btn-people { top: 218px; }
+        .btn-topclans:hover:not(:active) ~ .text-people { top: 234px; }
+        .btn-topclans:hover:not(:active) ~ .btn-search { top: 308px; }
+        .btn-topclans:hover:not(:active) ~ .text-search { top: 326px; }
+
+        .btn-people:hover:not(:active) ~ .btn-search { top: 308px; }
+        .btn-people:hover:not(:active) ~ .text-search { top: 326px; }
+
+        .tab-content {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            padding: 0;
+            z-index: 850;
+        }
+
+        .leaderboard-search-asset {
+            position: absolute;
+            left: 661px; 
+            top: -18px; 
+            width: 330px;
+            height: 48px;
+            background: url("/images/topclans-leaderboard-search.png") no-repeat center center;
+            background-size: 100% 100%;
+            z-index: 990;
+        }
+
+        .leaderboard-search-input {
+            width: 100%;
+            height: 100%;
+            background: transparent;
+            border: none;
+            outline: none;
+            padding: 0 15px 0 20px;
+            color: #000000;
+            font-size: 30px;
+            font-weight: 800;
+            text-align: right;
+        }
+        .leaderboard-search-input::placeholder { color: #B1B1B1; font-weight: 600; }
+
+        .leaderboard-container {
+            position: absolute;
+            left: 334px; 
+            top: 35px; 
+            width: 770px; 
+            height: 528px; 
+            overflow-y: auto;
+            overflow-x: hidden; 
+            padding-left: 14px; 
+            padding-right: 22px; 
+            z-index: 960;
+        }
+
+        .leaderboard-container::-webkit-scrollbar { 
+            width: 15px; 
+        }
+        .leaderboard-container::-webkit-scrollbar-track { 
+            background: transparent; 
+        }
+        .leaderboard-container::-webkit-scrollbar-thumb { 
+            background: url("/images/scroller.png") no-repeat center center;
+            background-size: 15px 29px; 
+            image-rendering: pixelated; 
+            min-height: 45px;
+        }
+
+        /* IDENTICKÉ HOVER A CLICK ANIMACE JAKO V TOPCLANS */
+        .clan-row {
+            display: block;
+            width: 736px;
+            height: 112px;
+            background: url("/images/clan-board-leagues.png") no-repeat center center;
+            background-size: 100% 100%;
+            margin-bottom: 6px;
+            margin-top: 6px;
+            position: relative;
+            image-rendering: pixelated;
+            flex-shrink: 0;
+            cursor: pointer;
+            transition: transform 0.044s cubic-bezier(0.1, 0.9, 0.2, 1);
+        }
+
+        .clan-row:hover { transform: scale(1.015); z-index: 10; }
+        .clan-row:active { transform: scale(0.96); }
+
+        .clan-rank {
+            position: absolute;
+            left: -6px;
+            top: -11px;
+            font-size: 40px;
+            font-weight: 800 !important;
+            -webkit-text-stroke: 6px #000000;
+            stroke-linejoin: round;
+            -webkit-stroke-linejoin: round;
+            paint-order: stroke fill;
+            text-shadow: none !important;
+            pointer-events: none;
+            z-index: 15;
+        }
+
+        .clan-icon {
+            position: absolute;
+            left: 13px;
+            top: 12px;
+            width: 90px;
+            height: 90px;
+            border-radius: 8px;
+            background-color: #ffffff;
+            object-fit: contain;
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        .clan-name {
+            position: absolute;
+            left: 120px;
+            top: 34px;
+            font-size: 35px;
+            color: #FEFEFE;
+            -webkit-text-stroke: 8px #000000;
+            stroke-linejoin: round;
+            -webkit-stroke-linejoin: round;
+            paint-order: stroke fill;
+            font-weight: 800 !important;
+            text-shadow: none !important;
+            pointer-events: none;
+        }
+
+        .clan-points-wrapper {
+            position: absolute;
+            right: 11px; 
+            top: 0;
+            display: flex;
+            align-items: flex-start;
+            pointer-events: none;
+        }
+
+        .clan-star-icon {
+            width: 51px;
+            height: 41px;
+            margin-top: 10px; 
+            margin-right: 3px; 
+            background: url("/images/stars.png") no-repeat center center;
+            background-size: 100% 100%;
+            flex-shrink: 0;
+        }
+
+        .clan-points {
+            font-size: 35px;
+            color: #FEFEFE;
+            -webkit-text-stroke: 8px #000000;
+            stroke-linejoin: round;
+            -webkit-stroke-linejoin: round;
+            paint-order: stroke fill;
+            font-weight: 800 !important;
+            text-shadow: none !important;
+            pointer-events: none;
+            white-space: nowrap; 
+            margin-top: 12px; 
+        }
+
+        .clan-members {
+            position: absolute;
+            left: 682px; 
+            top: 76px;
+            font-size: 25px;
+            font-weight: 800 !important;
+            color: #000000;
+            -webkit-text-stroke: 6px #000000;
+            stroke-linejoin: round;
+            -webkit-stroke-linejoin: round;
+            paint-order: stroke fill;
+            text-shadow: none !important;
+            pointer-events: none;
+            white-space: nowrap;
+        }
+        .clan-members::after {
+            content: attr(data-text);
+            position: absolute;
+            left: 0;
+            top: 0;
+            -webkit-text-stroke: 0px transparent;
+            background: linear-gradient(to bottom, #92F0EB, #6DB0E0);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .leaderboard-footer {
+            position: relative;
+            width: 736px;
+            height: 62px; 
+            margin-top: 10px; 
+            margin-bottom: 10px; 
+            flex-shrink: 0;
+        }
+
+        .page-select-bg {
+            position: absolute;
+            left: 254px; 
+            top: 2px;
+            width: 227px;
+            height: 56px;
+            background: url("/images/page-select.png") no-repeat center center;
+            background-size: 100% 100%;
+            z-index: 970;
+            image-rendering: pixelated;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .page-number-text {
+            font-size: 38px !important;
+            font-weight: 800 !important;
+            font-family: 'Fredoka', sans-serif !important;
+            color: #ffffff;
+            -webkit-text-stroke: 6px #2A2B31;
+            stroke-linejoin: round;
+            -webkit-stroke-linejoin: round;
+            paint-order: stroke fill;
+            text-shadow: none !important;
+            padding-bottom: 3px; 
+            display: inline-block;
+            transform-origin: center center;
+            transition: transform 0.06s cubic-bezier(0.1, 0.9, 0.2, 1);
+        }
+
+        .page-arrow {
+            position: absolute;
+            width: 27px;
+            height: 39px;
+            background-size: 100% 100%;
+            background-repeat: no-repeat;
+            background-position: center;
+            cursor: pointer;
+            z-index: 980;
+            transform-origin: center center;
+            transition: transform 0.06s cubic-bezier(0.1, 0.9, 0.2, 1), left 0.06s cubic-bezier(0.1, 0.9, 0.2, 1);
+        }
+
+        .arrow-left { left: 22px; top: 8px; background-image: url("/images/sipka-leva.png"); }
+        .arrow-right { right: 22px; top: 8px; background-image: url("/images/sipka-prava.png"); }
+
+        .leaderboard-footer.hover-left .arrow-left { transform: scale(1.03); }
+        .leaderboard-footer.hover-left .page-number-text { transform: translateX(1px); }
+        .leaderboard-footer.hover-left .arrow-right { transform: translateX(1.5px); }
+        .leaderboard-footer.active-left .arrow-left { transform: scale(0.97); }
+        .leaderboard-footer.active-left .page-number-text { transform: translateX(-1px); }
+        .leaderboard-footer.active-left .arrow-right { transform: translateX(-1.5px); }
+        .leaderboard-footer.hover-right .arrow-right { transform: scale(1.03); }
+        .leaderboard-footer.hover-right .page-number-text { transform: translateX(-1px); }
+        .leaderboard-footer.hover-right .arrow-left { transform: translateX(-1.5px); }
+        .leaderboard-footer.active-right .arrow-right { transform: scale(0.97); }
+        .leaderboard-footer.active-right .page-number-text { transform: translateX(1px); }
+        .leaderboard-footer.active-right .arrow-left { transform: translateX(1.5px); }
+
+        .leaderboard-loading {
+            width: 736px;
+            padding: 50px 0;
+            text-align: center;
+            font-size: 32px;
+            font-weight: 800;
+            color: #B1B1B1; 
+            text-shadow: none; 
+        }
+
+        html, body {
+            width: 100vw;
+            height: 100dvh;
+            margin: 0;
+            padding: 0;
+            overflow: hidden !important;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            overscroll-behavior: none !important;
+            touch-action: none;
+        }
+
+        .leaderboard-container {
+            touch-action: pan-y pinch-zoom !important;
+            overscroll-behavior: contain !important;
+        }
+
+        .ps99-feedback-btn {
+            position: fixed;
+            top: 14px;
+            right: 14px;
+            z-index: 99999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 5px 13px;
+            background: #FFFFFF;
+            border: 2.5px solid #000000;
+            border-radius: 9px;
+            color: #000000;
+            font-size: 13.5px;
+            font-weight: 600 !important;
+            font-family: 'Fredoka', sans-serif !important;
+            text-decoration: none;
+            box-shadow: 0 3px 0 #000000, 0 5px 10px rgba(0, 0, 0, 0.2);
+            cursor: pointer;
+            transition: transform 0.044s cubic-bezier(0.1, 0.9, 0.2, 1), 
+                        box-shadow 0.044s cubic-bezier(0.1, 0.9, 0.2, 1), 
+                        background-color 0.044s cubic-bezier(0.1, 0.9, 0.2, 1);
+            user-select: none;
+        }
+
+        .ps99-feedback-btn:hover:not(:active) {
+            background-color: #F0F4FF;
+            transform: translateY(-1.5px) scale(1.02);
+            box-shadow: 0 4.5px 0 #000000, 0 7px 12px rgba(0, 0, 0, 0.25);
+        }
+
+        .ps99-feedback-btn:active {
+            transform: translateY(2px) scale(0.96);
+            box-shadow: 0 1px 0 #000000, 0 2px 4px rgba(0, 0, 0, 0.2);
+            background-color: #E2E8F0;
+        }
+
+        .privacy-link {
+            position: fixed;
+            bottom: 14px;
+            right: 14px;
+            z-index: 99999;
+            color: #FFFFFF;
+            font-size: 13px;
+            font-weight: 700 !important;
+            text-decoration: underline;
+            -webkit-text-stroke: 2.5px #000000;
+            paint-order: stroke fill;
+            cursor: pointer;
+            opacity: 0.8;
+            transition: opacity 0.2s ease;
+        }
+
+        .privacy-link:hover {
+            opacity: 1;
+        }
+    </style>
+<!--SC:HEAD-->
+    <meta name="description" content="Live Pet Simulator 99 league leaderboard: league points, member counts and positions. Open any league to see its members and how much each one contributed.">
+    <link rel="canonical" href="https://ps99clans.site/leagues/">
+    <meta property="og:url" content="https://ps99clans.site/leagues/">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="PS99 Clans">
+    <meta property="og:title" content="PS99 Leagues Leaderboard – League Points &amp; Rankings | PS99 Clans">
+    <meta property="og:description" content="Live Pet Simulator 99 league leaderboard: league points, member counts and positions. Open any league to see its members and how much each one contributed.">
+    <meta property="og:image" content="https://ps99clans.site/images/favicon.png">
+    <meta name="twitter:card" content="summary">
+    <meta name="theme-color" content="#89B3F9">
+    <!--/SC:HEAD-->
+    <link rel="stylesheet" href="/ads.css?v=3">
+</head>
+<body>
+
+    <div class="app-scaler" id="appScaler">
+        <div class="game-window">
+            <img class="menu-bg" src="/images/main-menu.png" draggable="false">
+            
+            <div class="clans-logo"></div>
+            
+            <a class="menu-btn btn-clans" href="/" aria-label="Clans" draggable="false"></a>
+            <a class="menu-btn btn-topclans" href="/topclans/" aria-label="Top Clans" draggable="false"></a>
+            <a class="menu-btn btn-people is-active" href="/leagues/" aria-label="Leagues" draggable="false"></a>
+            <a class="menu-btn btn-search" href="/people/" aria-label="People" draggable="false"></a>
+            
+            <img class="menu-text text-clans" src="/images/text-Clans.png" draggable="false">
+            <img class="menu-text text-topclans" src="/images/text-Top-Clans.png" draggable="false">
+            <img class="menu-text text-people" src="/images/leagues-text.png" draggable="false">
+            <img class="menu-text text-search" src="/images/text-People.png" draggable="false">
+            
+            <div class="tab-content" id="tab-topclans">
+                <div class="leaderboard-search-asset">
+                    <input type="text" class="leaderboard-search-input" placeholder="Search" id="clanSearch" maxlength="12">
+                </div>
+
+                <div class="leaderboard-container" id="leaderboardList">
+                    <div id="clanCardsList"></div>
+                    
+                    <div class="leaderboard-footer" id="leaderboardFooter">
+                        <div class="page-select-bg" id="pageSelectBg">
+                            <div class="page-arrow arrow-left" id="prevPageBtn" ></div>
+                            <span class="page-number-text" id="pageNumberDisplay">1</span>
+                            <div class="page-arrow arrow-right" id="nextPageBtn" ></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <a class="close-btn" href="/" aria-label="Close" draggable="false"></a>
+        </div>
+    </div>
+
+    <script src="/ads.js?v=3"></script>
+    <script>
+        const WORKER_URL = "https://rough-pine-d90f.dan13el.workers.dev";
+        let allLeaguesData = []; 
+        let searchQuery = "";
+        let currentPage = 1;
+        const itemsPerPage = 100;
+        let preservedScrollTop = null;
+        let isDataLoaded = false;
+
+        function autoFitScreen() {
+            if (window.visualViewport && window.visualViewport.scale > 1.01) return;   // uživatel zoomuje -> nic neměnit
+            const scaler = document.getElementById("appScaler");
+            if (!scaler) return;
+
+            const winW = document.documentElement.clientWidth;
+            const winH = document.documentElement.clientHeight;
+
+            if (winW >= 1150) {
+                document.body.classList.remove("is-mobile");
+                scaler.style.transform = winH < 840 ? `scale(${(winH / 840).toFixed(4)})` : "none";
+                return;
+            }
+
+            document.body.classList.add("is-mobile");
+            const requiredW = 1120;
+            const requiredH = 960; 
+
+            const scaleX = winW / requiredW;
+            const scaleY = winH / requiredH;
+
+            const scale = Math.min(scaleX, scaleY) * 0.92;
+            scaler.style.transform = `scale(${scale})`;
+        }
+
+        window.addEventListener("resize", autoFitScreen);
+        window.addEventListener("orientationchange", autoFitScreen);
+
+        function formatNumber(num) {
+            if (num === undefined || num === null) return "0";
+            return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ");
+        }
+
+        function getClanIconUrl(iconAsset) {
+            if (!iconAsset) return "https://placehold.co/90x90/ffffff/000000?text=Clan";
+            const match = iconAsset.match(/\d+/);
+            if (match) {
+                return `https://ps99.biggamesapi.io/image/${match[0]}`;
+            }
+            return "https://placehold.co/90x90/ffffff/000000?text=Clan";
+        }
+
+        async function fetchLeaguesData(isSilent = false) {
+            const list = document.getElementById("clanCardsList");
+
+            if (!isSilent && list && !isDataLoaded) {
+                if (window.PS99Ads) PS99Ads.park();
+                list.innerHTML = `<div class="leaderboard-loading">Loading...</div>`;
+            }
+
+            try {
+                const res = await fetch(`${WORKER_URL}/leagues-all`);
+                const json = await res.json();
+                if (json && json.status === "ok" && Array.isArray(json.data) && json.data.length > 0) {
+                    allLeaguesData = json.data;
+                }
+            } catch (err) {
+                console.warn("Chyba při načítání lig:", err);
+            }
+
+            isDataLoaded = true;
+            // tichá obnova počká, až uživatel dorolluje (jinak by seznam poskočil)
+            if (isSilent && window.whenScrollIdle) whenScrollIdle(() => renderLeaderboard(true));
+            else renderLeaderboard(isSilent);
+        }
+
+        function escapeHtml(s) {
+            return String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+        }
+
+        function renderLeaderboard(keepScroll = false) {
+            const list = document.getElementById("clanCardsList");
+            const pageText = document.getElementById("pageNumberDisplay");
+            const footerEl = document.getElementById("leaderboardFooter");
+            const scrollContainer = document.getElementById("leaderboardList");
+
+            if (!list || !scrollContainer) return;
+
+            const savedScroll = scrollContainer.scrollTop;
+            const query = searchQuery.trim().toLowerCase();
+            const isSearching = query !== "";
+
+            let displayData = allLeaguesData;
+            if (isSearching) {
+                displayData = allLeaguesData.filter(clan => clan.Name && clan.Name.toLowerCase().includes(query));
+            }
+
+            if (displayData.length === 0) {
+                const msg = allLeaguesData.length === 0 ? "Could not load leagues." : "No leagues found.";
+                if (window.PS99Ads) PS99Ads.park();
+                list.innerHTML = `<div class="leaderboard-loading">${msg}</div>`;
+                if (footerEl) footerEl.style.display = "none";
+                return;
+            }
+
+            const totalPages = Math.max(1, Math.ceil(displayData.length / itemsPerPage));
+            if (currentPage > totalPages) currentPage = totalPages;
+
+            if (footerEl) footerEl.style.display = (!isSearching && totalPages > 1) ? "block" : "none";
+
+            // při hledání max. 100 výsledků (jinak by se vykreslily tisíce řádků)
+            const pageData = isSearching
+                ? displayData.slice(0, itemsPerPage)
+                : displayData.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+
+            let html = "";
+            pageData.forEach(clan => {
+                const absoluteRank = clan._originalRank;
+                const mCount = clan.Members !== undefined ? clan.Members : 0;
+                const mCap = clan.MemberCapacity !== undefined ? clan.MemberCapacity : 75;
+                const rankColor = (absoluteRank === 1) ? "#8AFCED" : "#FFFFFF";
+                const safeName = escapeHtml(clan.Name);
+
+                html += `
+                    <div class="clan-row" data-name="${encodeURIComponent(clan.Name)}">
+                        <div class="clan-rank" style="color: ${rankColor};">#${absoluteRank}</div>
+                        <img class="clan-icon" loading="lazy" decoding="async" src="${getClanIconUrl(clan.Icon)}" onerror="this.onerror=null; this.src='https://placehold.co/90x90/ffffff/000000?text=Clan';" draggable="false">
+                        <div class="clan-name">[${safeName}]</div>
+                        <div class="clan-members" data-text="${mCount}/${mCap}">${mCount}/${mCap}</div>
+                        <div class="clan-points-wrapper">
+                            <div class="clan-star-icon"></div>
+                            <div class="clan-points">${formatNumber(clan.Points)}</div>
+                        </div>
+                    </div>
+                `;
+            });
+            if (keepScroll && list.dataset.sig === String(html.length) && list.__html === html) return; // nic se nezměnilo
+            list.__html = html;
+            list.dataset.sig = String(html.length);
+            if (window.PS99Ads) PS99Ads.park();
+            list.innerHTML = html;
+            if (window.PS99Ads) PS99Ads.place({ filtered: isSearching, page: currentPage });
+
+            if (pageText) pageText.textContent = currentPage;
+
+            // refresh na pozadí drží pozici, změna strany nebo hledání jde nahoru
+            scrollContainer.scrollTop = keepScroll ? savedScroll : 0;
+        }
+
+        document.getElementById("clanCardsList").addEventListener("click", (e) => {
+            const row = e.target.closest(".clan-row");
+            if (row) location.href = `/league-detail/?name=${row.dataset.name}`;
+        });
+
+        const inputSearch = document.getElementById("clanSearch");
+        if (inputSearch) {
+            inputSearch.addEventListener("input", (e) => {
+                searchQuery = e.target.value;
+                currentPage = 1;
+                renderLeaderboard();
+            });
+        }
+
+        const prevBtn = document.getElementById("prevPageBtn");
+        const nextBtn = document.getElementById("nextPageBtn");
+
+        if (prevBtn && nextBtn) {
+            prevBtn.addEventListener("click", (e) => {
+                e.stopPropagation();
+                if (currentPage > 1) {
+                    currentPage--;
+                    renderLeaderboard();
+                }
+            });
+            nextBtn.addEventListener("click", (e) => {
+                e.stopPropagation();
+                const totalPages = Math.ceil(allLeaguesData.length / itemsPerPage);
+                if (currentPage < totalPages) {
+                    currentPage++;
+                    renderLeaderboard();
+                }
+            });
+        }
+
+        // obnova každých 5 minut, a jen když je karta vidět
+        setInterval(() => {
+            if (!document.hidden) fetchLeaguesData(true);
+        }, 60000);
+
+        window.addEventListener('DOMContentLoaded', () => {
+            autoFitScreen();
+            fetchLeaguesData(false);
+        });
+
+        const footer = document.getElementById('leaderboardFooter');
+        const arrowL = document.getElementById('prevPageBtn');
+        const arrowR = document.getElementById('nextPageBtn');
+
+        if (arrowL && footer) {
+            arrowL.addEventListener('mouseenter', () => footer.classList.add('hover-left'));
+            arrowL.addEventListener('mouseleave', () => { footer.classList.remove('hover-left', 'active-left'); });
+            arrowL.addEventListener('mousedown', () => footer.classList.add('active-left'));
+            arrowL.addEventListener('mouseup', () => footer.classList.remove('active-left'));
+        }
+        if (arrowR && footer) {
+            arrowR.addEventListener('mouseenter', () => footer.classList.add('hover-right'));
+            arrowR.addEventListener('mouseleave', () => { footer.classList.remove('hover-right', 'active-right'); });
+            arrowR.addEventListener('mousedown', () => footer.classList.add('active-right'));
+            arrowR.addEventListener('mouseup', () => footer.classList.remove('active-right'));
+        }
+    </script>
+
+    <a href="https://forms.gle/2DWB7Hzcv2XZ1PVCA" target="_blank" class="ps99-feedback-btn">
+        FEEDBACK
+    </a>
+
+    <a href="/privacy/" class="privacy-link">Privacy Policy</a>
+    <script src="/scrollbar.js?v=4"></script>
+    <script src="/hotbar.js?v=8"></script>
+
+<!-- ===== DIAGNOSTIKA SCROLLU NA IPHONU (dočasná stránka) ===== -->
+<style>
+  #stBar { position: fixed; left: 0; right: 0; top: 0; z-index: 100000; display: flex; flex-wrap: wrap; gap: 6px;
+           padding: 8px; background: #111; font: 700 15px/1 sans-serif !important; }
+  #stBar a { flex: 1 0 auto; text-align: center; padding: 10px 8px; border-radius: 8px; background: #333; color: #fff;
+             text-decoration: none; font: 700 15px/1 sans-serif !important; }
+  #stBar a.on { background: #2bd17e; color: #000; }
+  #stInfo { position: fixed; left: 0; right: 0; bottom: 0; z-index: 100000; padding: 8px; background: #111; color: #fff;
+            font: 600 13px/1.3 sans-serif !important; text-align: center; }
+</style>
+<div id="stBar"></div>
+<div id="stInfo"></div>
+<script>
+(function () {
+  const V = {
+    "1": "Beze změny (jako teď Leagues)",
+    "2": "Bez touch-action:none na stránce",
+    "3": "Stránka bez position:fixed",
+    "4": "Zmenšení přes zoom místo transform",
+    "5": "2 + 3 + 4 dohromady",
+    "6": "Tikající čas v seznamu (jako Top Clans)"
+  };
+  const v = new URLSearchParams(location.search).get("v") || "1";
+  const bar = document.getElementById("stBar");
+  Object.keys(V).forEach(k => {
+    const a = document.createElement("a");
+    a.href = "?v=" + k; a.textContent = k; if (k === v) a.className = "on";
+    bar.appendChild(a);
+  });
+  document.getElementById("stInfo").textContent = "Varianta " + v + ": " + V[v];
+
+  const css = [];
+  if (v === "2" || v === "5") css.push("html, body { touch-action: auto !important; }");
+  if (v === "3" || v === "5") css.push("html, body { position: static !important; }");
+  if (css.length) { const st = document.createElement("style"); st.textContent = css.join("\n"); document.head.appendChild(st); }
+
+  if (v === "4" || v === "5") {
+    // transform: scale(x) -> zoom: x
+    const sc = document.getElementById("appScaler");
+    const conv = () => {
+      const m = /scale\(([\d.]+)\)/.exec(sc.style.transform || "");
+      if (m) { sc.style.zoom = m[1]; sc.style.transform = "none"; }
+    };
+    new MutationObserver(conv).observe(sc, { attributes: true, attributeFilter: ["style"] });
+    conv();
+  }
+
+  if (v === "6") {
+    const list = document.getElementById("leaderboardList");
+    const t = document.createElement("div");
+    t.style.cssText = "font-size:40px;text-align:center;padding:10px;color:#000";
+    list.insertBefore(t, list.firstChild);
+    setInterval(() => { t.textContent = new Date().toLocaleTimeString(); }, 1000);
+  }
+})();
+</script>
+</body>
+</html>
