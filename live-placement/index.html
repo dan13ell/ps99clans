@@ -34,8 +34,7 @@
             width: 100vw;
             height: 100dvh;
             overflow: hidden !important;
-            position: fixed;
-            inset: 0;
+            /* bez position: fixed – s ním Safari na iPhonu zasekávalo scroll seznamů */
             overscroll-behavior: none !important;
             touch-action: pinch-zoom;
             background-color: #89b3f9;

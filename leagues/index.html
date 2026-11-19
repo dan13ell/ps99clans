@@ -418,11 +418,7 @@
             margin: 0;
             padding: 0;
             overflow: hidden !important;
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
+            /* bez position: fixed – s ním Safari na iPhonu zasekávalo scroll seznamů */
             overscroll-behavior: none !important;
             touch-action: none;
         }
