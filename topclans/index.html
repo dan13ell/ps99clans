@@ -478,6 +478,22 @@
         /* Prázdný slot (reklama se nenačetla) nezabírá místo. */
         .ad-slot { width: 736px; }
         .ad-slot:not(:has(.ad-card)) { height: 0; overflow: hidden; }
+        /* zlatý pruh "SPONSORED" nad reklamou + mezera od klanů */
+        .ad-slot:has(.ad-card) { margin: 14px 0 16px 0; }
+        .ad-slot:has(.ad-card)::before {
+            content: "\2605  SPONSORED  \2605";
+            display: block;
+            width: 736px;
+            margin-bottom: 4px;
+            text-align: center;
+            font-size: 24px;
+            font-weight: 800;
+            letter-spacing: 2px;
+            color: #FFD84A;
+            -webkit-text-stroke: 5px #000000;
+            paint-order: stroke fill;
+            text-shadow: none;
+        }
 
         /* Obalové prvky Adsterry "zploštíme", aby nerozbily rozložení karty. */
         #container-5a8380636c548f4f5edfd9ffe106a2f4,
@@ -506,9 +522,8 @@
             border: 0 !important;
             border-radius: 0 !important;
             box-shadow: none !important;
-            background: url("/images/clan-board.png") no-repeat center center !important;
-            background-size: 100% 100% !important;
-            image-rendering: pixelated;
+            background: none !important;
+            isolation: isolate;
             overflow: visible !important;
             cursor: pointer;
             text-decoration: none !important;
@@ -519,7 +534,7 @@
         #container-5a8380636c548f4f5edfd9ffe106a2f4 .ad-card:active { transform: scale(0.96); }
 
         /* vnitřní obaly reklamy nesmí ovlivnit pozice → display: contents */
-        #container-5a8380636c548f4f5edfd9ffe106a2f4 .ad-card *:not(.ad-card-img):not(.ad-card-title):not(.ad-card-desc):not(.ad-card-extra):not(img):not(style):not(script) {
+        #container-5a8380636c548f4f5edfd9ffe106a2f4 .ad-card *:not(.ad-card-img):not(.ad-card-title):not(.ad-card-desc):not(.ad-card-extra):not(.ad-card-badge):not(img):not(style):not(script) {
             display: contents !important;
         }
         #container-5a8380636c548f4f5edfd9ffe106a2f4 .ad-card .ad-card-extra { display: none !important; }
@@ -533,8 +548,20 @@
             max-height: 24px !important;
         }
 
-        /* štítek "AD" na místě pořadí */
+        /* zlaté pozadí karty: stejný clan-board.png, jen přebarvený + zlatá záře */
         #container-5a8380636c548f4f5edfd9ffe106a2f4 .ad-card::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: url("/images/clan-board.png") no-repeat center center;
+            background-size: 100% 100%;
+            image-rendering: pixelated;
+            filter: sepia(1) saturate(3.2) hue-rotate(-8deg) brightness(1.03) drop-shadow(0 0 6px rgba(255, 200, 40, 0.95));
+            z-index: -1;
+            pointer-events: none;
+        }
+        /* štítek "AD" na místě pořadí */
+        #container-5a8380636c548f4f5edfd9ffe106a2f4 .ad-card::after {
             content: "AD";
             position: absolute;
             left: -6px;
@@ -547,17 +574,23 @@
             pointer-events: none;
             z-index: 15;
         }
-        /* "Sponsored" na místě bodů */
-        #container-5a8380636c548f4f5edfd9ffe106a2f4 .ad-card::after {
-            content: "Sponsored";
-            position: absolute;
-            left: 489px;
-            top: 12px;
-            font-size: 35px;
-            font-weight: 800;
-            color: #FEFEFE;
+        /* "Sponsored" na místě bodů (span přidaný skriptem) */
+        #container-5a8380636c548f4f5edfd9ffe106a2f4 .ad-card .ad-card-badge {
+            display: block !important;
+            position: absolute !important;
+            left: 489px !important;
+            top: 12px !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            font-family: 'Fredoka', sans-serif !important;
+            font-size: 35px !important;
+            font-weight: 800 !important;
+            font-style: normal !important;
+            line-height: normal !important;
+            color: #FFD84A !important;
             -webkit-text-stroke: 8px #000000;
             paint-order: stroke fill;
+            text-shadow: none !important;
             pointer-events: none;
             white-space: nowrap;
         }
@@ -1372,6 +1405,11 @@
                         el.classList.add(i === 0 ? "ad-card-title" : i === 1 ? "ad-card-desc" : "ad-card-extra");
                     });
                     if (!item.title && texts[0]) item.title = ownText(texts[0]);
+
+                    const badge = document.createElement("span");
+                    badge.className = "ad-card-badge";
+                    badge.textContent = "Sponsored";
+                    item.appendChild(badge);
 
                     // když je karta <div> s odkazem uvnitř, klik kamkoli na kartu otevře reklamní odkaz
                     if (item.tagName !== "A") {
