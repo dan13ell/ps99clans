@@ -10,7 +10,8 @@
     const ZONE = { id: "397e914f0279aa3d22964f8659debbab", src: "https://bicea.org/21/397e914f0279aa3d22964f8659debbab" };
     const TOP_AFTER_ROW = 3;      // 1. reklama za 3. kartou
     const MIDDLE_MIN_ROWS = 20;   // 2. reklama (prostředek) jen když je karet aspoň tolik
-    const BOTTOM_MIN_ROWS = 10;   // 3. reklama (konec seznamu) jen když je karet aspoň tolik
+    const BOTTOM_MIN_ROWS = 10;   // 3. reklama (níž v seznamu) jen když je karet aspoň tolik
+    const BOTTOM_AT = 0.85;       // 3. reklama za 85 % seznamu (ze 100 karet za #85), ne úplně na konci
 
     let slot = null;
     const spacers = [];           // [prostřední, dolní]
@@ -128,8 +129,10 @@
         // při hledání / filtru jen jedna reklama
         if (!filtered) {
             const midAt = Math.round(n / 2);
-            if (n >= MIDDLE_MIN_ROWS && midAt > topAt) rows[midAt - 1].insertAdjacentElement("afterend", spacers[0]);
-            if (n >= BOTTOM_MIN_ROWS && n > topAt) rows[n - 1].insertAdjacentElement("afterend", spacers[1]);
+            const midOn = n >= MIDDLE_MIN_ROWS && midAt > topAt;
+            if (midOn) rows[midAt - 1].insertAdjacentElement("afterend", spacers[0]);
+            const botAt = Math.round(n * BOTTOM_AT);
+            if (n >= BOTTOM_MIN_ROWS && botAt > topAt && (!midOn || botAt > midAt)) rows[botAt - 1].insertAdjacentElement("afterend", spacers[1]);
         }
         layoutFloats();
     }
