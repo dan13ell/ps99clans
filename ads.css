@@ -1,0 +1,210 @@
+/* ===== Adsterra native reklama jako zlatá karta ve stylu karty klanu =====
+   Používá /ads.js (Top Clans, Leagues). Selektory jsou schválně "těžké"
+   (#leaderboardList + několik tříd), aby přebily vlastní CSS Adsterry. */
+
+#leaderboardList .ad-slot { width: 736px; position: relative; }
+/* dokud se nic nevykreslilo nebo je slot "zaparkovaný", nezabírá místo */
+#leaderboardList .ad-slot:not(.ad-filled),
+#leaderboardList .ad-slot.ad-parked { height: 0 !important; margin: 0 !important; overflow: hidden !important; }
+#leaderboardList .ad-slot.ad-filled { margin: 6px 0 6px 0; }
+
+/* Fallback: když skript reklamu nerozpozná, ukáže se vzhled Adsterry v bílém rámečku. */
+#leaderboardList .ad-slot.ad-filled:not(.ad-styled) .ad-box {
+    background: #ffffff;
+    border: 4px solid #000000;
+    border-radius: 12px;
+    padding: 6px;
+    overflow: hidden;
+}
+
+/* Obalové prvky Adsterry "zploštíme" – a hlavně nesmí nic ořezávat (štítek AD přečnívá). */
+#leaderboardList .ad-slot.ad-styled .ad-box,
+#leaderboardList .ad-slot.ad-styled .ad-box *:not(.ad-card):not(.ad-card *) {
+    margin: 0 !important;
+    padding: 0 !important;
+    border: 0 !important;
+    background: none !important;
+    box-shadow: none !important;
+    width: auto !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    overflow: visible !important;
+    clip-path: none !important;
+    contain: none !important;
+    transform: none !important;
+    animation: none !important;
+    opacity: 1 !important;
+}
+#leaderboardList .ad-slot.ad-styled .ad-box *:not(.ad-card):not(.ad-card *):not(style):not(script) {
+    display: block !important;
+    float: none !important;
+    position: static !important;
+}
+
+/* ---- karta ---- */
+#leaderboardList .ad-slot.ad-styled .ad-card.ad-card {
+    display: block !important;
+    position: relative !important;
+    box-sizing: border-box !important;
+    width: 736px !important;
+    min-width: 736px !important;
+    max-width: 736px !important;
+    height: 112px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: 4px solid #000000 !important;
+    border-radius: 10px !important;
+    background: linear-gradient(to bottom, #FFF8D6 0%, #FFEDA8 100%) !important;
+    box-shadow: 0 0 0 2px #FFD84A, 0 0 10px 2px rgba(255, 200, 40, 0.75) !important;
+    overflow: visible !important;
+    clip-path: none !important;
+    opacity: 1 !important;
+    animation: none !important;
+    cursor: pointer;
+    text-decoration: none !important;
+    font-family: 'Fredoka', sans-serif !important;
+    /* stejná animace jako .clan-row */
+    transform: none !important;
+    transition: transform 0.044s cubic-bezier(0.1, 0.9, 0.2, 1) !important;
+}
+#leaderboardList .ad-slot.ad-styled .ad-card.ad-card:hover { transform: scale(1.015) !important; z-index: 10; }
+#leaderboardList .ad-slot.ad-styled .ad-card.ad-card:active { transform: scale(0.96) !important; }
+/* dotykové displeje: stejně jako karty klanů (scrollbar.js) – žádné zvětšování/mačkání */
+@media (hover: none) {
+    #leaderboardList .ad-slot.ad-styled .ad-card.ad-card:hover,
+    #leaderboardList .ad-slot.ad-styled .ad-card.ad-card:active { transform: none !important; }
+}
+
+/* vnitřní obaly reklamy nesmí ovlivnit pozice → display: contents */
+#leaderboardList .ad-slot.ad-styled .ad-card.ad-card *:not(.ad-card-img):not(.ad-card-title):not(.ad-card-desc):not(.ad-card-extra):not(img):not(style):not(script) {
+    display: contents !important;
+}
+/* zbylé texty a prvky Adsterry (menu "Report Ad / Cancel", ikonky…) nezobrazujeme */
+#leaderboardList .ad-slot.ad-styled .ad-card.ad-card .ad-card-extra,
+#leaderboardList .ad-slot.ad-styled .ad-card.ad-card img:not(.ad-card-img),
+#leaderboardList .ad-slot.ad-styled .ad-card.ad-card svg {
+    display: none !important;
+}
+
+/* bílý čtverec pod obrázkem, dokud se obrázek načítá */
+#leaderboardList .ad-slot.ad-styled .ad-card.ad-card::before {
+    content: "";
+    position: absolute;
+    left: 9px;
+    top: 7px;
+    width: 90px;
+    height: 90px;
+    border-radius: 8px;
+    background: #ffffff;
+    pointer-events: none;
+}
+
+/* štítek "AD" na místě pořadí (stejná pozice jako #1, #2 … u klanů) */
+#leaderboardList .ad-slot.ad-styled .ad-card.ad-card::after {
+    content: "AD";
+    position: absolute;
+    left: -10px;
+    top: -15px;
+    font-size: 40px;
+    line-height: normal;
+    font-weight: 800;
+    font-style: normal;
+    color: #FFD84A;
+    -webkit-text-stroke: 6px #000000;
+    paint-order: stroke fill;
+    text-shadow: none;
+    pointer-events: none;
+    z-index: 15;
+}
+
+/* obrázek reklamy = ikona klanu; objeví se až načtený (žádné poskakování) */
+#leaderboardList .ad-slot.ad-styled .ad-card.ad-card .ad-card-img {
+    display: block !important;
+    position: absolute !important;
+    left: 9px !important;
+    top: 7px !important;
+    width: 90px !important;
+    height: 90px !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: 0 !important;
+    border-radius: 8px !important;
+    background-color: #ffffff;
+    background-size: cover !important;
+    background-position: center !important;
+    object-fit: cover !important;
+    transform: none !important;
+    filter: none !important;
+    animation: none !important;
+    opacity: 0 !important;
+    transition: opacity 0.15s ease !important;
+    pointer-events: none;
+    z-index: 10;
+}
+#leaderboardList .ad-slot.ad-styled .ad-card.ad-card .ad-card-img.ad-img-ready { opacity: 1 !important; }
+
+/* nadpis reklamy */
+#leaderboardList .ad-slot.ad-styled .ad-card.ad-card .ad-card-title {
+    display: block !important;
+    position: absolute !important;
+    left: 112px !important;
+    top: 2px !important;
+    width: 606px !important;
+    height: auto !important;
+    box-sizing: border-box !important;
+    margin: 0 !important;
+    padding: 4px 4px !important;
+    font-family: 'Fredoka', sans-serif !important;
+    font-size: 35px !important;
+    line-height: 1.1 !important;
+    font-weight: 800 !important;
+    font-style: normal !important;
+    letter-spacing: normal !important;
+    text-transform: none !important;
+    color: #FEFEFE !important;
+    -webkit-text-stroke: 8px #000000;
+    paint-order: stroke fill;
+    text-shadow: none !important;
+    text-align: left !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    background: none !important;
+    opacity: 1 !important;
+    pointer-events: none;
+}
+
+/* podnadpis reklamy */
+#leaderboardList .ad-slot.ad-styled .ad-card.ad-card .ad-card-desc {
+    display: -webkit-box !important;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    position: absolute !important;
+    left: 118px !important;
+    top: 52px !important;
+    width: 596px !important;
+    height: auto !important;
+    max-height: 50px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    font-family: 'Fredoka', sans-serif !important;
+    font-size: 23px !important;
+    line-height: 1.05 !important;
+    font-weight: 700 !important;
+    font-style: italic !important;
+    letter-spacing: normal !important;
+    text-transform: none !important;
+    color: #3A2E12 !important;
+    text-shadow: none !important;
+    text-align: left !important;
+    white-space: normal !important;
+    overflow: hidden !important;
+    background: none !important;
+    opacity: 1 !important;
+    pointer-events: none;
+}

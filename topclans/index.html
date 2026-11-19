@@ -474,166 +474,6 @@
             -webkit-text-fill-color: transparent;
         }
 
-        /* ===== Adsterra native ad – zlatá karta ve stylu karty klanu =====
-           Selektory mají 2× ID, aby přebily vlastní CSS Adsterry. */
-        .ad-slot { width: 736px; }
-        .ad-slot:not(.ad-filled) { height: 0; overflow: hidden; }
-        .ad-slot.ad-filled { margin: 0 0 6px 0; }
-
-        /* Fallback: když skript reklamu nerozpozná, ukáže se vzhled Adsterry v bílém rámečku. */
-        .ad-slot.ad-filled:not(.ad-styled) #container-397e914f0279aa3d22964f8659debbab {
-            background: #ffffff;
-            border: 4px solid #000000;
-            border-radius: 12px;
-            padding: 6px;
-            overflow: hidden;
-        }
-
-        /* Obalové prvky Adsterry "zploštíme", aby nerozbily rozložení karty. */
-        #adSlot.ad-styled #container-397e914f0279aa3d22964f8659debbab,
-        #adSlot.ad-styled #container-397e914f0279aa3d22964f8659debbab *:not(.ad-card):not(.ad-card *) {
-            margin: 0 !important;
-            padding: 0 !important;
-            border: 0 !important;
-            background: none !important;
-            box-shadow: none !important;
-            width: auto !important;
-            min-width: 0 !important;
-            max-width: none !important;
-            height: auto !important;
-            transform: none !important;
-        }
-        #adSlot.ad-styled #container-397e914f0279aa3d22964f8659debbab *:not(.ad-card):not(.ad-card *):not(style):not(script) {
-            display: block !important;
-            float: none !important;
-            position: static !important;
-        }
-
-        #adSlot #container-397e914f0279aa3d22964f8659debbab .ad-card {
-            display: block !important;
-            position: relative !important;
-            box-sizing: border-box !important;
-            width: 736px !important;
-            min-width: 736px !important;
-            max-width: 736px !important;
-            height: 112px !important;
-            margin: 0 !important;
-            padding: 0 !important;
-            border: 4px solid #000000 !important;
-            border-radius: 10px !important;
-            background: linear-gradient(to bottom, #FFF8D6 0%, #FFEDA8 100%) !important;
-            box-shadow: 0 0 0 2px #FFD84A, 0 0 10px 2px rgba(255, 200, 40, 0.75) !important;
-            overflow: visible !important;
-            cursor: pointer;
-            text-decoration: none !important;
-            font-family: 'Fredoka', sans-serif !important;
-            transform: none;
-            transition: transform 0.044s cubic-bezier(0.1, 0.9, 0.2, 1);
-        }
-        #adSlot #container-397e914f0279aa3d22964f8659debbab .ad-card:hover { transform: scale(1.015) !important; z-index: 10; }
-        #adSlot #container-397e914f0279aa3d22964f8659debbab .ad-card:active { transform: scale(0.96) !important; }
-
-        /* vnitřní obaly reklamy nesmí ovlivnit pozice → display: contents */
-        #adSlot #container-397e914f0279aa3d22964f8659debbab .ad-card *:not(.ad-card-img):not(.ad-card-title):not(.ad-card-desc):not(.ad-card-extra):not(img):not(style):not(script) {
-            display: contents !important;
-        }
-        /* zbylé texty a prvky Adsterry (menu "Report Ad / Cancel", ikonky…) nezobrazujeme */
-        #adSlot #container-397e914f0279aa3d22964f8659debbab .ad-card .ad-card-extra,
-        #adSlot #container-397e914f0279aa3d22964f8659debbab .ad-card img:not(.ad-card-img),
-        #adSlot #container-397e914f0279aa3d22964f8659debbab .ad-card svg {
-            display: none !important;
-        }
-
-        /* štítek "AD" na místě pořadí */
-        #adSlot #container-397e914f0279aa3d22964f8659debbab .ad-card::after {
-            content: "AD";
-            position: absolute;
-            left: -10px;
-            top: -15px;
-            font-size: 40px;
-            font-weight: 800;
-            color: #FFD84A;
-            -webkit-text-stroke: 6px #000000;
-            paint-order: stroke fill;
-            pointer-events: none;
-            z-index: 15;
-        }
-
-        /* obrázek reklamy = ikona klanu */
-        #adSlot #container-397e914f0279aa3d22964f8659debbab .ad-card .ad-card-img {
-            display: block !important;
-            position: absolute !important;
-            left: 9px !important;
-            top: 7px !important;
-            width: 90px !important;
-            height: 90px !important;
-            margin: 0 !important;
-            padding: 0 !important;
-            border: 0 !important;
-            border-radius: 8px !important;
-            background-color: #ffffff;
-            background-size: cover !important;
-            background-position: center !important;
-            object-fit: cover !important;
-            pointer-events: none;
-            z-index: 10;
-        }
-
-        /* nadpis reklamy */
-        #adSlot #container-397e914f0279aa3d22964f8659debbab .ad-card .ad-card-title {
-            display: block !important;
-            position: absolute !important;
-            left: 112px !important;
-            top: 2px !important;
-            width: 606px !important;
-            height: auto !important;
-            box-sizing: border-box !important;
-            margin: 0 !important;
-            padding: 4px 4px !important;
-            font-family: 'Fredoka', sans-serif !important;
-            font-size: 35px !important;
-            line-height: 1.1 !important;
-            font-weight: 800 !important;
-            font-style: normal !important;
-            color: #FEFEFE !important;
-            -webkit-text-stroke: 8px #000000;
-            paint-order: stroke fill;
-            text-shadow: none !important;
-            text-align: left !important;
-            white-space: nowrap !important;
-            overflow: hidden !important;
-            text-overflow: ellipsis !important;
-            background: none !important;
-            pointer-events: none;
-        }
-
-        /* podnadpis reklamy */
-        #adSlot #container-397e914f0279aa3d22964f8659debbab .ad-card .ad-card-desc {
-            display: -webkit-box !important;
-            -webkit-box-orient: vertical;
-            -webkit-line-clamp: 2;
-            position: absolute !important;
-            left: 118px !important;
-            top: 52px !important;
-            width: 596px !important;
-            height: auto !important;
-            max-height: 50px !important;
-            margin: 0 !important;
-            padding: 0 !important;
-            font-family: 'Fredoka', sans-serif !important;
-            font-size: 23px !important;
-            line-height: 1.05 !important;
-            font-weight: 700 !important;
-            font-style: italic !important;
-            color: #3A2E12 !important;
-            text-shadow: none !important;
-            text-align: left !important;
-            white-space: normal !important;
-            overflow: hidden !important;
-            background: none !important;
-            pointer-events: none;
-        }
-
         .leaderboard-footer {
             position: relative;
             width: 736px;
@@ -955,6 +795,7 @@
     <meta name="twitter:card" content="summary">
     <meta name="theme-color" content="#89B3F9">
     <!--/SC:HEAD-->
+    <link rel="stylesheet" href="/ads.css?v=1">
 </head>
 <body>
 
@@ -989,11 +830,6 @@
                         <div class="banner-timer" id="bannerTimer">00h:00m:00s</div>
                         <div class="banner-subtitle" id="bannerSubtitle">Active Clan Battle</div>
                     </div>
-                    <div class="ad-slot" id="adSlot">
-                        <!-- Adsterra native banner (vzhled upravený na kartu klanu, viz .ad-card v CSS) -->
-                        <script async="async" data-cfasync="false" src="https://bicea.org/21/397e914f0279aa3d22964f8659debbab"></script>
-                        <div id="container-397e914f0279aa3d22964f8659debbab"></div>
-                    </div>
                     <div id="clanCardsList"></div>
                     
                     <div class="leaderboard-footer" id="leaderboardFooter">
@@ -1017,6 +853,7 @@
         </div>
     </div>
 
+    <script src="/ads.js?v=1"></script>
     <script>
         const WORKER_URL = "https://rough-pine-d90f.dan13el.workers.dev";
         let pointsClanData = [];
@@ -1276,7 +1113,7 @@
 
         async function fetchLeaderboardData(isSilent = false) {
             const list = document.getElementById("clanCardsList");
-            parkAdSlot();
+            if (window.PS99Ads) PS99Ads.park();
             if (!isSilent && list) {
                 list.innerHTML = `<div class="leaderboard-loading">Loading...</div>`;
             }
@@ -1302,184 +1139,8 @@
             if (typeof fetchActiveClanBattle === "function") { fetchActiveClanBattle(); }
         }
 
-        /* ===== Reklama (Adsterra native) =====
-           Slot s reklamou se nikdy nemaže – jen se přesouvá. Seznam se přestavuje přes innerHTML,
-           takže ho před tím "zaparkujeme" mimo seznam a po vykreslení vložíme za AD_AFTER_ROW-tou kartu. */
-        const AD_AFTER_ROW = 3;
-        const AD_CONTAINER_ID = "container-397e914f0279aa3d22964f8659debbab";
-
-        function parkAdSlot() {
-            const slot = document.getElementById("adSlot");
-            const list = document.getElementById("clanCardsList");
-            if (slot && list && slot.parentNode === list) list.parentNode.insertBefore(slot, list);
-        }
-
-        function placeAdSlot() {
-            const slot = document.getElementById("adSlot");
-            const list = document.getElementById("clanCardsList");
-            if (!slot || !list) return;
-            const rows = list.querySelectorAll(":scope > .clan-row");
-            if (!rows.length) return;
-            const after = rows[Math.min(AD_AFTER_ROW, rows.length) - 1];
-            after.insertAdjacentElement("afterend", slot);
-        }
-
-        // Najde v reklamě položky (obrázek + text) a přidá jim naše třídy. Nic nemaže ani nemění odkazy,
-        // takže měření zobrazení a kliků od Adsterry zůstává jejich.
-        function hasBgImage(el) {
-            const bg = getComputedStyle(el).backgroundImage;
-            return bg && bg !== "none" && bg.includes("url(");
-        }
-
-        function ownText(el) {
-            let t = "";
-            el.childNodes.forEach(n => { if (n.nodeType === 3) t += n.textContent; });
-            return t.replace(/\s+/g, " ").trim();
-        }
-
-        function picArea(el) {
-            if (el.tagName === "IMG") return (el.naturalWidth * el.naturalHeight) || (el.width * el.height) || 1;
-            return (el.offsetWidth * el.offsetHeight) || 1;
-        }
-
-        // texty ovládání reklamy (menu "Report Ad", "Cancel", křížek…) – nikdy nejsou nadpis ani podnadpis
-        const AD_UI_TEXT = /^(cancel|report( this)?( ad)?|close|hide( ad)?|ad|ads|advert|advertisement|sponsored|why this ad\??|x|×|✕|✖|i|ⓘ|\.{3}|…|submit|send|ok|back)$/i;
-        const AD_UI_CLASS = /report|menu|close|popup|modal|overlay|option|feedback|cancel|dots|complain|abuse|dialog/i;
-        const AD_TITLE_CLASS = /title|head|name|caption/i;
-        const AD_DESC_CLASS = /desc|text|body|sub|brand|domain|site|content|summary/i;
-
-        function isAdUiText(el, item) {
-            if (AD_UI_TEXT.test(ownText(el))) return true;
-            for (let p = el; p && p !== item; p = p.parentElement) {
-                if (typeof p.className === "string" && AD_UI_CLASS.test(p.className)) return true;
-            }
-            return false;
-        }
-
-        function textEls(item) {
-            return [...item.querySelectorAll("*")].filter(el =>
-                el.tagName !== "STYLE" && el.tagName !== "SCRIPT" && ownText(el).length > 0);
-        }
-
-        function goodTextEls(item) {
-            return textEls(item).filter(el => !isAdUiText(el, item));
-        }
-
-        function styleAdItems() {
-            const box = document.getElementById(AD_CONTAINER_ID);
-            if (!box) return;
-            const pics = [...box.querySelectorAll("img")].filter(i => !i.closest(".ad-card-extra")).concat(
-                [...box.querySelectorAll("div, span, a, i")].filter(el => !el.querySelector("img") && hasBgImage(el)));
-
-            // nejmenší předek obrázku, který obsahuje skutečný text reklamy = jedna reklama
-            const items = new Map();
-            pics.forEach(pic => {
-                let item = pic.parentElement;
-                while (item && item !== box && !goodTextEls(item).length) item = item.parentElement;
-                if (!item || item === box) return;
-                if (!items.has(item)) items.set(item, []);
-                items.get(item).push(pic);
-            });
-
-            items.forEach((itemPics, item) => {
-                // vnořené "karty" nechceme – stačí ta vnější
-                if (item.parentElement && item.parentElement.closest(".ad-card")) return;
-                item.classList.add("ad-card");
-
-                // hlavní obrázek = největší (ne měřicí pixel ani ikonka)
-                itemPics.forEach(p => p.classList.remove("ad-card-img"));
-                const mainPic = itemPics.sort((a, b) => picArea(b) - picArea(a))[0];
-                mainPic.classList.add("ad-card-img");
-
-                if (item.dataset.adStyled) return;
-                item.dataset.adStyled = "1";
-
-                const good = goodTextEls(item);
-                const unrelated = (a, b) => a !== b && !a.contains(b) && !b.contains(a);
-                const title = good.find(el => typeof el.className === "string" && AD_TITLE_CLASS.test(el.className)) || good[0];
-                const desc = good.find(el => title && unrelated(el, title) && typeof el.className === "string" && AD_DESC_CLASS.test(el.className))
-                          || good.find(el => title && unrelated(el, title));
-
-                textEls(item).forEach(el => {
-                    if (el === title) el.classList.add("ad-card-title");
-                    else if (el === desc) el.classList.add("ad-card-desc");
-                    else if (!(title && (title.contains(el) || el.contains(title))) &&
-                             !(desc && (desc.contains(el) || el.contains(desc)))) el.classList.add("ad-card-extra");
-                });
-
-                // reklama nemá podnadpis → neutrální text, aby karta nebyla prázdná
-                if (!desc) {
-                    const own = document.createElement("span");
-                    own.className = "ad-card-desc ad-card-own";
-                    own.textContent = "Sponsored · Click to learn more";
-                    item.appendChild(own);
-                }
-                if (!item.title && title) item.title = ownText(title);
-
-                // když je karta <div> s odkazem uvnitř, klik kamkoli na kartu otevře reklamní odkaz
-                if (item.tagName !== "A") {
-                    item.addEventListener("click", (e) => {
-                        if (e.target.closest("a")) return;
-                        const link = (title && title.closest("a[href]")) || mainPic.closest("a[href]") ||
-                            [...item.querySelectorAll("a[href]")].find(a => !isAdUiText(a, item));
-                        if (link) link.click();
-                    });
-                }
-            });
-        }
-
-        function updateAdSlotState() {
-            const slot = document.getElementById("adSlot");
-            if (!slot) return;
-            styleAdItems();
-            const visible = [...slot.querySelectorAll("*")].some(el =>
-                !["SCRIPT", "STYLE", "LINK", "NOSCRIPT"].includes(el.tagName) &&
-                (el.shadowRoot || el.tagName === "IFRAME" ||
-                 (el.offsetWidth > 2 && el.offsetHeight > 2 && el.id !== AD_CONTAINER_ID)));
-            slot.classList.toggle("ad-filled", visible);
-            slot.classList.toggle("ad-styled", !!slot.querySelector(".ad-card"));
-        }
-
-        (function watchAd() {
-            const slot = document.getElementById("adSlot");
-            if (!slot) return;
-            let pending = false;
-            const run = () => {
-                if (pending) return;
-                pending = true;
-                setTimeout(() => { pending = false; updateAdSlotState(); }, 60);
-            };
-            new MutationObserver(run).observe(slot, { childList: true, subtree: true, attributes: true, attributeFilter: ["src", "style", "class"] });
-            slot.addEventListener("load", run, true); // obrázky se načetly → přepočítat
-            setTimeout(run, 3000);
-            setTimeout(run, 8000);
-        })();
-
-        // Ladění: v konzoli prohlížeče napiš  adDebug()  a výsledek pošli.
-        window.adDebug = function () {
-            const slot = document.getElementById("adSlot");
-            const walk = (el, d) => {
-                let line = "  ".repeat(d) + "<" + el.tagName.toLowerCase() +
-                    (el.id ? "#" + el.id : "") +
-                    (typeof el.className === "string" && el.className ? "." + el.className.trim().split(/\s+/).join(".") : "") +
-                    (el.shadowRoot ? " [shadow]" : "") +
-                    (el.src ? " src=" + String(el.src).slice(0, 60) : "") +
-                    " " + el.offsetWidth + "x" + el.offsetHeight + ">" +
-                    (el.childElementCount ? "" : " " + (el.textContent || "").trim().slice(0, 40)) + "\n";
-                for (const ch of el.children) line += walk(ch, d + 1);
-                if (el.shadowRoot) for (const ch of el.shadowRoot.children) line += walk(ch, d + 1);
-                return line;
-            };
-            const out = "parent: " + (slot && slot.parentNode ? slot.parentNode.id : "-") +
-                "\nslot class: " + (slot ? slot.className : "-") + "\n" + (slot ? walk(slot, 0) : "no slot") +
-                "\nbody iframes: " + [...document.querySelectorAll("iframe")].map(f => f.src.slice(0, 60)).join(", ") +
-                "\nbody tail: " + [...document.body.children].slice(-4).map(e => e.tagName + "#" + e.id + "." + e.className).join(" | ");
-            console.log(out);
-            return out;
-        };
-
         function renderLeaderboard() {
-            parkAdSlot();
+            if (window.PS99Ads) PS99Ads.park();
             const list = document.getElementById("clanCardsList");
             const banner = document.getElementById("clanWarBanner");
             const footerEl = document.getElementById("leaderboardFooter");
@@ -1558,7 +1219,7 @@
                 fetchClanDescription(clan.Name, descElementId);
             });
 
-            placeAdSlot();
+            if (window.PS99Ads) PS99Ads.place({ filtered: searchQuery.trim() !== "" || selectedCountries.length > 0 });
             document.getElementById("leaderboardList").scrollTop = savedScrollTop;
         }
 

@@ -501,6 +501,7 @@
     <meta name="twitter:card" content="summary">
     <meta name="theme-color" content="#89B3F9">
     <!--/SC:HEAD-->
+    <link rel="stylesheet" href="/ads.css?v=1">
 </head>
 <body>
 
@@ -542,6 +543,7 @@
         </div>
     </div>
 
+    <script src="/ads.js?v=1"></script>
     <script>
         const WORKER_URL = "https://rough-pine-d90f.dan13el.workers.dev";
         let allLeaguesData = []; 
@@ -597,6 +599,7 @@
             const list = document.getElementById("clanCardsList");
 
             if (!isSilent && list && !isDataLoaded) {
+                if (window.PS99Ads) PS99Ads.park();
                 list.innerHTML = `<div class="leaderboard-loading">Loading...</div>`;
             }
 
@@ -639,6 +642,7 @@
 
             if (displayData.length === 0) {
                 const msg = allLeaguesData.length === 0 ? "Could not load leagues." : "No leagues found.";
+                if (window.PS99Ads) PS99Ads.park();
                 list.innerHTML = `<div class="leaderboard-loading">${msg}</div>`;
                 if (footerEl) footerEl.style.display = "none";
                 return;
@@ -678,7 +682,9 @@
             if (keepScroll && list.dataset.sig === String(html.length) && list.__html === html) return; // nic se nezměnilo
             list.__html = html;
             list.dataset.sig = String(html.length);
+            if (window.PS99Ads) PS99Ads.park();
             list.innerHTML = html;
+            if (window.PS99Ads) PS99Ads.place({ filtered: isSearching });
 
             if (pageText) pageText.textContent = currentPage;
 
