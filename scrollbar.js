@@ -15,6 +15,15 @@
       background: url("/images/scroller.png") no-repeat center / ${W}px ${H}px;
       image-rendering: pixelated;
     }
+    /* iPhone/Safari: hlavní seznamy ve vlastní vrstvě. Okno je na mobilu zmenšené transformem a bez
+       vlastní vrstvy Safari scroll prstem po kousku zasekávalo (plynule jelo jen Top Clans). */
+    @media (hover: none) and (pointer: coarse) {
+      #leaderboardList, #membersListContainer, .live-main-scroll-viewport {
+        -webkit-overflow-scrolling: touch;
+        will-change: scroll-position;
+        transform: translateZ(0);
+      }
+    }
     /* Dotykové displeje: řádky se při scrollování nemačkají ani nezvětšují
        (položený prst = :active, zvednutý = :hover zůstane → karty poskakovaly) */
     @media (hover: none) {
