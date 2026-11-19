@@ -1451,7 +1451,7 @@
             const run = () => {
                 if (pending) return;
                 pending = true;
-                requestAnimationFrame(() => { pending = false; updateAdSlotState(); });
+                setTimeout(() => { pending = false; updateAdSlotState(); }, 60);
             };
             new MutationObserver(run).observe(slot, { childList: true, subtree: true, attributes: true, attributeFilter: ["src", "style", "class"] });
             slot.addEventListener("load", run, true); // obrázky se načetly → přepočítat
