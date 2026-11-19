@@ -491,7 +491,7 @@
             height: auto !important;
             max-width: none !important;
         }
-        #container-5a8380636c548f4f5edfd9ffe106a2f4 *:not(.ad-card):not(.ad-card *) {
+        #container-5a8380636c548f4f5edfd9ffe106a2f4 *:not(.ad-card):not(.ad-card *):not(style):not(script) {
             display: block !important;
             float: none !important;
         }
@@ -519,7 +519,7 @@
         #container-5a8380636c548f4f5edfd9ffe106a2f4 .ad-card:active { transform: scale(0.96); }
 
         /* vnitřní obaly reklamy nesmí ovlivnit pozice → display: contents */
-        #container-5a8380636c548f4f5edfd9ffe106a2f4 .ad-card *:not(.ad-card-img):not(.ad-card-title):not(.ad-card-desc):not(.ad-card-meta):not(img):not(style):not(script) {
+        #container-5a8380636c548f4f5edfd9ffe106a2f4 .ad-card *:not(.ad-card-img):not(.ad-card-title):not(.ad-card-desc):not(img):not(style):not(script) {
             display: contents !important;
         }
         #container-5a8380636c548f4f5edfd9ffe106a2f4 .ad-card .ad-card-extra { display: none !important; }
@@ -531,28 +531,6 @@
             bottom: 8px !important;
             max-width: 24px !important;
             max-height: 24px !important;
-        }
-
-        /* třetí text (např. značka/doména) – na místě počtu členů */
-        #container-5a8380636c548f4f5edfd9ffe106a2f4 .ad-card .ad-card-meta {
-            display: block !important;
-            position: absolute !important;
-            right: 40px !important;
-            top: 72px !important;
-            padding: 4px 3px !important;
-            max-width: 200px !important;
-            font-family: 'Fredoka', sans-serif !important;
-            font-size: 22px !important;
-            font-weight: 800 !important;
-            font-style: normal !important;
-            color: #92F0EB !important;
-            -webkit-text-stroke: 5px #000000;
-            paint-order: stroke fill;
-            text-shadow: none !important;
-            white-space: nowrap !important;
-            overflow: hidden !important;
-            text-overflow: ellipsis !important;
-            pointer-events: none;
         }
 
         /* štítek "AD" na místě pořadí */
@@ -573,12 +551,12 @@
         #container-5a8380636c548f4f5edfd9ffe106a2f4 .ad-card::after {
             content: "Sponsored";
             position: absolute;
-            right: 14px;
-            top: 14px;
-            font-size: 30px;
+            left: 489px;
+            top: 12px;
+            font-size: 35px;
             font-weight: 800;
             color: #FEFEFE;
-            -webkit-text-stroke: 7px #000000;
+            -webkit-text-stroke: 8px #000000;
             paint-order: stroke fill;
             pointer-events: none;
             white-space: nowrap;
@@ -610,12 +588,13 @@
             position: absolute !important;
             left: 126px !important;
             top: 8px !important;
-            width: 400px !important;
+            width: 312px !important;
+            box-sizing: border-box !important;
             height: auto !important;
             margin: 0 !important;
             padding: 4px 4px !important;
             font-family: 'Fredoka', sans-serif !important;
-            font-size: 30px !important;
+            font-size: 31px !important;
             line-height: 1.1 !important;
             font-weight: 800 !important;
             font-style: normal !important;
@@ -638,7 +617,7 @@
             position: absolute !important;
             left: 126px !important;
             top: 56px !important;
-            width: 500px !important;
+            width: 495px !important;
             height: auto !important;
             max-height: 52px !important;
             margin: 0 !important;
@@ -1390,7 +1369,7 @@
                     const texts = [...item.querySelectorAll("*")].filter(el =>
                         el.tagName !== "STYLE" && el.tagName !== "SCRIPT" && ownText(el).length > 0);
                     texts.forEach((el, i) => {
-                        el.classList.add(i === 0 ? "ad-card-title" : i === 1 ? "ad-card-desc" : i === 2 ? "ad-card-meta" : "ad-card-extra");
+                        el.classList.add(i === 0 ? "ad-card-title" : i === 1 ? "ad-card-desc" : "ad-card-extra");
                     });
                     if (!item.title && texts[0]) item.title = ownText(texts[0]);
 
