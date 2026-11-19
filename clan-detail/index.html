@@ -702,7 +702,14 @@
         .members-scroll-area {
             touch-action: pan-y pinch-zoom !important;
             overscroll-behavior: contain !important;
+            /* iPhone/Safari: seznam ve vlastní vrstvě, ať se při scrollu nepřekresluje celé zmenšené okno
+               (bez toho se scroll po kousku zasekával) */
+            -webkit-overflow-scrolling: touch;
+            will-change: scroll-position;
+            transform: translateZ(0);
         }
+        /* karty se počítají samostatně, změna jedné karty nepřepočítává zbytek stránky */
+        .member-card { contain: layout; }
 
         .ps99-feedback-btn {
             position: fixed;
@@ -1384,7 +1391,7 @@
         </a>
 
     <a href="/privacy/" class="privacy-link">Privacy Policy</a>
-    <script src="/scrollbar.js?v=2"></script>
+    <script src="/scrollbar.js?v=3"></script>
 <script src="/hotbar.js?v=8"></script>
 </body>
 </html>

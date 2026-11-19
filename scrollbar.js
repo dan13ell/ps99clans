@@ -10,7 +10,8 @@
     .sb-hidden::-webkit-scrollbar { display: none !important; width: 0 !important; }
     .sb-track { position: absolute; width: ${W}px; display: none; touch-action: none; }
     .sb-thumb {
-      position: absolute; left: 0; width: ${W}px; height: ${H}px; cursor: pointer; touch-action: none;
+      position: absolute; left: 0; top: 0; width: ${W}px; height: ${H}px; cursor: pointer; touch-action: none;
+      will-change: transform;
       background: url("/images/scroller.png") no-repeat center / ${W}px ${H}px;
       image-rendering: pixelated;
     }
@@ -60,16 +61,27 @@
     const z = parseInt(getComputedStyle(box).zIndex, 10);
     track.style.zIndex = isNaN(z) ? 1000 : z + 1;
 
-    function update() {
-      const range = box.scrollHeight - box.clientHeight;
+    // Rozměry dráhy se přepočítají jen při změně velikosti/obsahu. Při scrollu se jen posune jezdec
+    // (transformem, bez čtení layoutu), jinak Safari na iPhonu scroll prstem trhaně zasekávalo.
+    let range = 0, free = 0, raf = 0;
+    function layout() {
+      range = box.scrollHeight - box.clientHeight;
       if (range <= 1 || !box.offsetParent) { track.style.display = "none"; return; }
       track.style.display = "block";
       track.style.left = (box.offsetLeft + box.offsetWidth - W) + "px";
       track.style.top = box.offsetTop + "px";
       track.style.height = box.offsetHeight + "px";
-      const free = box.offsetHeight - H;
-      thumb.style.top = (box.scrollTop / range * free) + "px";
+      free = box.offsetHeight - H;
+      moveThumb();
     }
+    function moveThumb() {
+      raf = 0;
+      if (range <= 1) return;
+      const y = Math.max(0, Math.min(free, box.scrollTop / range * free));
+      thumb.style.transform = `translateY(${y}px)`;
+    }
+    function onScroll() { if (!raf) raf = requestAnimationFrame(moveThumb); }
+    const update = layout;
 
     function scaleOf() {
       return box.getBoundingClientRect().height / box.offsetHeight || 1;
@@ -122,7 +134,7 @@
     box.addEventListener("wheel", onWheel, { passive: false });
     track.addEventListener("wheel", onWheel, { passive: false });
 
-    box.addEventListener("scroll", update, { passive: true });
+    box.addEventListener("scroll", onScroll, { passive: true });
     window.addEventListener("resize", update);
     window.addEventListener("load", update);
     if (window.ResizeObserver) new ResizeObserver(update).observe(box);
