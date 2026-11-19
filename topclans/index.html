@@ -474,9 +474,13 @@
             -webkit-text-fill-color: transparent;
         }
 
-        /* ===== Adsterra native ad – vypadá jako karta klanu ===== */
-        /* Prázdný slot (reklama se nenačetla) nezabírá místo. */
+        /* ===== Adsterra native ad – zlatá karta ve stylu karty klanu =====
+           Selektory mají 2× ID, aby přebily vlastní CSS Adsterry. */
         .ad-slot { width: 736px; }
+        .ad-slot:not(.ad-filled) { height: 0; overflow: hidden; }
+        .ad-slot.ad-filled { margin: 0 0 6px 0; }
+
+        /* Fallback: když skript reklamu nerozpozná, ukáže se vzhled Adsterry v bílém rámečku. */
         .ad-slot.ad-filled:not(.ad-styled) #container-397e914f0279aa3d22964f8659debbab {
             background: #ffffff;
             border: 4px solid #000000;
@@ -484,95 +488,68 @@
             padding: 6px;
             overflow: hidden;
         }
-        .ad-slot:not(.ad-filled) { height: 0; overflow: hidden; }
-        /* zlatý pruh "SPONSORED" nad reklamou + mezera od klanů */
-        .ad-slot.ad-filled { margin: 14px 0 16px 0; }
-        .ad-slot.ad-filled::before {
-            content: "\2605  SPONSORED  \2605";
-            display: block;
-            width: 736px;
-            margin-bottom: 4px;
-            text-align: center;
-            font-size: 24px;
-            font-weight: 800;
-            letter-spacing: 2px;
-            color: #FFD84A;
-            -webkit-text-stroke: 5px #000000;
-            paint-order: stroke fill;
-            text-shadow: none;
-        }
 
         /* Obalové prvky Adsterry "zploštíme", aby nerozbily rozložení karty. */
-        .ad-styled #container-397e914f0279aa3d22964f8659debbab,
-        .ad-styled #container-397e914f0279aa3d22964f8659debbab *:not(.ad-card):not(.ad-card *) {
+        #adSlot.ad-styled #container-397e914f0279aa3d22964f8659debbab,
+        #adSlot.ad-styled #container-397e914f0279aa3d22964f8659debbab *:not(.ad-card):not(.ad-card *) {
             margin: 0 !important;
             padding: 0 !important;
             border: 0 !important;
             background: none !important;
             box-shadow: none !important;
             width: auto !important;
-            height: auto !important;
+            min-width: 0 !important;
             max-width: none !important;
+            height: auto !important;
+            transform: none !important;
         }
-        .ad-styled #container-397e914f0279aa3d22964f8659debbab *:not(.ad-card):not(.ad-card *):not(style):not(script) {
+        #adSlot.ad-styled #container-397e914f0279aa3d22964f8659debbab *:not(.ad-card):not(.ad-card *):not(style):not(script) {
             display: block !important;
             float: none !important;
+            position: static !important;
         }
 
-        #container-397e914f0279aa3d22964f8659debbab .ad-card {
+        #adSlot #container-397e914f0279aa3d22964f8659debbab .ad-card {
             display: block !important;
             position: relative !important;
+            box-sizing: border-box !important;
             width: 736px !important;
+            min-width: 736px !important;
+            max-width: 736px !important;
             height: 112px !important;
-            margin: 0 0 6px 0 !important;
+            margin: 0 !important;
             padding: 0 !important;
-            border: 0 !important;
-            border-radius: 0 !important;
-            box-shadow: none !important;
-            background: none !important;
-            isolation: isolate;
+            border: 4px solid #000000 !important;
+            border-radius: 10px !important;
+            background: linear-gradient(to bottom, #FFF8D6 0%, #FFEDA8 100%) !important;
+            box-shadow: 0 0 0 2px #FFD84A, 0 0 10px 2px rgba(255, 200, 40, 0.75) !important;
             overflow: visible !important;
             cursor: pointer;
             text-decoration: none !important;
             font-family: 'Fredoka', sans-serif !important;
+            transform: none;
             transition: transform 0.044s cubic-bezier(0.1, 0.9, 0.2, 1);
         }
-        #container-397e914f0279aa3d22964f8659debbab .ad-card:hover { transform: scale(1.015); z-index: 10; }
-        #container-397e914f0279aa3d22964f8659debbab .ad-card:active { transform: scale(0.96); }
+        #adSlot #container-397e914f0279aa3d22964f8659debbab .ad-card:hover { transform: scale(1.015) !important; z-index: 10; }
+        #adSlot #container-397e914f0279aa3d22964f8659debbab .ad-card:active { transform: scale(0.96) !important; }
 
         /* vnitřní obaly reklamy nesmí ovlivnit pozice → display: contents */
-        #container-397e914f0279aa3d22964f8659debbab .ad-card *:not(.ad-card-img):not(.ad-card-title):not(.ad-card-desc):not(.ad-card-extra):not(.ad-card-badge):not(img):not(style):not(script) {
+        #adSlot #container-397e914f0279aa3d22964f8659debbab .ad-card *:not(.ad-card-img):not(.ad-card-title):not(.ad-card-desc):not(.ad-card-extra):not(img):not(style):not(script) {
             display: contents !important;
         }
-        #container-397e914f0279aa3d22964f8659debbab .ad-card .ad-card-extra { display: none !important; }
-
-        /* další drobné obrázky od Adsterry (ikonka/info) – malé vpravo dole */
-        #container-397e914f0279aa3d22964f8659debbab .ad-card img:not(.ad-card-img) {
-            position: absolute !important;
-            right: 10px !important;
-            bottom: 8px !important;
-            max-width: 24px !important;
-            max-height: 24px !important;
+        /* zbylé texty a prvky Adsterry (menu "Report Ad / Cancel", ikonky…) nezobrazujeme */
+        #adSlot #container-397e914f0279aa3d22964f8659debbab .ad-card .ad-card-extra,
+        #adSlot #container-397e914f0279aa3d22964f8659debbab .ad-card img:not(.ad-card-img),
+        #adSlot #container-397e914f0279aa3d22964f8659debbab .ad-card svg {
+            display: none !important;
         }
 
-        /* zlaté pozadí karty: stejný clan-board.png, jen přebarvený + zlatá záře */
-        #container-397e914f0279aa3d22964f8659debbab .ad-card::before {
-            content: "";
-            position: absolute;
-            inset: 0;
-            background: url("/images/clan-board.png") no-repeat center center;
-            background-size: 100% 100%;
-            image-rendering: pixelated;
-            filter: sepia(1) saturate(3.2) hue-rotate(-8deg) brightness(1.03) drop-shadow(0 0 6px rgba(255, 200, 40, 0.95));
-            z-index: -1;
-            pointer-events: none;
-        }
         /* štítek "AD" na místě pořadí */
-        #container-397e914f0279aa3d22964f8659debbab .ad-card::after {
+        #adSlot #container-397e914f0279aa3d22964f8659debbab .ad-card::after {
             content: "AD";
             position: absolute;
-            left: -6px;
-            top: -11px;
+            left: -10px;
+            top: -15px;
             font-size: 40px;
             font-weight: 800;
             color: #FFD84A;
@@ -581,33 +558,13 @@
             pointer-events: none;
             z-index: 15;
         }
-        /* "Sponsored" na místě bodů (span přidaný skriptem) */
-        #container-397e914f0279aa3d22964f8659debbab .ad-card .ad-card-badge {
-            display: block !important;
-            position: absolute !important;
-            left: 489px !important;
-            top: 12px !important;
-            margin: 0 !important;
-            padding: 0 !important;
-            font-family: 'Fredoka', sans-serif !important;
-            font-size: 35px !important;
-            font-weight: 800 !important;
-            font-style: normal !important;
-            line-height: normal !important;
-            color: #FFD84A !important;
-            -webkit-text-stroke: 8px #000000;
-            paint-order: stroke fill;
-            text-shadow: none !important;
-            pointer-events: none;
-            white-space: nowrap;
-        }
 
         /* obrázek reklamy = ikona klanu */
-        #container-397e914f0279aa3d22964f8659debbab .ad-card .ad-card-img {
+        #adSlot #container-397e914f0279aa3d22964f8659debbab .ad-card .ad-card-img {
             display: block !important;
             position: absolute !important;
-            left: 13px !important;
-            top: 12px !important;
+            left: 9px !important;
+            top: 7px !important;
             width: 90px !important;
             height: 90px !important;
             margin: 0 !important;
@@ -622,56 +579,58 @@
             z-index: 10;
         }
 
-        /* nadpis reklamy = jméno klanu */
-        #container-397e914f0279aa3d22964f8659debbab .ad-card .ad-card-title {
+        /* nadpis reklamy */
+        #adSlot #container-397e914f0279aa3d22964f8659debbab .ad-card .ad-card-title {
             display: block !important;
             position: absolute !important;
-            left: 126px !important;
-            top: 8px !important;
-            width: 312px !important;
-            box-sizing: border-box !important;
+            left: 112px !important;
+            top: 2px !important;
+            width: 606px !important;
             height: auto !important;
+            box-sizing: border-box !important;
             margin: 0 !important;
             padding: 4px 4px !important;
             font-family: 'Fredoka', sans-serif !important;
-            font-size: 31px !important;
+            font-size: 35px !important;
             line-height: 1.1 !important;
             font-weight: 800 !important;
             font-style: normal !important;
             color: #FEFEFE !important;
-            -webkit-text-stroke: 7px #000000;
+            -webkit-text-stroke: 8px #000000;
             paint-order: stroke fill;
             text-shadow: none !important;
             text-align: left !important;
             white-space: nowrap !important;
             overflow: hidden !important;
             text-overflow: ellipsis !important;
+            background: none !important;
             pointer-events: none;
         }
 
-        /* popis reklamy = popis klanu */
-        #container-397e914f0279aa3d22964f8659debbab .ad-card .ad-card-desc {
+        /* podnadpis reklamy */
+        #adSlot #container-397e914f0279aa3d22964f8659debbab .ad-card .ad-card-desc {
             display: -webkit-box !important;
             -webkit-box-orient: vertical;
             -webkit-line-clamp: 2;
             position: absolute !important;
-            left: 126px !important;
-            top: 56px !important;
-            width: 495px !important;
+            left: 118px !important;
+            top: 52px !important;
+            width: 596px !important;
             height: auto !important;
-            max-height: 52px !important;
+            max-height: 50px !important;
             margin: 0 !important;
             padding: 0 !important;
             font-family: 'Fredoka', sans-serif !important;
-            font-size: 24px !important;
+            font-size: 23px !important;
             line-height: 1.05 !important;
             font-weight: 700 !important;
             font-style: italic !important;
-            color: #2B2B2B !important;
+            color: #3A2E12 !important;
             text-shadow: none !important;
             text-align: left !important;
             white-space: normal !important;
             overflow: hidden !important;
+            background: none !important;
             pointer-events: none;
         }
 
@@ -1383,51 +1342,88 @@
             return (el.offsetWidth * el.offsetHeight) || 1;
         }
 
+        // texty ovládání reklamy (menu "Report Ad", "Cancel", křížek…) – nikdy nejsou nadpis ani podnadpis
+        const AD_UI_TEXT = /^(cancel|report( this)?( ad)?|close|hide( ad)?|ad|ads|advert|advertisement|sponsored|why this ad\??|x|×|✕|✖|i|ⓘ|\.{3}|…|submit|send|ok|back)$/i;
+        const AD_UI_CLASS = /report|menu|close|popup|modal|overlay|option|feedback|cancel|dots|complain|abuse|dialog/i;
+        const AD_TITLE_CLASS = /title|head|name|caption/i;
+        const AD_DESC_CLASS = /desc|text|body|sub|brand|domain|site|content|summary/i;
+
+        function isAdUiText(el, item) {
+            if (AD_UI_TEXT.test(ownText(el))) return true;
+            for (let p = el; p && p !== item; p = p.parentElement) {
+                if (typeof p.className === "string" && AD_UI_CLASS.test(p.className)) return true;
+            }
+            return false;
+        }
+
+        function textEls(item) {
+            return [...item.querySelectorAll("*")].filter(el =>
+                el.tagName !== "STYLE" && el.tagName !== "SCRIPT" && ownText(el).length > 0);
+        }
+
+        function goodTextEls(item) {
+            return textEls(item).filter(el => !isAdUiText(el, item));
+        }
+
         function styleAdItems() {
             const box = document.getElementById(AD_CONTAINER_ID);
             if (!box) return;
-            const pics = [...box.querySelectorAll("img")].concat(
+            const pics = [...box.querySelectorAll("img")].filter(i => !i.closest(".ad-card-extra")).concat(
                 [...box.querySelectorAll("div, span, a, i")].filter(el => !el.querySelector("img") && hasBgImage(el)));
 
-            // nejmenší předek obrázku, který obsahuje i text = jedna reklama
+            // nejmenší předek obrázku, který obsahuje skutečný text reklamy = jedna reklama
             const items = new Map();
             pics.forEach(pic => {
                 let item = pic.parentElement;
-                while (item && item !== box && !(item.innerText || "").trim()) item = item.parentElement;
+                while (item && item !== box && !goodTextEls(item).length) item = item.parentElement;
                 if (!item || item === box) return;
                 if (!items.has(item)) items.set(item, []);
                 items.get(item).push(pic);
             });
 
             items.forEach((itemPics, item) => {
+                // vnořené "karty" nechceme – stačí ta vnější
+                if (item.parentElement && item.parentElement.closest(".ad-card")) return;
                 item.classList.add("ad-card");
 
                 // hlavní obrázek = největší (ne měřicí pixel ani ikonka)
                 itemPics.forEach(p => p.classList.remove("ad-card-img"));
-                itemPics.sort((a, b) => picArea(b) - picArea(a))[0].classList.add("ad-card-img");
+                const mainPic = itemPics.sort((a, b) => picArea(b) - picArea(a))[0];
+                mainPic.classList.add("ad-card-img");
 
-                if (!item.dataset.adStyled) {
-                    item.dataset.adStyled = "1";
-                    const texts = [...item.querySelectorAll("*")].filter(el =>
-                        el.tagName !== "STYLE" && el.tagName !== "SCRIPT" && ownText(el).length > 0);
-                    texts.forEach((el, i) => {
-                        el.classList.add(i === 0 ? "ad-card-title" : i === 1 ? "ad-card-desc" : "ad-card-extra");
+                if (item.dataset.adStyled) return;
+                item.dataset.adStyled = "1";
+
+                const good = goodTextEls(item);
+                const unrelated = (a, b) => a !== b && !a.contains(b) && !b.contains(a);
+                const title = good.find(el => typeof el.className === "string" && AD_TITLE_CLASS.test(el.className)) || good[0];
+                const desc = good.find(el => title && unrelated(el, title) && typeof el.className === "string" && AD_DESC_CLASS.test(el.className))
+                          || good.find(el => title && unrelated(el, title));
+
+                textEls(item).forEach(el => {
+                    if (el === title) el.classList.add("ad-card-title");
+                    else if (el === desc) el.classList.add("ad-card-desc");
+                    else if (!(title && (title.contains(el) || el.contains(title))) &&
+                             !(desc && (desc.contains(el) || el.contains(desc)))) el.classList.add("ad-card-extra");
+                });
+
+                // reklama nemá podnadpis → neutrální text, aby karta nebyla prázdná
+                if (!desc) {
+                    const own = document.createElement("span");
+                    own.className = "ad-card-desc ad-card-own";
+                    own.textContent = "Sponsored · Click to learn more";
+                    item.appendChild(own);
+                }
+                if (!item.title && title) item.title = ownText(title);
+
+                // když je karta <div> s odkazem uvnitř, klik kamkoli na kartu otevře reklamní odkaz
+                if (item.tagName !== "A") {
+                    item.addEventListener("click", (e) => {
+                        if (e.target.closest("a")) return;
+                        const link = (title && title.closest("a[href]")) || mainPic.closest("a[href]") ||
+                            [...item.querySelectorAll("a[href]")].find(a => !isAdUiText(a, item));
+                        if (link) link.click();
                     });
-                    if (!item.title && texts[0]) item.title = ownText(texts[0]);
-
-                    const badge = document.createElement("span");
-                    badge.className = "ad-card-badge";
-                    badge.textContent = "Sponsored";
-                    item.appendChild(badge);
-
-                    // když je karta <div> s odkazem uvnitř, klik kamkoli na kartu otevře reklamní odkaz
-                    if (item.tagName !== "A") {
-                        item.addEventListener("click", (e) => {
-                            if (e.target.closest("a")) return;
-                            const link = item.querySelector("a[href]");
-                            if (link) link.click();
-                        });
-                    }
                 }
             });
         }
