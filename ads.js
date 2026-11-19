@@ -39,6 +39,56 @@
         slot.insertBefore(script, box);
     }
 
+    // Nová strana: stará reklama zůstane vidět, nová se načítá skrytě vedle.
+    // Až Adsterra novou opravdu vykreslí, staré se zbavíme. Když nic nepřijde, stará zůstane.
+    const REFRESH_TIMEOUT = 8000;
+    function refreshSlot(slot) {
+        const zone = slot.__zone;
+        if (slot.__pending) return;              // už se načítá
+        const old = slot.querySelector(".ad-box:not(.ad-box-loading)");
+        if (!old || !slot.classList.contains("ad-filled")) {  // nic tam není → prostě načíst znovu
+            fillSlot(slot);
+            return;
+        }
+        old.id = "container-" + zone.id + "-old";
+        old.classList.add("ad-box-old");
+        slot.querySelectorAll("script").forEach(sc => sc.remove());
+
+        const box = document.createElement("div");
+        box.id = "container-" + zone.id;
+        box.className = "ad-box ad-box-loading";
+        slot.appendChild(box);
+        const script = document.createElement("script");
+        script.async = true;
+        script.setAttribute("data-cfasync", "false");
+        script.src = zone.src;
+        slot.insertBefore(script, box);
+
+        slot.__pending = { old, box, timer: setTimeout(() => finishRefresh(slot, false), REFRESH_TIMEOUT) };
+    }
+
+    function boxHasAd(box) {
+        return !!box.querySelector(".ad-card") || [...box.querySelectorAll("*")].some(el =>
+            !["SCRIPT", "STYLE", "LINK", "NOSCRIPT"].includes(el.tagName) &&
+            (el.shadowRoot || el.tagName === "IFRAME" || (el.offsetWidth > 2 && el.offsetHeight > 2)));
+    }
+
+    function finishRefresh(slot, gotNew) {
+        const p = slot.__pending;
+        if (!p) return;
+        clearTimeout(p.timer);
+        slot.__pending = null;
+        if (gotNew) {
+            p.old.remove();
+            p.box.classList.remove("ad-box-loading");
+        } else {
+            p.box.remove();
+            p.old.id = "container-" + slot.__zone.id;
+            p.old.classList.remove("ad-box-old");
+        }
+        updateState(slot);
+    }
+
     function createSlots() {
         const list = listEl();
         if (!list || slots.length) return;
@@ -80,7 +130,7 @@
 
         // jiná strana (bez hledání) → reklamy se načtou znovu, ukážou se nové
         if (!filtered && page !== null) {
-            if (lastPage !== null && page !== lastPage) slots.forEach(fillSlot);
+            if (lastPage !== null && page !== lastPage) slots.forEach(refreshSlot);
             lastPage = page;
         }
 
@@ -157,8 +207,10 @@
     }
 
     function styleItems(slot) {
-        const box = slot.querySelector(".ad-box");
-        if (!box) return;
+        slot.querySelectorAll(".ad-box").forEach(styleBox);
+    }
+
+    function styleBox(box) {
         const pics = [...box.querySelectorAll("img")].concat(
             [...box.querySelectorAll("div, span, a, i")].filter(el => !el.querySelector("img") && hasBgImage(el)));
 
@@ -221,12 +273,11 @@
 
     function updateState(slot) {
         styleItems(slot);
-        const box = slot.querySelector(".ad-box");
-        const visible = !!box && [...box.querySelectorAll("*")].some(el =>
-            !["SCRIPT", "STYLE", "LINK", "NOSCRIPT"].includes(el.tagName) &&
-            (el.shadowRoot || el.tagName === "IFRAME" || (el.offsetWidth > 2 && el.offsetHeight > 2)));
-        slot.classList.toggle("ad-filled", visible);
-        slot.classList.toggle("ad-styled", !!slot.querySelector(".ad-card"));
+        const p = slot.__pending;
+        if (p && boxHasAd(p.box)) { finishRefresh(slot, true); return; }
+        const shown = slot.querySelector(".ad-box:not(.ad-box-loading)");
+        slot.classList.toggle("ad-filled", !!shown && boxHasAd(shown));
+        slot.classList.toggle("ad-styled", !!shown && !!shown.querySelector(".ad-card"));
     }
 
     function watch(slot) {

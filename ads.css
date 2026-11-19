@@ -208,3 +208,13 @@
     opacity: 1 !important;
     pointer-events: none;
 }
+
+/* nová reklama se po změně strany načítá skrytě; stará zůstane vidět, dokud nová nepřijde */
+#leaderboardList .ad-slot .ad-box.ad-box-loading {
+    position: absolute !important;
+    left: -99999px !important;
+    top: 0 !important;
+    width: 736px !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+}
