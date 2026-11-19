@@ -2,7 +2,12 @@
    Používá /ads.js (Top Clans, Leagues). Selektory jsou schválně "těžké"
    (#leaderboardList + několik tříd), aby přebily vlastní CSS Adsterry. */
 
-#leaderboardList .ad-slot { width: 736px; position: relative; }
+/* seznam je "kotva" pro 2. a 3. reklamu (position: absolute na místech spacerů);
+   slot ani obaly Adsterry proto nesmí být positioned */
+#leaderboardList #clanCardsList { position: relative; }
+#leaderboardList .ad-slot { width: 736px; position: static !important; }
+#leaderboardList .ad-spacer { height: 0; margin: 0; }
+#leaderboardList .ad-spacer.ad-spacer-on { height: 112px; margin: 6px 0; }
 /* dokud se nic nevykreslilo nebo je slot "zaparkovaný", nezabírá místo */
 #leaderboardList .ad-slot:not(.ad-filled),
 #leaderboardList .ad-slot.ad-parked { height: 0 !important; margin: 0 !important; overflow: hidden !important; }
@@ -35,13 +40,23 @@
     clip-path: none !important;
     contain: none !important;
     transform: none !important;
+    filter: none !important;
+    backdrop-filter: none !important;
+    perspective: none !important;
+    will-change: auto !important;
     animation: none !important;
     opacity: 1 !important;
 }
-#leaderboardList .ad-slot.ad-styled .ad-box *:not(.ad-card):not(.ad-card *):not(style):not(script) {
+#leaderboardList .ad-slot.ad-styled .ad-box:not(.ad-box-loading) { position: static !important; }
+/* obaly, ve kterých reklamy jsou → obyčejné bloky */
+#leaderboardList .ad-slot.ad-styled .ad-box *:not(.ad-card):not(.ad-card *):has(.ad-card) {
     display: block !important;
     float: none !important;
     position: static !important;
+}
+/* všechno ostatní mimo reklamy (menu "Report Ad / Cancel", loga…) skrýt */
+#leaderboardList .ad-slot.ad-styled .ad-box *:not(.ad-card):not(.ad-card *):not(:has(.ad-card)) {
+    display: none !important;
 }
 
 /* ---- karta ---- */
@@ -71,6 +86,16 @@
     transition: transform 0.044s cubic-bezier(0.1, 0.9, 0.2, 1) !important;
 }
 #leaderboardList .ad-slot.ad-styled .ad-card.ad-card:hover { transform: scale(1.015) !important; z-index: 10; }
+
+/* 2. a 3. reklama – posazené na místo spaceru (top nastavuje ads.js) */
+#leaderboardList .ad-slot.ad-styled .ad-card.ad-card.ad-card-float {
+    position: absolute !important;
+    left: 0 !important;
+    z-index: 1;
+}
+#leaderboardList .ad-slot.ad-styled .ad-card.ad-card.ad-card-float:hover { z-index: 10; }
+#leaderboardList .ad-slot .ad-card.ad-card.ad-card-hidden,
+#leaderboardList .ad-slot.ad-parked .ad-card.ad-card-float { display: none !important; }
 #leaderboardList .ad-slot.ad-styled .ad-card.ad-card:active { transform: scale(0.96) !important; }
 /* dotykové displeje: stejně jako karty klanů (scrollbar.js) – žádné zvětšování/mačkání */
 @media (hover: none) {

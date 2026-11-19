@@ -1,70 +1,71 @@
 // Adsterra native reklamy v seznamech (Top Clans, Leagues).
 // Stránka volá PS99Ads.park() těsně před přepsáním seznamu (list.innerHTML = …)
-// a PS99Ads.place({ filtered, page }) po vykreslení. Sloty se při běžném překreslení nemažou,
-// jen přesouvají. Když se změní strana (page), reklamy se načtou znovu (nové reklamy).
+// a PS99Ads.place({ filtered, page }) po vykreslení.
+//
+// Jedna Native Banner zóna (layout 1:3) pošle do jednoho kontejneru 3 reklamy pod sebou.
+// Kontejner je ve slotu za 3. kartou. 1. reklama tam zůstane, 2. a 3. se jen VIZUÁLNĚ
+// posadí (position: absolute) na volná místa ("spacery") uprostřed a na konci seznamu.
+// V DOM zůstávají pořád v kontejneru Adsterry → jejich měření zobrazení/kliků funguje.
 (function () {
-    // Každá zóna = jedna reklama. Jedna zóna nejde na stránku dát dvakrát,
-    // proto každá pozice potřebuje vlastní Native Banner zónu z Adsterry (bez adult reklam).
-    //   pos: "top"    = za 3. kartou (jediná reklama i při hledání)
-    //        "middle" = kolem prostředka seznamu
-    //        "bottom" = za poslední kartou
-    const ZONES = [
-        { pos: "top", id: "397e914f0279aa3d22964f8659debbab", src: "https://bicea.org/21/397e914f0279aa3d22964f8659debbab" },
-        // { pos: "middle", id: "…", src: "https://…/21/…" },
-        // { pos: "bottom", id: "…", src: "https://…/21/…" },
-    ];
-    const TOP_AFTER_ROW = 3;      // horní reklama za 3. kartou
-    const MIDDLE_MIN_ROWS = 20;   // prostřední reklama jen když je karet aspoň tolik
-    const BOTTOM_MIN_ROWS = 10;   // dolní reklama jen když je karet aspoň tolik
+    const ZONE = { id: "397e914f0279aa3d22964f8659debbab", src: "https://bicea.org/21/397e914f0279aa3d22964f8659debbab" };
+    const TOP_AFTER_ROW = 3;      // 1. reklama za 3. kartou
+    const MIDDLE_MIN_ROWS = 20;   // 2. reklama (prostředek) jen když je karet aspoň tolik
+    const BOTTOM_MIN_ROWS = 10;   // 3. reklama (konec seznamu) jen když je karet aspoň tolik
 
-    const slots = [];
+    let slot = null;
+    const spacers = [];           // [prostřední, dolní]
+    let filteredNow = false;
 
     function listEl() { return document.getElementById("clanCardsList"); }
 
-    // vloží do slotu čerstvý kód od Adsterry (stejné pořadí jako v jejich kódu: <script>, pak kontejner)
-    function fillSlot(slot) {
-        const zone = slot.__zone;
-        slot.classList.remove("ad-filled", "ad-styled");
-        slot.textContent = "";
-
+    function newBox(loading) {
         const box = document.createElement("div");
-        box.id = "container-" + zone.id;
-        box.className = "ad-box";
-        slot.appendChild(box);
-
+        box.id = "container-" + ZONE.id;
+        box.className = "ad-box" + (loading ? " ad-box-loading" : "");
         const script = document.createElement("script");
         script.async = true;
         script.setAttribute("data-cfasync", "false");
-        script.src = zone.src;
-        slot.insertBefore(script, box);
+        script.src = ZONE.src;
+        // stejné pořadí jako v kódu od Adsterry: <script>, pak kontejner
+        slot.appendChild(script);
+        slot.appendChild(box);
+        return box;
     }
 
-    // Nová strana: stará reklama zůstane vidět, nová se načítá skrytě vedle.
-    // Až Adsterra novou opravdu vykreslí, staré se zbavíme. Když nic nepřijde, stará zůstane.
+    function createSlots() {
+        const list = listEl();
+        if (!list || slot) return;
+        slot = document.createElement("div");
+        slot.className = "ad-slot ad-parked";
+        slot.id = "adSlot";
+        list.parentNode.insertBefore(slot, list);
+        newBox(false);
+        for (let i = 0; i < 2; i++) {
+            const sp = document.createElement("div");
+            sp.className = "ad-spacer";
+            spacers.push(sp);
+        }
+        watch();
+    }
+
+    // ---------- nová strana = nové reklamy ----------
+    // Stará reklama zůstane vidět, nová se načítá skrytě vedle. Až Adsterra novou opravdu
+    // vykreslí, staré se zbavíme. Když nic nepřijde, stará zůstane (nikdy nic nezmizí).
     const REFRESH_TIMEOUT = 8000;
-    function refreshSlot(slot) {
-        const zone = slot.__zone;
-        if (slot.__pending) return;              // už se načítá
+    let pending = null;
+
+    function refresh() {
+        if (!slot || pending) return;
         const old = slot.querySelector(".ad-box:not(.ad-box-loading)");
-        if (!old || !slot.classList.contains("ad-filled")) {  // nic tam není → prostě načíst znovu
-            fillSlot(slot);
+        if (!old || !boxHasAd(old)) {               // nic tam není → prostě načíst znovu
+            slot.textContent = "";
+            newBox(false);
             return;
         }
-        old.id = "container-" + zone.id + "-old";
-        old.classList.add("ad-box-old");
+        old.id = "container-" + ZONE.id + "-old";
         slot.querySelectorAll("script").forEach(sc => sc.remove());
-
-        const box = document.createElement("div");
-        box.id = "container-" + zone.id;
-        box.className = "ad-box ad-box-loading";
-        slot.appendChild(box);
-        const script = document.createElement("script");
-        script.async = true;
-        script.setAttribute("data-cfasync", "false");
-        script.src = zone.src;
-        slot.insertBefore(script, box);
-
-        slot.__pending = { old, box, timer: setTimeout(() => finishRefresh(slot, false), REFRESH_TIMEOUT) };
+        const box = newBox(true);
+        pending = { old, box, timer: setTimeout(() => finishRefresh(false), REFRESH_TIMEOUT) };
     }
 
     function boxHasAd(box) {
@@ -73,47 +74,29 @@
             (el.shadowRoot || el.tagName === "IFRAME" || (el.offsetWidth > 2 && el.offsetHeight > 2)));
     }
 
-    function finishRefresh(slot, gotNew) {
-        const p = slot.__pending;
-        if (!p) return;
+    function finishRefresh(gotNew) {
+        if (!pending) return;
+        const p = pending;
+        pending = null;
         clearTimeout(p.timer);
-        slot.__pending = null;
         if (gotNew) {
             p.old.remove();
             p.box.classList.remove("ad-box-loading");
         } else {
             p.box.remove();
-            p.old.id = "container-" + slot.__zone.id;
-            p.old.classList.remove("ad-box-old");
+            p.old.id = "container-" + ZONE.id;
         }
-        updateState(slot);
+        updateState();
     }
-
-    function createSlots() {
-        const list = listEl();
-        if (!list || slots.length) return;
-        ZONES.forEach(zone => {
-            const slot = document.createElement("div");
-            slot.className = "ad-slot ad-parked";
-            slot.id = "adSlot-" + zone.pos;
-            slot.__zone = zone;
-            list.parentNode.insertBefore(slot, list);
-            fillSlot(slot);
-            slots.push(slot);
-            watch(slot);
-        });
-    }
-
-    function slotFor(pos) { return slots.find(s => s.__zone.pos === pos); }
 
     // ---------- umístění ----------
     function park() {
         const list = listEl();
-        if (!list) return;
-        slots.forEach(slot => {
-            slot.classList.add("ad-parked");
-            if (slot.parentNode === list) list.parentNode.insertBefore(slot, list);
-        });
+        if (!list || !slot) return;
+        slot.classList.add("ad-parked");
+        if (slot.parentNode === list) list.parentNode.insertBefore(slot, list);
+        spacers.forEach(sp => sp.remove());
+        layoutFloats();
     }
 
     let lastPage = null;
@@ -121,37 +104,55 @@
     function place(opts) {
         createSlots();
         const list = listEl();
-        if (!list) return;
+        if (!list || !slot) return;
         const filtered = !!(opts && opts.filtered);
         const page = opts && opts.page !== undefined ? String(opts.page) : null;
         const rows = list.querySelectorAll(":scope > .clan-row");
         const n = rows.length;
         park();
+        filteredNow = filtered;
 
-        // jiná strana (bez hledání) → reklamy se načtou znovu, ukážou se nové
+        // jiná strana (bez hledání) → zkusit načíst nové reklamy
         if (!filtered && page !== null) {
-            if (lastPage !== null && page !== lastPage) slots.forEach(refreshSlot);
+            if (lastPage !== null && page !== lastPage) refresh();
             lastPage = page;
         }
 
         if (!n) return;   // žádné výsledky → žádná reklama (a nikdy ne nad první kartou)
 
-        const put = (slot, afterRow) => {
-            if (!slot) return;
-            rows[afterRow - 1].insertAdjacentElement("afterend", slot);
-            slot.classList.remove("ad-parked");
-        };
-
-        // horní: za 3. kartou, při hledání/málo výsledcích za poslední kartou
+        // 1. reklama: za 3. kartou, při hledání/málo výsledcích za poslední kartou
         const topAt = Math.min(TOP_AFTER_ROW, n);
-        put(slotFor("top"), topAt);
-        if (filtered) return;   // při hledání / filtru jen jedna reklama
+        rows[topAt - 1].insertAdjacentElement("afterend", slot);
+        slot.classList.remove("ad-parked");
 
-        // prostřední: kolem prostředka seznamu
-        const midAt = Math.round(n / 2);
-        if (n >= MIDDLE_MIN_ROWS && midAt > topAt) put(slotFor("middle"), midAt);
-        // dolní: za poslední kartou
-        if (n >= BOTTOM_MIN_ROWS && n > topAt) put(slotFor("bottom"), n);
+        // při hledání / filtru jen jedna reklama
+        if (!filtered) {
+            const midAt = Math.round(n / 2);
+            if (n >= MIDDLE_MIN_ROWS && midAt > topAt) rows[midAt - 1].insertAdjacentElement("afterend", spacers[0]);
+            if (n >= BOTTOM_MIN_ROWS && n > topAt) rows[n - 1].insertAdjacentElement("afterend", spacers[1]);
+        }
+        layoutFloats();
+    }
+
+    // 2. a 3. reklamu posadí na místa spacerů; přebytečné (nebo při hledání) schová
+    function layoutFloats() {
+        if (!slot) return;
+        const list = listEl();
+        const shown = slot.querySelector(".ad-box:not(.ad-box-loading)");
+        const cards = shown ? [...shown.querySelectorAll(".ad-card")].filter(c => !c.parentElement.closest(".ad-card")) : [];
+        const free = spacers.filter(sp => sp.parentNode === list && !slot.classList.contains("ad-parked"));
+        spacers.forEach(sp => sp.classList.remove("ad-spacer-on"));
+
+        cards.forEach((card, i) => {
+            card.classList.remove("ad-card-float", "ad-card-hidden");
+            card.style.removeProperty("top");
+            if (i === 0) return;
+            const sp = free[i - 1];
+            if (!sp || filteredNow) { card.classList.add("ad-card-hidden"); return; }
+            sp.classList.add("ad-spacer-on");
+            card.classList.add("ad-card-float");
+            card.style.setProperty("top", sp.offsetTop + "px", "important");
+        });
     }
 
     // ---------- rozpoznání a úprava reklamy ----------
@@ -271,23 +272,25 @@
         });
     }
 
-    function updateState(slot) {
+    function updateState() {
+        if (!slot) return;
         styleItems(slot);
-        const p = slot.__pending;
-        if (p && boxHasAd(p.box)) { finishRefresh(slot, true); return; }
+        if (pending && boxHasAd(pending.box)) { finishRefresh(true); return; }
         const shown = slot.querySelector(".ad-box:not(.ad-box-loading)");
         slot.classList.toggle("ad-filled", !!shown && boxHasAd(shown));
         slot.classList.toggle("ad-styled", !!shown && !!shown.querySelector(".ad-card"));
+        layoutFloats();
     }
 
-    function watch(slot) {
-        let pending = false;
+    function watch() {
+        let busy = false;
         const run = () => {
-            if (pending) return;
-            pending = true;
-            setTimeout(() => { pending = false; updateState(slot); }, 60);
+            if (busy) return;
+            busy = true;
+            setTimeout(() => { busy = false; updateState(); }, 60);
         };
-        new MutationObserver(run).observe(slot, { childList: true, subtree: true, attributes: true, attributeFilter: ["src", "style"] });
+        // jen změny od Adsterry (naše vlastní třídy a "top" u plovoucích karet ignorujeme)
+        new MutationObserver(run).observe(slot, { childList: true, subtree: true, attributes: true, attributeFilter: ["src"] });
         slot.addEventListener("load", run, true);
         setTimeout(run, 3000);
         setTimeout(run, 8000);
@@ -305,7 +308,8 @@
             if (el.shadowRoot) for (const ch of el.shadowRoot.children) line += walk(ch, d + 1);
             return line;
         };
-        const out = slots.map(s => "parent: " + (s.parentNode ? s.parentNode.id : "-") + " | class: " + s.className + "\n" + walk(s, 0)).join("\n") +
+        const out = (slot ? "parent: " + (slot.parentNode ? slot.parentNode.id : "-") + " | class: " + slot.className + "\n" + walk(slot, 0) : "no slot") +
+            "\nspacers: " + spacers.map(sp => (sp.parentNode ? "in list @" + sp.offsetTop : "off") + (sp.classList.contains("ad-spacer-on") ? " on" : "")).join(", ") +
             "\nbody iframes: " + [...document.querySelectorAll("iframe")].map(f => f.src.slice(0, 60)).join(", ");
         console.log(out);
         return out;
