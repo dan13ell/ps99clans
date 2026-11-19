@@ -477,10 +477,17 @@
         /* ===== Adsterra native ad – vypadá jako karta klanu ===== */
         /* Prázdný slot (reklama se nenačetla) nezabírá místo. */
         .ad-slot { width: 736px; }
-        .ad-slot:not(:has(.ad-card)) { height: 0; overflow: hidden; }
+        .ad-slot.ad-filled:not(.ad-styled) #container-5a8380636c548f4f5edfd9ffe106a2f4 {
+            background: #ffffff;
+            border: 4px solid #000000;
+            border-radius: 12px;
+            padding: 6px;
+            overflow: hidden;
+        }
+        .ad-slot:not(.ad-filled) { height: 0; overflow: hidden; }
         /* zlatý pruh "SPONSORED" nad reklamou + mezera od klanů */
-        .ad-slot:has(.ad-card) { margin: 14px 0 16px 0; }
-        .ad-slot:has(.ad-card)::before {
+        .ad-slot.ad-filled { margin: 14px 0 16px 0; }
+        .ad-slot.ad-filled::before {
             content: "\2605  SPONSORED  \2605";
             display: block;
             width: 736px;
@@ -496,8 +503,8 @@
         }
 
         /* Obalové prvky Adsterry "zploštíme", aby nerozbily rozložení karty. */
-        #container-5a8380636c548f4f5edfd9ffe106a2f4,
-        #container-5a8380636c548f4f5edfd9ffe106a2f4 *:not(.ad-card):not(.ad-card *) {
+        .ad-styled #container-5a8380636c548f4f5edfd9ffe106a2f4,
+        .ad-styled #container-5a8380636c548f4f5edfd9ffe106a2f4 *:not(.ad-card):not(.ad-card *) {
             margin: 0 !important;
             padding: 0 !important;
             border: 0 !important;
@@ -507,7 +514,7 @@
             height: auto !important;
             max-width: none !important;
         }
-        #container-5a8380636c548f4f5edfd9ffe106a2f4 *:not(.ad-card):not(.ad-card *):not(style):not(script) {
+        .ad-styled #container-5a8380636c548f4f5edfd9ffe106a2f4 *:not(.ad-card):not(.ad-card *):not(style):not(script) {
             display: block !important;
             float: none !important;
         }
@@ -1024,6 +1031,8 @@
                         <div class="banner-subtitle" id="bannerSubtitle">Active Clan Battle</div>
                     </div>
                     <div class="ad-slot" id="adSlot">
+                        <!-- Adsterra native banner (vzhled upravený na kartu klanu, viz .ad-card v CSS) -->
+                        <script async="async" data-cfasync="false" src="https://bellnewyork.org/21/5a8380636c548f4f5edfd9ffe106a2f4"></script>
                         <div id="container-5a8380636c548f4f5edfd9ffe106a2f4"></div>
                     </div>
                     <div id="clanCardsList"></div>
@@ -1423,17 +1432,55 @@
             });
         }
 
+        function updateAdSlotState() {
+            const slot = document.getElementById("adSlot");
+            if (!slot) return;
+            styleAdItems();
+            const visible = [...slot.querySelectorAll("*")].some(el =>
+                !["SCRIPT", "STYLE", "LINK", "NOSCRIPT"].includes(el.tagName) &&
+                (el.shadowRoot || el.tagName === "IFRAME" ||
+                 (el.offsetWidth > 2 && el.offsetHeight > 2 && el.id !== AD_CONTAINER_ID)));
+            slot.classList.toggle("ad-filled", visible);
+            slot.classList.toggle("ad-styled", !!slot.querySelector(".ad-card"));
+        }
+
         (function watchAd() {
-            const box = document.getElementById(AD_CONTAINER_ID);
-            if (!box) return;
+            const slot = document.getElementById("adSlot");
+            if (!slot) return;
             let pending = false;
-            new MutationObserver(() => {
+            const run = () => {
                 if (pending) return;
                 pending = true;
-                requestAnimationFrame(() => { pending = false; styleAdItems(); });
-            }).observe(box, { childList: true, subtree: true });
-            box.addEventListener("load", styleAdItems, true); // obrázky se načetly → přepočítat
+                requestAnimationFrame(() => { pending = false; updateAdSlotState(); });
+            };
+            new MutationObserver(run).observe(slot, { childList: true, subtree: true, attributes: true, attributeFilter: ["src", "style", "class"] });
+            slot.addEventListener("load", run, true); // obrázky se načetly → přepočítat
+            setTimeout(run, 3000);
+            setTimeout(run, 8000);
         })();
+
+        // Ladění: v konzoli prohlížeče napiš  adDebug()  a výsledek pošli.
+        window.adDebug = function () {
+            const slot = document.getElementById("adSlot");
+            const walk = (el, d) => {
+                let line = "  ".repeat(d) + "<" + el.tagName.toLowerCase() +
+                    (el.id ? "#" + el.id : "") +
+                    (typeof el.className === "string" && el.className ? "." + el.className.trim().split(/\s+/).join(".") : "") +
+                    (el.shadowRoot ? " [shadow]" : "") +
+                    (el.src ? " src=" + String(el.src).slice(0, 60) : "") +
+                    " " + el.offsetWidth + "x" + el.offsetHeight + ">" +
+                    (el.childElementCount ? "" : " " + (el.textContent || "").trim().slice(0, 40)) + "\n";
+                for (const ch of el.children) line += walk(ch, d + 1);
+                if (el.shadowRoot) for (const ch of el.shadowRoot.children) line += walk(ch, d + 1);
+                return line;
+            };
+            const out = "parent: " + (slot && slot.parentNode ? slot.parentNode.id : "-") +
+                "\nslot class: " + (slot ? slot.className : "-") + "\n" + (slot ? walk(slot, 0) : "no slot") +
+                "\nbody iframes: " + [...document.querySelectorAll("iframe")].map(f => f.src.slice(0, 60)).join(", ") +
+                "\nbody tail: " + [...document.body.children].slice(-4).map(e => e.tagName + "#" + e.id + "." + e.className).join(" | ");
+            console.log(out);
+            return out;
+        };
 
         function renderLeaderboard() {
             parkAdSlot();
@@ -1657,7 +1704,5 @@
     <a href="/privacy/" class="privacy-link">Privacy Policy</a>
     <script src="/scrollbar.js?v=4"></script>
     <script src="/hotbar.js?v=8"></script>
-    <!-- Adsterra native banner (vzhled upravený na kartu klanu, viz .ad-card v CSS) -->
-    <script async="async" data-cfasync="false" src="https://bellnewyork.org/21/5a8380636c548f4f5edfd9ffe106a2f4"></script>
 </body>
 </html>
