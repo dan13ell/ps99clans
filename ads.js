@@ -1,46 +1,60 @@
 // Adsterra native reklamy v seznamech (Top Clans, Leagues).
 // Stránka volá PS99Ads.park() těsně před přepsáním seznamu (list.innerHTML = …)
-// a PS99Ads.place({ filtered }) po vykreslení. Sloty se nikdy nemažou, jen přesouvají,
-// takže reklama od Adsterry zůstane načtená a měření zobrazení/kliků je pořád jejich.
+// a PS99Ads.place({ filtered, page }) po vykreslení. Sloty se při běžném překreslení nemažou,
+// jen přesouvají. Když se změní strana (page), reklamy se načtou znovu (nové reklamy).
 (function () {
     // Každá zóna = jedna reklama. Jedna zóna nejde na stránku dát dvakrát,
-    // proto dolní reklama potřebuje vlastní (druhou) Native Banner zónu z Adsterry.
+    // proto každá pozice potřebuje vlastní Native Banner zónu z Adsterry (bez adult reklam).
+    //   pos: "top"    = za 3. kartou (jediná reklama i při hledání)
+    //        "middle" = kolem prostředka seznamu
+    //        "bottom" = za poslední kartou
     const ZONES = [
-        { id: "397e914f0279aa3d22964f8659debbab", src: "https://bicea.org/21/397e914f0279aa3d22964f8659debbab" },
-        // { id: "…", src: "https://…/21/…" },   // ← druhá zóna (dolní reklama)
+        { pos: "top", id: "397e914f0279aa3d22964f8659debbab", src: "https://bicea.org/21/397e914f0279aa3d22964f8659debbab" },
+        // { pos: "middle", id: "…", src: "https://…/21/…" },
+        // { pos: "bottom", id: "…", src: "https://…/21/…" },
     ];
     const TOP_AFTER_ROW = 3;      // horní reklama za 3. kartou
-    const BOTTOM_MIN_ROWS = 10;   // dolní reklama (na konci seznamu) jen když je karet aspoň tolik
+    const MIDDLE_MIN_ROWS = 20;   // prostřední reklama jen když je karet aspoň tolik
+    const BOTTOM_MIN_ROWS = 10;   // dolní reklama jen když je karet aspoň tolik
 
     const slots = [];
 
     function listEl() { return document.getElementById("clanCardsList"); }
 
+    // vloží do slotu čerstvý kód od Adsterry (stejné pořadí jako v jejich kódu: <script>, pak kontejner)
+    function fillSlot(slot) {
+        const zone = slot.__zone;
+        slot.classList.remove("ad-filled", "ad-styled");
+        slot.textContent = "";
+
+        const box = document.createElement("div");
+        box.id = "container-" + zone.id;
+        box.className = "ad-box";
+        slot.appendChild(box);
+
+        const script = document.createElement("script");
+        script.async = true;
+        script.setAttribute("data-cfasync", "false");
+        script.src = zone.src;
+        slot.insertBefore(script, box);
+    }
+
     function createSlots() {
         const list = listEl();
         if (!list || slots.length) return;
-        ZONES.forEach((zone, i) => {
+        ZONES.forEach(zone => {
             const slot = document.createElement("div");
             slot.className = "ad-slot ad-parked";
-            slot.id = i === 0 ? "adSlot" : "adSlot" + (i + 1);
-
-            const script = document.createElement("script");
-            script.async = true;
-            script.setAttribute("data-cfasync", "false");
-            script.src = zone.src;
-
-            const box = document.createElement("div");
-            box.id = "container-" + zone.id;
-            box.className = "ad-box";
-
-            // stejné pořadí jako v kódu od Adsterry: <script> a hned za ním kontejner
-            slot.appendChild(box);
-            slot.insertBefore(script, box);
+            slot.id = "adSlot-" + zone.pos;
+            slot.__zone = zone;
             list.parentNode.insertBefore(slot, list);
+            fillSlot(slot);
             slots.push(slot);
             watch(slot);
         });
     }
+
+    function slotFor(pos) { return slots.find(s => s.__zone.pos === pos); }
 
     // ---------- umístění ----------
     function park() {
@@ -52,28 +66,42 @@
         });
     }
 
+    let lastPage = null;
+
     function place(opts) {
         createSlots();
         const list = listEl();
         if (!list) return;
         const filtered = !!(opts && opts.filtered);
+        const page = opts && opts.page !== undefined ? String(opts.page) : null;
         const rows = list.querySelectorAll(":scope > .clan-row");
         const n = rows.length;
         park();
+
+        // jiná strana (bez hledání) → reklamy se načtou znovu, ukážou se nové
+        if (!filtered && page !== null) {
+            if (lastPage !== null && page !== lastPage) slots.forEach(fillSlot);
+            lastPage = page;
+        }
+
         if (!n) return;   // žádné výsledky → žádná reklama (a nikdy ne nad první kartou)
 
+        const put = (slot, afterRow) => {
+            if (!slot) return;
+            rows[afterRow - 1].insertAdjacentElement("afterend", slot);
+            slot.classList.remove("ad-parked");
+        };
+
         // horní: za 3. kartou, při hledání/málo výsledcích za poslední kartou
-        const top = slots[0];
-        if (top) {
-            rows[Math.min(TOP_AFTER_ROW, n) - 1].insertAdjacentElement("afterend", top);
-            top.classList.remove("ad-parked");
-        }
-        // dolní: na konci seznamu, jen bez hledání a s dost kartami
-        const bottom = slots[1];
-        if (bottom && !filtered && n >= BOTTOM_MIN_ROWS) {
-            rows[n - 1].insertAdjacentElement("afterend", bottom);
-            bottom.classList.remove("ad-parked");
-        }
+        const topAt = Math.min(TOP_AFTER_ROW, n);
+        put(slotFor("top"), topAt);
+        if (filtered) return;   // při hledání / filtru jen jedna reklama
+
+        // prostřední: kolem prostředka seznamu
+        const midAt = Math.round(n / 2);
+        if (n >= MIDDLE_MIN_ROWS && midAt > topAt) put(slotFor("middle"), midAt);
+        // dolní: za poslední kartou
+        if (n >= BOTTOM_MIN_ROWS && n > topAt) put(slotFor("bottom"), n);
     }
 
     // ---------- rozpoznání a úprava reklamy ----------

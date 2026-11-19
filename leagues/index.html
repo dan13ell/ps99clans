@@ -501,7 +501,7 @@
     <meta name="twitter:card" content="summary">
     <meta name="theme-color" content="#89B3F9">
     <!--/SC:HEAD-->
-    <link rel="stylesheet" href="/ads.css?v=1">
+    <link rel="stylesheet" href="/ads.css?v=2">
 </head>
 <body>
 
@@ -543,7 +543,7 @@
         </div>
     </div>
 
-    <script src="/ads.js?v=1"></script>
+    <script src="/ads.js?v=2"></script>
     <script>
         const WORKER_URL = "https://rough-pine-d90f.dan13el.workers.dev";
         let allLeaguesData = []; 
@@ -684,7 +684,7 @@
             list.dataset.sig = String(html.length);
             if (window.PS99Ads) PS99Ads.park();
             list.innerHTML = html;
-            if (window.PS99Ads) PS99Ads.place({ filtered: isSearching });
+            if (window.PS99Ads) PS99Ads.place({ filtered: isSearching, page: currentPage });
 
             if (pageText) pageText.textContent = currentPage;
 

@@ -795,7 +795,7 @@
     <meta name="twitter:card" content="summary">
     <meta name="theme-color" content="#89B3F9">
     <!--/SC:HEAD-->
-    <link rel="stylesheet" href="/ads.css?v=1">
+    <link rel="stylesheet" href="/ads.css?v=2">
 </head>
 <body>
 
@@ -853,7 +853,7 @@
         </div>
     </div>
 
-    <script src="/ads.js?v=1"></script>
+    <script src="/ads.js?v=2"></script>
     <script>
         const WORKER_URL = "https://rough-pine-d90f.dan13el.workers.dev";
         let pointsClanData = [];
@@ -1219,7 +1219,7 @@
                 fetchClanDescription(clan.Name, descElementId);
             });
 
-            if (window.PS99Ads) PS99Ads.place({ filtered: searchQuery.trim() !== "" || selectedCountries.length > 0 });
+            if (window.PS99Ads) PS99Ads.place({ filtered: searchQuery.trim() !== "" || selectedCountries.length > 0, page: currentMode === "points" ? "p" + currentPage : "gems" });
             document.getElementById("leaderboardList").scrollTop = savedScrollTop;
         }
 
