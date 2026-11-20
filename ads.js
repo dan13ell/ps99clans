@@ -137,24 +137,42 @@
         layoutFloats();
     }
 
-    // 2. a 3. reklamu posadí na místa spacerů; přebytečné (nebo při hledání) schová
+    // 2. a 3. reklamu posadí na místa spacerů; přebytečné (nebo při hledání) schová.
+    // Rovnou nastaví konečný stav – žádné mezikroky, při kterých by se seznam na okamžik
+    // zkrátil (prohlížeč by pak posunul pozici scrollu).
     function layoutFloats() {
         if (!slot) return;
         const list = listEl();
         const shown = slot.querySelector(".ad-box:not(.ad-box-loading)");
         const cards = shown ? [...shown.querySelectorAll(".ad-card")].filter(c => !c.parentElement.closest(".ad-card")) : [];
         const free = spacers.filter(sp => sp.parentNode === list && !slot.classList.contains("ad-parked"));
-        spacers.forEach(sp => sp.classList.remove("ad-spacer-on"));
 
+        // kam která karta patří
+        const target = cards.map((card, i) => (i === 0 || filteredNow) ? null : (free[i - 1] || null));
+
+        // 1) spacery: zapnout ty, které dostanou kartu, ostatní vypnout
+        spacers.forEach(sp => sp.classList.toggle("ad-spacer-on", target.includes(sp)));
+
+        // 2) karty: konečné třídy
         cards.forEach((card, i) => {
-            card.classList.remove("ad-card-float", "ad-card-hidden");
-            card.style.removeProperty("top");
-            if (i === 0) return;
-            const sp = free[i - 1];
-            if (!sp || filteredNow) { card.classList.add("ad-card-hidden"); return; }
-            sp.classList.add("ad-spacer-on");
-            card.classList.add("ad-card-float");
-            card.style.setProperty("top", sp.offsetTop + "px", "important");
+            if (i === 0) {
+                card.classList.remove("ad-card-float", "ad-card-hidden");
+                card.style.removeProperty("top");
+            } else if (target[i]) {
+                card.classList.add("ad-card-float");
+                card.classList.remove("ad-card-hidden");
+            } else {
+                card.classList.add("ad-card-hidden");
+                card.classList.remove("ad-card-float");
+                card.style.removeProperty("top");
+            }
+        });
+
+        // 3) až teď změřit pozice spacerů a karty na ně posadit
+        cards.forEach((card, i) => {
+            if (!target[i]) return;
+            const top = target[i].offsetTop + "px";
+            if (card.style.getPropertyValue("top") !== top) card.style.setProperty("top", top, "important");
         });
     }
 

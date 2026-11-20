@@ -5,6 +5,8 @@
 /* seznam je "kotva" pro 2. a 3. reklamu (position: absolute na místech spacerů);
    slot ani obaly Adsterry proto nesmí být positioned */
 #leaderboardList #clanCardsList { position: relative; }
+/* výměna reklam (nová strana) nesmí posouvat seznam – vypnout automatické "kotvení" scrollu */
+#leaderboardList { overflow-anchor: none; }
 #leaderboardList .ad-slot { width: 736px; position: static !important; }
 #leaderboardList .ad-spacer { height: 0; margin: 0; }
 #leaderboardList .ad-spacer.ad-spacer-on { height: 112px; margin: 6px 0; }

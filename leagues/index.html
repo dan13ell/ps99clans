@@ -497,7 +497,7 @@
     <meta name="twitter:card" content="summary">
     <meta name="theme-color" content="#89B3F9">
     <!--/SC:HEAD-->
-    <link rel="stylesheet" href="/ads.css?v=5">
+    <link rel="stylesheet" href="/ads.css?v=6">
 </head>
 <body>
 
@@ -539,7 +539,7 @@
         </div>
     </div>
 
-    <script src="/ads.js?v=5"></script>
+    <script src="/ads.js?v=6"></script>
     <script>
         const WORKER_URL = "https://rough-pine-d90f.dan13el.workers.dev";
         let allLeaguesData = []; 
@@ -711,6 +711,7 @@
                 if (currentPage > 1) {
                     currentPage--;
                     renderLeaderboard();
+                    stayAtPager();
                 }
             });
             nextBtn.addEventListener("click", (e) => {
@@ -719,8 +720,15 @@
                 if (currentPage < totalPages) {
                     currentPage++;
                     renderLeaderboard();
+                    stayAtPager();
                 }
             });
+        }
+
+        // po změně strany zůstat dole u přepínače stran
+        function stayAtPager() {
+            const box = document.getElementById("leaderboardList");
+            if (box) box.scrollTop = box.scrollHeight;
         }
 
         // obnova každých 5 minut, a jen když je karta vidět

@@ -791,7 +791,7 @@
     <meta name="twitter:card" content="summary">
     <meta name="theme-color" content="#89B3F9">
     <!--/SC:HEAD-->
-    <link rel="stylesheet" href="/ads.css?v=5">
+    <link rel="stylesheet" href="/ads.css?v=6">
 </head>
 <body>
 
@@ -849,7 +849,7 @@
         </div>
     </div>
 
-    <script src="/ads.js?v=5"></script>
+    <script src="/ads.js?v=6"></script>
     <script>
         const WORKER_URL = "https://rough-pine-d90f.dan13el.workers.dev";
         let pointsClanData = [];
@@ -1109,8 +1109,8 @@
 
         async function fetchLeaderboardData(isSilent = false) {
             const list = document.getElementById("clanCardsList");
-            if (window.PS99Ads) PS99Ads.park();
             if (!isSilent && list) {
+                if (window.PS99Ads) PS99Ads.park();
                 list.innerHTML = `<div class="leaderboard-loading">Loading...</div>`;
             }
             // při chybě API žádná vymyšlená data: necháme poslední známý seznam, jinak hláška a nový pokus
@@ -1124,6 +1124,7 @@
                 if (dataGems && dataGems.status === "ok" && Array.isArray(dataGems.data)) gemsClanData = dataGems.data;
             } catch (err) {}
             if (!pointsClanData.length) {
+                if (window.PS99Ads) PS99Ads.park();
                 if (list) list.innerHTML = `<div class="leaderboard-loading">Could not load clans. Retrying...</div>`;
                 setTimeout(() => fetchLeaderboardData(true), 10000);
                 return;
@@ -1136,7 +1137,6 @@
         }
 
         function renderLeaderboard() {
-            if (window.PS99Ads) PS99Ads.park();
             const list = document.getElementById("clanCardsList");
             const banner = document.getElementById("clanWarBanner");
             const footerEl = document.getElementById("leaderboardFooter");
@@ -1144,7 +1144,9 @@
             
             if (!list || !banner || !footerEl) return;
             
+            // pozici uložit dřív, než se ze seznamu vyjmou reklamy (jinak by seznam zkrátil a prohlížeč posunul nahoru)
             const savedScrollTop = document.getElementById("leaderboardList").scrollTop;
+            if (window.PS99Ads) PS99Ads.park();
             
             descObserver.disconnect();
             list.innerHTML = "";
@@ -1307,12 +1309,18 @@
         if (prevBtn && nextBtn) {
             prevBtn.addEventListener("click", (e) => {
                 e.stopPropagation();
-                if (currentPage > 1) { currentPage--; renderLeaderboard(); }
+                if (currentPage > 1) { currentPage--; renderLeaderboard(); stayAtPager(); }
             });
             nextBtn.addEventListener("click", (e) => {
                 e.stopPropagation();
-                if (currentPage < 10) { currentPage++; renderLeaderboard(); }
+                if (currentPage < 10) { currentPage++; renderLeaderboard(); stayAtPager(); }
             });
+        }
+
+        // po změně strany zůstat dole u přepínače stran
+        function stayAtPager() {
+            const box = document.getElementById("leaderboardList");
+            if (box) box.scrollTop = box.scrollHeight;
         }
 
         setInterval(() => {
