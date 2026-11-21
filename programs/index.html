@@ -62,60 +62,59 @@
         .close-btn:hover:not(:active) { left: 1042px; top: -34px; width: 76px; height: 77px; }
         .close-btn:active { background-image: url("/images/X-clicked.png"); left: 1047px; top: -29px; width: 66px; height: 67px; }
 
-        /* ---------- posuvná oblast v okně ---------- */
+        /* ---------- posuvná oblast v okně (scrollbar = /scrollbar.js, jezdec scroller.png) ---------- */
         .pr-scroll {
-            position: absolute; left: 8px; top: 7px; width: 1096px; height: 556px;
+            position: absolute; left: 14px; top: 50px; width: 1072px; height: 508px;
             overflow-y: auto; overflow-x: hidden; z-index: 900;
-            border-radius: 16px;
             touch-action: pan-y pinch-zoom !important; overscroll-behavior: contain !important;
-            contain: strict;
         }
-        .pr-inner { position: relative; width: 1096px; padding: 52px 24px 22px 12px; display: flex; flex-direction: column; gap: 16px; }
+        .pr-list { width: 1072px; padding: 4px 30px 12px 10px; display: flex; flex-direction: column; gap: 8px; }
 
-        /* ---------- společné ---------- */
-        .card { position: relative; background: #FFFFFF; border: 4px solid #000; border-radius: 18px; }
-        .title-stroke {
-            font-size: 24px; color: #FFFFFF;
-            -webkit-text-stroke: 5px #000; stroke-linejoin: round; -webkit-stroke-linejoin: round;
-            paint-order: stroke fill; font-weight: 800 !important; white-space: nowrap;
+        /* ---------- řádek programu (jako řádek klanu na Top Clans) ---------- */
+        .prog {
+            position: relative; display: block; flex-shrink: 0; height: 112px;
+            background: #F7FFFF; border: 4px solid #000; border-radius: 12px;
+            text-decoration: none; cursor: pointer; -webkit-tap-highlight-color: transparent;
+            transition: transform 0.044s cubic-bezier(0.1, 0.9, 0.2, 1);
         }
-        .sec-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 10px; }
-        .sec-sub { font-size: 15px; font-weight: 700 !important; color: #8E9099; white-space: nowrap; }
+        .prog:hover:not(:active) { transform: scale(1.012); z-index: 10; }
+        .prog:active { transform: scale(0.97); }
 
-        /* ---------- hero ---------- */
-        .hero { display: flex; align-items: center; gap: 18px; padding: 14px 22px; background: linear-gradient(100deg, #FFFFFF 0%, #EAF7FF 60%, #FFF4D6 100%); }
-        .hero-txt { flex: 1 1 auto; min-width: 0; }
-        .hero-ic { width: 74px; height: auto; flex: 0 0 auto; animation: heroBob 3s ease-in-out infinite; }
-        @keyframes heroBob { 0%, 100% { transform: translateY(0) rotate(-4deg); } 50% { transform: translateY(-5px) rotate(4deg); } }
-        .hero h1 { font-size: 30px; }
-        .hero p { margin-top: 4px; font-size: 16px; color: #5A5D66; font-weight: 600 !important; }
-        .hero-soon {
-            flex: 0 0 auto; padding: 6px 14px; border-radius: 14px; border: 3px solid #000; background: #FFB21E;
-            color: #FFF; font-size: 18px; font-weight: 800 !important; -webkit-text-stroke: 4px #000; paint-order: stroke fill;
-            transform: rotate(3deg);
+        .prog-ic { position: absolute; left: 10px; top: 8px; width: 88px; height: 88px; object-fit: contain; pointer-events: none; }
+        .prog-name {
+            position: absolute; left: 114px; top: 4px; max-width: 610px; overflow: hidden; text-overflow: ellipsis;
+            font-size: 35px; color: #FEFEFE; white-space: nowrap;
+            -webkit-text-stroke: 8px #000; stroke-linejoin: round; -webkit-stroke-linejoin: round;
+            paint-order: stroke fill; font-weight: 800 !important;
+        }
+        .prog-desc {
+            position: absolute; left: 116px; top: 55px; width: 620px;
+            font-size: 17px; line-height: 1.12; color: #2B2B2B; font-weight: 700 !important; font-style: italic;
+            display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+        }
+        .prog-meta {
+            position: absolute; right: 232px; top: 10px;
+            font-size: 15px; color: #8E9099; font-weight: 700 !important; white-space: nowrap;
         }
 
-        /* ---------- placeholder karty ---------- */
-        .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
-        .prog { display: flex; gap: 14px; align-items: center; padding: 14px; box-shadow: 0 5px 0 rgba(0, 0, 0, 0.12); }
-        .prog-ic {
-            flex: 0 0 auto; width: 72px; height: 72px; border-radius: 16px; border: 3px solid #000;
-            background: linear-gradient(160deg, #6F8FD8 0%, #93B7F7 55%, #B9E4C9 100%);
-            display: flex; align-items: center; justify-content: center;
-            font-size: 34px; color: #FFF; -webkit-text-stroke: 6px #000; paint-order: stroke fill; font-weight: 800 !important;
+        /* tlačítko = obrázek tlačítka z webu + text */
+        .prog-btn {
+            position: absolute; right: 16px; top: 22px; width: 198px; height: 60px;
+            background: url("/images/region-button.png") no-repeat center bottom; background-size: 100% 100%;
+            display: flex; align-items: center; justify-content: center; padding-bottom: 4px;
+            font-size: 27px; color: #FFF; -webkit-text-stroke: 6px #000; paint-order: stroke fill; font-weight: 800 !important;
+            pointer-events: none;
         }
-        .prog-txt { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; gap: 8px; }
-        .sk { height: 12px; border-radius: 6px; background: linear-gradient(90deg, #E6E9F0 0%, #F4F6FA 50%, #E6E9F0 100%); background-size: 200% 100%; animation: shimmer 1.6s linear infinite; }
-        .sk.t { height: 18px; width: 62%; }
-        .sk.s { width: 88%; }
-        .sk.s2 { width: 54%; }
-        @keyframes shimmer { from { background-position: 200% 0; } to { background-position: -200% 0; } }
-        .prog-tag { align-self: flex-start; margin-top: 2px; padding: 1px 10px; border-radius: 10px; border: 3px solid #000; background: #F1F4FA; font-size: 12px; font-weight: 800 !important; color: #8E9099; }
+        .prog:active .prog-btn { background-image: url("/images/region-button-clicked.png"); top: 24px; height: 58px; padding-bottom: 2px; }
 
-        .note { padding: 12px 16px; display: flex; gap: 10px; align-items: center; font-size: 15px; color: #5A5D66; font-weight: 600 !important; }
-        .note i { flex: 0 0 auto; width: 28px; height: 28px; border-radius: 9px; border: 3px solid #000; background: #8FF8FB; display: flex; align-items: center; justify-content: center; font-style: normal; font-size: 14px; font-weight: 800 !important; color: #1C2130; }
-        .note b { color: #1C2130; font-weight: 800 !important; }
-        .note a { color: #2DB9E5; text-decoration: underline; }
+        /* poslední řádek – návrh programu */
+        .prog.suggest { background: rgba(255, 255, 255, 0.55); border: 4px dashed #9A9EA8; }
+        .prog.suggest .prog-ic { display: flex; align-items: center; justify-content: center; border-radius: 14px; border: 4px dashed #9A9EA8;
+            font-size: 56px; line-height: 1; color: #FFF; -webkit-text-stroke: 8px #9A9EA8; paint-order: stroke fill; font-weight: 800 !important; }
+        .prog.suggest .prog-name { -webkit-text-stroke-color: #6E727C; }
+        .prog.suggest .prog-desc { color: #6E727C; }
+        .prog.suggest .prog-btn { background-image: url("/images/grey.png"); }
+        .prog.suggest:active .prog-btn { background-image: url("/images/grey-clicked.png"); }
 
         /* ---------- FEEDBACK / Privacy ---------- */
         .ps99-feedback-btn {
@@ -161,33 +160,7 @@
             <div class="pr-logo"></div>
 
             <div class="pr-scroll" id="prScroll">
-                <div class="pr-inner">
-
-                    <!-- úvod -->
-                    <div class="card hero">
-                        <img class="hero-ic" src="/images/hotbar/programs.png" alt="" draggable="false">
-                        <div class="hero-txt">
-                            <h1 class="title-stroke">Useful programs for PS99!</h1>
-                            <p>Hand-picked apps and tools that make playing Pet Simulator 99 easier.</p>
-                        </div>
-                        <div class="hero-soon">COMING SOON</div>
-                    </div>
-
-                    <!-- PLACEHOLDER – sem přijdou karty programů -->
-                    <div>
-                        <div class="sec-head"><span class="title-stroke">Programs</span><span class="sec-sub">We're preparing the list</span></div>
-                        <div class="grid">
-                            <div class="card prog"><div class="prog-ic">?</div><div class="prog-txt"><div class="sk t"></div><div class="sk s"></div><div class="sk s2"></div><span class="prog-tag">Coming soon</span></div></div>
-                            <div class="card prog"><div class="prog-ic">?</div><div class="prog-txt"><div class="sk t"></div><div class="sk s"></div><div class="sk s2"></div><span class="prog-tag">Coming soon</span></div></div>
-                            <div class="card prog"><div class="prog-ic">?</div><div class="prog-txt"><div class="sk t"></div><div class="sk s"></div><div class="sk s2"></div><span class="prog-tag">Coming soon</span></div></div>
-                            <div class="card prog"><div class="prog-ic">?</div><div class="prog-txt"><div class="sk t"></div><div class="sk s"></div><div class="sk s2"></div><span class="prog-tag">Coming soon</span></div></div>
-                            <div class="card prog"><div class="prog-ic">?</div><div class="prog-txt"><div class="sk t"></div><div class="sk s"></div><div class="sk s2"></div><span class="prog-tag">Coming soon</span></div></div>
-                            <div class="card prog"><div class="prog-ic">?</div><div class="prog-txt"><div class="sk t"></div><div class="sk s"></div><div class="sk s2"></div><span class="prog-tag">Coming soon</span></div></div>
-                        </div>
-                    </div>
-
-                    <div class="card note"><i>!</i><span>Know a program every PS99 player should have? <b>Tell us</b> via the <a href="https://forms.gle/2DWB7Hzcv2XZ1PVCA" target="_blank" rel="noopener">feedback form</a>.</span></div>
-                </div>
+                <div class="pr-list" id="progList"></div>
             </div>
 
             <a class="close-btn" href="/" aria-label="Close" draggable="false"></a>
@@ -195,6 +168,37 @@
     </div>
 
     <script>
+        // ===================== PROGRAMY =====================
+        // Nový program = jeden řádek. name, desc (max 2 řádky), meta (vpravo nahoře, volitelné),
+        // icon (PNG ~100x100), url (kam vede tlačítko), btn (text tlačítka, výchozí "Download")
+        const PROGRAMS = [
+            { name: "Program Name", desc: "Short description of the program and why it is useful for Pet Simulator 99 players.", meta: "Windows · Free", icon: "/images/hotbar/programs.png", url: "" },
+            { name: "Program Name", desc: "Short description of the program and why it is useful for Pet Simulator 99 players.", meta: "Windows · Free", icon: "/images/hotbar/programs.png", url: "" },
+            { name: "Program Name", desc: "Short description of the program and why it is useful for Pet Simulator 99 players.", meta: "Windows · Mac", icon: "/images/hotbar/programs.png", url: "" },
+            { name: "Program Name", desc: "Short description of the program and why it is useful for Pet Simulator 99 players.", meta: "Browser", icon: "/images/hotbar/programs.png", url: "", btn: "Open" },
+            { name: "Program Name", desc: "Short description of the program and why it is useful for Pet Simulator 99 players.", meta: "Android · iOS", icon: "/images/hotbar/programs.png", url: "" },
+        ];
+        const SUGGEST_URL = "https://forms.gle/2DWB7Hzcv2XZ1PVCA";
+        // ====================================================
+
+        (function () {
+            const esc = (t) => String(t || "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+            const row = (p, extra) => `
+                <a class="prog${extra || ""}" href="${esc(p.url || "#")}"${p.url ? ' target="_blank" rel="noopener"' : ""} draggable="false">
+                    ${p.icon ? `<img class="prog-ic" src="${esc(p.icon)}" alt="" draggable="false">` : `<span class="prog-ic">+</span>`}
+                    <span class="prog-name">${esc(p.name)}</span>
+                    <span class="prog-desc">${esc(p.desc)}</span>
+                    ${p.meta ? `<span class="prog-meta">${esc(p.meta)}</span>` : ""}
+                    <span class="prog-btn">${esc(p.btn || "Download")}</span>
+                </a>`;
+            const list = document.getElementById("progList");
+            list.innerHTML = PROGRAMS.map((p) => row(p)).join("") + row({
+                name: "Suggest a program", desc: "Know a program every PS99 player should have? Tell us and we will add it.",
+                url: SUGGEST_URL, btn: "Suggest"
+            }, " suggest");
+            list.addEventListener("click", (e) => { const a = e.target.closest("a.prog"); if (a && a.getAttribute("href") === "#") e.preventDefault(); });
+        })();
+
         function autoFitScreen() {
             if (window.visualViewport && window.visualViewport.scale > 1.01) return;   // uživatel zoomuje -> nic neměnit
             const scaler = document.getElementById("appScaler");
