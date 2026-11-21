@@ -70,6 +70,9 @@ HEAD_ONLY = [
     dict(file="live-placement/index.html", url="/live-placement/", robots=None,
          title="Live Top 500 – Animated PS99 Clan Battle Placement | PS99 Clans",
          desc="Animated live view of the top 500 Pet Simulator 99 clans in the current clan battle. Watch clans overtake each other as points come in."),
+    dict(file="programs/index.html", url="/programs/", robots=None,
+         title="Useful Programs for Pet Simulator 99 | PS99 Clans",
+         desc="Useful programs and apps for Pet Simulator 99 players, hand-picked by PS99 Clans."),
     dict(file="overlay/index.html", url=None, robots="noindex, nofollow",
          title="PS99 Clans – OBS Overlay", desc="Transparent overlay renderer for OBS. Create your overlay at ps99clans.site/overlays/."),
 ]
