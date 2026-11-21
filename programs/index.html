@@ -17,6 +17,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@300;400;500;600;700;800&family=Roboto:wght@600&display=swap" rel="stylesheet">
 
     <link rel="preload" as="image" href="/images/compare-bg.png">
+    <link rel="preload" as="image" href="/images/programs-logo.png">
     <link rel="preload" as="image" href="/images/hotbar/programs.png">
     <link rel="preload" as="image" href="/images/scroller.png">
 
@@ -44,18 +45,11 @@
         .game-window { position: relative; display: inline-block; overflow: visible; }
         .menu-bg { display: block; width: auto; height: auto; filter: drop-shadow(0px 10px 20px rgba(0, 0, 0, 0.35)); }
 
-        /* logo (ikona + text, stejné místo a velikost jako logo Overlays) */
+        /* logo */
         .pr-logo {
-            position: absolute; left: -30px; top: -66px; height: 108px;
-            display: flex; align-items: center; gap: 2px;
+            position: absolute; left: -36px; top: -69px; width: 360px; height: 112px;
+            background: url("/images/programs-logo.png") no-repeat center center; background-size: 100% 100%;
             z-index: 998; pointer-events: none;
-        }
-        .pr-logo img { height: 104px; width: auto; filter: drop-shadow(0 3px 0 rgba(0, 0, 0, 0.18)); }
-        .pr-logo span {
-            font-size: 60px; line-height: 1; color: #FFFFFF; margin-top: 18px; margin-left: -8px; letter-spacing: 0.5px;
-            -webkit-text-stroke: 12px #2B2C31; stroke-linejoin: round; -webkit-stroke-linejoin: round;
-            paint-order: stroke fill; font-weight: 800 !important; white-space: nowrap;
-            text-shadow: 0 4px 0 rgba(0, 0, 0, 0.18);
         }
 
         .close-btn {
@@ -164,7 +158,7 @@
     <div class="app-scaler" id="appScaler">
         <div class="game-window">
             <img class="menu-bg" src="/images/compare-bg.png" draggable="false" alt="">
-            <div class="pr-logo"><img src="/images/hotbar/programs.png" alt="" draggable="false"><span>Programs!</span></div>
+            <div class="pr-logo"></div>
 
             <div class="pr-scroll" id="prScroll">
                 <div class="pr-inner">
