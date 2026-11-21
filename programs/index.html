@@ -78,6 +78,9 @@
             background: #F7FFFF; border: 4px solid #000; border-radius: 12px;
         }
         .prog-ic { position: absolute; left: 10px; top: 8px; width: 88px; height: 88px; object-fit: contain; pointer-events: none; }
+        /* screenshot programu (obrys je zapečený v PNG, ať kopíruje kulaté rohy okna) */
+        .prog-shot { position: absolute; left: 8px; top: 5px; width: 184px; height: 94px; display: flex; align-items: center; justify-content: center; pointer-events: none; }
+        .prog-shot img { display: block; max-width: 100%; max-height: 100%; width: auto; height: auto; }
         .prog-name {
             position: absolute; left: 114px; top: 4px; max-width: 610px; overflow: hidden; text-overflow: ellipsis;
             font-size: 35px; color: #FEFEFE; white-space: nowrap;
@@ -89,6 +92,8 @@
             font-size: 17px; line-height: 1.12; color: #2B2B2B; font-weight: 700 !important; font-style: italic;
             display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
         }
+        .prog.has-shot .prog-name { left: 206px; max-width: 440px; }
+        .prog.has-shot .prog-desc { left: 208px; width: 560px; }
         .prog-meta, .prog-count {
             position: absolute; right: 250px; text-align: right;
             font-size: 15px; color: #8E9099; font-weight: 700 !important; white-space: nowrap;
@@ -183,13 +188,21 @@
         // ===================== PROGRAMY =====================
         // Nový program = jeden řádek.
         // id   – krátké jméno pro počítadlo stažení (malá písmena, čísla, pomlčka). NIKDY ho neměň, jinak se počet vynuluje.
-        // name, desc (max 2 řádky), meta (šedě vpravo nahoře, volitelné), icon (PNG ~100x100), url (odkaz ke stažení)
+        // name, desc (max 2 řádky), meta (šedě vpravo nahoře, volitelné), url (odkaz ke stažení)
+        // shot = screenshot programu (images/programs/, max 368x188, s obrysem), nebo icon = čtvercová ikonka ~100x100
         const PROGRAMS = [
-            { id: "program-1", name: "Program Name", desc: "Short description of the program and why it is useful for Pet Simulator 99 players.", meta: "Windows · Free", icon: "/images/hotbar/programs.png", url: "" },
-            { id: "program-2", name: "Program Name", desc: "Short description of the program and why it is useful for Pet Simulator 99 players.", meta: "Windows · Free", icon: "/images/hotbar/programs.png", url: "" },
-            { id: "program-3", name: "Program Name", desc: "Short description of the program and why it is useful for Pet Simulator 99 players.", meta: "Windows · Mac", icon: "/images/hotbar/programs.png", url: "" },
-            { id: "program-4", name: "Program Name", desc: "Short description of the program and why it is useful for Pet Simulator 99 players.", meta: "Browser", icon: "/images/hotbar/programs.png", url: "" },
-            { id: "program-5", name: "Program Name", desc: "Short description of the program and why it is useful for Pet Simulator 99 players.", meta: "Android · iOS", icon: "/images/hotbar/programs.png", url: "" },
+            { id: "roblox-account-manager", name: "Roblox Account Manager",
+              desc: "Manage multiple Roblox accounts, switch between them in one click and run several accounts at once.",
+              meta: "Windows · Free", shot: "/images/programs/ram.png",
+              url: "https://github.com/ic3w0lf22/Roblox-Account-Manager/releases/tag/3.7.2" },
+            { id: "op-auto-clicker", name: "OP Auto Clicker",
+              desc: "Simple auto clicker – set the click speed, pick a hotkey and let it click for you.",
+              meta: "Windows · Free", shot: "/images/programs/opautoclicker.png",
+              url: "https://www.opautoclicker.com/" },
+            { id: "tinytask", name: "TinyTask",
+              desc: "Tiny macro recorder – record your mouse and keyboard once and replay it as many times as you want.",
+              meta: "Windows · Free", shot: "/images/programs/tinytask.png",
+              url: "https://tinytask.net/" },
         ];
         const SUGGEST_URL = "https://forms.gle/2DWB7Hzcv2XZ1PVCA";
         const COUNT_API = "https://rough-pine-d90f.dan13el.workers.dev/api/downloads";   // počítadlo stažení (worker + D1)
@@ -199,8 +212,9 @@
             const esc = (t) => String(t || "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
             const list = document.getElementById("progList");
             list.innerHTML = PROGRAMS.map((p) => `
-                <div class="prog" data-id="${esc(p.id)}">
-                    <img class="prog-ic" src="${esc(p.icon)}" alt="" draggable="false">
+                <div class="prog${p.shot ? " has-shot" : ""}" data-id="${esc(p.id)}">
+                    ${p.shot ? `<span class="prog-shot"><img src="${esc(p.shot)}" alt="${esc(p.name)}" draggable="false"></span>`
+                             : `<img class="prog-ic" src="${esc(p.icon)}" alt="" draggable="false">`}
                     <span class="prog-name">${esc(p.name)}</span>
                     <span class="prog-desc">${esc(p.desc)}</span>
                     ${p.meta ? `<span class="prog-meta">${esc(p.meta)}</span>` : ""}
