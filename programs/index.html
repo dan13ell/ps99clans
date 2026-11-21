@@ -19,6 +19,8 @@
     <link rel="preload" as="image" href="/images/compare-bg.png">
     <link rel="preload" as="image" href="/images/programs-logo.png">
     <link rel="preload" as="image" href="/images/hotbar/programs.png">
+    <link rel="preload" as="image" href="/images/download-button.png">
+    <link rel="preload" as="image" href="/images/download-button-clicked.png">
     <link rel="preload" as="image" href="/images/scroller.png">
 
     <style>
@@ -72,14 +74,9 @@
 
         /* ---------- řádek programu (jako řádek klanu na Top Clans) ---------- */
         .prog {
-            position: relative; display: block; flex-shrink: 0; height: 112px;
+            position: relative; flex-shrink: 0; height: 112px;
             background: #F7FFFF; border: 4px solid #000; border-radius: 12px;
-            text-decoration: none; cursor: pointer; -webkit-tap-highlight-color: transparent;
-            transition: transform 0.044s cubic-bezier(0.1, 0.9, 0.2, 1);
         }
-        .prog:hover:not(:active) { transform: scale(1.012); z-index: 10; }
-        .prog:active { transform: scale(0.97); }
-
         .prog-ic { position: absolute; left: 10px; top: 8px; width: 88px; height: 88px; object-fit: contain; pointer-events: none; }
         .prog-name {
             position: absolute; left: 114px; top: 4px; max-width: 610px; overflow: hidden; text-overflow: ellipsis;
@@ -92,29 +89,44 @@
             font-size: 17px; line-height: 1.12; color: #2B2B2B; font-weight: 700 !important; font-style: italic;
             display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
         }
-        .prog-meta {
-            position: absolute; right: 232px; top: 10px;
+        .prog-meta, .prog-count {
+            position: absolute; right: 250px; text-align: right;
             font-size: 15px; color: #8E9099; font-weight: 700 !important; white-space: nowrap;
         }
+        .prog-meta { top: 10px; }
+        .prog-count { top: 30px; color: #2DA84B; }
+        .prog-count:empty { display: none; }
 
-        /* tlačítko = obrázek tlačítka z webu + text */
+        /* tlačítko Download – stejný efekt jako velká tlačítka na hlavní stránce:
+           najetí = o kousek větší, stisk = zamáčknutý obrázek a menší (vše kolem stejného středu) */
         .prog-btn {
-            position: absolute; right: 16px; top: 22px; width: 198px; height: 60px;
-            background: url("/images/region-button.png") no-repeat center bottom; background-size: 100% 100%;
-            display: flex; align-items: center; justify-content: center; padding-bottom: 4px;
-            font-size: 27px; color: #FFF; -webkit-text-stroke: 6px #000; paint-order: stroke fill; font-weight: 800 !important;
-            pointer-events: none;
+            position: absolute; right: 16px; top: 18px; width: 216px; height: 68px;
+            background: url("/images/download-button.png") no-repeat center center; background-size: 100% 100%;
+            cursor: pointer; z-index: 5; -webkit-tap-highlight-color: transparent;
+            transition: all 0.044s cubic-bezier(0.1, 0.9, 0.2, 1);
         }
-        .prog:active .prog-btn { background-image: url("/images/region-button-clicked.png"); top: 24px; height: 58px; padding-bottom: 2px; }
+        .prog-btn:hover:not(:active) { right: 13.5px; top: 16px; width: 221px; height: 72px; z-index: 6; }
+        .prog-btn:active { background-image: url("/images/download-button-clicked.png"); right: 20px; top: 20.5px; width: 208px; height: 63px; }
+        .prog-btn.no-link { cursor: default; }
 
-        /* poslední řádek – návrh programu */
+        /* poslední řádek – návrh programu (šedé tlačítko z webu + text) */
         .prog.suggest { background: rgba(255, 255, 255, 0.55); border: 4px dashed #9A9EA8; }
         .prog.suggest .prog-ic { display: flex; align-items: center; justify-content: center; border-radius: 14px; border: 4px dashed #9A9EA8;
             font-size: 56px; line-height: 1; color: #FFF; -webkit-text-stroke: 8px #9A9EA8; paint-order: stroke fill; font-weight: 800 !important; }
         .prog.suggest .prog-name { -webkit-text-stroke-color: #6E727C; }
         .prog.suggest .prog-desc { color: #6E727C; }
-        .prog.suggest .prog-btn { background-image: url("/images/grey.png"); }
-        .prog.suggest:active .prog-btn { background-image: url("/images/grey-clicked.png"); }
+        .prog.suggest .prog-btn {
+            background-image: url("/images/grey.png"); display: flex; align-items: center; justify-content: center; padding-bottom: 5px;
+            font-size: 28px; color: #FFF; -webkit-text-stroke: 6px #000; paint-order: stroke fill; font-weight: 800 !important; text-decoration: none;
+        }
+        .prog.suggest .prog-btn:active { background-image: url("/images/grey-clicked.png"); padding-bottom: 1px; font-size: 26px; }
+
+        /* upozornění dole */
+        .disclaimer {
+            margin: 6px 8px 0; padding: 10px 16px; border-radius: 12px; background: rgba(255, 255, 255, 0.7);
+            font-size: 14px; line-height: 1.3; color: #6E727C; font-weight: 600 !important; text-align: center;
+        }
+        .disclaimer b { color: #1C2130; font-weight: 800 !important; }
 
         /* ---------- FEEDBACK / Privacy ---------- */
         .ps99-feedback-btn {
@@ -169,34 +181,70 @@
 
     <script>
         // ===================== PROGRAMY =====================
-        // Nový program = jeden řádek. name, desc (max 2 řádky), meta (vpravo nahoře, volitelné),
-        // icon (PNG ~100x100), url (kam vede tlačítko), btn (text tlačítka, výchozí "Download")
+        // Nový program = jeden řádek.
+        // id   – krátké jméno pro počítadlo stažení (malá písmena, čísla, pomlčka). NIKDY ho neměň, jinak se počet vynuluje.
+        // name, desc (max 2 řádky), meta (šedě vpravo nahoře, volitelné), icon (PNG ~100x100), url (odkaz ke stažení)
         const PROGRAMS = [
-            { name: "Program Name", desc: "Short description of the program and why it is useful for Pet Simulator 99 players.", meta: "Windows · Free", icon: "/images/hotbar/programs.png", url: "" },
-            { name: "Program Name", desc: "Short description of the program and why it is useful for Pet Simulator 99 players.", meta: "Windows · Free", icon: "/images/hotbar/programs.png", url: "" },
-            { name: "Program Name", desc: "Short description of the program and why it is useful for Pet Simulator 99 players.", meta: "Windows · Mac", icon: "/images/hotbar/programs.png", url: "" },
-            { name: "Program Name", desc: "Short description of the program and why it is useful for Pet Simulator 99 players.", meta: "Browser", icon: "/images/hotbar/programs.png", url: "", btn: "Open" },
-            { name: "Program Name", desc: "Short description of the program and why it is useful for Pet Simulator 99 players.", meta: "Android · iOS", icon: "/images/hotbar/programs.png", url: "" },
+            { id: "program-1", name: "Program Name", desc: "Short description of the program and why it is useful for Pet Simulator 99 players.", meta: "Windows · Free", icon: "/images/hotbar/programs.png", url: "" },
+            { id: "program-2", name: "Program Name", desc: "Short description of the program and why it is useful for Pet Simulator 99 players.", meta: "Windows · Free", icon: "/images/hotbar/programs.png", url: "" },
+            { id: "program-3", name: "Program Name", desc: "Short description of the program and why it is useful for Pet Simulator 99 players.", meta: "Windows · Mac", icon: "/images/hotbar/programs.png", url: "" },
+            { id: "program-4", name: "Program Name", desc: "Short description of the program and why it is useful for Pet Simulator 99 players.", meta: "Browser", icon: "/images/hotbar/programs.png", url: "" },
+            { id: "program-5", name: "Program Name", desc: "Short description of the program and why it is useful for Pet Simulator 99 players.", meta: "Android · iOS", icon: "/images/hotbar/programs.png", url: "" },
         ];
         const SUGGEST_URL = "https://forms.gle/2DWB7Hzcv2XZ1PVCA";
+        const COUNT_API = "https://rough-pine-d90f.dan13el.workers.dev/api/downloads";   // počítadlo stažení (worker + D1)
         // ====================================================
 
         (function () {
             const esc = (t) => String(t || "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
-            const row = (p, extra) => `
-                <a class="prog${extra || ""}" href="${esc(p.url || "#")}"${p.url ? ' target="_blank" rel="noopener"' : ""} draggable="false">
-                    ${p.icon ? `<img class="prog-ic" src="${esc(p.icon)}" alt="" draggable="false">` : `<span class="prog-ic">+</span>`}
+            const list = document.getElementById("progList");
+            list.innerHTML = PROGRAMS.map((p) => `
+                <div class="prog" data-id="${esc(p.id)}">
+                    <img class="prog-ic" src="${esc(p.icon)}" alt="" draggable="false">
                     <span class="prog-name">${esc(p.name)}</span>
                     <span class="prog-desc">${esc(p.desc)}</span>
                     ${p.meta ? `<span class="prog-meta">${esc(p.meta)}</span>` : ""}
-                    <span class="prog-btn">${esc(p.btn || "Download")}</span>
-                </a>`;
-            const list = document.getElementById("progList");
-            list.innerHTML = PROGRAMS.map((p) => row(p)).join("") + row({
-                name: "Suggest a program", desc: "Know a program every PS99 player should have? Tell us and we will add it.",
-                url: SUGGEST_URL, btn: "Suggest"
-            }, " suggest");
-            list.addEventListener("click", (e) => { const a = e.target.closest("a.prog"); if (a && a.getAttribute("href") === "#") e.preventDefault(); });
+                    <span class="prog-count"></span>
+                    <a class="prog-btn${p.url ? "" : " no-link"}" href="${esc(p.url || "#")}"${p.url ? ' target="_blank" rel="noopener"' : ""} aria-label="Download ${esc(p.name)}" draggable="false"></a>
+                </div>`).join("") + `
+                <div class="prog suggest">
+                    <span class="prog-ic">+</span>
+                    <span class="prog-name">Suggest a program</span>
+                    <span class="prog-desc">Know a program every PS99 player should have? Tell us and we will add it.</span>
+                    <a class="prog-btn" href="${SUGGEST_URL}" target="_blank" rel="noopener" draggable="false">Suggest</a>
+                </div>
+                <div class="disclaimer"><b>Disclaimer:</b> PS99 Clans did not make these programs and is not responsible for any stolen, lost or banned accounts. Download only from the links above and never share your password or Roblox cookie with anyone.</div>`;
+
+            // ---------- počítadlo stažení ----------
+            // Ukáže se jen když worker odpoví. Jeden prohlížeč = jedno stažení na program (localStorage),
+            // worker navíc počítá každou IP jen jednou, takže opakované klikání nic nepřidá.
+            const counts = {};
+            const show = (id) => {
+                const row = list.querySelector(`.prog[data-id="${id}"] .prog-count`);
+                if (row && counts[id] > 0) row.textContent = counts[id].toLocaleString("en-US") + (counts[id] === 1 ? " download" : " downloads");
+            };
+            let countsOk = false;
+            fetch(COUNT_API).then((r) => r.json()).then((j) => {
+                if (!j || j.status !== "ok" || !j.counts) return;
+                countsOk = true;
+                Object.assign(counts, j.counts);
+                PROGRAMS.forEach((p) => show(p.id));
+            }).catch(() => {});
+
+            let done = {};
+            try { done = JSON.parse(localStorage.getItem("ps99Downloads") || "{}") || {}; } catch (e) {}
+            list.addEventListener("click", (e) => {
+                const btn = e.target.closest(".prog-btn");
+                if (!btn) return;
+                if (btn.classList.contains("no-link")) { e.preventDefault(); return; }
+                const row = btn.closest(".prog[data-id]");
+                const id = row && row.dataset.id;
+                if (!id || done[id]) return;
+                done[id] = 1;
+                try { localStorage.setItem("ps99Downloads", JSON.stringify(done)); } catch (x) {}
+                try { fetch(COUNT_API + "/hit", { method: "POST", body: id, keepalive: true, headers: { "Content-Type": "text/plain" } }).catch(() => {}); } catch (x) {}
+                if (countsOk) { counts[id] = (counts[id] || 0) + 1; show(id); }
+            });
         })();
 
         function autoFitScreen() {
