@@ -1,7 +1,7 @@
 // Vlastní scrollbar (jezdec vždy 15x29 px, jezdí po celé dráze) + rychlejší kolečko
 (function () {
   const SPEED = 2.5; // rychlost kolečka, 1 = původn
-  const SELECTORS = ".live-main-scroll-viewport, #leaderboardList, .about-scroll-container, #membersListContainer, #cmpScroll, #ovScroll, #prScroll";
+  const SELECTORS = ".live-main-scroll-viewport, #leaderboardList, .about-scroll-container, #membersListContainer, #cmpScroll, #ovScroll, #phScroll, #prScroll";
   const W = 15, H = 29;
 
   const css = document.createElement("style");
@@ -18,7 +18,7 @@
     /* iPhone/Safari: hlavní seznamy ve vlastní vrstvě. Okno je na mobilu zmenšené transformem a bez
        vlastní vrstvy Safari scroll prstem po kousku zasekávalo (plynule jelo jen Top Clans). */
     @media (hover: none) and (pointer: coarse) {
-      #leaderboardList, #membersListContainer, .live-main-scroll-viewport {
+      #leaderboardList, #membersListContainer, .live-main-scroll-viewport, #phScroll {
         -webkit-overflow-scrolling: touch;
         will-change: scroll-position;
         transform: translateZ(0);

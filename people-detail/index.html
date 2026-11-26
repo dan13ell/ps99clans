@@ -21,6 +21,7 @@
     <link rel="preload" as="image" href="/images/X-clicked.png">
     <link rel="preload" as="image" href="/images/scroller.png">
     <link rel="preload" as="image" href="/images/Back-text.png">
+    <link rel="preload" as="image" href="/images/history-button-clicked.png">
     <link rel="preload" as="image" href="/images/back-button.png">
 
     <style>
@@ -274,6 +275,112 @@
         .pd-chart-msg-main { font-size: 30px; font-weight: 800 !important; color: #262C2D; line-height: 1.15; margin-bottom: 8px; }
         .pd-chart-msg-sub { font-size: 18px; font-weight: 700 !important; color: #9E9E9E; line-height: 1.25; }
 
+        /* ===== Historie válek (tlačítko v levém panelu + druhý pohled v okně) ===== */
+        .pd-hist-btn {
+            position: absolute; left: 19px; top: 384px; width: 254px; height: 78px; display: none;
+            background: url("/images/history-button.png") no-repeat center center; background-size: 100% 100%;
+            cursor: pointer; z-index: 990; filter: drop-shadow(0px 4px 6px rgba(0, 0, 0, 0.15));
+            transition: transform 0.044s cubic-bezier(0.1, 0.9, 0.2, 1); transform-origin: center center;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .pd-hist-btn.is-ready { display: block; }
+        .pd-hist-btn:hover:not(:active) { transform: scale(1.05); }
+        .pd-hist-btn:active, .pd-hist-btn.is-on { background-image: url("/images/history-button-clicked.png"); }
+        .pd-hist-btn:active { transform: scale(0.95); }
+
+        .ph-scroll {
+            position: absolute; left: 334px; top: 7px; width: 770px; height: 556px; display: none;
+            overflow-y: auto; overflow-x: hidden; padding: 6px 22px 16px 14px; z-index: 960;
+            touch-action: pan-y pinch-zoom !important; overscroll-behavior: contain !important;
+        }
+        .ph-scroll.is-visible { display: block; }
+        .ph-inner { position: relative; width: 736px; }
+
+        /* hlavička */
+        .ph-head { position: relative; height: 92px; }
+        .ph-ava { position: absolute; left: 0; top: 4px; width: 80px; height: 80px; border-radius: 50%; border: 4px solid #000000; background: #FFFFFF; object-fit: cover; }
+        .ph-kicker { position: absolute; left: 96px; top: 8px; font-size: 14px; font-weight: 800 !important; letter-spacing: 2px; color: #696A6E; }
+        .ph-name { position: absolute; left: 96px; top: 26px; font-size: 34px; line-height: 44px; -webkit-text-stroke: 6px #000000; }
+        .ph-name::after {
+            content: attr(data-text); position: absolute; left: 0; top: 0; -webkit-text-stroke: 0px transparent;
+            background: linear-gradient(to bottom, #7CF6FA, #60E0FE); -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        }
+        .ph-count { position: absolute; right: 0; top: 10px; width: 150px; height: 70px; text-align: center; }
+        .ph-count-num { position: absolute; left: 0; right: 0; top: 2px; font-size: 34px; line-height: 42px; -webkit-text-stroke: 7px #000000; }
+        .ph-count-label { position: absolute; left: 0; right: 0; bottom: 5px; font-size: 12px; font-weight: 800 !important; letter-spacing: 1px; color: #696A6E; }
+
+        /* souhrn */
+        .ph-tiles { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 6px; }
+        .ph-tile { position: relative; height: 64px; text-align: center; }
+        .ph-tile-label { position: absolute; left: 6px; right: 6px; top: 4px; font-size: 13px; font-weight: 700 !important; color: #696A6E; line-height: 16px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .ph-tile-value { position: absolute; left: 0; right: 0; top: 20px; font-size: 26px; line-height: 34px; -webkit-text-stroke: 7px #000000; }
+        .ph-tile-value.is-na { color: #B1B1B1; -webkit-text-stroke: 0; font-size: 22px; }
+
+        /* graf "forma": jak vysoko hráč skončil v každé válce */
+        .ph-form { position: relative; height: 168px; margin-top: 10px; }
+        .ph-form-title { position: absolute; left: 16px; top: 6px; font-size: 20px; line-height: 26px; -webkit-text-stroke: 5px #000000; }
+        .ph-form-sub { position: absolute; left: 16px; top: 33px; font-size: 13px; font-weight: 700 !important; color: #696A6E; }
+        .ph-form-legend { position: absolute; right: 14px; top: 10px; display: flex; gap: 10px; font-size: 11px; font-weight: 800 !important; color: #696A6E; pointer-events: none; }
+        .ph-form-legend span { display: flex; align-items: center; gap: 4px; }
+        .ph-form-legend i { width: 11px; height: 11px; border: 2px solid #000000; border-radius: 3px; display: inline-block; }
+        .ph-form-svg { position: absolute; left: 8px; top: 54px; width: 712px; height: 104px; overflow: visible; }
+        .ph-form-svg text { font-family: 'Fredoka', sans-serif; font-weight: 700; font-size: 11px; fill: #696A6E; }
+        .ph-bar { cursor: pointer; }
+        .ph-tip {
+            position: absolute; display: none; z-index: 30; pointer-events: none;
+            background: #FFFFFF; border: 2px solid #000000; border-radius: 6px; padding: 4px 9px; text-align: center; white-space: nowrap;
+        }
+        .ph-tip-title { font-size: 14px; font-weight: 800 !important; color: #262C2D; line-height: 17px; }
+        .ph-tip-body { font-size: 13px; font-weight: 700 !important; color: #262C2D; line-height: 16px; }
+
+        /* seznam válek */
+        .ph-list-head { display: flex; align-items: baseline; justify-content: space-between; margin: 16px 4px 6px; }
+        .ph-list-title { font-size: 22px; line-height: 28px; -webkit-text-stroke: 5px #000000; }
+        .ph-list-note { font-size: 13px; font-weight: 700 !important; color: #696A6E; }
+        .ph-war { position: relative; height: 86px; margin-bottom: 8px; }
+        .ph-war.is-live { background-color: #EFFFF2; }
+        .ph-tier {
+            position: absolute; left: 9px; top: 9px; width: 62px; height: 60px; border: 3px solid #000000; border-radius: 10px;
+            display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center;
+        }
+        .ph-tier-top { font-size: 11px; line-height: 12px; font-weight: 800 !important; letter-spacing: 1px; color: #262C2D; }
+        .ph-tier-val { font-size: 20px; line-height: 24px; -webkit-text-stroke: 5px #000000; }
+        .ph-tier.t1 { background: linear-gradient(to bottom, #FFE97A, #FFC21F); }
+        .ph-tier.t5 { background: linear-gradient(to bottom, #9CF9FC, #55DDFD); }
+        .ph-tier.t10 { background: linear-gradient(to bottom, #C8F78A, #8EDC4A); }
+        .ph-tier.t25 { background: linear-gradient(to bottom, #C3D7FF, #93B4F7); }
+        .ph-tier.t50 { background: linear-gradient(to bottom, #E6DAFF, #C9B5F5); }
+        .ph-tier.t100 { background: linear-gradient(to bottom, #EEF1F5, #D3D9E2); }
+        .ph-tier.tlive { background: linear-gradient(to bottom, #8EF29A, #44D35A); }
+        .ph-tier.tna { background: #EEF1F5; }
+        .ph-war-name { position: absolute; left: 86px; top: 10px; max-width: 330px; font-size: 22px; line-height: 30px; -webkit-text-stroke: 6px #000000; }
+        .ph-war-meta { position: absolute; left: 86px; top: 48px; display: flex; align-items: center; gap: 8px; height: 24px; }
+        .ph-date { font-size: 13px; font-weight: 700 !important; color: #696A6E; white-space: nowrap; }
+        .ph-clan {
+            height: 22px; padding: 0 8px; display: flex; align-items: center; border: 2px solid #000000; border-radius: 6px; background: #FFFFFF;
+            font-size: 13px; font-weight: 800 !important; color: #262C2D; cursor: pointer; white-space: nowrap;
+            transition: transform 0.044s cubic-bezier(0.1, 0.9, 0.2, 1); -webkit-tap-highlight-color: transparent;
+        }
+        .ph-clan:hover:not(:active) { transform: scale(1.06); }
+        .ph-clan:active { transform: scale(0.94); }
+        .ph-live-dot { width: 10px; height: 10px; border-radius: 50%; background: #2ECC40; border: 2px solid #000000; animation: pdPulse 1.4s infinite ease-in-out; }
+        .ph-pts { position: absolute; left: 434px; top: 14px; width: 140px; text-align: center; }
+        .ph-pts-row { display: flex; align-items: center; justify-content: center; gap: 5px; height: 32px; }
+        .ph-pts-row img { width: 30px; height: 25px; object-fit: contain; }
+        .ph-pts-num { font-size: 24px; -webkit-text-stroke: 6px #000000; }
+        .ph-sub { font-size: 12px; font-weight: 700 !important; color: #696A6E; line-height: 16px; white-space: nowrap; }
+        .ph-rank { position: absolute; right: 12px; top: 7px; width: 140px; text-align: center; }
+        .ph-rank-num { font-size: 26px; line-height: 34px; -webkit-text-stroke: 6px #000000; }
+        .ph-rank-num.is-na { color: #B1B1B1; -webkit-text-stroke: 0; font-size: 20px; }
+        .ph-beat { font-size: 12px; font-weight: 800 !important; color: #262C2D; line-height: 15px; white-space: nowrap; }
+
+        .ph-msg { padding: 70px 30px 30px; text-align: center; }
+        .ph-msg-main { font-size: 28px; font-weight: 800 !important; color: #262C2D; line-height: 1.2; margin-bottom: 8px; }
+        .ph-msg-sub { font-size: 17px; font-weight: 700 !important; color: #9E9E9E; line-height: 1.3; }
+        .ph-note { margin: 10px 4px 4px; font-size: 13px; font-weight: 700 !important; color: #696A6E; line-height: 1.35; text-align: center; }
+        .ph-scanbar { height: 10px; margin: 6px auto 0; width: 320px; border: 2px solid #000000; border-radius: 6px; background: #D5E3E3; overflow: hidden; }
+        .ph-scanbar i { display: block; height: 100%; background: linear-gradient(to bottom, #7CF6FA, #60E0FE); }
+
         .pd-center-msg { position: absolute; left: 334px; top: 210px; width: 770px; text-align: center; padding: 0 40px; font-size: 34px; font-weight: 800 !important; color: #B1B1B1; z-index: 950; }
         .pd-center-msg.is-error { color: #ff4a4a; }
 
@@ -375,9 +482,12 @@
         <img class="menu-text text-search" src="/images/text-People.png" draggable="false">
 
             <div class="tab-content">
-                <div class="custom-back-btn" onclick="location.href='/people/'">
+                <div class="custom-back-btn" onclick="goBack()">
                     <img class="custom-back-text" src="/images/Back-text.png" draggable="false">
                 </div>
+                <div class="pd-hist-btn" id="pdHistBtn" role="button" tabindex="0" aria-label="Clan war history" title="Clan war history"></div>
+
+                <div class="ph-scroll" id="phScroll"><div class="ph-inner" id="phInner"></div></div>
 
                 <div class="pd-center-msg" id="centerMsg">Loading player...</div>
 
@@ -485,7 +595,9 @@
         // Adresa stránky nese jméno hráče (/people-detail/?id=Jmeno). Staré odkazy s číselným ID fungují dál.
         function setUrlName(name) {
             if (!/^[A-Za-z0-9_]{3,20}$/.test(name)) return;
-            const want = "?id=" + encodeURIComponent(name);
+            const q = new URLSearchParams(location.search);
+            q.set("id", name);                                   // ostatní parametry (tab=history) zůstávají
+            const want = "?" + q.toString();
             if (location.search !== want && history.replaceState) {
                 history.replaceState(null, "", location.pathname + want);
             }
@@ -742,12 +854,33 @@
             try {
                 const json = await fetchPlayer(raw);
                 if (!json || json.status !== "ok") { showCenter("API Error.", true); return; }
-                if (!json.found || !json.player) { showCenter(json.message || "Player not found."); if (window.PS99Site) PS99Site.notFound(); return; }
+                if (!json.found || !json.player) {
+                    showCenter(json.message || "Player not found.");
+                    if (json.userId) {
+                        // V aktuální válce hráč není, ale z minulých válek historii mít může -> rovnou ji ukázat
+                        pdPlayer = { userId: json.userId, live: null };
+                        if (/^[A-Za-z0-9_]{3,20}$/.test(raw) && !/^\d+$/.test(raw)) setName(raw); else loadMissingName(json.userId);
+                        fetchAvatars([json.userId], "420x420").then(m => { if (m[json.userId]) { $("pdAvatar").src = m[json.userId]; if ($("phAva")) $("phAva").src = m[json.userId]; } });
+                        $("pdHistBtn").classList.add("is-ready");
+                        showView("history", "replace");
+                        return;
+                    }
+                    if (window.PS99Site) PS99Site.notFound();
+                    return;
+                }
 
                 const p = json.player, ended = !json.active, battle = json.battle || {};
                 const history = Array.isArray(json.history) ? json.history : [];
                 const available = json.historyAvailable !== false && history.length > 0;
 
+                pdHasDetail = true;
+                pdPlayer = {
+                    userId: p.userId,
+                    // aktuální / poslední válka pro začátek historie (v historii je až po konci a přepočtu)
+                    live: battle.name ? { battle: battle.name, title: null, start: battle.start || null, finish: battle.finish || null,
+                        clan: p.clan, points: p.points, rank: p.rank, total: p.total, isLive: true, active: !!json.active } : null,
+                };
+                $("pdHistBtn").classList.add("is-ready");
                 $("centerMsg").style.display = "none";
                 $("pdContent").classList.add("is-visible");
                 if (window.PS99Site) PS99Site.contentReady();
@@ -764,7 +897,7 @@
 
                 // avatary: hlavní ve větším rozlišení, sousedé malé (dva dotazy najednou)
                 const nbIds = [json.neighbors && json.neighbors.behind, json.neighbors && json.neighbors.ahead].filter(Boolean).map(n => n.userId);
-                fetchAvatars([p.userId], "420x420").then(m => { if (m[p.userId]) $("pdAvatar").src = m[p.userId]; });
+                fetchAvatars([p.userId], "420x420").then(m => { if (m[p.userId]) { $("pdAvatar").src = m[p.userId]; if ($("phAva")) $("phAva").src = m[p.userId]; } });
                 if (nbIds.length) fetchAvatars(nbIds, "150x150").then(m => {
                     const b = json.neighbors.behind, a = json.neighbors.ahead;
                     if (b && m[b.userId]) $("nbBehindImg").src = m[b.userId];
@@ -780,6 +913,8 @@
                     ? (() => { const hrs = history.length === 1 ? "hour" : `${history.length} hours`; return ended ? `Final ${hrs} of ${warName}` : `Last ${hrs} of ${warName}`; })()
                     : warName;
 
+                if (viewParam() === "history") showView("history", "none");
+
                 setStats(history, ended, available);
                 if (available) renderChart(history, ended);
                 else renderNoChart("No hourly data for this war",
@@ -790,6 +925,232 @@
                 showCenter("API Error.", true);
             }
         }
+
+        // ================= HISTORIE VÁLEK =================
+        // Druhý pohled v okně (?tab=history). Data: /api/player/ID/history (válka -> klan, body, pořadí, počet hráčů).
+        let pdPlayer = null;          // { userId, live } – live = aktuální / poslední válka z detailu (ještě není v historii)
+        let pdHasDetail = false;      // hráč je v aktuální válce (stats pohled má co ukázat)
+        let histData = null, histLoading = null, histPushed = false;
+
+        const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+        const viewParam = () => new URLSearchParams(location.search).get("tab") === "history" ? "history" : "stats";
+        function urlFor(view) {
+            const q = new URLSearchParams(location.search);
+            if (view === "history") q.set("tab", "history"); else q.delete("tab");
+            return location.pathname + "?" + q.toString();
+        }
+
+        function prettyBattle(n) { return String(n || "").replace(/([a-z])([A-Z0-9])/g, "$1 $2").replace(/([0-9])([A-Za-z])/g, "$1 $2"); }
+        const warTitle = w => w.title || prettyBattle(w.battle);
+        const topPct = w => (w.rank && w.total) ? (w.rank / w.total) * 100 : null;       // 3.92 = top 3.92 %
+        const beatPct = w => (w.rank && w.total) ? ((w.total - w.rank) / w.total) * 100 : null;
+        function fmtTop(t) { const v = Math.max(0.1, Math.ceil(t * 10) / 10); return (v < 10 ? v.toFixed(1).replace(/\.0$/, "") : String(Math.ceil(v))) + "%"; }
+        function tierOf(t) { return t <= 1 ? "t1" : t <= 5 ? "t5" : t <= 10 ? "t10" : t <= 25 ? "t25" : t <= 50 ? "t50" : "t100"; }
+        const TIER_COLOR = { t1: "#FFC21F", t5: "#55DDFD", t10: "#8EDC4A", t25: "#93B4F7", t50: "#C9B5F5", t100: "#D3D9E2" };
+        function fmtDay(ts, year) { return new Date(ts * 1000).toLocaleDateString("en-US", year ? { month: "short", day: "numeric", year: "numeric" } : { month: "short", day: "numeric" }); }
+        function dateRange(w) {
+            if (!w.finish) return "";
+            const end = w.finish - 1, y = new Date(end * 1000).getFullYear();
+            if (!w.start) return fmtDay(end, true);
+            return `${fmtDay(w.start, new Date(w.start * 1000).getFullYear() !== y)} – ${fmtDay(end, true)}`;
+        }
+
+        function histHeader(count) {
+            const name = currentName || (pdPlayer ? `User ${pdPlayer.userId}` : "");
+            return `<div class="ph-head">
+                <img class="ph-ava" id="phAva" src="${esc($("pdAvatar").src || BLANK)}" alt="" draggable="false">
+                <div class="ph-kicker">CLAN WAR HISTORY</div>
+                <div class="ph-name pd-outline" id="phName" data-text="${esc(name)}">${esc(name)}</div>
+                ${count == null ? "" : `<div class="ph-count pd-card"><div class="ph-count-num pd-outline">${count}</div><div class="ph-count-label">WARS PLAYED</div></div>`}
+            </div>`;
+        }
+        function fitHistHeader() { const el = $("phName"); if (el) fitWidth(el, 420, 34, 18, 0.18); }
+
+        function renderHistMsg(main, sub, isError) {
+            $("phInner").innerHTML = histHeader(null) +
+                `<div class="ph-msg"><div class="ph-msg-main" style="${isError ? "color:#ff4a4a" : ""}">${esc(main)}</div><div class="ph-msg-sub">${esc(sub || "")}</div></div>`;
+            fitHistHeader();
+        }
+
+        function scanNote(scan) {
+            if (!scan || !scan.running) return "";
+            const pct = scan.progress == null ? null : Math.floor(scan.progress * 100);
+            const bar = pct == null ? "" : `<div class="ph-scanbar"><i style="width:${Math.max(2, pct)}%"></i></div>`;
+            const txt = scan.firstScanDone
+                ? `The last clan war is being checked across every clan${pct == null ? "" : ` (${pct}%)`}. Ranks marked * become final when that is done.`
+                : `Past clan wars are being collected from every clan${pct == null ? "" : ` (${pct}%)`}. This runs once and takes about a day; more wars will appear when it finishes.`;
+            return `<div class="ph-note">${esc(txt)}${bar}</div>`;
+        }
+
+        function warCard(w, i) {
+            const t = topPct(w), beat = beatPct(w);
+            const live = w.isLive && w.active;
+            const tier = t == null ? "tna" : tierOf(t);
+            const provisional = !w.isLive && w.final === false && w.rank;
+            const meta = [];
+            if (live) meta.push(`<span class="ph-live-dot"></span><span class="ph-date" style="color:#1E9E3A">Live now</span>`);
+            else if (w.isLive) meta.push(`<span class="ph-date">Latest war</span>`);
+            const dr = dateRange(w);
+            if (dr) meta.push(`<span class="ph-date">${esc(dr)}</span>`);
+            if (w.clan) meta.push(`<span class="ph-clan" data-clan="${esc(w.clan)}" title="Open clan">${esc(w.clan)}</span>`);
+            return `<div class="ph-war pd-card${live ? " is-live" : ""}">
+                <div class="ph-tier ${tier}" title="${t == null ? "Rank not known yet" : `Top ${t.toFixed(2)}% of players`}">
+                    <span class="ph-tier-top">${t == null ? "RANK" : "TOP"}</span>
+                    <span class="ph-tier-val pd-outline">${t == null ? "?" : fmtTop(t)}</span>
+                </div>
+                <div class="ph-war-name pd-outline" title="${esc(w.battle)}">${esc(warTitle(w))}</div>
+                <div class="ph-war-meta">${meta.join("")}</div>
+                <div class="ph-pts" title="${fullNumber(w.points)} points">
+                    <div class="ph-pts-row"><img src="/images/stars.png" alt="" draggable="false"><span class="ph-pts-num pd-outline">${short2(w.points || 0, true)}</span></div>
+                    <div class="ph-sub">points</div>
+                </div>
+                <div class="ph-rank">
+                    <div class="ph-rank-num pd-outline${w.rank ? "" : " is-na"}">${w.rank ? `#${fullNumber(w.rank)}${provisional ? "*" : ""}` : "ranking…"}</div>
+                    <div class="ph-sub">${w.total ? `of ${fullNumber(w.total)} players` : "&nbsp;"}</div>
+                    <div class="ph-beat">${beat == null ? "&nbsp;" : `better than ${beat.toFixed(2)}%`}</div>
+                </div>
+            </div>`;
+        }
+
+        // Sloupce: kolik % hráčů v každé válce hráč porazil (vlevo nejstarší)
+        function formChart(items) {
+            const pts = items.filter(w => topPct(w) != null).slice().reverse();
+            if (pts.length < 2) return "";
+            const W = 712, Hh = 104, padL = 34, padB = 4, plotW = W - padL - 6, plotH = Hh - padB - 6;
+            const slot = plotW / pts.length, bw = Math.max(4, Math.min(26, slot - 6));
+            let svg = "";
+            [0, 50, 100].forEach(v => {
+                const y = 6 + plotH - (v / 100) * plotH;
+                svg += `<line x1="${padL}" y1="${y}" x2="${W - 6}" y2="${y}" stroke="rgba(0,0,0,${v === 0 ? 0.25 : 0.08})" stroke-width="1.5" ${v === 50 ? 'stroke-dasharray="5 4"' : ""}/>`;
+                svg += `<text x="${padL - 6}" y="${y + 4}" text-anchor="end">${v}%</text>`;
+            });
+            pts.forEach((w, i) => {
+                const b = beatPct(w), h = Math.max(3, (b / 100) * plotH), x = padL + i * slot + (slot - bw) / 2, y = 6 + plotH - h;
+                const c = TIER_COLOR[tierOf(topPct(w))];
+                svg += `<rect class="ph-bar" data-i="${i}" x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${bw.toFixed(1)}" height="${h.toFixed(1)}" rx="3" fill="${c}" stroke="#000" stroke-width="2"/>`;
+                svg += `<rect class="ph-bar" data-i="${i}" x="${(padL + i * slot).toFixed(1)}" y="0" width="${slot.toFixed(1)}" height="${Hh}" fill="transparent"/>`;
+            });
+            formChart.items = pts;
+            return `<div class="ph-form pd-card" id="phForm">
+                <div class="ph-form-title pd-outline">FORM</div>
+                <div class="ph-form-sub">Share of players beaten in each war, oldest to newest</div>
+                <div class="ph-form-legend"><span><i style="background:${TIER_COLOR.t1}"></i>Top 1%</span><span><i style="background:${TIER_COLOR.t5}"></i>Top 5%</span><span><i style="background:${TIER_COLOR.t10}"></i>Top 10%</span><span><i style="background:${TIER_COLOR.t25}"></i>Top 25%</span></div>
+                <svg class="ph-form-svg" id="phFormSvg" viewBox="0 0 ${W} ${Hh}">${svg}</svg>
+                <div class="ph-tip" id="phTip"><div class="ph-tip-title" id="phTipTitle"></div><div class="ph-tip-body" id="phTipBody"></div></div>
+            </div>`;
+        }
+        function bindFormChart() {
+            const svg = $("phFormSvg"), tip = $("phTip"), card = $("phForm");
+            if (!svg) return;
+            const show = i => {
+                const w = formChart.items[i]; if (!w) return;
+                $("phTipTitle").textContent = warTitle(w);
+                $("phTipBody").textContent = `Top ${fmtTop(topPct(w))} · #${fullNumber(w.rank)} of ${fullNumber(w.total)}`;
+                tip.style.display = "block";
+                const r = svg.querySelector(`rect[data-i="${i}"]`), sr = svg.getBoundingClientRect(), cr = card.getBoundingClientRect();
+                const scale = cr.width / card.offsetWidth || 1;
+                const cx = (r.getBoundingClientRect().left + r.getBoundingClientRect().width / 2 - cr.left) / scale;
+                const top = (r.getBoundingClientRect().top - cr.top) / scale;
+                const left = Math.max(6, Math.min(card.offsetWidth - tip.offsetWidth - 6, cx - tip.offsetWidth / 2));
+                tip.style.left = left + "px";
+                tip.style.top = Math.max(2, top - tip.offsetHeight - 8) + "px";
+            };
+            svg.onmouseover = e => { const t = e.target.closest("[data-i]"); if (t) show(+t.dataset.i); };
+            svg.onclick = e => { const t = e.target.closest("[data-i]"); if (t) show(+t.dataset.i); };
+            svg.onmouseleave = () => { tip.style.display = "none"; };
+        }
+
+        function renderHistory() {
+            const d = histData || {}, P = pdPlayer;
+            const wars = (d.wars || []).slice();
+            const items = [];
+            if (P.live && P.live.battle && !wars.some(w => w.battle === P.live.battle)) items.push(P.live);
+            items.push(...wars);
+
+            if (!items.length) {
+                const scan = d.scan || {};
+                if (scan.running && !scan.firstScanDone) {
+                    const pct = scan.progress == null ? null : Math.floor(scan.progress * 100);
+                    renderHistMsg("Collecting clan war history…",
+                        `Past wars are being gathered from every clan${pct == null ? "" : ` (${pct}%)`}. This runs once and takes about a day, check back later.`);
+                    if (pct != null) $("phInner").insertAdjacentHTML("beforeend", `<div class="ph-scanbar"><i style="width:${Math.max(2, pct)}%"></i></div>`);
+                } else {
+                    renderHistMsg("No clan war history", "This player has no recorded points in a finished clan war.");
+                    $("phInner").insertAdjacentHTML("beforeend", scanNote(scan));
+                }
+                return;
+            }
+
+            const ranked = items.filter(w => topPct(w) != null);
+            const best = ranked.slice().sort((a, b) => topPct(a) - topPct(b))[0];
+            const avgTop = ranked.length ? ranked.reduce((s, w) => s + topPct(w), 0) / ranked.length : null;
+            const top10 = ranked.filter(w => topPct(w) <= 10).length;
+            const totalPts = items.reduce((s, w) => s + (w.points || 0), 0);
+            const tile = (label, value, na, title) => `<div class="ph-tile pd-card"${title ? ` title="${esc(title)}"` : ""}><div class="ph-tile-label">${esc(label)}</div><div class="ph-tile-value pd-outline${na ? " is-na" : ""}">${esc(value)}</div></div>`;
+
+            $("phInner").innerHTML = histHeader(items.length) +
+                `<div class="ph-tiles">
+                    ${best ? tile(`Best · ${warTitle(best)}`, `#${fullNumber(best.rank)}`, false, `${warTitle(best)}: #${fullNumber(best.rank)} of ${fullNumber(best.total)}`) : tile("Best finish", "N/A", true)}
+                    ${avgTop != null ? tile("Average finish", `Top ${fmtTop(avgTop)}`) : tile("Average finish", "N/A", true)}
+                    ${tile("Top 10% finishes", ranked.length ? `${top10} / ${ranked.length}` : "N/A", !ranked.length)}
+                    ${tile("Points, all wars", short2(totalPts, true), false, `${fullNumber(totalPts)} points`)}
+                </div>` +
+                formChart(items) +
+                `<div class="ph-list-head"><span class="ph-list-title pd-outline">WARS</span><span class="ph-list-note">Rank among all players who scored in that war</span></div>` +
+                items.map(warCard).join("") +
+                scanNote(d.scan) +
+                `<div class="ph-note">History is built from every clan's saved war results. Wars of clans that were deleted can't be included.</div>`;
+
+            fitHistHeader();
+            $("phInner").querySelectorAll(".ph-war-name").forEach(el => fitWidth(el, 330, 22, 13, 0.27));
+            bindFormChart();
+        }
+
+        async function loadHistory() {
+            if (histData) { renderHistory(); return; }
+            if (histLoading) return histLoading;
+            renderHistMsg("Loading history…", "");
+            histLoading = (async () => {
+                for (let attempt = 0; attempt < 2; attempt++) {
+                    const ctrl = new AbortController();
+                    const timer = setTimeout(() => ctrl.abort(), 12000);
+                    try {
+                        const res = await fetch(`${WORKER_URL}/api/player/${pdPlayer.userId}/history`, { signal: ctrl.signal });
+                        const json = await res.json();
+                        if (json && json.status === "ok") { histData = json; renderHistory(); return; }
+                    } catch (e) {
+                    } finally { clearTimeout(timer); }
+                    if (attempt === 0) await new Promise(r => setTimeout(r, 600));
+                }
+                renderHistMsg("Couldn't load the history", "Please try again in a moment.", true);
+            })();
+            try { await histLoading; } finally { histLoading = null; }
+        }
+
+        function showView(view, mode) {
+            const hist = view === "history" && !!pdPlayer;
+            $("phScroll").classList.toggle("is-visible", hist);
+            $("pdHistBtn").classList.toggle("is-on", hist);
+            $("pdContent").classList.toggle("is-visible", !hist && pdHasDetail);
+            $("centerMsg").style.display = (!hist && !pdHasDetail) ? "block" : "none";
+            if (mode === "push") { history.pushState({ v: view }, "", urlFor(view)); histPushed = hist; }
+            else if (mode === "replace") history.replaceState({ v: view }, "", urlFor(view));
+            if (currentName) document.title = `${currentName}${hist ? " - War History" : ""} - PS99 Clans`;
+            if (hist) { $("phScroll").scrollTop = 0; loadHistory(); }
+        }
+        function goBack() {
+            if ($("phScroll").classList.contains("is-visible") && pdHasDetail) {
+                if (histPushed) { histPushed = false; history.back(); }
+                else showView("stats", "replace");
+                return;
+            }
+            location.href = "/people/";
+        }
+        function toggleHistory() {
+            if ($("phScroll").classList.contains("is-visible")) { if (pdHasDetail) goBack(); }
+            else showView("history", "push");
+        }
+        window.addEventListener("popstate", () => { if (pdPlayer) showView(viewParam(), "none"); });
 
         function autoFitScreen() {
             if (window.visualViewport && window.visualViewport.scale > 1.01) return;   // uživatel zoomuje -> nic neměnit
@@ -805,7 +1166,16 @@
         window.addEventListener("orientationchange", autoFitScreen);
         window.addEventListener("DOMContentLoaded", autoFitScreen);
         window.addEventListener("DOMContentLoaded", loadPlayer);
-        if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { if (currentName) setName(currentName); });
+        window.addEventListener("DOMContentLoaded", () => {
+            const b = $("pdHistBtn");
+            b.addEventListener("click", toggleHistory);
+            b.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); toggleHistory(); } });
+            $("phInner").addEventListener("click", e => {
+                const c = e.target.closest("[data-clan]");
+                if (c) location.href = `/clan-detail/?name=${encodeURIComponent(c.dataset.clan)}`;
+            });
+        });
+        if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { if (currentName) setName(currentName); fitHistHeader(); });
     </script>
 
     <a href="https://forms.gle/2DWB7Hzcv2XZ1PVCA" target="_blank" class="ps99-feedback-btn">
@@ -814,7 +1184,7 @@
 
     <a href="/privacy/" class="privacy-link">Privacy Policy</a>
     <script src="/avatars.js?v=4"></script>
-    <script src="/scrollbar.js?v=4"></script>
+    <script src="/scrollbar.js?v=5"></script>
     <script src="/hotbar.js?v=9"></script>
 </body>
 </html>
