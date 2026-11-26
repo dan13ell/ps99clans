@@ -983,7 +983,7 @@
             const bar = pct == null ? "" : `<div class="ph-scanbar"><i style="width:${Math.max(2, pct)}%"></i></div>`;
             const txt = scan.firstScanDone
                 ? `The last clan war is being checked across every clan${pct == null ? "" : ` (${pct}%)`}. Ranks marked * become final when that is done.`
-                : `Past clan wars are being collected from every clan${pct == null ? "" : ` (${pct}%)`}. This runs once and takes about a day; more wars will appear when it finishes.`;
+                : `Past clan wars are being collected from every clan${pct == null ? "" : ` (${pct}%)`}. This runs once and takes about an hour; past wars appear when it finishes.`;
             return `<div class="ph-note ph-scan pd-card">${esc(txt)}${bar}</div>`;
         }
 
@@ -1077,7 +1077,7 @@
                 if (scan.running && !scan.firstScanDone) {
                     const pct = scan.progress == null ? null : Math.floor(scan.progress * 100);
                     renderHistMsg("Collecting clan war history…",
-                        `Past wars are being gathered from every clan${pct == null ? "" : ` (${pct}%)`}. This runs once and takes about a day, check back later.`);
+                        `Past wars are being gathered from every clan${pct == null ? "" : ` (${pct}%)`}. This runs once and takes about an hour, check back later.`);
                     if (pct != null) $("phInner").insertAdjacentHTML("beforeend", `<div class="ph-scanbar"><i style="width:${Math.max(2, pct)}%"></i></div>`);
                 } else {
                     renderHistMsg("No clan war history", "This player has no recorded points in a finished clan war.");
